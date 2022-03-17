@@ -1,5 +1,5 @@
 # Azure technical hands-on workshops
-This repo contains materials I am using with customer to help them learn Azure, operations, security and development practicies when using cloud.
+This repo contains materials I am using with customers to help them learn Azure, operations, security and development practicies when using cloud.
 
 Each w-topic folder contains following sections:
 - README.md with intro and links
