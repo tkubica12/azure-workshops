@@ -1,0 +1,76 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.1124.51302",
+      "templateHash": "18093795129492362388"
+    }
+  },
+  "parameters": {
+    "prefix": {
+      "type": "string"
+    },
+    "envId": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}-web', parameters('prefix'))]",
+      "kind": "containerapp",
+      "location": "[variables('location')]",
+      "properties": {
+        "managedEnvironmentId": "[parameters('envId')]",
+        "configuration": {
+          "secrets": [
+            {
+              "name": "container-registry-password",
+              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('prefix')), '2021-09-01').passwords[0].value]"
+            }
+          ],
+          "registries": [
+            {
+              "server": "[format('{0}.azurecr.io', parameters('prefix'))]",
+              "username": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('prefix')), '2021-09-01').username]",
+              "passwordSecretRef": "container-registry-password"
+            }
+          ],
+          "ingress": {
+            "external": true,
+            "targetPort": 8080,
+            "traffic": [
+              {
+                "weight": 0,
+                "latestRevision": true
+              },
+              {
+                "weight": 100,
+                "revisionName": "[format('{0}-web--v1-rev1', parameters('prefix'))]"
+              }
+            ]
+          }
+        },
+        "template": {
+          "revisionSuffix": "v1-rev1",
+          "containers": [
+            {
+              "image": "[format('{0}.azurecr.io/web:v1', parameters('prefix'))]",
+              "name": "web"
+            }
+          ],
+          "scale": {
+            "minReplicas": 1,
+            "maxReplicas": 1
+          }
+        }
+      }
+    }
+  ]
+}

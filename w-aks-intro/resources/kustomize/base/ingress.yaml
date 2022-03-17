@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app
+  labels:
+    name: app
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+spec:
+  rules:
+  - host: app.20.82.220.171.nip.io
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: web
+            port: 
+              number: 80
+      - pathType: Prefix
+        path: "/api/*"
+        backend:
+          service:
+            name: api
+            port: 
+              number: 80

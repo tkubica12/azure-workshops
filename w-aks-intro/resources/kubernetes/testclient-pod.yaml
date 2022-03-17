@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: testclient
+  labels:
+    name: testclient
+spec:
+  containers:
+  - name: testclient
+    image: nginx
+    resources:
+      limits:
+        memory: "32Mi"
+        cpu: "20m"

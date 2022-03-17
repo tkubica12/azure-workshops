@@ -1,0 +1,12 @@
+# Preparation and tooling
+- Make sure you can access dev environment in your Azure with proper rights -> access portal.azure.com, login, check subscriptions
+- Install Azure CLI on your machine using this [guide](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) and make sure you can authenticate (use "az group create -n yournametest-rg -l northeurope" to check you can create resource group and then use "az group delete -n yournametest-rg" to delete it)
+- Install [Visual Studio Code](https://code.visualstudio.com/Download) and install followign plugins:
+  - ms-kubernetes-tools.vscode-kubernetes-tools
+  - ms-vscode.vscode-node-azure-pack
+  - ms-kubernetes-tools.vscode-aks-tools
+- Install [kubectl](https://kubernetes.io/docs/tasks/tools/) and [helm](https://helm.sh/docs/intro/install/)
+- You may want to install 3rd party UI
+  - ASCII based interactive UI for keyboard-focused people: [k9s](https://k9scli.io/topics/install/)
+  - GUI based for mouse-focused people: [kubelens](https://k8slens.dev/)
+- Clone this repo to your computer and learn [Git basics](https://docs.microsoft.com/en-us/azure/devops/repos/git/gitworkflow?view=azure-devops) like clone, pull, push, commit and work with Pull requests

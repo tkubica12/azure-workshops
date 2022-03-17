@@ -1,0 +1,24 @@
+resources:
+- ../../base
+
+namespace: test
+
+images:
+- name: tomaskubica8.azurecr.io/api
+  newName: tomaskubica8.azurecr.io/api
+  newTag: v1
+- name: tomaskubica8.azurecr.io/web
+  newName: tomaskubica8.azurecr.io/web
+  newTag: v2
+
+patchesStrategicMerge:
+- web-deployment.yaml
+
+patches:
+  - target:
+      kind: Ingress
+      name: app
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: test.20.82.220.171.nip.io
