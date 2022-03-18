@@ -1,0 +1,1 @@
+dapr run --app-id event-processor --app-port 5001 --app-protocol grpc  python3 app.py

@@ -1,0 +1,109 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.1318.3566",
+      "templateHash": "580331043306535032"
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2020-03-01-preview",
+      "name": "[format('{0}', uniqueString(resourceGroup().id))]",
+      "location": "[variables('location')]",
+      "properties": {
+        "retentionInDays": 30,
+        "features": {
+          "searchVersion": 1
+        },
+        "sku": {
+          "name": "PerGB2018"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.App/managedEnvironments",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}', uniqueString(resourceGroup().id))]",
+      "location": "[variables('location')]",
+      "properties": {
+        "type": "managed",
+        "internalLoadBalancerEnabled": false,
+        "appLogsConfiguration": {
+          "destination": "log-analytics",
+          "logAnalyticsConfiguration": {
+            "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', format('{0}', uniqueString(resourceGroup().id)))).customerId]",
+            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', format('{0}', uniqueString(resourceGroup().id))), '2020-03-01-preview').primarySharedKey]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}', uniqueString(resourceGroup().id)))]"
+      ]
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces",
+      "apiVersion": "2021-11-01",
+      "name": "[format('shared{0}', uniqueString(resourceGroup().id))]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Standard",
+        "tier": "Standard"
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
+      "apiVersion": "2017-04-01",
+      "name": "[format('{0}/{1}', format('shared{0}', uniqueString(resourceGroup().id)), 'ListenSend')]",
+      "properties": {
+        "rights": [
+          "Listen",
+          "Send"
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', format('shared{0}', uniqueString(resourceGroup().id)))]"
+      ]
+    },
+    {
+      "type": "Microsoft.App/managedEnvironments/daprComponents",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}', format('{0}', uniqueString(resourceGroup().id)), 'pubsub')]",
+      "properties": {
+        "componentType": "pubsub.azure.servicebus",
+        "version": "v1",
+        "metadata": [
+          {
+            "name": "connectionString",
+            "secretRef": "sbConnectionString"
+          }
+        ],
+        "secrets": [
+          {
+            "name": "sbConnectionString",
+            "value": "[listKeys(resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules', format('shared{0}', uniqueString(resourceGroup().id)), 'ListenSend'), '2017-04-01').primaryConnectionString]"
+          }
+        ],
+        "scopes": [
+          "something"
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.App/managedEnvironments', format('{0}', uniqueString(resourceGroup().id)))]",
+        "[resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules', format('shared{0}', uniqueString(resourceGroup().id)), 'ListenSend')]"
+      ]
+    }
+  ],
+  "outputs": {
+    "envId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.App/managedEnvironments', format('{0}', uniqueString(resourceGroup().id)))]"
+    }
+  }
+}
