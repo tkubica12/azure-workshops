@@ -26,7 +26,7 @@ Now we will connect this project to overall enterprise network topology with cen
 [guide](docs/05-vWanSecuredHub.md)
 
 ## 06 - Configuring Azure Firewall
-Traffic between projects and to outside world is goiing through Azure Firewall now. Let's configure some rules to allow wanted traffic.
+Traffic between projects and to outside world is going through Azure Firewall now. Let's configure some rules to allow wanted traffic.
 
 ## 07 - Publishing apps via L7 Web Application Firewall
 We do not want to expose applications to Internet directly via DNAT - let's deploy Web Application Firewall in DMZ and publish out app.
