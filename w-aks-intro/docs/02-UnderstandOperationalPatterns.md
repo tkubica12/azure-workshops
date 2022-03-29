@@ -1,6 +1,14 @@
 # Understand operational patterns using higher level platform Azure Container Apps
 In this chapter we will learn key patterns for running applications in modern containerized platform without going low level details of Kubernetes. Azure Container Apps is serverless Kubernetes-based platform that is using Kubernetes under covers providing simple way to get value from Kubernetes, KEDA, DAPR and other open source projects without need to actualy learn its details.
 
+Instructor has already deployed shared environement so you can skip this - but for your reference:
+
+```bash
+az group create -n shared-rg -l northeurope
+az bicep build -f environment.bicep
+az deployment group create -g shared-rg --template-file environment.json
+```
+
 We will leverage this simplicity to first experience key patterns here and in the rest of workshop we will learn to use those principles in lower level Kubernetes APIs and Azure Kubernetes Service.
 
 
