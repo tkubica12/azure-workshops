@@ -175,7 +175,7 @@ We will now modify routing so all communications from projects to Internet or be
 
 ```bash
 # Route rfc1918 and default via firewall (in bash)
-az network vhub route-table route add -n defaultRouteTable \
+az network vhub route-table create -n defaultRouteTable \
     --route-name all_traffic \
     -g $prefix-central \
     --vhub-name $prefix-ne-hub \

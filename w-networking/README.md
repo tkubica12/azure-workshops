@@ -33,6 +33,8 @@ Traffic between projects and to outside world is going through Azure Firewall no
 ## 07 - Publishing apps via L7 Web Application Firewall
 We do not want to expose applications to Internet directly via DNAT - let's deploy Web Application Firewall in DMZ and publish our app.
 
+[guide](docs/07-WAF.md)
+
 ## 08 - Using managed services mapped to internal network via Private Link
 Applications will likely use managed services - let's make those mapped to internal network via Private Link.
 
