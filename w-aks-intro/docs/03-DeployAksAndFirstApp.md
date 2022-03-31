@@ -74,12 +74,12 @@ Assign RBAC for yourself to AKS, get AKS config file (credentials) and log in - 
 # Make yourself admin of Kubernetes cluster (in bash)
 az role assignment create --role "Azure Kubernetes Service RBAC Cluster Admin" \
     --assignee-object-id  $(az ad signed-in-user show --query objectId -o tsv) \
-    --scope $(az aks create -n $prefix-aks -g $prefix-rg --query id -o tsv)
+    --scope $(az aks show -n $prefix-aks -g $prefix-rg --query id -o tsv)
 
 # Make yourself admin of Kubernetes cluster (in powershell)
 az role assignment create --role "Azure Kubernetes Service RBAC Cluster Admin" `
     --assignee-object-id  $(az ad signed-in-user show --query objectId -o tsv) `
-    --scope $(az aks create -n $prefix-aks -g $prefix-rg --query id -o tsv)
+    --scope $(az aks show -n $prefix-aks -g $prefix-rg --query id -o tsv)
 
 # Get kubeconfig
 az aks get-credentials -g $prefix-rg -n $prefix-aks
@@ -120,7 +120,7 @@ Our application is now just running Pod - we have not introduced concept to make
 
 ```bash
 # Port-forward Pod to local machine
-kubectl port-forward web-bd6c684fc-2dbkj 12345:8080
+kubectl port-forward web-bd6c684fc-2dbkj 12345:80
 
 # Access application from different window
 curl http://localhost:12345/info
