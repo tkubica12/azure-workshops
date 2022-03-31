@@ -28,8 +28,10 @@ Now we will connect this project to overall enterprise network topology with cen
 ## 06 - Configuring Azure Firewall
 Traffic between projects and to outside world is going through Azure Firewall now. Let's configure some rules to allow wanted traffic.
 
+[guide](docs/06-AzureFirewall.md)
+
 ## 07 - Publishing apps via L7 Web Application Firewall
-We do not want to expose applications to Internet directly via DNAT - let's deploy Web Application Firewall in DMZ and publish out app.
+We do not want to expose applications to Internet directly via DNAT - let's deploy Web Application Firewall in DMZ and publish our app.
 
 ## 08 - Using managed services mapped to internal network via Private Link
 Applications will likely use managed services - let's make those mapped to internal network via Private Link.

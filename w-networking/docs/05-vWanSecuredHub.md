@@ -1,4 +1,4 @@
-## 05 - Central connectivity and controls with Azure vWAN and Azure Firewall
+# 05 - Central connectivity and controls with Azure vWAN and Azure Firewall
 Now we will connect this project to overall enterprise network topology with centralized network controls on Azure Firewall vis Azure Virtual WAN.
 
 In this chapter it is often easier to use Azure Portal especially when reviewing firewall rules. This guide is using CLI, but keep looking into Azure Portal to see results.
