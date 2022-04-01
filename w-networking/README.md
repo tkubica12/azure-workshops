@@ -40,4 +40,19 @@ Applications will likely use managed services - let's make those mapped to inter
 
 [guide](docs/08-PrivateEndpoint.md)
 
-Next step - workshop on how to automate all that with Terraform.
+## 09 - Bring your own hybrid DNS services
+In next step we will deploy shared resources such as custom DNS server for conditional forwarding to on-premises and configure hybrid DNS infrastructure.
+
+[guide](docs/09-hybridDns.md)
+
+## 10 - Connect on-premises networks
+In last step we will use VPN to setup connection to on-premises networks.
+
+
+
+Where to go from here? 
+- Automate everything with Infrastructure as Code such as Terraform or Bicep
+- Investigate other network services such as Azure Front Door, Azure Global Load Balancer, usage of 3rd party NVAs with Route Server, Express Route, etc.
+- Investigate redundancy options for global connectivity
+- Implement governance and monitoring
+- Integrate security solutions such as SIEM (eg. Microsoft Sentinel)
