@@ -35,8 +35,9 @@ We do not want to expose applications to Internet directly via DNAT - let's depl
 
 [guide](docs/07-WAF.md)
 
-## 08 - Using managed services mapped to internal network via Private Link
-Applications will likely use managed services - let's make those mapped to internal network via Private Link.
+## 08 - Using managed services mapped to internal network via Private Endpoint
+Applications will likely use managed services - let's make those mapped to internal network via Private Endpoint.
 
+[guide](docs/08-PrivateEndpoint.md)
 
 Next step - workshop on how to automate all that with Terraform.
