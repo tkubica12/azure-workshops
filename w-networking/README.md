@@ -1,5 +1,10 @@
 # Networking intro
 
+## 00 - Preparation and tooling
+Please make sure that you as participant is ready! Also as organizer make sure environment is prepared and everyone is up to speed.
+
+[guide](docs/00-PreparationAndTooling.md)
+
 ## 01 - Preparation steps for Azure Virtual WAN
 In this step we will open separate window to start deployment of Azure Virtual WAN, because it takes quite some time so it is ready for us later in the lab, when we need it. Creating hub will tike about 10 minutes, creating firewall about 20 minutes. Meanwhile we will continue with different tasks. Please start deploying now.
 
@@ -56,3 +61,6 @@ Where to go from here?
 - Investigate redundancy options for global connectivity
 - Implement governance and monitoring
 - Integrate security solutions such as SIEM (eg. Microsoft Sentinel)
+
+
+To clean up follow [here](docs/99-cleanUp.md)
