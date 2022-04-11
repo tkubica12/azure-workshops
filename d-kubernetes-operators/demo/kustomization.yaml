@@ -1,0 +1,7 @@
+resources:
+- aso-psql.yaml
+- sql.yaml
+- replicaSet.yaml
+- namespaces.yaml
+- ./kedademo/
+- ./rolloutsdemo/

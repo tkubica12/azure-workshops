@@ -1,0 +1,414 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.1318.3566",
+      "templateHash": "4456521780720699516"
+    }
+  },
+  "parameters": {
+    "prefix": {
+      "type": "string"
+    },
+    "envId": {
+      "type": "string"
+    },
+    "password": {
+      "type": "secureString"
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}-web', parameters('prefix'))]",
+      "kind": "containerapp",
+      "location": "[variables('location')]",
+      "properties": {
+        "managedEnvironmentId": "[parameters('envId')]",
+        "configuration": {
+          "secrets": [
+            {
+              "name": "container-registry-password",
+              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('prefix')), '2021-09-01').passwords[0].value]"
+            }
+          ],
+          "registries": [
+            {
+              "server": "[format('{0}.azurecr.io', parameters('prefix'))]",
+              "username": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('prefix')), '2021-09-01').username]",
+              "passwordSecretRef": "container-registry-password"
+            }
+          ],
+          "ingress": {
+            "external": true,
+            "targetPort": 80
+          }
+        },
+        "template": {
+          "containers": [
+            {
+              "image": "[format('{0}.azurecr.io/web:v1', parameters('prefix'))]",
+              "name": "web"
+            }
+          ],
+          "scale": {
+            "minReplicas": 1,
+            "maxReplicas": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}-api', parameters('prefix'))]",
+      "kind": "containerapp",
+      "location": "[variables('location')]",
+      "properties": {
+        "managedEnvironmentId": "[parameters('envId')]",
+        "configuration": {
+          "secrets": [
+            {
+              "name": "container-registry-password",
+              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('prefix')), '2021-09-01').passwords[0].value]"
+            },
+            {
+              "name": "psql-connection-string",
+              "value": "[format('jdbc:postgresql://{0}-db.postgres.database.azure.com:5432/todo?user=psqladmin&password={1}&ssl=true', parameters('prefix'), parameters('password'))]"
+            }
+          ],
+          "registries": [
+            {
+              "server": "[format('{0}.azurecr.io', parameters('prefix'))]",
+              "username": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('prefix')), '2021-09-01').username]",
+              "passwordSecretRef": "container-registry-password"
+            }
+          ],
+          "ingress": {
+            "external": true,
+            "targetPort": 8080
+          }
+        },
+        "template": {
+          "containers": [
+            {
+              "image": "[format('{0}.azurecr.io/api:v1', parameters('prefix'))]",
+              "name": "api",
+              "env": [
+                {
+                  "name": "POSTGRESQL_URL",
+                  "secretRef": "psql-connection-string"
+                }
+              ]
+            }
+          ],
+          "scale": {
+            "minReplicas": 1,
+            "maxReplicas": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/flexibleServers",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}-db', parameters('prefix'))]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Standard_B1ms",
+        "tier": "Burstable"
+      },
+      "properties": {
+        "administratorLogin": "psqladmin",
+        "administratorLoginPassword": "[parameters('password')]",
+        "version": "13",
+        "storage": {
+          "storageSizeGB": 32
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/flexibleServers/firewallRules",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', format('{0}-db', parameters('prefix')), 'allowAllAzureServices')]",
+      "properties": {
+        "endIpAddress": "0.0.0.0",
+        "startIpAddress": "0.0.0.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers', format('{0}-db', parameters('prefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DBforPostgreSQL/flexibleServers/databases",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', format('{0}-db', parameters('prefix')), 'todo')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers', format('{0}-db', parameters('prefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Cdn/profiles",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}-fd', parameters('prefix'))]",
+      "location": "Global",
+      "sku": {
+        "name": "Standard_AzureFrontDoor"
+      },
+      "kind": "frontdoor",
+      "properties": {
+        "originResponseTimeoutSeconds": 60
+      }
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/afdEndpoints",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', format('{0}-fd', parameters('prefix')), 'todo')]",
+      "location": "Global",
+      "properties": {
+        "enabledState": "Enabled"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles', format('{0}-fd', parameters('prefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/originGroups",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', format('{0}-fd', parameters('prefix')), 'api')]",
+      "properties": {
+        "loadBalancingSettings": {
+          "sampleSize": 4,
+          "successfulSamplesRequired": 3,
+          "additionalLatencyInMilliseconds": 50
+        },
+        "healthProbeSettings": {
+          "probePath": "/",
+          "probeRequestType": "HEAD",
+          "probeProtocol": "Https",
+          "probeIntervalInSeconds": 100
+        },
+        "sessionAffinityState": "Disabled"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles', format('{0}-fd', parameters('prefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/originGroups",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', format('{0}-fd', parameters('prefix')), 'web')]",
+      "properties": {
+        "loadBalancingSettings": {
+          "sampleSize": 4,
+          "successfulSamplesRequired": 3,
+          "additionalLatencyInMilliseconds": 50
+        },
+        "healthProbeSettings": {
+          "probePath": "/",
+          "probeRequestType": "HEAD",
+          "probeProtocol": "Https",
+          "probeIntervalInSeconds": 100
+        },
+        "sessionAffinityState": "Disabled"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles', format('{0}-fd', parameters('prefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/originGroups/origins",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}/{2}', format('{0}-fd', parameters('prefix')), 'api', 'api')]",
+      "properties": {
+        "hostName": "[reference(resourceId('Microsoft.App/containerApps', format('{0}-api', parameters('prefix')))).configuration.ingress.fqdn]",
+        "httpPort": 80,
+        "httpsPort": 443,
+        "originHostHeader": "[reference(resourceId('Microsoft.App/containerApps', format('{0}-api', parameters('prefix')))).configuration.ingress.fqdn]",
+        "priority": 1,
+        "weight": 1000,
+        "enabledState": "Enabled",
+        "enforceCertificateNameCheck": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.App/containerApps', format('{0}-api', parameters('prefix')))]",
+        "[resourceId('Microsoft.Cdn/profiles/originGroups', format('{0}-fd', parameters('prefix')), 'api')]",
+        "[resourceId('Microsoft.Cdn/profiles', format('{0}-fd', parameters('prefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/originGroups/origins",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}/{2}', format('{0}-fd', parameters('prefix')), 'web', 'web')]",
+      "properties": {
+        "hostName": "[reference(resourceId('Microsoft.App/containerApps', format('{0}-web', parameters('prefix')))).configuration.ingress.fqdn]",
+        "httpPort": 80,
+        "httpsPort": 443,
+        "originHostHeader": "[reference(resourceId('Microsoft.App/containerApps', format('{0}-web', parameters('prefix')))).configuration.ingress.fqdn]",
+        "priority": 1,
+        "weight": 1000,
+        "enabledState": "Enabled",
+        "enforceCertificateNameCheck": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles', format('{0}-fd', parameters('prefix')))]",
+        "[resourceId('Microsoft.App/containerApps', format('{0}-web', parameters('prefix')))]",
+        "[resourceId('Microsoft.Cdn/profiles/originGroups', format('{0}-fd', parameters('prefix')), 'web')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/afdEndpoints/routes",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}/{2}', format('{0}-fd', parameters('prefix')), 'todo', 'api')]",
+      "properties": {
+        "customDomains": [],
+        "originGroup": {
+          "id": "[resourceId('Microsoft.Cdn/profiles/originGroups', format('{0}-fd', parameters('prefix')), 'api')]"
+        },
+        "ruleSets": [],
+        "supportedProtocols": [
+          "Http",
+          "Https"
+        ],
+        "patternsToMatch": [
+          "/api/todo"
+        ],
+        "forwardingProtocol": "HttpsOnly",
+        "linkToDefaultDomain": "Enabled",
+        "httpsRedirect": "Enabled",
+        "enabledState": "Enabled"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles/originGroups/origins', format('{0}-fd', parameters('prefix')), 'api', 'api')]",
+        "[resourceId('Microsoft.Cdn/profiles/originGroups', format('{0}-fd', parameters('prefix')), 'api')]",
+        "[resourceId('Microsoft.Cdn/profiles', format('{0}-fd', parameters('prefix')))]",
+        "[resourceId('Microsoft.Cdn/profiles/afdEndpoints', format('{0}-fd', parameters('prefix')), 'todo')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/afdEndpoints/routes",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}/{2}', format('{0}-fd', parameters('prefix')), 'todo', 'web')]",
+      "properties": {
+        "customDomains": [],
+        "originGroup": {
+          "id": "[resourceId('Microsoft.Cdn/profiles/originGroups', format('{0}-fd', parameters('prefix')), 'web')]"
+        },
+        "ruleSets": [],
+        "supportedProtocols": [
+          "Http",
+          "Https"
+        ],
+        "patternsToMatch": [
+          "/*"
+        ],
+        "forwardingProtocol": "MatchRequest",
+        "linkToDefaultDomain": "Enabled",
+        "httpsRedirect": "Enabled",
+        "enabledState": "Enabled"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles', format('{0}-fd', parameters('prefix')))]",
+        "[resourceId('Microsoft.Cdn/profiles/afdEndpoints', format('{0}-fd', parameters('prefix')), 'todo')]",
+        "[resourceId('Microsoft.Cdn/profiles/originGroups/origins', format('{0}-fd', parameters('prefix')), 'web', 'web')]",
+        "[resourceId('Microsoft.Cdn/profiles/originGroups', format('{0}-fd', parameters('prefix')), 'web')]"
+      ]
+    },
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}-eventgenerator', parameters('prefix'))]",
+      "kind": "containerapp",
+      "location": "[variables('location')]",
+      "properties": {
+        "managedEnvironmentId": "[parameters('envId')]",
+        "configuration": {
+          "secrets": [
+            {
+              "name": "container-registry-password",
+              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('prefix')), '2021-09-01').passwords[0].value]"
+            }
+          ],
+          "registries": [
+            {
+              "server": "[format('{0}.azurecr.io', parameters('prefix'))]",
+              "username": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('prefix')), '2021-09-01').username]",
+              "passwordSecretRef": "container-registry-password"
+            }
+          ],
+          "ingress": {
+            "external": true,
+            "targetPort": 80
+          },
+          "dapr": {
+            "enabled": true,
+            "appPort": 80,
+            "appProtocol": "grpc",
+            "appId": "[format('{0}-eventgenerator', parameters('prefix'))]"
+          }
+        },
+        "template": {
+          "containers": [
+            {
+              "image": "[format('{0}.azurecr.io/event-generator:v1', parameters('prefix'))]",
+              "name": "eventgenerator"
+            }
+          ],
+          "scale": {
+            "minReplicas": 1,
+            "maxReplicas": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}-eventprocessor', parameters('prefix'))]",
+      "kind": "containerapp",
+      "location": "[variables('location')]",
+      "properties": {
+        "managedEnvironmentId": "[parameters('envId')]",
+        "configuration": {
+          "secrets": [
+            {
+              "name": "container-registry-password",
+              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('prefix')), '2021-09-01').passwords[0].value]"
+            }
+          ],
+          "registries": [
+            {
+              "server": "[format('{0}.azurecr.io', parameters('prefix'))]",
+              "username": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('prefix')), '2021-09-01').username]",
+              "passwordSecretRef": "container-registry-password"
+            }
+          ],
+          "dapr": {
+            "enabled": true,
+            "appPort": 80,
+            "appProtocol": "grpc",
+            "appId": "[format('{0}-eventgenerator', parameters('prefix'))]"
+          }
+        },
+        "template": {
+          "containers": [
+            {
+              "image": "[format('{0}.azurecr.io/event-processor:v1', parameters('prefix'))]",
+              "name": "eventgenerator"
+            }
+          ],
+          "scale": {
+            "minReplicas": 0,
+            "maxReplicas": 5
+          }
+        }
+      }
+    }
+  ]
+}

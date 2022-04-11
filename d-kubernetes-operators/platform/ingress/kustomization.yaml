@@ -1,0 +1,5 @@
+resources:
+- https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.2/deploy/static/provider/cloud/deploy.yaml
+
+commonAnnotations:
+  service.beta.kubernetes.io/azure-dns-label-name: tomaskubicaoperatordemo123

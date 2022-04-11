@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Markmap</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+#mindmap {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markmap-toolbar@0.2.0/dist/style.css">
+</head>
+<body>
+<svg id="mindmap"></svg>
+<script src="https://cdn.jsdelivr.net/npm/d3@6.7.0"></script><script src="https://cdn.jsdelivr.net/npm/markmap-view@0.2.7"></script><script src="https://cdn.jsdelivr.net/npm/markmap-toolbar@0.2.0/dist/index.umd.min.js"></script><script>(r => {
+                setTimeout(r);
+              })(() => {
+  const {
+    markmap,
+    mm
+  } = window;
+  const toolbar = new markmap.Toolbar();
+  toolbar.attach(mm);
+  const el = toolbar.render();
+  el.setAttribute('style', 'position:absolute;bottom:20px;right:20px');
+  document.body.append(el);
+})</script><script>((getMarkmap, getOptions, data) => {
+        const {
+          Markmap
+        } = getMarkmap();
+        window.mm = Markmap.create('svg#mindmap', getOptions == null ? void 0 : getOptions(), data);
+      })(() => window.markmap,null,{
+    "t": "heading",
+    "d": 1,
+    "p": {
+        "lines": [
+            0,
+            1
+        ]
+    },
+    "v": "Kubernetes Operators talk",
+    "c": [
+        {
+            "t": "heading",
+            "d": 2,
+            "p": {
+                "lines": [
+                    2,
+                    3
+                ]
+            },
+            "v": "1.  How Kubernetes controllers and resources work?",
+            "c": [
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            3,
+                            4
+                        ]
+                    },
+                    "v": "Desired state of resources -&gt; stored on API server"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            4,
+                            5
+                        ]
+                    },
+                    "v": "Controller -&gt; responsible for ensuring desired state is met"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            5,
+                            7
+                        ]
+                    },
+                    "v": "Reconcilation loop -&gt; controller constantly checks for any changes<br>\nin both desired and actual state and acts when they differ"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            7,
+                            8
+                        ]
+                    },
+                    "v": "DEMO - let's play with ReplicaSet"
+                }
+            ]
+        },
+        {
+            "t": "heading",
+            "d": 2,
+            "p": {
+                "lines": [
+                    9,
+                    10
+                ]
+            },
+            "v": "2. Finding better single source of truth",
+            "c": [
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            10,
+                            11
+                        ]
+                    },
+                    "v": "Kubernetes API server is not good storage for state"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            11,
+                            12
+                        ]
+                    },
+                    "v": "Git is best for this and comes with operational model also (GitOps)"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            12,
+                            13
+                        ]
+                    },
+                    "v": "Use Flux v2 (managed in AKS, great for platform) or ArgoCD (more app focused)"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            13,
+                            14
+                        ]
+                    },
+                    "v": "Advantages using GitOps",
+                    "c": [
+                        {
+                            "t": "list_item",
+                            "d": 6,
+                            "p": {
+                                "lines": [
+                                    14,
+                                    15
+                                ]
+                            },
+                            "v": "Version control and release management"
+                        },
+                        {
+                            "t": "list_item",
+                            "d": 6,
+                            "p": {
+                                "lines": [
+                                    15,
+                                    16
+                                ]
+                            },
+                            "v": "Change management (pull requests, branching policies, ...)"
+                        },
+                        {
+                            "t": "list_item",
+                            "d": 6,
+                            "p": {
+                                "lines": [
+                                    16,
+                                    17
+                                ]
+                            },
+                            "v": "Work planning and collaboration (issues, dicussions, ...)"
+                        },
+                        {
+                            "t": "list_item",
+                            "d": 6,
+                            "p": {
+                                "lines": [
+                                    17,
+                                    18
+                                ]
+                            },
+                            "v": "Support for any number of clusters"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "t": "heading",
+            "d": 2,
+            "p": {
+                "lines": [
+                    19,
+                    20
+                ]
+            },
+            "v": "3. Keep things DRY (Don't Repeat Yourself)",
+            "c": [
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            20,
+                            22
+                        ]
+                    },
+                    "v": "Copy and pasting something?<br>\nStop and thing, you are likely doing things wrong"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            22,
+                            23
+                        ]
+                    },
+                    "v": "Helm style -&gt; Use template language to create abstractions"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            23,
+                            24
+                        ]
+                    },
+                    "v": "Kustomize style -&gt; Inherit something and patch what you need to change"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            24,
+                            25
+                        ]
+                    },
+                    "v": "Both are different, both have important advantages, so learn both"
+                }
+            ]
+        },
+        {
+            "t": "heading",
+            "d": 2,
+            "p": {
+                "lines": [
+                    26,
+                    27
+                ]
+            },
+            "v": "4. Flux v2 operator",
+            "c": [
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            27,
+                            29
+                        ]
+                    },
+                    "v": "Operator is using techniques we have already seen,<br>\nbut with custom logic (controller) and custom resources (CRDs)"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            29,
+                            30
+                        ]
+                    },
+                    "v": "Flux v2 makes sure what is in your Git is applied to your cluster"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            30,
+                            31
+                        ]
+                    },
+                    "v": "DEMO -&gt; see various CRDs and controllers (source, helm, kustomize)"
+                }
+            ]
+        },
+        {
+            "t": "heading",
+            "d": 2,
+            "p": {
+                "lines": [
+                    32,
+                    33
+                ]
+            },
+            "v": "5. Operators to manage specific stateful applications",
+            "c": [
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            33,
+                            35
+                        ]
+                    },
+                    "v": "Running in Azure? Always prefer PaaS if available !<br>\nremember that Operator != SLA"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            35,
+                            36
+                        ]
+                    },
+                    "v": "Operators can incorporate ops procedures to help you run stateful workloads"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            36,
+                            38
+                        ]
+                    },
+                    "v": "Examples include Azure Data Services, MongoDB, PostgreSQL, Redis, MySQL,<br>\nKafka, Elastic, Greenplum, RabbitMQ, ..."
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            38,
+                            39
+                        ]
+                    },
+                    "v": "DEMO -&gt; Azure SQL operator for any Kubernetes (including GKE or OpenShift)"
+                }
+            ]
+        },
+        {
+            "t": "heading",
+            "d": 2,
+            "p": {
+                "lines": [
+                    40,
+                    41
+                ]
+            },
+            "v": "6. Operators to manage cloud resources",
+            "c": [
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            41,
+                            42
+                        ]
+                    },
+                    "v": "Operators can manage resources outside of Kubernetes, such as in Azure"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            42,
+                            43
+                        ]
+                    },
+                    "v": "CRDs = Azure resources"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            43,
+                            45
+                        ]
+                    },
+                    "v": "Cloud-vendor operators can deploy vendor resources<br>\n(sometimes can be pluged in to Crossplane)"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            45,
+                            46
+                        ]
+                    },
+                    "v": "Crossplane is multi-cloud and supports adding obstractions on top"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            46,
+                            47
+                        ]
+                    },
+                    "v": "DEMO - &gt; Azure Service Operator to deploy Azure Database for PostgreSQL"
+                }
+            ]
+        },
+        {
+            "t": "heading",
+            "d": 2,
+            "p": {
+                "lines": [
+                    48,
+                    49
+                ]
+            },
+            "v": "7. Operators to enhance Kubernetes behavior",
+            "c": [
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            49,
+                            51
+                        ]
+                    },
+                    "v": "Operators are often perceived as single purpose solutions,<br>\nbut the same patterns can be used to enhance general capabilities"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            51,
+                            52
+                        ]
+                    },
+                    "v": "Examples include API GWs, scalers, service meshes, progressive delivery"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            52,
+                            53
+                        ]
+                    },
+                    "v": "DEMO -&gt; KEDA scaler that includes scale to zero (serverless behavior)"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            53,
+                            54
+                        ]
+                    },
+                    "v": "DEMO -&gt; Argo Rollouts for progressive delivery"
+                }
+            ]
+        },
+        {
+            "t": "heading",
+            "d": 2,
+            "p": {
+                "lines": [
+                    55,
+                    56
+                ]
+            },
+            "v": "8. Operators to build application platforms on top of Kubernetes",
+            "c": [
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            56,
+                            57
+                        ]
+                    },
+                    "v": "Described patterns allow to build complete application platforms on top of Kubernetes"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            57,
+                            58
+                        ]
+                    },
+                    "v": "Examples include DAPR, KNative, Kubeless, Fission"
+                },
+                {
+                    "t": "list_item",
+                    "d": 4,
+                    "p": {
+                        "lines": [
+                            58,
+                            59
+                        ]
+                    },
+                    "v": "DEMO -&gt; DAPR platform"
+                }
+            ]
+        }
+    ]
+})</script>
+</body>
+</html>

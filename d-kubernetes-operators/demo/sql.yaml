@@ -1,0 +1,40 @@
+apiVersion: sql.arcdata.microsoft.com/v4
+kind: SqlManagedInstance
+metadata:
+  name: sql1
+  namespace: arc
+spec:
+  dev: true #options: [true, false]
+  licenseType: LicenseIncluded #options: [LicenseIncluded, BasePrice].  BasePrice is used for Azure Hybrid Benefits.
+  tier: BusinessCritical #options: [GeneralPurpose, BusinessCritical]
+  security: 
+    adminLoginSecret: sql1-login-secret
+  scheduling:
+    default:
+      resources:
+        limits:
+          cpu: "2"
+          memory: 4Gi
+        requests:
+          cpu: "1"
+          memory: 2Gi
+  services:
+    primary:
+      type: LoadBalancer
+  storage:
+    #backups:
+    #  volumes:
+    #  - className: azurefile # Backup volumes require a ReadWriteMany (RWX) capable storage class
+    #    size: 5Gi
+    data:
+      volumes:
+      - className: default # Use default configured storage class or modify storage class based on your Kubernetes environment
+        size: 5Gi
+    datalogs:
+      volumes:
+      - className: default # Use default configured storage class or modify storage class based on your Kubernetes environment
+        size: 5Gi
+    logs:
+      volumes:
+      - className: default # Use default configured storage class or modify storage class based on your Kubernetes environment
+        size: 5Gi
