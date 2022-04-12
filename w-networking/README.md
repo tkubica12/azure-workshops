@@ -53,7 +53,10 @@ In next step we will deploy shared resources such as custom DNS server for condi
 ## 10 - Connect on-premises networks
 In last step we will use VPN to setup connection to on-premises networks.
 
-TBD
+[guide](docs/10-onpremNetwork.md)
+
+## Clean up
+[guide](docs/99-cleanUp.md)
 
 Where to go from here? 
 - Automate everything with Infrastructure as Code such as Terraform or Bicep
