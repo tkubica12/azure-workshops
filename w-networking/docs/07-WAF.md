@@ -139,7 +139,7 @@ az network application-gateway create -n $prefix-waf `
     --http-settings-protocol Http `
     --http2 Enabled `
     --sku WAF_v2 `
-    --servers 10.1.1.100 \
+    --servers 10.1.1.100 `
     --public-ip-address $prefix-waf-ip `
     --subnet waf `
     --vnet-name $prefix-dmz

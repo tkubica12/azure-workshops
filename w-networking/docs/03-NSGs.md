@@ -71,7 +71,7 @@ az serial-console connect -n $prefix-jump -g $prefix-project1
 
 # Test connectivity
 export prefix=tomaskubica4
-ssh $prefix-front1
+ssh $prefix-front1  # SUCCESS
     export prefix=tomaskubica4
     ssh $prefix-front2   # FAILS!
 ```

@@ -132,7 +132,7 @@ Test it.
 ```bash
 az serial-console connect -n $prefix-vm -g $prefix-project2
 curl http://ifconfig.io/all
-sudo apt update
+    sudo apt update
 ```
 
 Go to Azure Portal and investigate other options in policy like URLs, TLS inspection, IPS it Web categorization.

@@ -26,7 +26,6 @@ We will now deploy few servers with serial access enabled to test things out. We
 
 ```bash
 # In bash
-
 az storage account create -n seriak$prefix -g $prefix-project1
 
 az vm create -n $prefix-jump \
@@ -93,7 +92,6 @@ az vm create -n $prefix-back \
 
 ```powershell
 # In PowerShell
-
 az storage account create -n seriak$prefix -g $prefix-project1
 
 az vm create -n $prefix-jump `
@@ -158,7 +156,7 @@ az vm create -n $prefix-back `
     --no-wait
 ```
 
-There are no restrictions currently in our setup, every VM can reach every other. Also there is implicit SNAT to Internet.
+There are no restrictions currently in our setup, every VM can reach every other. Also there is implicit SNAT to Internet. To exit serial console you type CTRL+] and press q.
 
 ```bash
 az serial-console connect -n $prefix-jump -g $prefix-project1

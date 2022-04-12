@@ -21,7 +21,7 @@ az network vhub create -n $prefix-ne-hub -g $prefix-central --vwan $prefix-vwan 
 az network firewall policy create -n $prefix-fw-policy -g $prefix-central --sku Premium
 
 # Create firewall
-az network firewall create -n $prefix-fw -g $prefix-central --vhub $prefix-ne-hub --public-ip-count 1 --tier Premium --sku AZFW_Hub --firewall-policy $prefix-fw-policy --no-wait
+az network firewall create -n $prefix-fw -g $prefix-central --vhub $prefix-ne-hub --public-ip-count 1 --tier Premium --sku AZFW_Hub --firewall-policy $prefix-fw-policy
 
 # Create VPN gateway
 az network vpn-gateway create -n $prefix-vpn -g $prefix-central --vhub $prefix-ne-hub --no-wait

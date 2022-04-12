@@ -148,19 +148,19 @@ az network private-dns record-set a list -g $prefix-central -z $prefix.cz
 
 ```powershell
 # Add DNS zone, link it to VNETs and print records (in PowerShell)
-az network private-dns zone create -n $prefix.cz -g $prefix-central
+az network private-dns zone create -n "$prefix.cz" -g $prefix-central
 az network private-dns link vnet create -n $prefix-project1 `
     -g $prefix-central `
     --virtual-network $(az network vnet show -n $prefix-project1 -g $prefix-project1 --query id -o tsv) `
     --registration-enabled `
-    --zone-name $prefix.cz
+    --zone-name "$prefix.cz"
 az network private-dns link vnet create -n $prefix-project2 `
     -g $prefix-central `
     --virtual-network $(az network vnet show -n $prefix-project2 -g $prefix-project2 --query id -o tsv) `
     --registration-enabled `
-    --zone-name $prefix.cz
+    --zone-name "$prefix.cz"
 
-az network private-dns record-set a list -g $prefix-central -z $prefix.cz
+az network private-dns record-set a list -g $prefix-central -z "$prefix.cz"
 ```
 
 Test DNS.
@@ -175,7 +175,7 @@ We will now modify routing so all communications from projects to Internet or be
 
 ```bash
 # Route rfc1918 and default via firewall (in bash)
-az network vhub route-table create -n defaultRouteTable \
+az network vhub route-table route add -n defaultRouteTable \
     --route-name all_traffic \
     -g $prefix-central \
     --vhub-name $prefix-ne-hub \

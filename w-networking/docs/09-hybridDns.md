@@ -122,7 +122,7 @@ az network private-dns link vnet create `
 # Link blob storage privatelink DNS zone
 az network private-dns link vnet create `
     -g $prefix-central `
-    --zone-name $prefix.cz `
+    --zone-name "$prefix.cz" `
     --name $prefix-link `
     --virtual-network $(az network vnet show -n $prefix-shared -g $prefix-shared --query id -o tsv) `
     --registration-enabled false
@@ -132,8 +132,8 @@ Configure DNS server
 
 ```bash
 az serial-console connect -n $prefix-dnssrv -g $prefix-shared
-export prefix=tomaskubica4
 sudo -i
+export prefix=tomaskubica4
 apt install -y bind9
 
 cat << EOF > /etc/bind/db.onpremcz
