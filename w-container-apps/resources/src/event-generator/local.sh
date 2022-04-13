@@ -1,0 +1,1 @@
+dapr run --app-id event-generator --app-port 5000 python3 app.py

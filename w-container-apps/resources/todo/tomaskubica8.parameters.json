@@ -1,0 +1,20 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "prefix": {
+            "value": "tomaskubica8"
+        },
+        "envId": {
+            "value": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/shared-rg/providers/Microsoft.App/managedEnvironments/42tqx5undo7n2"
+        },
+        "password": {
+            "reference": {
+                "keyVault": {
+                  "id": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/tomaskubica8-rg/providers/Microsoft.KeyVault/vaults/tomaskubica8-kv"
+                },
+                "secretName": "mypassword"
+              }
+        }
+    }
+}
