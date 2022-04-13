@@ -44,3 +44,4 @@ w-aks-intro/challenge/solutions/tomaskubica
 .terraform
 .terraform*
 *tfstate*
+.secrets

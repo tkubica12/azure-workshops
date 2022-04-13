@@ -6,96 +6,27 @@ This folder contains demo of Kubernetes Operators for customer talk. In this REA
 ## Building resources
 
 ```bash
-# Create AKS cluster and get credentials
-az group create -n operators-demo-aks -l northeurope
-az aks create -g operators-demo-aks -n operators-demo-aks -c 5 -x -s Standard_B4ms -y
+# Go to terraform folder
+cd terraform
+
+# Export variables (service prinicpal logins and password)
+export TF_VAR_AZURE_SUBSCRIPTION_ID=yoursubscriptionid
+export TF_VAR_AZURE_TENANT_ID=yourtenantid
+export TF_VAR_AZURE_CLIENT_ID=yourclientid
+export TF_VAR_AZURE_CLIENT_SECRET=yourclientsecret
+export TF_VAR_password=passwordforcreatedresources
+
+# Deploy
+terraform init
+terraform plan
+terraform apply -auto-approve
+
+# Get credentials
 az aks get-credentials -g operators-demo-aks -n operators-demo-aks --admin --overwrite-existing
 
-# Configure GitOps operator
-az k8s-configuration flux create -n operators-demo-aks \
-  -g operators-demo-aks \
-  -c operators-demo-aks \
-  --namespace gitops-demo \
-  -t managedClusters \
-  --scope cluster \
-  --sync-interval 30s \
-  -u https://github.com/tkubica12/azure-workshops/
-  --branch main \
-  --kustomization name=platform path=./d-kubernetes-operators/platform prune=true sync_interval=120s retry_interval=120s force=true \
-  --kustomization name=demo path=./d-kubernetes-operators/demo prune=true sync_interval=30s retry_interval=30s force=true
-
-# Configure your envs with Service Principal and create secrets
-# Note you might need to wait for namespaces to be available (just repeate if commend fails)
-export subscription=yoursubscriptionid
-export tenant=yourtenantid
-export principal=yourclientid
-export client_secret=yourclientsecret
-export password=passwordforcreatedresources
-
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: Secret
-metadata:
-  name: aso-controller-settings
-  namespace: azureserviceoperator-system
-stringData:
-  AZURE_SUBSCRIPTION_ID: "$subscription"
-  AZURE_TENANT_ID: "$tenant"
-  AZURE_CLIENT_ID: "$principal"
-  AZURE_CLIENT_SECRET: "$client_secret"
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: mysecrets
-  namespace: default
-stringData:
-  password: $password
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: sql1-login-secret
-  namespace: arc
-stringData:
-  username: labuser
-  password: $password
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: metricsui-admin-secret
-  namespace: arc
-stringData:
-  username: labuser
-  password: $password
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: logsui-admin-secret
-  namespace: arc
-stringData:
-  username: labuser
-  password: $password
-EOF
-
-# Create storage account for KEDA demo and store secrets
-az servicebus namespace create -n tomaskubicademo58882 -g operators-demo-aks --sku Basic
-az servicebus queue create -n orders --namespace-name tomaskubicademo58882 -g operators-demo-aks
-
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: Secret
-metadata:
-  name: sbkey
-  namespace: default
-stringData:
-  servicebus-connectionstring: "$(az servicebus namespace authorization-rule keys list -n RootManageSharedAccessKey --namespace-name tomaskubicademo58882 -g operators-demo-aks --query primaryConnectionString -o tsv)"
-EOF
-
 # Clean up after demo
-az group delete -n operators-demo-aks -y
+terraform destroy -auto-approve
+az group delete -n demo-aso-rg -y
 ```
 
 ## How to demo
