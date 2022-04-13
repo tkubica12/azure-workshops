@@ -33,7 +33,7 @@ resource "azapi_resource" "fluxextension" {
 
 resource "azapi_resource" "flux" {
   type      = "Microsoft.KubernetesConfiguration/fluxConfigurations@2022-03-01"
-  name      = "/operators-demo-aks"
+  name      = "operators-demo-aks"
   parent_id = azurerm_kubernetes_cluster.demo.id
 
   depends_on = [
