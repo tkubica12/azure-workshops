@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-arc-controller
+---
+# apiVersion: arcdata.microsoft.com/v1beta1
+apiVersion: arcdata.microsoft.com/v3
+kind: DataController
+metadata:
+  name: arc
+  namespace: arc
+spec:
+  credentials:
+    dockerRegistry: arc-private-registry
+    domainServiceAccount: domain-service-account-secret
+    serviceAccount: sa-arc-controller
+  dev: false
+  docker:
+    imagePullPolicy: Always
+    imageTag: v1.5.0_2022-04-05
+    registry: mcr.microsoft.com
+    repository: arcdata
+  infrastructure: azure
+  security:
+    allowDumps: true
+    allowNodeMetricsCollection: true
+    allowPodMetricsCollection: true
+  services:
+  - name: controller
+    port: 30080
+    serviceType: LoadBalancer
+  settings:
+    ElasticSearch:
+      vm.max_map_count: "-1"
+    azure:
+      connectionMode: indirect
+      location: northeurope
+      resourceGroup: operators-demo-aks
+      subscription: a0f4a733-4fce-4d49-b8a8-d30541fc1b45
+    controller:
+      displayName: arc
+      logs.rotation.days: "7"
+      logs.rotation.size: "5000"
+  storage:
+    data:
+      accessMode: ReadWriteOnce
+      className: default
+      size: 15Gi
+    logs:
+      accessMode: ReadWriteOnce
+      className: default
+      size: 10Gi

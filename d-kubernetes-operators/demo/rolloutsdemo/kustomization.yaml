@@ -1,0 +1,7 @@
+resources:
+- namespace.yaml
+- ingress.yaml
+- rollout.yaml
+- services.yaml
+
+namespace: rolloutdemo

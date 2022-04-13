@@ -1,0 +1,6 @@
+resources:
+- web.yaml
+- worker.yaml
+- scaler.yaml
+
+namespace: default

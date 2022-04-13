@@ -1,0 +1,27 @@
+apiVersion: resources.azure.com/v1alpha1api20200601
+kind: ResourceGroup
+metadata:
+  name: demo-aso-rg
+  namespace: default
+spec:
+  location: northeurope
+---
+apiVersion: dbforpostgresql.azure.com/v1alpha1api20210601
+kind: FlexibleServer
+metadata:
+  name: demo-psql-kubica123
+  namespace: default
+spec:
+  location: northeurope
+  owner:
+    name: demo-aso-rg
+  version: "13"
+  sku:
+    name: Standard_B1ms   # in our demo Standard_B1ms or Standard_B2s
+    tier: Burstable
+  administratorLogin: labuser
+  administratorLoginPassword: # This is the name/key of a Kubernetes secret in the same namespace
+    name: mysecrets
+    key: password
+  storage:
+    storageSizeGB: 128

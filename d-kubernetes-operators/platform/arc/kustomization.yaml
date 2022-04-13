@@ -1,0 +1,8 @@
+resources:
+- crds.yaml
+- bootstrapper.yaml
+- arc.yaml
+- datacontroller.yaml
+- namespace.yaml
+
+namespace: arc

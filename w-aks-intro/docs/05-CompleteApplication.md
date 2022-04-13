@@ -18,6 +18,8 @@ $prefix="tomaskubica8"
 Create Azure Database for PostgreSQL
 
 ```bash
+# in bash
+
 # Create Private DNS zone
 az network private-dns zone create -g $prefix-rg -n psqllab.private.postgres.database.azure.com
 
@@ -42,14 +44,41 @@ az postgres flexible-server create --name $prefix-psql \
 az postgres flexible-server db create -g $prefix-rg  --server-name $prefix-psql --database-name todo
 ```
 
+```powershell
+# in PowerShell
+
+# Create Private DNS zone
+az network private-dns zone create -g $prefix-rg -n psqllab.private.postgres.database.azure.com
+
+# Associate Private DNS zone with your VNET
+az network private-dns link vnet create --name psqldnslink `
+    --registration-enabled false `
+    -g $prefix-rg `
+    --virtual-network $(az network vnet show -n $prefix-vnet -g $prefix-rg --query id -o tsv) `
+    --zone-name psqllab.private.postgres.database.azure.com
+
+az postgres flexible-server create --name $prefix-psql `
+    -g $prefix-rg `
+    --admin-user psqladmin `
+    --admin-password Azure12345678! `
+    --sku-name Standard_B1ms `
+    --tier Burstable `
+    --version 13 `
+    --high-availability Disabled `
+    --subnet $(az network vnet subnet show -g $prefix-rg --vnet-name $prefix-vnet -n db --query id -o tsv) `
+    --private-dns-zone $(az network private-dns zone show -g $prefix-rg -n psqllab.private.postgres.database.azure.com --query id -o tsv)
+
+az postgres flexible-server db create -g $prefix-rg  --server-name $prefix-psql --database-name todo
+```
+
 We will now store connection string to our database in Kubernetes Secret (note storing in Azure Key Vault is much more secure, but for simplicity we will stick with Secret for now).
 
 ```bash
-# Create Secret in PowerShell
-kubectl create secret generic psql-secret --from-literal=postgresqlurl="jdbc:postgresql://${prefix}-psql.postgres.database.azure.com:5432/todo?user=psqladmin&password=Azure12345678!&ssl=true"
-
 # Create Secret in Bash
 kubectl create secret generic psql-secret --from-literal=postgresqlurl='jdbc:postgresql://'${prefix}'-psql.postgres.database.azure.com:5432/todo?user=psqladmin&password=Azure12345678!&ssl=true'
+
+# Create Secret in PowerShell
+kubectl create secret generic psql-secret --from-literal=postgresqlurl="jdbc:postgresql://${prefix}-psql.postgres.database.azure.com:5432/todo?user=psqladmin&password=Azure12345678!&ssl=true"
 ```
 
 Deploy api application and service (make sure you modify image to match your registry). Also note we are using liveness probe (used for detection that application is alive) and readiness probe (used for balancers to understand whether application is ready to serve requests).

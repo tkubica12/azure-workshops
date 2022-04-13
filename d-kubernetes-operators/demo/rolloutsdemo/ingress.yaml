@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rollouts-demo-stable
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: tomaskubicaoperatordemo123.northeurope.cloudapp.azure.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: rollouts-demo-stable
+            port:
+              number: 80

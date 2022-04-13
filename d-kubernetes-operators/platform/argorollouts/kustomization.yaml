@@ -1,0 +1,5 @@
+resources:
+- https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
+- namespace.yaml
+
+namespace: argo-rollouts
