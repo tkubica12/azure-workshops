@@ -1,6 +1,6 @@
 resources:
 - https://github.com/jetstack/cert-manager/releases/download/v1.7.1/cert-manager.yaml
-- https://github.com/Azure/azure-service-operator/releases/download/v2.0.0-alpha.6/azureserviceoperator_v2.0.0-alpha.6.yaml
+- https://github.com/Azure/azure-service-operator/releases/download/v2.0.0-beta.0/azureserviceoperator_v2.0.0-beta.0.yaml
 - ./argorollouts/
 - ./arc/
 - https://github.com/kedacore/keda/releases/download/v2.6.1/keda-2.6.1.yaml
