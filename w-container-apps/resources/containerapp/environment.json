@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.1318.3566",
-      "templateHash": "580331043306535032"
+      "version": "0.5.6.12127",
+      "templateHash": "5025469444348224324"
     }
   },
   "variables": {
@@ -28,23 +28,54 @@
       }
     },
     {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2021-05-01",
+      "name": "capp-vnet",
+      "location": "[variables('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "capp-control",
+            "properties": {
+              "addressPrefix": "10.0.0.0/21"
+            }
+          },
+          {
+            "name": "capp-app",
+            "properties": {
+              "addressPrefix": "10.0.8.0/21"
+            }
+          }
+        ]
+      }
+    },
+    {
       "type": "Microsoft.App/managedEnvironments",
       "apiVersion": "2022-01-01-preview",
       "name": "[format('{0}', uniqueString(resourceGroup().id))]",
       "location": "[variables('location')]",
       "properties": {
-        "type": "managed",
-        "internalLoadBalancerEnabled": false,
         "appLogsConfiguration": {
           "destination": "log-analytics",
           "logAnalyticsConfiguration": {
             "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', format('{0}', uniqueString(resourceGroup().id)))).customerId]",
             "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', format('{0}', uniqueString(resourceGroup().id))), '2020-03-01-preview').primarySharedKey]"
           }
+        },
+        "vnetConfiguration": {
+          "infrastructureSubnetId": "[format('{0}/subnets/capp-control', resourceId('Microsoft.Network/virtualNetworks', 'capp-vnet'))]",
+          "runtimeSubnetId": "[format('{0}/subnets/capp-app', resourceId('Microsoft.Network/virtualNetworks', 'capp-vnet'))]",
+          "internal": false
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}', uniqueString(resourceGroup().id)))]"
+        "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}', uniqueString(resourceGroup().id)))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'capp-vnet')]"
       ]
     },
     {
@@ -81,12 +112,12 @@
         "metadata": [
           {
             "name": "connectionString",
-            "secretRef": "sbConnectionString"
+            "secretRef": "sbconnectionstring"
           }
         ],
         "secrets": [
           {
-            "name": "sbConnectionString",
+            "name": "sbconnectionstring",
             "value": "[listKeys(resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules', format('shared{0}', uniqueString(resourceGroup().id)), 'ListenSend'), '2017-04-01').primaryConnectionString]"
           }
         ],

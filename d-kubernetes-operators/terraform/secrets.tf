@@ -42,9 +42,9 @@ resource "kubernetes_secret" "aso" {
 
   data = {
     AZURE_SUBSCRIPTION_ID = var.AZURE_SUBSCRIPTION_ID
-    AZURE_TENANT_ID = var.AZURE_TENANT_ID
-    AZURE_CLIENT_ID = var.AZURE_CLIENT_ID
-    AZURE_CLIENT_SECRET = var.AZURE_CLIENT_SECRET
+    AZURE_TENANT_ID       = var.AZURE_TENANT_ID
+    AZURE_CLIENT_ID       = var.AZURE_CLIENT_ID
+    AZURE_CLIENT_SECRET   = var.AZURE_CLIENT_SECRET
   }
 
   type = "kubernetes.io/Opaque"

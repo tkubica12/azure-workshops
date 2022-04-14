@@ -1,5 +1,6 @@
 var location = resourceGroup().location
 
+// Monitoring
 resource monitor 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' = {
   name: '${uniqueString(resourceGroup().id)}'
   location: location
@@ -14,18 +15,48 @@ resource monitor 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' =
   })
 }
 
+// Network
+resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
+  name: 'capp-vnet'
+  location: location
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        '10.0.0.0/16'
+      ]
+    }
+    subnets: [
+      {
+        name: 'capp-control'
+        properties: {
+          addressPrefix: '10.0.0.0/21'
+        }
+      }
+      {
+        name: 'capp-app'
+        properties: {
+          addressPrefix: '10.0.8.0/21'
+        }
+      }
+    ]
+  }
+}
+
 resource env 'Microsoft.App/managedEnvironments@2022-01-01-preview' = {
   name: '${uniqueString(resourceGroup().id)}'
   location: location
   properties: {
-    type: 'managed'
-    internalLoadBalancerEnabled: false
     appLogsConfiguration: {
       destination: 'log-analytics'
       logAnalyticsConfiguration: {
         customerId: monitor.properties.customerId
         sharedKey: monitor.listKeys().primarySharedKey
       }
+    }
+    vnetConfiguration: {
+      infrastructureSubnetId: '${vnet.id}/subnets/capp-control'
+      runtimeSubnetId: '${vnet.id}/subnets/capp-app'
+      internal: false
     }
   }
 }
@@ -61,12 +92,12 @@ resource daprPubsub 'Microsoft.App/managedEnvironments/daprComponents@2022-01-01
     metadata: [
       {
         name: 'connectionString'
-        secretRef: 'sbConnectionString'
+        secretRef: 'sbconnectionstring'
       }
     ]
     secrets: [
       {
-        name: 'sbConnectionString'
+        name: 'sbconnectionstring'
         value: listKeys(sbAuthorization.id, sbAuthorization.apiVersion).primaryConnectionString
       }
     ]

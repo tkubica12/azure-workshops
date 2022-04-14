@@ -31,21 +31,8 @@ az acr create -n $prefix -g $prefix-rg --sku Basic --admin-enabled
 Build containers directly in repository
 
 ```bash
-# Go to myappspa folder
-cd resources/src/web
-
-# Build v1 of myappspa
-echo v1 > ./version
-az acr build --registry $prefix --image web:v1 .
-
-# Build v2 of myappspa (there is no real difference in code, just new text)
-echo v2 > ./version
-az acr build --registry $prefix --image web:v2 .
-
-# Go to myappspa folder
-cd ../api
-
 # Build backend microservice
+cd w-container-apps/resources/src/api
 az acr build --registry $prefix --image api:v1 .
 
 # Build event generator
@@ -55,6 +42,10 @@ az acr build --registry $prefix --image event-generator:v1 .
 # Build event processor
 cd ../event-processor
 az acr build --registry $prefix --image event-processor:v1 .
+
+# Import todo web app from public registry to your private registry
+az acr import -n $prefix --source ghcr.io/tkubica12/todo-web:v1 --image web:v1
+az acr import -n $prefix --source ghcr.io/tkubica12/todo-web:v2 --image web:v2
 ```
 
 
