@@ -19,3 +19,4 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 
 List of demos:
 - [Kubernetes operators](./d-kubernetes-operators/README.md)
+- [API Management in AKS](./d-apim-in-aks/README.md)
