@@ -5,7 +5,7 @@ resource "random_string" "random" {
 }
 
 resource "azurerm_servicebus_namespace" "demo" {
-  name                = random_string.random.result
+  name                = "sb${random_string.random.result}"
   location            = azurerm_resource_group.demo.location
   resource_group_name = azurerm_resource_group.demo.name
   sku                 = "Basic"
