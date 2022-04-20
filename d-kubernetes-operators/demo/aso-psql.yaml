@@ -17,7 +17,7 @@ spec:
     name: demo-aso-rg
   version: "13"
   sku:
-    name: Standard_B1ms   # in our demo Standard_B1ms or Standard_B2s
+    name: Standard_B2s   # in our demo Standard_B1ms or Standard_B2s
     tier: Burstable
   administratorLogin: labuser
   administratorLoginPassword: # This is the name/key of a Kubernetes secret in the same namespace
