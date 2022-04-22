@@ -1,6 +1,6 @@
 // APIM
 resource "azurerm_api_management" "demo" {
-  name                 = random_string.random.result
+  name                 = "apim${random_string.random.result}"
   location             = azurerm_resource_group.demo.location
   resource_group_name  = azurerm_resource_group.demo.name
   publisher_name       = "Tomas Demo"
