@@ -1,0 +1,361 @@
+{
+    "name": "plysaci",
+    "securityToken": "plysaci Token",
+    "sourceConnection": {
+        "name": "plysaci",
+        "providerType": "localFileSystemProxy",
+        "providerOptions": {
+            "encrypted": "eyJjaXBoZXJ0ZXh0IjoiMjA3ODk1MDE5Mzg1ODE0MmQyZDg3ZWI4N2ViN2JiMGE4YWMxZTdiOWQyYTBhYTBlOTllYmM4ZTM0Y2E3YzEwOTIwOTE2MGNjM2VhNTk3YTc1ZGNjYjc5ZDU5NTJhNGNhMmViYTY3ZmUzMmNkNTQ5MmVjMWU4MDZkNWU1OTExMzVkNWRlM2NlZTYzYzcyYzhjODQ2NjBkYWRkYzkwZjJlNDNlODA0N2Y1NmY2MTIzYjVmZTYxZGY1YjAxZjU5NDZlIiwiaXYiOiI1OTBlYWEyZjJjYjAzYTJiYzJjNjVmMTlhMGE5ZmQyODUzMTdhM2RmOWMxZTY4ZGMifQ=="
+        },
+        "id": "WuCriM2DO"
+    },
+    "targetConnection": {
+        "name": "plysaci",
+        "providerType": "localFileSystemProxy",
+        "providerOptions": {
+            "encrypted": "eyJjaXBoZXJ0ZXh0IjoiMWEzOTcwNjY0ZTM4MGIzZTkwY2I5ZTgwYjI0MmQ5MTE0OWZmYjVjZDk5Mzk1MWQwNTZlNjQ1MjVkZTZjMDBjZDAzZTZkMDAwMjlhNDgyNDNlNmEwNzc3ZDdhMjJlMzA3MTJkZTk3ZmJhYjEwNTJmYjg4ZDc1NjY1YjNjOWE0NjY4MjE3MzI4ZmJiOWQzNmQ1YjUyZjFmMGNiMGQ2NDZkOTlmZGFhNjVmYTlhY2IxYmRhNDYxMDczNGQ2MTUwZmIwIiwiaXYiOiJjODBhY2JjYTM0YjEzNzk1NDBjODRlZTdiZDg3M2NiMTUzZjQ5MTdkMzhiNzE0ZDEifQ=="
+        },
+        "id": "WuCriM2DO"
+    },
+    "videoSettings": {
+        "frameExtractionRate": 15
+    },
+    "tags": [
+        {
+            "name": "oslik",
+            "color": "#FF00FF"
+        },
+        {
+            "name": "ovecka",
+            "color": "#000080"
+        }
+    ],
+    "id": "gNTCg9Otv",
+    "activeLearningSettings": {
+        "autoDetect": false,
+        "predictTag": true,
+        "modelPathType": "coco"
+    },
+    "exportFormat": {
+        "providerType": "azureCustomVision",
+        "providerOptions": {
+            "encrypted": "eyJjaXBoZXJ0ZXh0IjoiNjhiNGVkNGU1ZTE1ZjljODUwZDkyNjVhNWE5ZjBiMzU3MzE1NzhhOTY5MTJhMjBjYTU2NWQyM2Y1YTE1NTEzMmMyZWQ1MTI0MzRlYTBlMjhiODE1MGYxMDI2ZWExOWZmMTgxNjQzNzFjZTQwOTIwMWI5N2JmOWJhOWQ3NDg1NDRhYTNhOWQzZTQxOTUxZGVhMTg5Njk5MGYwYmU0ZWU5MjJjZTMyZDgzZWJlOGU2N2YyYmE2NzUwMTlhN2FiYTM5Y2UzYzNlYzJlMTY1MTI4MTBiN2M5MTU5MTdjM2Y4YWU3ZGYwNTEzY2JkMWNiZmVkYTBhMTc3NjBjNGJiNjdjMTdkYTI2NjZhMWU4ZTY5NGEzMTg3N2M3OGU0MjA0OTkxZDFjMmI5NTNjNmRiNzQzN2Y5NTJlZGEzMWE5ZTAwNGE2ZWQ3N2E0NTQxNTdiNWMyZTUyMjMyODVmNjZiYzgyZSIsIml2IjoiY2FjZjBmMjk0NTJmNjVmMDZkZWExNzQ2MmVmYTA3YmY0ZDZhZTFiNzYwZjUxOGYyIn0="
+        }
+    },
+    "version": "2.2.0",
+    "lastVisitedAssetId": "d3eab4663bf83f8cccbc0347690bdc8d",
+    "assets": {
+        "a5899208ffb2a957b1270f17a983cd11": {
+            "format": "jpg",
+            "id": "a5899208ffb2a957b1270f17a983cd11",
+            "name": "20181209_092617.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092617.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "57167fda91288a3e5ace5cb93face57d": {
+            "format": "jpg",
+            "id": "57167fda91288a3e5ace5cb93face57d",
+            "name": "20181209_092624.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092624.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "47b358dc48970f81b78fb8b947b03df8": {
+            "format": "jpg",
+            "id": "47b358dc48970f81b78fb8b947b03df8",
+            "name": "20181209_092635.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092635.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "a08862cfc4f04a20bc4e831397c80344": {
+            "format": "jpg",
+            "id": "a08862cfc4f04a20bc4e831397c80344",
+            "name": "20181209_092705.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092705.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "6417c808ccd455a1257958458f38ebda": {
+            "format": "jpg",
+            "id": "6417c808ccd455a1257958458f38ebda",
+            "name": "20181209_092709.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092709.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "f79a99a720c51dc23c310f68f7c16d30": {
+            "format": "jpg",
+            "id": "f79a99a720c51dc23c310f68f7c16d30",
+            "name": "20181209_092716.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092716.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "4fdaf8120055aee870887d3bd951f933": {
+            "format": "jpg",
+            "id": "4fdaf8120055aee870887d3bd951f933",
+            "name": "20181209_092734.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092734.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "7707be5e6a4cdab126b858d327743b93": {
+            "format": "jpg",
+            "id": "7707be5e6a4cdab126b858d327743b93",
+            "name": "20181209_092740.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092740.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "98e7bc19fb84388f604e1315994fdd18": {
+            "format": "jpg",
+            "id": "98e7bc19fb84388f604e1315994fdd18",
+            "name": "20181209_092800.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092800.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "a50dc8300a1967104f3cdbd757e2d3c9": {
+            "format": "jpg",
+            "id": "a50dc8300a1967104f3cdbd757e2d3c9",
+            "name": "20181209_092808.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092808.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "1f41fc6c5d0f4e56e78aad8fd0ae18ca": {
+            "format": "jpg",
+            "id": "1f41fc6c5d0f4e56e78aad8fd0ae18ca",
+            "name": "20181209_092814.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092814.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "02f1f1d91b309872e97b0955b7cb3068": {
+            "format": "jpg",
+            "id": "02f1f1d91b309872e97b0955b7cb3068",
+            "name": "20181209_092845.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092845.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "a158383651d65e097ff53a41c61f3408": {
+            "format": "jpg",
+            "id": "a158383651d65e097ff53a41c61f3408",
+            "name": "20181209_092901.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092901.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "07732c817362921b4b13f35674a72372": {
+            "format": "jpg",
+            "id": "07732c817362921b4b13f35674a72372",
+            "name": "20181209_092913.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092913.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "4a4d3e4552a0500fe918c666853a08a0": {
+            "format": "jpg",
+            "id": "4a4d3e4552a0500fe918c666853a08a0",
+            "name": "20181209_092925.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092925.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "607f4da156d45581eefa4ac8d157de83": {
+            "format": "jpg",
+            "id": "607f4da156d45581eefa4ac8d157de83",
+            "name": "20181209_092956.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_092956.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "26992bb86550bfd197328b6a24c31bb0": {
+            "format": "jpg",
+            "id": "26992bb86550bfd197328b6a24c31bb0",
+            "name": "20181209_093002.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_093002.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "3fbf891d895ac84aac364dd8bb35072f": {
+            "format": "jpg",
+            "id": "3fbf891d895ac84aac364dd8bb35072f",
+            "name": "20181209_093006.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_093006.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "b9d6b5e33dd49e99c464c0d6b5aedf51": {
+            "format": "jpg",
+            "id": "b9d6b5e33dd49e99c464c0d6b5aedf51",
+            "name": "20181209_093016.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_093016.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "6fdbe067110bb219371614a964435f9d": {
+            "format": "jpg",
+            "id": "6fdbe067110bb219371614a964435f9d",
+            "name": "20181209_093023.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_093023.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "6184181524d745ef852ae4f108cc9fcf": {
+            "format": "jpg",
+            "id": "6184181524d745ef852ae4f108cc9fcf",
+            "name": "20181209_093221.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_093221.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "0066bb0e0f66d6c2aedbd38374117d56": {
+            "format": "jpg",
+            "id": "0066bb0e0f66d6c2aedbd38374117d56",
+            "name": "20181209_093227.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_093227.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "e2b788adc62008eafb05b6de0a0684f0": {
+            "format": "jpg",
+            "id": "e2b788adc62008eafb05b6de0a0684f0",
+            "name": "20181209_093257.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_093257.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "ce3c195b21bab061b03cc8261d1164ad": {
+            "format": "jpg",
+            "id": "ce3c195b21bab061b03cc8261d1164ad",
+            "name": "20181209_093322.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_093322.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "cf9c1d644e3aac5aee1b95b5579e293d": {
+            "format": "jpg",
+            "id": "cf9c1d644e3aac5aee1b95b5579e293d",
+            "name": "20181209_093349.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_093349.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        },
+        "d3eab4663bf83f8cccbc0347690bdc8d": {
+            "format": "jpg",
+            "id": "d3eab4663bf83f8cccbc0347690bdc8d",
+            "name": "20181209_093357.jpg",
+            "path": "file:C:/Users/tokubica/OneDrive%20-%20Microsoft/git/custom-vision-toys/dataTrain/20181209_093357.jpg",
+            "size": {
+                "width": 4608,
+                "height": 3456
+            },
+            "state": 2,
+            "type": 1
+        }
+    }
+}

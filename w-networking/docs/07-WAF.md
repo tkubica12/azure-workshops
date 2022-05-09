@@ -51,7 +51,7 @@ az network firewall policy rule-collection-group collection add-filter-collectio
     --rule-type NetworkRule \
     --policy-name $prefix-fw-policy \
     --resource-group $prefix-central \
-    --description "Allow SSH from jump to specific VM" \
+    --description "Allow WEB from DMZ to any internal network" \
     --source-addresses "10.253.0.0/16" \
     --destination-addresses "10.0.0.0/8" \
     --destination-ports 80 443 \

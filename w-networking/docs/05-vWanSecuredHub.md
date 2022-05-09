@@ -31,7 +31,7 @@ az vm create -n $prefix-vm \
     --image UbuntuLTS \
     --vnet-name $prefix-project2 \
     --subnet machines \
-    --size Standard_B1s \
+    --size Standard_D2a_v4 \
     --admin-username labuser \
     --admin-password Azure12345678 \
     --authentication-type password \
@@ -131,19 +131,19 @@ Before we implement firewalling let's create private DNS zone that would span al
 
 ```bash
 # Add DNS zone, link it to VNETs and print records (in bash)
-az network private-dns zone create -n $prefix.cz -g $prefix-central
+az network private-dns zone create -n $prefix.cz2 -g $prefix-central
 az network private-dns link vnet create -n $prefix-project1 \
     -g $prefix-central \
     --virtual-network $(az network vnet show -n $prefix-project1 -g $prefix-project1 --query id -o tsv) \
     --registration-enabled \
-    --zone-name $prefix.cz
+    --zone-name $prefix.cz2
 az network private-dns link vnet create -n $prefix-project2 \
     -g $prefix-central \
     --virtual-network $(az network vnet show -n $prefix-project2 -g $prefix-project2 --query id -o tsv) \
     --registration-enabled \
-    --zone-name $prefix.cz
+    --zone-name $prefix.cz2
 
-az network private-dns record-set a list -g $prefix-central -z $prefix.cz
+az network private-dns record-set a list -g $prefix-central -z $prefix.cz2
 ```
 
 ```powershell
@@ -246,7 +246,7 @@ We can now check Firewall is blocking our communications to other projects and t
 ```bash
 az serial-console connect -n $prefix-vm -g $prefix-project2
 export prefix=tomaskubica4
-ping -c 2 $prefix-jump.$prefix.cz   # Firewall blocks communication to other projects
+ping -c 2 $prefix-jump.$prefix.cz2   # Firewall blocks communication to other projects
 curl http://ifconfig.io/all         # Firewall transparent proxy blocks this and injects error message
 ```
 

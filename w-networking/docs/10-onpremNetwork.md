@@ -31,7 +31,7 @@ az vm create -n $prefix-vpn \
     --image UbuntuLTS \
     --vnet-name $prefix-onprem \
     --subnet vpn \
-    --size Standard_B1s \
+    --size Standard_D2a_v4 \
     --admin-username labuser \
     --admin-password Azure12345678 \
     --authentication-type password \
@@ -139,7 +139,7 @@ Configure Linux for IPSec
 az serial-console connect -n $prefix-vpn -g $prefix-onprem
 sudo -i
 apt install quagga quagga-doc strongswan -y
-export azureip=20.123.108.100   # Modify to fit yours!
+export azureip=20.67.231.43   # Modify to fit yours!
 export azurebgppeer=10.0.0.12   # Modify to fit yours!
 
 cat > /etc/ipsec.conf << EOF

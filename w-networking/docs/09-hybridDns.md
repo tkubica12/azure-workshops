@@ -31,7 +31,7 @@ az vm create -n $prefix-dnssrv \
     --image UbuntuLTS \
     --vnet-name $prefix-shared \
     --subnet machines \
-    --size Standard_B1s \
+    --size Standard_D2a_v4 \
     --admin-username labuser \
     --admin-password Azure12345678 \
     --authentication-type password \
