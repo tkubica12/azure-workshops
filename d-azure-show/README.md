@@ -1,6 +1,6 @@
 # Hosting application - WebApp + DB
 
-1. Create WebApp using .NET Core 3.1 runtime and Windows host on new plan with P1v2
+1. Create WebApp using .NET Core 3.1 runtime and Windows host on new plan with P1v2 and comment on zone redundancy
 2. Click on listed URL to see your web running
 3. Go to App Service Editor and create new file (using right click) named default.aspx with following code:
 
@@ -28,7 +28,7 @@ VERSION 2 <%=System.Environment.MachineName %>
 
 # Low-code
 1. On DB comment on Power Platform components
-2. Click on PowerBI, download file and open it in PowerBI desktop
+2. Click on PowerBI, download file and open it in PowerBI desktop, Connect with Microsoft Account (not Windows account)
 3. Add Customer data, create table with company and name. Add multi-row card with other details on clicked customer
 4. Click on Power Apps, Get Started (but do not finish wizard due to limitations in our internal tenant)
 5. Open make.powerapps.com and connect Azure SQL
@@ -69,7 +69,7 @@ SELECT
 INTO
     [OutputAlias]
 FROM
-    [dhldata]
+    [mydata]
 WHERE temperature > 20000
 ```
 10. Open Azure Synapse studio - Manage and show SQL serverless and dedicated pools, Spark Pools, ADX pools, show Integration pipelines (Copy data -> source, then browse template)
@@ -82,4 +82,8 @@ https://github.com/tomas-iac
 4. Go to Azure and showcase deployed infrastructure
 
 # Management and edge solutions
+1. Open tomaskubicaiot demo IoT Hub that has been prepared before (add IoT Device from VS Code and deploy Linux VM and register as IoT Edge device)
+2. Show Devices (messaging, device twin, config) and Add new to see authentication options including certificate
+3. Show IoT Edge devices and modules, click on Set modules to see marketplace and focus on cloud services such as Stream Analytics or Cognitive services
+4. Showcase Arc using ArcBoc jumpstart [https://azurearcjumpstart.io/](https://azurearcjumpstart.io/)
 
