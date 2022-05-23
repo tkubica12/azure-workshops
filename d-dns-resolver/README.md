@@ -1,6 +1,24 @@
 # Azure private DNS resolver
 This demonstrates hybrid DNS solution between Azure and on-prem using Azure Private DNS Resolver on Azure side and Bind on on-prem side.
 
+```mermaid
+graph TD;
+    vwan{Azure vWAN} --- |connection| spoke(Azure Spoke VNET);
+    vwan --- |connection| services(Azure Services VNET);
+    vwan ------ |vpn| onprem(On-premises networks)
+    pzone(Azure Private DNS Zone) .- |link and registration| services;
+    pzone(Azure Private DNS Zone) .- |link and registration| spoke;
+    pezone(Azure Private Endpoint DNS Zone) .- |link| services;
+    services --- resolver(Azure Private DNS Resolver);
+    resolver --- in(Resolver inbound interface);
+    resolver --- out(Resolver outbound interface);
+    onprem .-> dns(On-prem DNS server);
+    dns .-> in;
+    out .-> dns;
+    spoke .-> in;
+```
+
+
 ```bash
 az group create -n dns -l westeurope
 az bicep build -f infra.bicep
@@ -89,13 +107,32 @@ tomas@onpremVm:~$ dig ydpzynlb3ydfi.blob.core.windows.net
 ydpzynlb3ydfi.blob.core.windows.net. 60 IN CNAME ydpzynlb3ydfi.privatelink.blob.core.windows.net.
 ydpzynlb3ydfi.privatelink.blob.core.windows.net. 9 IN A 10.1.0.5
 ```
+
 Test from Azure to onprem
 
 ```bash
 az serial-console connect -n cloudVm -g dns
 
-tomas@cloudVm:~$ dig test.onprem.mydomain.demo
+tomas@cloudVm:~$ dig onpremvm.onprem.mydomain.demo
 
 ;; ANSWER SECTION:
-test.onprem.mydomain.demo. 60   IN      A       10.99.0.4
+onpremvm.onprem.mydomain.demo. 60   IN      A       10.99.0.4
+```
+
+Test from Azure spoke network to onprem and resolve Private Endpoint
+
+```bash
+az serial-console connect -n spokeVm -g dns
+
+tomas@spokeVm:~$ dig onpremvm.onprem.mydomain.demo
+
+;; ANSWER SECTION:
+onpremvm.onprem.mydomain.demo. 60   IN      A       10.99.0.4
+
+
+tomas@spokeVm:~$ dig ydpzynlb3ydfi.blob.core.windows.net
+
+;; ANSWER SECTION:
+ydpzynlb3ydfi.blob.core.windows.net. 60 IN CNAME ydpzynlb3ydfi.privatelink.blob.core.windows.net.
+ydpzynlb3ydfi.privatelink.blob.core.windows.net. 9 IN A 10.1.0.5
 ```

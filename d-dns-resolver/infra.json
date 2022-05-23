@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "5504055154469345670"
+      "templateHash": "18424614895081263392"
     }
   },
   "variables": {
@@ -15,7 +15,7 @@
     {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2021-08-01",
-      "name": "azureVnet",
+      "name": "azureServicesVnet",
       "location": "[variables('location')]",
       "properties": {
         "addressSpace": {
@@ -90,9 +90,38 @@
       }
     },
     {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2021-08-01",
+      "name": "azureSpokeVnet",
+      "location": "[variables('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.5.0.0/16"
+          ]
+        },
+        "dhcpOptions": {
+          "dnsServers": [
+            "[reference(resourceId('Microsoft.Network/dnsResolvers/inboundEndpoints', 'azureDnsResolver', 'azureDnsResolverIn')).ipConfigurations[0].privateIpAddress]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "vm",
+            "properties": {
+              "addressPrefix": "10.5.0.0/24"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/dnsResolvers/inboundEndpoints', 'azureDnsResolver', 'azureDnsResolverIn')]"
+      ]
+    },
+    {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
       "apiVersion": "2021-08-01",
-      "name": "[format('{0}/{1}', 'azureVnet', 'peerAzureOnprem')]",
+      "name": "[format('{0}/{1}', 'azureServicesVnet', 'peerAzureOnprem')]",
       "properties": {
         "remoteVirtualNetwork": {
           "id": "[resourceId('Microsoft.Network/virtualNetworks', 'onpremVnet')]"
@@ -101,7 +130,7 @@
         "allowVirtualNetworkAccess": true
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]",
         "[resourceId('Microsoft.Network/virtualNetworks', 'onpremVnet')]"
       ]
     },
@@ -111,14 +140,67 @@
       "name": "[format('{0}/{1}', 'onpremVnet', 'peerOnpremAzure')]",
       "properties": {
         "remoteVirtualNetwork": {
-          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]"
         },
         "allowForwardedTraffic": true,
         "allowVirtualNetworkAccess": true
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]",
         "[resourceId('Microsoft.Network/virtualNetworks', 'onpremVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualWans",
+      "apiVersion": "2021-08-01",
+      "name": "vwan",
+      "location": "[variables('location')]",
+      "properties": {
+        "allowVnetToVnetTraffic": true
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualHubs",
+      "apiVersion": "2021-08-01",
+      "name": "vHub",
+      "location": "[variables('location')]",
+      "properties": {
+        "virtualWan": {
+          "id": "[resourceId('Microsoft.Network/virtualWans', 'vwan')]"
+        },
+        "addressPrefix": "10.20.0.0/16",
+        "sku": "Standard"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualWans', 'vwan')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualHubs/hubVirtualNetworkConnections",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', 'vHub', 'azureServicesVnetToHub')]",
+      "properties": {
+        "remoteVirtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]",
+        "[resourceId('Microsoft.Network/virtualHubs', 'vHub')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualHubs/hubVirtualNetworkConnections",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', 'vHub', 'azureSpokeVnetToHub')]",
+      "properties": {
+        "remoteVirtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureSpokeVnet')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureSpokeVnet')]",
+        "[resourceId('Microsoft.Network/virtualHubs', 'vHub')]"
       ]
     },
     {
@@ -128,11 +210,11 @@
       "location": "[variables('location')]",
       "properties": {
         "virtualNetwork": {
-          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]"
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]"
       ]
     },
     {
@@ -145,14 +227,14 @@
           {
             "privateIpAllocationMethod": "Dynamic",
             "subnet": {
-              "id": "[format('{0}/subnets/dns-in', resourceId('Microsoft.Network/virtualNetworks', 'azureVnet'))]"
+              "id": "[format('{0}/subnets/dns-in', resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet'))]"
             }
           }
         ]
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/dnsResolvers', 'azureDnsResolver')]",
-        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]"
       ]
     },
     {
@@ -162,12 +244,12 @@
       "location": "[variables('location')]",
       "properties": {
         "subnet": {
-          "id": "[format('{0}/subnets/dns-out', resourceId('Microsoft.Network/virtualNetworks', 'azureVnet'))]"
+          "id": "[format('{0}/subnets/dns-out', resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet'))]"
         }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/dnsResolvers', 'azureDnsResolver')]",
-        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]"
       ]
     },
     {
@@ -192,11 +274,11 @@
       "name": "[format('{0}/{1}', 'myForwardingRuleSet', 'myForwardingRuleSetVnetLink')]",
       "properties": {
         "virtualNetwork": {
-          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]"
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]",
         "[resourceId('Microsoft.Network/dnsForwardingRulesets', 'myForwardingRuleSet')]"
       ]
     },
@@ -230,12 +312,28 @@
       "location": "global",
       "properties": {
         "virtualNetwork": {
-          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]"
         },
         "registrationEnabled": true
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]",
+        "[resourceId('Microsoft.Network/privateDnsZones', 'azure.mydomain.demo')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'azure.mydomain.demo', 'myPrivateDnsVnetLinkSpoke')]",
+      "location": "global",
+      "properties": {
+        "virtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureSpokeVnet')]"
+        },
+        "registrationEnabled": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureSpokeVnet')]",
         "[resourceId('Microsoft.Network/privateDnsZones', 'azure.mydomain.demo')]"
       ]
     },
@@ -260,7 +358,7 @@
             "name": "ipConfig",
             "properties": {
               "subnet": {
-                "id": "[format('{0}/subnets/vm', resourceId('Microsoft.Network/virtualNetworks', 'azureVnet'))]"
+                "id": "[format('{0}/subnets/vm', resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet'))]"
               },
               "privateIPAllocationMethod": "Dynamic"
             }
@@ -268,7 +366,7 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]"
       ]
     },
     {
@@ -306,7 +404,7 @@
         "osProfile": {
           "computerName": "cloudVm",
           "adminUsername": "tomas",
-          "adminPassword": "Azure123456789"
+          "adminPassword": "Azure12345678"
         },
         "diagnosticsProfile": {
           "bootDiagnostics": {
@@ -317,6 +415,77 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', 'cloudVmNic')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2021-08-01",
+      "name": "spokeVmNic",
+      "location": "[variables('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipConfig",
+            "properties": {
+              "subnet": {
+                "id": "[format('{0}/subnets/vm', resourceId('Microsoft.Network/virtualNetworks', 'azureSpokeVnet'))]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureSpokeVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2021-11-01",
+      "name": "spokeVm",
+      "location": "[variables('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B1s"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "name": "osDiskspokeVmNic",
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          },
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'spokeVmNic')]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "spokeVmNic",
+          "adminUsername": "tomas",
+          "adminPassword": "Azure12345678"
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id))).primaryEndpoints.blob]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', 'spokeVmNic')]",
         "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id))]"
       ]
     },
@@ -382,7 +551,7 @@
         "osProfile": {
           "computerName": "onpremVm",
           "adminUsername": "tomas",
-          "adminPassword": "Azure123456789"
+          "adminPassword": "Azure12345678"
         },
         "diagnosticsProfile": {
           "bootDiagnostics": {
@@ -454,7 +623,7 @@
         "osProfile": {
           "computerName": "onpremDnsVm",
           "adminUsername": "tomas",
-          "adminPassword": "Azure123456789"
+          "adminPassword": "Azure12345678"
         },
         "diagnosticsProfile": {
           "bootDiagnostics": {
@@ -491,12 +660,12 @@
       "location": "global",
       "properties": {
         "virtualNetwork": {
-          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]"
         },
         "registrationEnabled": false
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]",
         "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.blob.core.windows.net')]"
       ]
     },
@@ -507,7 +676,7 @@
       "location": "[variables('location')]",
       "properties": {
         "subnet": {
-          "id": "[format('{0}/subnets/vm', resourceId('Microsoft.Network/virtualNetworks', 'azureVnet'))]"
+          "id": "[format('{0}/subnets/vm', resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet'))]"
         },
         "privateLinkServiceConnections": [
           {
@@ -522,7 +691,7 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureServicesVnet')]",
         "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id, 'mydemo'))]"
       ]
     },

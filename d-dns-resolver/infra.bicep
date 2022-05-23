@@ -1,8 +1,8 @@
 var location = resourceGroup().location
 
 // Networks
-resource azureVnet 'Microsoft.Network/virtualNetworks@2021-08-01' = {
-  name: 'azureVnet'
+resource azureServicesVnet 'Microsoft.Network/virtualNetworks@2021-08-01' = {
+  name: 'azureServicesVnet'
   location: location
   properties: {
     addressSpace: {
@@ -76,10 +76,35 @@ resource onpremVnet 'Microsoft.Network/virtualNetworks@2021-08-01' = {
   }
 }
 
+resource azureSpokeVnet 'Microsoft.Network/virtualNetworks@2021-08-01' = {
+  name: 'azureSpokeVnet'
+  location: location
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        '10.5.0.0/16'
+      ]
+    }
+    dhcpOptions: {
+      dnsServers: [
+        azureDnsResolverIn.properties.ipConfigurations[0].privateIpAddress
+      ]
+    }
+    subnets: [
+      {
+        name: 'vm'
+        properties: {
+          addressPrefix: '10.5.0.0/24'
+        }
+      }
+    ]
+  }
+}
+
 // Simulate VPN connection using VNET peering
 resource peerAzureOnprem 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2021-08-01' = {
   name: 'peerAzureOnprem'
-  parent: azureVnet
+  parent: azureServicesVnet
   properties: {
     remoteVirtualNetwork: {
       id: onpremVnet.id
@@ -94,10 +119,51 @@ resource peerOnpremAzure 'Microsoft.Network/virtualNetworks/virtualNetworkPeerin
   parent: onpremVnet
   properties: {
     remoteVirtualNetwork: {
-      id: azureVnet.id
+      id: azureServicesVnet.id
     }
     allowForwardedTraffic: true
     allowVirtualNetworkAccess: true
+  }
+}
+
+// vWAN
+resource vwan 'Microsoft.Network/virtualWans@2021-08-01' = {
+  name: 'vwan'
+  location: location
+  properties: {
+    allowVnetToVnetTraffic: true
+  }
+}
+
+resource vHub 'Microsoft.Network/virtualHubs@2021-08-01' = {
+  name: 'vHub'
+  location: location
+  properties: {
+   virtualWan: {
+     id: vwan.id
+   } 
+   addressPrefix: '10.20.0.0/16'
+   sku: 'Standard'
+  }
+}
+
+resource azureServicesVnetToHub 'Microsoft.Network/virtualHubs/hubVirtualNetworkConnections@2021-08-01' = {
+  name: 'azureServicesVnetToHub'
+  parent: vHub
+  properties: {
+    remoteVirtualNetwork: {
+      id: azureServicesVnet.id
+    }
+  }
+}
+
+resource azureSpokeVnetToHub 'Microsoft.Network/virtualHubs/hubVirtualNetworkConnections@2021-08-01' = {
+  name: 'azureSpokeVnetToHub'
+  parent: vHub
+  properties: {
+    remoteVirtualNetwork: {
+      id: azureSpokeVnet.id
+    }
   }
 }
 
@@ -107,7 +173,7 @@ resource azureDnsResolver 'Microsoft.Network/dnsResolvers@2020-04-01-preview' = 
   location: location
   properties: {
     virtualNetwork: {
-      id: azureVnet.id
+      id: azureServicesVnet.id
     }
   }
 }
@@ -121,7 +187,7 @@ resource azureDnsResolverIn 'Microsoft.Network/dnsResolvers/inboundEndpoints@202
       {
         privateIpAllocationMethod: 'Dynamic'
         subnet: {
-          id: '${azureVnet.id}/subnets/dns-in'
+          id: '${azureServicesVnet.id}/subnets/dns-in'
         }
       }
     ]
@@ -136,7 +202,7 @@ resource azureDnsResolverOut 'Microsoft.Network/dnsResolvers/outboundEndpoints@2
   location: location
   properties: {
     subnet: {
-      id: '${azureVnet.id}/subnets/dns-out'
+      id: '${azureServicesVnet.id}/subnets/dns-out'
     }
   }
 }
@@ -158,7 +224,7 @@ resource forwardingRuleSetVnetLink 'Microsoft.Network/dnsForwardingRulesets/virt
   parent: forwardingRuleSet
   properties: {
     virtualNetwork: {
-      id: azureVnet.id
+      id: azureServicesVnet.id
     }
   }
 }
@@ -177,7 +243,7 @@ resource forwardingRules 'Microsoft.Network/dnsForwardingRulesets/forwardingRule
   }
 }
 
-// Private DNS zone
+// Private DNS zone and link to all VNETs (to enable registration of records across Azure)
 resource privateDns 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   name: 'azure.mydomain.demo'
   location: 'global'
@@ -189,7 +255,19 @@ resource privateDnsVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLin
   location: 'global'
   properties: {
     virtualNetwork: {
-      id: azureVnet.id
+      id: azureServicesVnet.id
+    }
+    registrationEnabled: true
+  }
+}
+
+resource privateDnsVnetLinkSpoke 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  name: 'myPrivateDnsVnetLinkSpoke'
+  parent: privateDns
+  location: 'global'
+  properties: {
+    virtualNetwork: {
+      id: azureSpokeVnet.id
     }
     registrationEnabled: true
   }
@@ -215,7 +293,7 @@ resource cloudVmNic 'Microsoft.Network/networkInterfaces@2021-08-01' = {
         name: 'ipConfig'
         properties: {
           subnet: {
-            id: '${azureVnet.id}/subnets/vm'
+            id: '${azureServicesVnet.id}/subnets/vm'
           }
           privateIPAllocationMethod: 'Dynamic'
         }
@@ -257,7 +335,70 @@ resource cloudVm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
     osProfile: {
       computerName: 'cloudVm'
       adminUsername: 'tomas'
-      adminPassword: 'Azure123456789'
+      adminPassword: 'Azure12345678'
+    }
+    diagnosticsProfile: {
+      bootDiagnostics: {
+        enabled: true
+        storageUri: storage.properties.primaryEndpoints.blob
+      }
+    }
+  }
+}
+
+// Spoke VM
+resource spokeVmNic 'Microsoft.Network/networkInterfaces@2021-08-01' = {
+  name: 'spokeVmNic'
+  location: location
+  properties: {
+    ipConfigurations: [
+      {
+        name: 'ipConfig'
+        properties: {
+          subnet: {
+            id: '${azureSpokeVnet.id}/subnets/vm'
+          }
+          privateIPAllocationMethod: 'Dynamic'
+        }
+      }
+    ]
+  }
+}
+
+resource spokeVm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
+  name: 'spokeVm'
+  location: location
+  properties: {
+    hardwareProfile: {
+      vmSize: 'Standard_B1s'
+    }
+    storageProfile: {
+      osDisk: {
+        name: 'osDiskspokeVmNic'
+        caching: 'ReadWrite'
+        createOption: 'FromImage'
+        managedDisk: {
+          storageAccountType: 'Standard_LRS'
+        }
+      }
+      imageReference: {
+        publisher: 'Canonical'
+        offer: 'UbuntuServer'
+        sku: '18.04-LTS'
+        version: 'latest'
+      }
+    }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: spokeVmNic.id
+        }
+      ]
+    }
+    osProfile: {
+      computerName: 'spokeVmNic'
+      adminUsername: 'tomas'
+      adminPassword: 'Azure12345678'
     }
     diagnosticsProfile: {
       bootDiagnostics: {
@@ -325,7 +466,7 @@ resource onpremVm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
     osProfile: {
       computerName: 'onpremVm'
       adminUsername: 'tomas'
-      adminPassword: 'Azure123456789'
+      adminPassword: 'Azure12345678'
     }
     diagnosticsProfile: {
       bootDiagnostics: {
@@ -389,7 +530,7 @@ resource onpremDnsVm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
     osProfile: {
       computerName: 'onpremDnsVm'
       adminUsername: 'tomas'
-      adminPassword: 'Azure123456789'
+      adminPassword: 'Azure12345678'
     }
     diagnosticsProfile: {
       bootDiagnostics: {
@@ -423,7 +564,7 @@ resource storagePrivateDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtua
   location: 'global'
   properties: {
     virtualNetwork: {
-      id: azureVnet.id
+      id: azureServicesVnet.id
     }
     registrationEnabled: false
   }
@@ -434,7 +575,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2021-08-01' = {
   location: location
   properties: {
     subnet: {
-      id: '${azureVnet.id}/subnets/vm'
+      id: '${azureServicesVnet.id}/subnets/vm'
     }
     privateLinkServiceConnections: [
       {
