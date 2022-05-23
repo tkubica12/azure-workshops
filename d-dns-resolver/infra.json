@@ -1,0 +1,559 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.6.18.56646",
+      "templateHash": "5504055154469345670"
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2021-08-01",
+      "name": "azureVnet",
+      "location": "[variables('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.1.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "vm",
+            "properties": {
+              "addressPrefix": "10.1.0.0/24",
+              "privateEndpointNetworkPolicies": "Disabled"
+            }
+          },
+          {
+            "name": "dns-in",
+            "properties": {
+              "addressPrefix": "10.1.1.0/24",
+              "delegations": [
+                {
+                  "name": "dnsResolverLink",
+                  "properties": {
+                    "serviceName": "Microsoft.Network/dnsResolvers"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "dns-out",
+            "properties": {
+              "addressPrefix": "10.1.2.0/24",
+              "delegations": [
+                {
+                  "name": "dnsResolverLink",
+                  "properties": {
+                    "serviceName": "Microsoft.Network/dnsResolvers"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2021-08-01",
+      "name": "onpremVnet",
+      "location": "[variables('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.99.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "vm",
+            "properties": {
+              "addressPrefix": "10.99.0.0/24"
+            }
+          },
+          {
+            "name": "dns",
+            "properties": {
+              "addressPrefix": "10.99.1.0/24"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', 'azureVnet', 'peerAzureOnprem')]",
+      "properties": {
+        "remoteVirtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'onpremVnet')]"
+        },
+        "allowForwardedTraffic": true,
+        "allowVirtualNetworkAccess": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'onpremVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/{1}', 'onpremVnet', 'peerOnpremAzure')]",
+      "properties": {
+        "remoteVirtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+        },
+        "allowForwardedTraffic": true,
+        "allowVirtualNetworkAccess": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'onpremVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/dnsResolvers",
+      "apiVersion": "2020-04-01-preview",
+      "name": "azureDnsResolver",
+      "location": "[variables('location')]",
+      "properties": {
+        "virtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/dnsResolvers/inboundEndpoints",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[format('{0}/{1}', 'azureDnsResolver', 'azureDnsResolverIn')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "privateIpAllocationMethod": "Dynamic",
+            "subnet": {
+              "id": "[format('{0}/subnets/dns-in', resourceId('Microsoft.Network/virtualNetworks', 'azureVnet'))]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/dnsResolvers', 'azureDnsResolver')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/dnsResolvers/outboundEndpoints",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[format('{0}/{1}', 'azureDnsResolver', 'azureDnsResolverOut')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "subnet": {
+          "id": "[format('{0}/subnets/dns-out', resourceId('Microsoft.Network/virtualNetworks', 'azureVnet'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/dnsResolvers', 'azureDnsResolver')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/dnsForwardingRulesets",
+      "apiVersion": "2020-04-01-preview",
+      "name": "myForwardingRuleSet",
+      "location": "[variables('location')]",
+      "properties": {
+        "dnsResolverOutboundEndpoints": [
+          {
+            "id": "[resourceId('Microsoft.Network/dnsResolvers/outboundEndpoints', 'azureDnsResolver', 'azureDnsResolverOut')]"
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/dnsResolvers/outboundEndpoints', 'azureDnsResolver', 'azureDnsResolverOut')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[format('{0}/{1}', 'myForwardingRuleSet', 'myForwardingRuleSetVnetLink')]",
+      "properties": {
+        "virtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]",
+        "[resourceId('Microsoft.Network/dnsForwardingRulesets', 'myForwardingRuleSet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/dnsForwardingRulesets/forwardingRules",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[format('{0}/{1}', 'myForwardingRuleSet', 'myForwardingRules')]",
+      "properties": {
+        "domainName": "onprem.mydomain.demo.",
+        "targetDnsServers": [
+          {
+            "ipAddress": "10.99.1.10",
+            "port": 53
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/dnsForwardingRulesets', 'myForwardingRuleSet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2020-06-01",
+      "name": "azure.mydomain.demo",
+      "location": "global"
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'azure.mydomain.demo', 'myPrivateDnsVnetLink')]",
+      "location": "global",
+      "properties": {
+        "virtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+        },
+        "registrationEnabled": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]",
+        "[resourceId('Microsoft.Network/privateDnsZones', 'azure.mydomain.demo')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-09-01",
+      "name": "[uniqueString(resourceGroup().id)]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2021-08-01",
+      "name": "cloudVmNic",
+      "location": "[variables('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipConfig",
+            "properties": {
+              "subnet": {
+                "id": "[format('{0}/subnets/vm', resourceId('Microsoft.Network/virtualNetworks', 'azureVnet'))]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2021-11-01",
+      "name": "cloudVm",
+      "location": "[variables('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B1s"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "name": "osDiskcloudVm",
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          },
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'cloudVmNic')]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "cloudVm",
+          "adminUsername": "tomas",
+          "adminPassword": "Azure123456789"
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id))).primaryEndpoints.blob]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', 'cloudVmNic')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2021-08-01",
+      "name": "onpremVmNic",
+      "location": "[variables('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipConfig",
+            "properties": {
+              "subnet": {
+                "id": "[format('{0}/subnets/vm', resourceId('Microsoft.Network/virtualNetworks', 'onpremVnet'))]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ],
+        "dnsSettings": {
+          "dnsServers": [
+            "10.99.1.10"
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'onpremVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2021-11-01",
+      "name": "onpremVm",
+      "location": "[variables('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B1s"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "name": "osDiskonpremVm",
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          },
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'onpremVmNic')]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "onpremVm",
+          "adminUsername": "tomas",
+          "adminPassword": "Azure123456789"
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id))).primaryEndpoints.blob]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', 'onpremVmNic')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2021-08-01",
+      "name": "onpremDnsVmNic",
+      "location": "[variables('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipConfig",
+            "properties": {
+              "subnet": {
+                "id": "[format('{0}/subnets/dns', resourceId('Microsoft.Network/virtualNetworks', 'onpremVnet'))]"
+              },
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "10.99.1.10"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'onpremVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2021-11-01",
+      "name": "onpremDnsVm",
+      "location": "[variables('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B1s"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "name": "osDiskonpremDnsVm",
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          },
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'onpremDnsVmNic')]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "onpremDnsVm",
+          "adminUsername": "tomas",
+          "adminPassword": "Azure123456789"
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id))).primaryEndpoints.blob]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', 'onpremDnsVmNic')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-09-01",
+      "name": "[uniqueString(resourceGroup().id, 'mydemo')]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2020-06-01",
+      "name": "privatelink.blob.core.windows.net",
+      "location": "global"
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'privatelink.blob.core.windows.net', 'storagePrivateDnsZoneVnetLink')]",
+      "location": "global",
+      "properties": {
+        "virtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]"
+        },
+        "registrationEnabled": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]",
+        "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.blob.core.windows.net')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2021-08-01",
+      "name": "privateEndpoint",
+      "location": "[variables('location')]",
+      "properties": {
+        "subnet": {
+          "id": "[format('{0}/subnets/vm', resourceId('Microsoft.Network/virtualNetworks', 'azureVnet'))]"
+        },
+        "privateLinkServiceConnections": [
+          {
+            "name": "privateLinkServiceConnection",
+            "properties": {
+              "groupIds": [
+                "blob"
+              ],
+              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id, 'mydemo'))]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'azureVnet')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id, 'mydemo'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2021-05-01",
+      "name": "[format('{0}/{1}', 'privateEndpoint', 'privateEndpointDnsRegistration')]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "config1",
+            "properties": {
+              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.blob.core.windows.net')]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateEndpoints', 'privateEndpoint')]",
+        "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.blob.core.windows.net')]"
+      ]
+    }
+  ],
+  "outputs": {
+    "azureDnsResolverInIp": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/dnsResolvers/inboundEndpoints', 'azureDnsResolver', 'azureDnsResolverIn')).ipConfigurations[0].privateIpAddress]"
+    },
+    "serviceFqdn": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', uniqueString(resourceGroup().id, 'mydemo'))).primaryEndpoints.blob]"
+    }
+  }
+}
