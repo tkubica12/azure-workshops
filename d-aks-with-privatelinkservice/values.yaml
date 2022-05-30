@@ -1,0 +1,15 @@
+controller:
+  service:
+    loadBalancerIP: 10.88.4.100
+    annotations:
+      service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: /healthz
+      service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+      service.beta.kubernetes.io/azure-load-balancer-internal-subnet: lb
+      service.beta.kubernetes.io/azure-pls-create: "true"
+      service.beta.kubernetes.io/azure-pls-name: myservice
+      service.beta.kubernetes.io/azure-pls-ip-configuration-subnet: privatelinks
+      service.beta.kubernetes.io/azure-pls-ip-configuration-ip-address-count: "1"
+      service.beta.kubernetes.io/azure-pls-ip-configuration-ip-address: 10.88.5.10
+      service.beta.kubernetes.io/azure-pls-proxy-protocol: "false"
+    # service.beta.kubernetes.io/azure-pls-visibility: "*"
+    # service.beta.kubernetes.io/azure-pls-auto-approval: "subId1"
