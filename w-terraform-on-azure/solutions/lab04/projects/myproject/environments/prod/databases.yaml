@@ -1,0 +1,7 @@
+databases:
+  tomdb1-prod:
+    skuName: S0
+    dbName: db1
+  tomdb2-prod:
+    skuName: S0
+    dbName: db2
