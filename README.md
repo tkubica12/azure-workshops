@@ -19,4 +19,6 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 
 List of demos:
 - [Kubernetes operators](./d-kubernetes-operators/README.md)
-- [API Management in AKS](./d-apim-in-aks/README.md)
+- [Azure API Management in AKS](./d-apim-in-aks/README.md)
+- [AKS with Private Link Service eg. in SaaS provider scenario](./d-aks-with-privatelinkservice/README.md)
+- [Azure private DNS resolver](./d-dns-resolver/README.md)
