@@ -12,7 +12,7 @@ In this lab we will introduce modules and work on Azure SQL module. We will also
 [guide](./docs/02-module.md)
 
 # Lab 3 - More advanced concepts: versioning, conditions, structure inputs and abstractions, cycles
-In this lab we will start from two modules - one for Azure SQL and one for Azure WebApp and introduce concepts such as conditions, loops, your own abstractions and versioning.
+In this lab we will introduce concepts such as conditions, loops, your own abstractions, versioning and more.
 
 [guide](./docs/03-advancedContepts.md)
 

@@ -1,0 +1,4 @@
+databases:
+  tomdb1-staging:
+    skuName: S0
+    dbName: db1
