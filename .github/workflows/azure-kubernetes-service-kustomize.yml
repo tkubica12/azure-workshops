@@ -11,7 +11,7 @@ env:
     CLUSTER_NAME: akswebrouting
     CONTAINER_NAME: draftdemo
     IMAGE_PULL_SECRET_NAME: tomasdraftacr15secret
-    KUSTOMIZE_PATH: ./overlays/production
+    KUSTOMIZE_PATH: ./d-aks-devexperience/overlays/production
     RESOURCE_GROUP: akswebrouting
 jobs:
     buildImage:
