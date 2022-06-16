@@ -138,6 +138,9 @@ export appId=$(az ad sp create-for-rbac -n https://tomaskubicadraft --query appI
 az aks draft setup-gh --app $appId --gh-repo tkubica12/azure-workshops --resource-group akswebrouting --subscription-id $(az account show --query id -o tsv) --debug
 az aks draft setup-gh --app "tomaskubicadraftsp" --gh-repo tkubica12/azure-workshops --resource-group akswebrouting --subscription-id $(az account show --query id -o tsv) --provider azure --debug
 
+# Give this account access to Azure
+az role assignment create -g akswebrouting --role "Contributor" --assignee $(az ad sp list --display-name tomaskubicadraftsp --query [0].appId -o tsv)
+
 # Create Azure Container Registry
 az acr create -n tomasdraftacr15 -g akswebrouting --sku Basic --admin-enabled
 
