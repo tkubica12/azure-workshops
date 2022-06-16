@@ -1,15 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web
+  creationTimestamp: null
   labels:
     app: web
+  name: web
 spec:
   selector:
     matchLabels:
       app: web
+  strategy: {}
   template:
+    metadata:
+      creationTimestamp: null
     spec:
       containers:
-        - name: web
-          image: web
+      - image: tomasdraftacr15.azurecr.io/draftdemo
+        name: web
+        resources: {}
+status: {}

@@ -46,6 +46,8 @@ az role assignment create --scope $(az network dns zone show -g akswebrouting -n
   --role "DNS Zone Contributor" \
   --assignee-object-id  $webroutingid
 
+
+
 # Generate self-signed certificate for demo purposes
 az keyvault certificate create --vault-name mywebvault -n myappdemocert -p '{
   "issuerParameters": {
@@ -134,8 +136,18 @@ export appId=$(az ad sp create-for-rbac -n https://tomaskubicadraft --query appI
 
 # Setup GitHub
 az aks draft setup-gh --app $appId --gh-repo tkubica12/azure-workshops --resource-group akswebrouting --subscription-id $(az account show --query id -o tsv) --debug
-az aks draft setup-gh --app "tomaskubicadraft" --gh-repo tkubica12/azure-workshops --resource-group akswebrouting --subscription-id $(az account show --query id -o tsv) --debug
+az aks draft setup-gh --app "tomaskubicadraftsp" --gh-repo tkubica12/azure-workshops --resource-group akswebrouting --subscription-id $(az account show --query id -o tsv) --provider azure --debug
 
+# Create Azure Container Registry
+az acr create -n tomasdraftacr15 -g akswebrouting --sku Basic --admin-enabled
+
+# Setup workflow
+az aks draft generate-workflow --cluster-name akswebrouting \
+  --destination ./d-aks-devexperience \
+  --container-name draftdemo \
+  --resource-group akswebrouting \
+  --registry-name tomasdraftacr15 \
+  --branch main
 
 # Deploy application with managed ingress
 cat <<EOF | kubectl apply -f -

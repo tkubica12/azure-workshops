@@ -1,0 +1,101 @@
+name: Build and deploy an app to AKS with Kustomize
+"on":
+    push:
+        branches:
+            - main
+    workflow_dispatch: null
+env:
+    AZURE_CONTAINER_REGISTRY: tomasdraftacr15
+    CLUSTER_NAME: akswebrouting
+    CONTAINER_NAME: draftdemo
+    IMAGE_PULL_SECRET_NAME: tomasdraftacr15secret
+    KUSTOMIZE_PATH: ./overlays/production
+    RESOURCE_GROUP: akswebrouting
+jobs:
+    buildImage:
+        permissions:
+            contents: read
+            id-token: write
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: Azure login
+              uses: azure/login@v1.4.3
+              with:
+                client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+                tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+            - name: Build and push image to ACR
+              run: |
+                az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} .
+    createSecret:
+        permissions:
+            contents: read
+            id-token: write
+        runs-on: ubuntu-latest
+        steps:
+            - name: Azure login
+              uses: azure/login@v1.4.3
+              with:
+                client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+                tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+            - name: Get K8s context
+              uses: azure/aks-set-context@v2.0
+              with:
+                cluster-name: ${{ env.CLUSTER_NAME }}
+                resource-group: ${{ env.RESOURCE_GROUP }}
+            - id: get-acr-creds
+              name: Get ACR credentials
+              run: |
+                az acr update -n ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --admin-enabled true
+                ACR_USERNAME=$(az acr credential show -g ${{ env.RESOURCE_GROUP }} -n ${{ env.AZURE_CONTAINER_REGISTRY }} --query username -o tsv)
+                ACR_PASSWORD=$(az acr credential show -g ${{ env.RESOURCE_GROUP }} -n ${{ env.AZURE_CONTAINER_REGISTRY }} --query passwords[0].value -o tsv)
+                echo "::add-mask::${ACR_USERNAME}"
+                echo "::set-output name=username::${ACR_USERNAME}"
+                echo "::add-mask::${ACR_PASSWORD}"
+                echo "::set-output name=password::${ACR_PASSWORD}"
+            - name: Create K8s secret for pulling image from ACR
+              uses: Azure/k8s-create-secret@v1.1
+              with:
+                container-registry-password: ${{ steps.get-acr-creds.outputs.password }}
+                container-registry-url: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io
+                container-registry-username: ${{ steps.get-acr-creds.outputs.username }}
+                secret-name: ${{ env.IMAGE_PULL_SECRET_NAME }}
+    deploy:
+        permissions:
+            actions: read
+            contents: read
+            id-token: write
+        runs-on: ubuntu-latest
+        needs:
+            - buildImage
+            - createSecret
+        steps:
+            - uses: actions/checkout@v3
+            - name: Azure login
+              uses: azure/login@v1.4.3
+              with:
+                client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+                tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+            - name: Get K8s context
+              uses: azure/aks-set-context@v2.0
+              with:
+                cluster-name: ${{ env.CLUSTER_NAME }}
+                resource-group: ${{ env.RESOURCE_GROUP }}
+            - id: bake
+              name: Bake deployment
+              uses: azure/k8s-bake@v2.1
+              with:
+                kubectl-version: latest
+                kustomizationPath: ${{ env.KUSTOMIZE_PATH }}
+                renderEngine: kustomize
+            - name: Deploy application
+              uses: Azure/k8s-deploy@v3.1
+              with:
+                action: deploy
+                imagepullsecrets: ${{ env.IMAGE_PULL_SECRET_NAME }}
+                images: |
+                    ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
+                manifests: ${{ steps.bake.outputs.manifestsBundle }}
