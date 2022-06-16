@@ -3,7 +3,9 @@ name: Build and deploy an app to AKS with Kustomize
     push:
         branches:
             - main
-    workflow_dispatch: null
+        paths:
+        - d-aks-devexperience/**
+    workflow_dispatch: 
 env:
     AZURE_CONTAINER_REGISTRY: tomasdraftacr15
     CLUSTER_NAME: akswebrouting
