@@ -34,28 +34,11 @@ jobs:
   #     data:
   prepare_data:
     inputs:
-      data:
+      raw_data:
         type: uri_file
-        path: azureml:lending_club:1
+        path: azureml:lending_club_raw:1
         mode: download 
     type: command
-    command: >-
-      ls ${{inputs.data}};
-    environment:
-      image: library/python:latest
+    component: azureml:landing_club_process_data@latest
     outputs:
-      prepare:
-  # hello:
-  #   inputs:
-  #     landingClub:
-  #       type: uri_file
-  #       path: https://tomuvstore.blob.core.windows.net/aml/lending_club_loan_two.csv?sp=r&st=2022-06-16T20:43:08Z&se=2055-06-17T04:43:08Z&spr=https&sv=2021-06-08&sr=b&sig=Ut%2FL5HiUtyQn20sUd%2BeZlD4EBr96Py1XzJCWwwGiKOI%3D
-  #   type: command
-  #   command: >-
-  #     head -n 10 lending_club_loan_two.csv
-  #   compute: "azureml:demo"
-  #   environment: azureml:AzureML-tensorflow-2.7-ubuntu20.04-py38-cuda11-gpu@latest
-    # outputs:
-      # cifar:
-      #   type: uri_folder
-      #   mode: upload
+      processed_data:

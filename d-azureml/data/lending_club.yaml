@@ -1,5 +1,0 @@
-$schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
-name: lending_club
-description: lending_club
-type: uri_file
-path: "https://tomuvstore.blob.core.windows.net/aml/lending_club_loan_two.csv?sp=r&st=2022-06-16T20:43:08Z&se=2055-06-17T04:43:08Z&spr=https&sv=2021-06-08&sr=b&sig=Ut%2FL5HiUtyQn20sUd%2BeZlD4EBr96Py1XzJCWwwGiKOI%3D"
