@@ -1,22 +1,26 @@
 $schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
 type: command
 
-name: landing_club_train
-display_name: landing_club_train
-version: 4
+name: lending_club_train
+display_name: lending_club_train
+version: 7
 is_deterministic: false
 
 code: ./src/
 
 inputs:
   data: 
-    type: uri_file
+    type: uri_folder
 
 outputs:
   model:
     type: uri_file
 
-environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
+environment: azureml:AzureML-tensorflow-2.4-ubuntu18.04-py37-cuda11-gpu@latest
 
 command: >-
-  python run.py --data ${{inputs.data}} --model_file ${{outputs.model}}/landing_club_model.h5;
+  python run.py --x-train ${{inputs.data}}/X_train.csv 
+                --y-train ${{inputs.data}}/y_train.csv
+                --x-test ${{inputs.data}}/X_test.csv
+                --y-test ${{inputs.data}}/y_test.csv
+                --model_file ${{outputs.model}}/landing_club_model.h5;

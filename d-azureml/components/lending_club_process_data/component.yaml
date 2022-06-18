@@ -1,9 +1,9 @@
 $schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
 type: command
 
-name: landing_club_process_data
-display_name: landing_club_process_data
-version: 4
+name: lending_club_process_data
+display_name: lending_club_process_data
+version: 5
 is_deterministic: false
 
 code: ./src/
@@ -19,4 +19,4 @@ outputs:
 environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
 
 command: >-
-  python run.py --raw_data ${{inputs.raw_data}} --processed_data ${{outputs.processed_data}}/landing_club_processed.csv;
+  python run.py --raw-data ${{inputs.raw_data}} --processed-data ${{outputs.processed_data}}/landing_club_processed.csv;

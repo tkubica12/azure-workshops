@@ -1,37 +1,16 @@
 $schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
 type: pipeline
 
-description: Tomas landingclub demo pipeline
+description: Tomas lendingclub demo pipeline
 
-display_name: landingclub-demo-pipeline
-experiment_name: landingclub-demo-experiment
+display_name: lendingclub-demo-pipeline
+experiment_name: lendingclub-demo-experiment
 
 settings:
   default_datastore: azureml:workspaceblobstore
   default_compute: azureml:demo
 
 jobs:
-  # download_repo:
-  #   inputs:
-  #     repo: "https://github.com/tkubica12/azure-workshops"
-  #   type: command
-  #   component: azureml:download_repo@latest
-  #   compute: "azureml:demo"
-  #   outputs:
-  #     repo:
-  #       type: uri_folder
-  #       mode: upload
-  # download_data:
-  #   inputs:
-  #     url: "https://tomuvstore.blob.core.windows.net/aml/lending_club_loan_two.csv?sp=r&st=2022-06-16T20:43:08Z&se=2055-06-17T04:43:08Z&spr=https&sv=2021-06-08&sr=b&sig=Ut%2FL5HiUtyQn20sUd%2BeZlD4EBr96Py1XzJCWwwGiKOI%3D"
-  #   type: command
-  #   command: >-
-  #     wget "${{inputs.url}}" -O ${{outputs.data}}/lending_club_loan_two.csv;
-  #   compute: "azureml:demo"
-  #   environment:
-  #     image: library/python:latest
-  #   outputs:
-  #     data:
   prepare_data:
     inputs:
       raw_data:
@@ -39,6 +18,27 @@ jobs:
         path: azureml:lending_club_raw:1
         mode: download 
     type: command
-    component: azureml:landing_club_process_data@latest
+    component: azureml:lending_club_process_data@latest
     outputs:
       processed_data:
+  split_and_scale:
+    inputs:
+      data:
+        type: uri_file
+        path: ${{parent.jobs.prepare_data.outputs.processed_data}}
+        mode: download 
+      label_name: loan_repaid
+    type: command
+    component: azureml:split_and_scale@latest
+    outputs:
+      datasets:
+  train:
+    inputs:
+      data:
+        type: uri_file
+        path: ${{parent.jobs.split_and_scale.outputs.datasets}}
+        mode: download 
+    type: command
+    component: azureml:lending_club_train@latest
+    outputs:
+      model:

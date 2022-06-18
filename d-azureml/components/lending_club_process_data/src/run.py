@@ -3,8 +3,8 @@ import pandas as pd
 import numpy as np
 
 parser = argparse.ArgumentParser("prep")
-parser.add_argument("--raw_data", type=str, help="Raw data file")
-parser.add_argument("--processed_data", type=str, help="Processed data file")
+parser.add_argument("--raw-data", type=str, help="Raw data file")
+parser.add_argument("--processed-data", type=str, help="Processed data file")
 args = parser.parse_args()
 
 print(f"Raw data file: {args.raw_data}",)
