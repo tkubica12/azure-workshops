@@ -16,7 +16,7 @@ jobs:
       raw_data:
         type: uri_file
         path: azureml:lending_club_raw:1
-        mode: download 
+        mode: ro_mount 
     type: command
     component: azureml:lending_club_process_data@latest
     outputs:
@@ -26,8 +26,9 @@ jobs:
       data:
         type: uri_file
         path: ${{parent.jobs.prepare_data.outputs.processed_data}}
-        mode: download 
+        mode: ro_mount 
       label_name: loan_repaid
+      file_name: landing_club_processed.csv
     type: command
     component: azureml:split_and_scale@latest
     outputs:
@@ -37,7 +38,7 @@ jobs:
       data:
         type: uri_file
         path: ${{parent.jobs.split_and_scale.outputs.datasets}}
-        mode: download 
+        mode: ro_mount 
     type: command
     component: azureml:lending_club_train@latest
     outputs:

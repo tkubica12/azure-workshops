@@ -3,7 +3,7 @@ type: command
 
 name: lending_club_train
 display_name: lending_club_train
-version: 7
+version: 11
 is_deterministic: false
 
 code: ./src/
@@ -14,7 +14,7 @@ inputs:
 
 outputs:
   model:
-    type: uri_file
+    type: mlflow_model
 
 environment: azureml:AzureML-tensorflow-2.4-ubuntu18.04-py37-cuda11-gpu@latest
 
@@ -23,4 +23,4 @@ command: >-
                 --y-train ${{inputs.data}}/y_train.csv
                 --x-test ${{inputs.data}}/X_test.csv
                 --y-test ${{inputs.data}}/y_test.csv
-                --model_file ${{outputs.model}}/landing_club_model.h5;
+                --model ${{outputs.model}};

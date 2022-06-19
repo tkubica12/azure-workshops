@@ -3,14 +3,16 @@ type: command
 
 name: split_and_scale
 display_name: split_and_scale
-version: 5
-is_deterministic: false
+version: 8
+is_deterministic: true
 
 code: ./src/
 
 inputs:
   data: 
     type: uri_file
+  file_name: 
+    type: string
   label_name: 
     type: string
 
@@ -21,7 +23,7 @@ outputs:
 environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
 
 command: >-
-  python run.py --data ${{inputs.data}} 
+  python run.py --data ${{inputs.data}}/${{inputs.file_name}} 
                 --output-path ${{outputs.datasets}}
                 --label-name ${{inputs.label_name}}
                 --test-size 0.2;

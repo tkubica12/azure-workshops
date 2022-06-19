@@ -31,7 +31,12 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 # Save outputs
-X_train.to_csv(args.output_path+"/X_train.csv", index=False)
-X_test.to_csv(args.output_path+"/X_test.csv", index=False)
-y_train.to_csv(args.output_path+"/y_train.csv", index=False)
-y_test.to_csv(args.output_path+"/y_test.csv", index=False)
+np.savetxt(args.output_path+"/X_train.csv", X_train, delimiter=",")
+np.savetxt(args.output_path+"/X_test.csv", X_test, delimiter=",")
+np.savetxt(args.output_path+"/y_train.csv", y_train, delimiter=",")
+np.savetxt(args.output_path+"/y_test.csv", y_test, delimiter=",")
+
+# X_train.to_csv(args.output_path+"/X_train.csv", index=False)
+# X_test.to_csv(args.output_path+"/X_test.csv", index=False)
+# y_train.to_csv(args.output_path+"/y_train.csv", index=False)
+# y_test.to_csv(args.output_path+"/y_test.csv", index=False)

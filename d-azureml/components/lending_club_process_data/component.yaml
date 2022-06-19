@@ -3,8 +3,8 @@ type: command
 
 name: lending_club_process_data
 display_name: lending_club_process_data
-version: 5
-is_deterministic: false
+version: 6
+is_deterministic: true
 
 code: ./src/
 
