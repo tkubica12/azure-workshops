@@ -1,5 +1,5 @@
 # Workshop - Terraform on Azure
-
+This workshop will guide you throw best practices from initial few resources via modules, advanced concepts and abstractions all the way to process aspects and using CI/CD with GitHub. Example end state can also be found [here](https://github.com/tomas-iac).
 
 # Lab 1 - Get started with Terraform on Azure
 In this lab we will setup Terraform and deploy our first few resources.
@@ -22,4 +22,6 @@ We have modularized out template to create reusable components, but whole projec
 [guide](./docs/04-environments.md)
 
 # Lab 5 - Automate deployment and processes with GitHub
-TBD
+We will no add process, collaboration and automation to our Infrastructure as Code project. This guide uses [GitHub CLI](https://cli.github.com/), but feel free to use GUI or review what CLI did on GitHub.com.
+
+[guide](./docs/05-GitHub.md)
