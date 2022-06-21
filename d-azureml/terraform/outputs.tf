@@ -10,4 +10,12 @@ output "acr_name" {
   value = azurerm_container_registry.demo.name
 }
 
+output "aksid" {
+  value = azurerm_kubernetes_cluster.demo.id
+}
+
+output "amlidentity" {
+  value = azurerm_user_assigned_identity.aml.id
+}
+
   
