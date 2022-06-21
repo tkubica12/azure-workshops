@@ -38,7 +38,7 @@ model.add(Dropout(0.2))
 
 model.add(Dense(units=1,activation='sigmoid'))
 
-model.compile(loss='binary_crossentropy', optimizer='adam')
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 # Fit model
 model.fit(x=X_train, 
@@ -48,5 +48,6 @@ model.fit(x=X_train,
           validation_data=(X_test, y_test), 
           )
 
-
+# Evaluate model
+model.evaluate(X_test, y_test, verbose=2)
 

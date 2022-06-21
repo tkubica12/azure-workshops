@@ -9,3 +9,11 @@ resource "azurerm_resource_group" "demo" {
 }
 
 data "azurerm_client_config" "current" {}
+
+resource "random_string" "random" {
+  length  = 8
+  special = false
+  numeric = true
+  lower   = true
+  upper   = false
+}

@@ -1,10 +1,4 @@
-resource "random_string" "random" {
-  length  = 8
-  special = false
-  numeric = true
-  lower   = true
-  upper   = false
-}
+
 
 resource "azurerm_application_insights" "demo" {
   name                = "appi-${random_string.random.result}"
@@ -38,17 +32,25 @@ resource "azurerm_container_registry" "demo" {
   admin_enabled       = true
 }
 
-# Machine Learning workspace
+// Machine Learning workspace
 resource "azurerm_machine_learning_workspace" "demo" {
-  name                    = "aml-${random_string.random.result}"
-  location                = azurerm_resource_group.demo.location
-  resource_group_name     = azurerm_resource_group.demo.name
-  application_insights_id = azurerm_application_insights.demo.id
-  key_vault_id            = azurerm_key_vault.demo.id
-  storage_account_id      = azurerm_storage_account.demo.id
-  container_registry_id   = azurerm_container_registry.demo.id
+  name                           = "aml-${random_string.random.result}"
+  location                       = azurerm_resource_group.demo.location
+  resource_group_name            = azurerm_resource_group.demo.name
+  application_insights_id        = azurerm_application_insights.demo.id
+  key_vault_id                   = azurerm_key_vault.demo.id
+  storage_account_id             = azurerm_storage_account.demo.id
+  container_registry_id          = azurerm_container_registry.demo.id
+  primary_user_assigned_identity = azurerm_user_assigned_identity.aml.id
 
   identity {
-    type = "SystemAssigned"
+    type = "UserAssigned"
+    identity_ids = [
+      azurerm_user_assigned_identity.aml.id,
+    ]
   }
+
+  depends_on = [
+    azurerm_role_assignment.aml
+  ]
 }

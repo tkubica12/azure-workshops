@@ -1,0 +1,1341 @@
+DEBUG: cli.knack.cli: Command arguments: ['k8s-extension', 'create', '--name', 'aml', '--extension-type', 'Microsoft.AzureML.Kubernetes', '--config', 'enableTraining=True', 'enableInference=True', 'inferenceRouterServiceType=LoadBalancer', 'allowInsecureConnections=True', 'inferenceLoadBalancerHA=False', '--cluster-type', 'managedClusters', '--cluster-name', 'ml-aks', '--resource-group', 'd-azurelm', '--scope', 'cluster', '--debug']
+DEBUG: cli.knack.cli: __init__ debug log:
+Cannot enable color.
+DEBUG: cli.knack.cli: Event: Cli.PreExecute []
+DEBUG: cli.knack.cli: Event: CommandParser.OnGlobalArgumentsCreate [<function CLILogging.on_global_arguments at 0x7f3377b201f0>, <function OutputProducer.on_global_arguments at 0x7f3377a5b0d0>, <function CLIQuery.on_global_arguments at 0x7f33779ee5e0>]
+DEBUG: cli.knack.cli: Event: CommandInvoker.OnPreCommandTableCreate []
+DEBUG: cli.azure.cli.core: Modules found from index for 'k8s-extension': ['azext_k8s_extension']
+DEBUG: cli.azure.cli.core: Loading command modules:
+DEBUG: cli.azure.cli.core: Name                  Load Time    Groups  Commands
+DEBUG: cli.azure.cli.core: Total (0)                 0.000         0         0
+DEBUG: cli.azure.cli.core: These extensions are not installed and will be skipped: ['azext_ai_examples', 'azext_next']
+DEBUG: cli.azure.cli.core: Loading extensions:
+DEBUG: cli.azure.cli.core: Name                  Load Time    Groups  Commands  Directory
+DEBUG: cli.azure.cli.core: k8s-extension             0.008         1         5  /home/tomas/.azure/cliextensions/k8s-extension
+DEBUG: cli.azure.cli.core: Total (1)                 0.008         1         5  
+DEBUG: cli.azure.cli.core: Loaded 1 groups, 5 commands.
+DEBUG: cli.azure.cli.core: Found a match in the command table.
+DEBUG: cli.azure.cli.core: Raw command  : k8s-extension create
+DEBUG: cli.azure.cli.core: Command table: k8s-extension create
+DEBUG: cli.knack.cli: Event: CommandInvoker.OnPreCommandTableTruncate [<function AzCliLogging.init_command_file_logging at 0x7f33771cc5e0>]
+DEBUG: cli.azure.cli.core.azlogging: metadata file logging enabled - writing logs to '/home/tomas/.azure/commands/2022-06-20.21-10-00.k8s-extension_create.1971.log'.
+INFO: az_command_data_logger: command args: k8s-extension create --name {} --extension-type {} --config {} {} {} {} {} --cluster-type {} --cluster-name {} --resource-group {} --scope {} --debug
+DEBUG: cli.knack.cli: Event: CommandInvoker.OnPreArgumentLoad [<function register_global_subscription_argument.<locals>.add_subscription_parameter at 0x7f3377029ee0>]
+DEBUG: cli.knack.cli: Event: CommandInvoker.OnPostArgumentLoad []
+DEBUG: cli.knack.cli: Event: CommandInvoker.OnPostCommandTableCreate [<function register_ids_argument.<locals>.add_ids_arguments at 0x7f3377029f70>, <function register_cache_arguments.<locals>.add_cache_arguments at 0x7f33770380d0>]
+DEBUG: cli.knack.cli: Event: CommandInvoker.OnCommandTableLoaded []
+DEBUG: cli.knack.cli: Event: CommandInvoker.OnPreParseArgs []
+DEBUG: cli.knack.cli: Event: CommandInvoker.OnPostParseArgs [<function OutputProducer.handle_output_argument at 0x7f3377a5b160>, <function CLIQuery.handle_query_parameter at 0x7f33779ee670>, <function register_ids_argument.<locals>.parse_ids_arguments at 0x7f3377038040>]
+INFO: az_command_data_logger: extension name: k8s-extension
+INFO: az_command_data_logger: extension version: 1.1.0
+DEBUG: cli.azure.cli.core.commands.client_factory: Getting management service client client_type=SourceControlConfigurationClient
+DEBUG: cli.azure.cli.core.auth.persistence: build_persistence: location='/home/tomas/.azure/msal_token_cache.json', encrypt=False
+DEBUG: cli.azure.cli.core.auth.binary_cache: load: /home/tomas/.azure/msal_http_cache.bin
+DEBUG: urllib3.util.retry: Converted retries value: 1 -> Retry(total=1, connect=None, read=None, redirect=None, status=None)
+DEBUG: msal.authority: openid_config = {'token_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/token', 'token_endpoint_auth_methods_supported': ['client_secret_post', 'private_key_jwt', 'client_secret_basic'], 'jwks_uri': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/discovery/v2.0/keys', 'response_modes_supported': ['query', 'fragment', 'form_post'], 'subject_types_supported': ['pairwise'], 'id_token_signing_alg_values_supported': ['RS256'], 'response_types_supported': ['code', 'id_token', 'code id_token', 'id_token token'], 'scopes_supported': ['openid', 'profile', 'email', 'offline_access'], 'issuer': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/v2.0', 'request_uri_parameter_supported': False, 'userinfo_endpoint': 'https://graph.microsoft.com/oidc/userinfo', 'authorization_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/authorize', 'device_authorization_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/devicecode', 'http_logout_supported': True, 'frontchannel_logout_supported': True, 'end_session_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/logout', 'claims_supported': ['sub', 'iss', 'cloud_instance_name', 'cloud_instance_host_name', 'cloud_graph_host_name', 'msgraph_host', 'aud', 'exp', 'iat', 'auth_time', 'acr', 'nonce', 'preferred_username', 'name', 'tid', 'ver', 'at_hash', 'c_hash', 'email'], 'kerberos_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/kerberos', 'tenant_region_scope': 'WW', 'cloud_instance_name': 'microsoftonline.com', 'cloud_graph_host_name': 'graph.windows.net', 'msgraph_host': 'graph.microsoft.com', 'rbac_url': 'https://pas.windows.net'}
+WARNING: cli.azext_k8s_extension.partner_extensions.AzureMLKubernetes: SSL is not enabled. Allowing insecure connections to the deployed services.
+DEBUG: cli.azure.cli.core.commands.client_factory: Getting management service client client_type=ResourceManagementClient
+DEBUG: urllib3.util.retry: Converted retries value: 1 -> Retry(total=1, connect=None, read=None, redirect=None, status=None)
+DEBUG: msal.authority: openid_config = {'token_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/token', 'token_endpoint_auth_methods_supported': ['client_secret_post', 'private_key_jwt', 'client_secret_basic'], 'jwks_uri': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/discovery/v2.0/keys', 'response_modes_supported': ['query', 'fragment', 'form_post'], 'subject_types_supported': ['pairwise'], 'id_token_signing_alg_values_supported': ['RS256'], 'response_types_supported': ['code', 'id_token', 'code id_token', 'id_token token'], 'scopes_supported': ['openid', 'profile', 'email', 'offline_access'], 'issuer': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/v2.0', 'request_uri_parameter_supported': False, 'userinfo_endpoint': 'https://graph.microsoft.com/oidc/userinfo', 'authorization_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/authorize', 'device_authorization_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/devicecode', 'http_logout_supported': True, 'frontchannel_logout_supported': True, 'end_session_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/logout', 'claims_supported': ['sub', 'iss', 'cloud_instance_name', 'cloud_instance_host_name', 'cloud_graph_host_name', 'msgraph_host', 'aud', 'exp', 'iat', 'auth_time', 'acr', 'nonce', 'preferred_username', 'name', 'tid', 'ver', 'at_hash', 'c_hash', 'email'], 'kerberos_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/kerberos', 'tenant_region_scope': 'WW', 'cloud_instance_name': 'microsoftonline.com', 'cloud_graph_host_name': 'graph.windows.net', 'msgraph_host': 'graph.microsoft.com', 'rbac_url': 'https://pas.windows.net'}
+DEBUG: cli.azure.cli.core.auth.credential_adaptor: CredentialAdaptor.get_token: scopes=('https://management.core.windows.net//.default',), kwargs={}
+DEBUG: cli.azure.cli.core.auth.msal_authentication: UserCredential.get_token: scopes=('https://management.core.windows.net//.default',), kwargs={}
+DEBUG: msal.application: Cache hit an AT
+DEBUG: msal.telemetry: Generate or reuse correlation_id: e56232bd-6063-4532-a3de-14b51abe33aa
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks?api-version=2021-10-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Accept': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-resource/20.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: Starting new HTTPS connection (1): management.azure.com:443
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks?api-version=2021-10-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191001Z:fbeaa529-1616-469d-a48f-327b09dc3f6e'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11999'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': 'fbeaa529-1616-469d-a48f-327b09dc3f6e'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': 'fdab9d4d-0e74-48d9-8851-bda6d274ec6d'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server': 'nginx'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:10:01 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {
+  "id": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourcegroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks",
+  "location": "northeurope",
+  "name": "ml-aks",
+  "type": "Microsoft.ContainerService/ManagedClusters",
+  "properties": {
+   "provisioningState": "Succeeded",
+   "powerState": {
+    "code": "Running"
+   },
+   "kubernetesVersion": "1.22.6",
+   "dnsPrefix": "ml-aks",
+   "fqdn": "ml-aks-d44fd660.hcp.northeurope.azmk8s.io",
+   "azurePortalFQDN": "ml-aks-d44fd660.portal.hcp.northeurope.azmk8s.io",
+   "agentPoolProfiles": [
+    {
+     "name": "default",
+     "count": 3,
+     "vmSize": "Standard_B4ms",
+     "osDiskSizeGB": 128,
+     "osDiskType": "Managed",
+     "kubeletDiskType": "OS",
+     "maxPods": 110,
+     "type": "VirtualMachineScaleSets",
+     "enableAutoScaling": false,
+     "provisioningState": "Succeeded",
+     "powerState": {
+      "code": "Running"
+     },
+     "orchestratorVersion": "1.22.6",
+     "enableNodePublicIP": false,
+     "mode": "System",
+     "enableEncryptionAtHost": false,
+     "enableUltraSSD": false,
+     "osType": "Linux",
+     "osSKU": "Ubuntu",
+     "nodeImageVersion": "AKSUbuntu-1804gen2containerd-2022.06.08",
+     "upgradeSettings": {},
+     "enableFIPS": false
+    }
+   ],
+   "servicePrincipalProfile": {
+    "clientId": "msi"
+   },
+   "nodeResourceGroup": "MC_d-azurelm_ml-aks_northeurope",
+   "enableRBAC": true,
+   "networkProfile": {
+    "networkPlugin": "kubenet",
+    "loadBalancerSku": "Standard",
+    "loadBalancerProfile": {
+     "managedOutboundIPs": {
+      "count": 1
+     },
+     "effectiveOutboundIPs": [
+      {
+       "id": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/MC_d-azurelm_ml-aks_northeurope/providers/Microsoft.Network/publicIPAddresses/da83fc88-417a-44ae-9e79-084183f5eb26"
+      }
+     ]
+    },
+    "podCidr": "10.244.0.0/16",
+    "serviceCidr": "10.0.0.0/16",
+    "dnsServiceIP": "10.0.0.10",
+    "dockerBridgeCidr": "172.17.0.1/16",
+    "outboundType": "loadBalancer",
+    "podCidrs": [
+     "10.244.0.0/16"
+    ],
+    "serviceCidrs": [
+     "10.0.0.0/16"
+    ],
+    "ipFamilies": [
+     "IPv4"
+    ]
+   },
+   "maxAgentPools": 100,
+   "apiServerAccessProfile": {
+    "enablePrivateCluster": false
+   },
+   "identityProfile": {
+    "kubeletidentity": {
+     "resourceId": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aks",
+     "clientId": "311e79c2-17a7-49b2-b742-ed25cf3de9d3",
+     "objectId": "12002136-8532-49c8-8766-39732a9976ef"
+    }
+   },
+   "autoUpgradeProfile": {
+    "upgradeChannel": "none"
+   },
+   "disableLocalAccounts": false,
+   "securityProfile": {},
+   "publicNetworkAccess": "Enabled"
+  },
+  "identity": {
+   "type": "UserAssigned",
+   "userAssignedIdentities": {
+    "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aks": {
+     "clientId": "311e79c2-17a7-49b2-b742-ed25cf3de9d3",
+     "principalId": "12002136-8532-49c8-8766-39732a9976ef"
+    }
+   }
+  },
+  "sku": {
+   "name": "Basic",
+   "tier": "Free"
+  }
+ }
+INFO: cli.azext_k8s_extension.partner_extensions.AzureMLKubernetes: ==== BEGIN RELAY CREATION ====
+DEBUG: cli.azure.cli.core.commands.client_factory: Getting management service client client_type=RelayManagementClient
+DEBUG: urllib3.util.retry: Converted retries value: 1 -> Retry(total=1, connect=None, read=None, redirect=None, status=None)
+DEBUG: msal.authority: openid_config = {'token_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/token', 'token_endpoint_auth_methods_supported': ['client_secret_post', 'private_key_jwt', 'client_secret_basic'], 'jwks_uri': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/discovery/v2.0/keys', 'response_modes_supported': ['query', 'fragment', 'form_post'], 'subject_types_supported': ['pairwise'], 'id_token_signing_alg_values_supported': ['RS256'], 'response_types_supported': ['code', 'id_token', 'code id_token', 'id_token token'], 'scopes_supported': ['openid', 'profile', 'email', 'offline_access'], 'issuer': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/v2.0', 'request_uri_parameter_supported': False, 'userinfo_endpoint': 'https://graph.microsoft.com/oidc/userinfo', 'authorization_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/authorize', 'device_authorization_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/devicecode', 'http_logout_supported': True, 'frontchannel_logout_supported': True, 'end_session_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/logout', 'claims_supported': ['sub', 'iss', 'cloud_instance_name', 'cloud_instance_host_name', 'cloud_graph_host_name', 'msgraph_host', 'aud', 'exp', 'iat', 'auth_time', 'acr', 'nonce', 'preferred_username', 'name', 'tid', 'ver', 'at_hash', 'c_hash', 'email'], 'kerberos_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/kerberos', 'tenant_region_scope': 'WW', 'cloud_instance_name': 'microsoftonline.com', 'cloud_graph_host_name': 'graph.windows.net', 'msgraph_host': 'graph.microsoft.com', 'rbac_url': 'https://pas.windows.net'}
+DEBUG: msrest.universal_http.requests: Configuring retry: max_retries=4, backoff_factor=0.8, max_backoff=90
+DEBUG: cli.azure.cli.core.commands.client_factory: Adding custom headers to the client:
+DEBUG: cli.azure.cli.core.commands.client_factory:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.commands.client_factory:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.commands.client_factory:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: msrest.service_client: Accept header absent and forced to application/json
+DEBUG: cli.azure.cli.core.auth.credential_adaptor: CredentialAdaptor.get_token
+DEBUG: cli.azure.cli.core.auth.msal_authentication: UserCredential.get_token: scopes=('https://management.core.windows.net//.default',), kwargs={}
+DEBUG: msal.application: Cache hit an AT
+DEBUG: msal.telemetry: Generate or reuse correlation_id: 8b1202e6-ba5b-485b-a4e2-1deb0bc54b2b
+DEBUG: msrest.http_logger: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay?api-version=2017-04-01'
+DEBUG: msrest.http_logger: Request method: 'PUT'
+DEBUG: msrest.http_logger: Request headers:
+DEBUG: msrest.http_logger:     'Accept': 'application/json'
+DEBUG: msrest.http_logger:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: msrest.http_logger:     'accept-language': 'en-US'
+DEBUG: msrest.http_logger:     'Content-Length': '75'
+DEBUG: msrest.http_logger:     'User-Agent': 'python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29) msrest/0.6.21 msrest_azure/0.6.4 azure-mgmt-relay/0.1.0 Azure-SDK-For-Python AZURECLI/2.36.0 (DEB)'
+DEBUG: msrest.http_logger: Request body:
+DEBUG: msrest.http_logger: {"location": "northeurope", "tags": {"created_by": "Azure Arc-enabled ML"}}
+DEBUG: msrest.universal_http: Configuring redirects: allow=True, max=30
+DEBUG: msrest.universal_http: Configuring request: timeout=100, verify=True, cert=None
+DEBUG: msrest.universal_http: Configuring proxies: ''
+DEBUG: msrest.universal_http: Evaluate proxies against ENV settings: True
+DEBUG: urllib3.connectionpool: Starting new HTTPS connection (1): management.azure.com:443
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "PUT /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay?api-version=2017-04-01 HTTP/1.1" 429 192
+DEBUG: urllib3.util.retry: Incremented Retry for (url='/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay?api-version=2017-04-01'): Retry(total=3, connect=4, read=4, redirect=None, status=None)
+DEBUG: urllib3.connectionpool: Retry: /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay?api-version=2017-04-01
+DEBUG: urllib3.connectionpool: Resetting dropped connection: management.azure.com
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "PUT /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: msrest.http_logger: Response status: 200
+DEBUG: msrest.http_logger: Response headers:
+DEBUG: msrest.http_logger:     'Cache-Control': 'no-cache'
+DEBUG: msrest.http_logger:     'Pragma': 'no-cache'
+DEBUG: msrest.http_logger:     'Transfer-Encoding': 'chunked'
+DEBUG: msrest.http_logger:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: msrest.http_logger:     'Content-Encoding': 'gzip'
+DEBUG: msrest.http_logger:     'Expires': '-1'
+DEBUG: msrest.http_logger:     'Vary': 'Accept-Encoding'
+DEBUG: msrest.http_logger:     'x-ms-request-id': '8b657a87-0d5a-4ddd-a9c8-48ddecde4b52_M4SN1_M4SN1'
+DEBUG: msrest.http_logger:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: msrest.http_logger:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: msrest.http_logger:     'x-ms-ratelimit-remaining-subscription-resource-requests': '49'
+DEBUG: msrest.http_logger:     'x-ms-correlation-request-id': '40495edf-543e-4e80-9694-f560b0b6d8e3'
+DEBUG: msrest.http_logger:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191438Z:40495edf-543e-4e80-9694-f560b0b6d8e3'
+DEBUG: msrest.http_logger:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: msrest.http_logger:     'X-Content-Type-Options': 'nosniff'
+DEBUG: msrest.http_logger:     'Date': 'Mon, 20 Jun 2022 19:14:38 GMT'
+DEBUG: msrest.http_logger: Response content:
+DEBUG: msrest.http_logger: {"sku":{"name":"Standard","tier":"Standard"},"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay","name":"mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay","type":"Microsoft.Relay/Namespaces","location":"North Europe","tags":{"created_by":"Azure Arc-enabled ML"},"properties":{"provisioningState":"Updating","metricId":"a0f4a733-4fce-4d49-b8a8-d30541fc1b45:mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay","createdAt":"2022-06-20T19:09:42.327Z","updatedAt":"2022-06-20T19:14:37.487Z","serviceBusEndpoint":"https://mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay.servicebus.windows.net:443/","status":"Activating"}}
+DEBUG: msrest.service_client: Accept header absent and forced to application/json
+DEBUG: msrest.universal_http.requests: Configuring retry: max_retries=4, backoff_factor=0.8, max_backoff=90
+DEBUG: cli.azure.cli.core.auth.credential_adaptor: CredentialAdaptor.get_token
+DEBUG: cli.azure.cli.core.auth.msal_authentication: UserCredential.get_token: scopes=('https://management.core.windows.net//.default',), kwargs={}
+DEBUG: msal.application: Found 1 RTs matching {'environment': 'login.microsoftonline.com', 'home_account_id': '7424fb4c-5e9f-45cd-9f7d-453d45655e75.72f988bf-86f1-41af-91ab-2d7cd011db47', 'family_id': '1'}
+DEBUG: msal.telemetry: Generate or reuse correlation_id: bc5ad039-07af-40de-a6aa-bbef4398bb92
+DEBUG: msal.application: Cache attempts an RT
+DEBUG: urllib3.connectionpool: Starting new HTTPS connection (1): login.microsoftonline.com:443
+DEBUG: urllib3.connectionpool: https://login.microsoftonline.com:443 "POST /72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/token HTTP/1.1" 200 12528
+DEBUG: msal.token_cache: event={
+    "client_id": "04b07795-8ddb-461a-bbee-02f9e1bf7b46",
+    "data": {
+        "claims": null,
+        "refresh_token": "********",
+        "scope": [
+            "openid",
+            "offline_access",
+            "https://management.core.windows.net//.default",
+            "profile"
+        ]
+    },
+    "environment": "login.microsoftonline.com",
+    "grant_type": "refresh_token",
+    "params": null,
+    "response": {
+        "access_token": "********",
+        "client_info": "eyJ1aWQiOiI3NDI0ZmI0Yy01ZTlmLTQ1Y2QtOWY3ZC00NTNkNDU2NTVlNzUiLCJ1dGlkIjoiNzJmOTg4YmYtODZmMS00MWFmLTkxYWItMmQ3Y2QwMTFkYjQ3In0",
+        "expires_in": 3714,
+        "ext_expires_in": 3714,
+        "foci": "1",
+        "id_token": "********",
+        "scope": "https://management.core.windows.net//user_impersonation https://management.core.windows.net//.default",
+        "token_type": "Bearer"
+    },
+    "scope": [
+        "https://management.core.windows.net//user_impersonation",
+        "https://management.core.windows.net//.default"
+    ],
+    "skip_account_creation": true,
+    "token_endpoint": "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/token"
+}
+DEBUG: msrest.http_logger: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay?api-version=2017-04-01'
+DEBUG: msrest.http_logger: Request method: 'GET'
+DEBUG: msrest.http_logger: Request headers:
+DEBUG: msrest.http_logger:     'Accept': 'application/json'
+DEBUG: msrest.http_logger:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: msrest.http_logger:     'accept-language': 'en-US'
+DEBUG: msrest.http_logger:     'User-Agent': 'python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29) msrest/0.6.21 msrest_azure/0.6.4 azure-mgmt-relay/0.1.0 Azure-SDK-For-Python AZURECLI/2.36.0 (DEB)'
+DEBUG: msrest.http_logger: Request body:
+DEBUG: msrest.http_logger: None
+DEBUG: msrest.universal_http: Configuring redirects: allow=True, max=30
+DEBUG: msrest.universal_http: Configuring request: timeout=100, verify=True, cert=None
+DEBUG: msrest.universal_http: Configuring proxies: ''
+DEBUG: msrest.universal_http: Evaluate proxies against ENV settings: True
+DEBUG: urllib3.connectionpool: Starting new HTTPS connection (1): management.azure.com:443
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: msrest.http_logger: Response status: 200
+DEBUG: msrest.http_logger: Response headers:
+DEBUG: msrest.http_logger:     'Cache-Control': 'no-cache'
+DEBUG: msrest.http_logger:     'Pragma': 'no-cache'
+DEBUG: msrest.http_logger:     'Transfer-Encoding': 'chunked'
+DEBUG: msrest.http_logger:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: msrest.http_logger:     'Content-Encoding': 'gzip'
+DEBUG: msrest.http_logger:     'Expires': '-1'
+DEBUG: msrest.http_logger:     'Vary': 'Accept-Encoding'
+DEBUG: msrest.http_logger:     'x-ms-request-id': '24a12b3e-ec93-43a7-adfa-c4f90fd3028a_M0SN1_M0SN1'
+DEBUG: msrest.http_logger:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: msrest.http_logger:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: msrest.http_logger:     'x-ms-ratelimit-remaining-subscription-reads': '11999'
+DEBUG: msrest.http_logger:     'x-ms-correlation-request-id': 'b25b5a77-f30b-41e7-8709-5073c1df6139'
+DEBUG: msrest.http_logger:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191511Z:b25b5a77-f30b-41e7-8709-5073c1df6139'
+DEBUG: msrest.http_logger:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: msrest.http_logger:     'X-Content-Type-Options': 'nosniff'
+DEBUG: msrest.http_logger:     'Date': 'Mon, 20 Jun 2022 19:15:10 GMT'
+DEBUG: msrest.http_logger: Response content:
+DEBUG: msrest.http_logger: {"sku":{"name":"Standard","tier":"Standard"},"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay","name":"mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay","type":"Microsoft.Relay/Namespaces","location":"North Europe","tags":{"created_by":"Azure Arc-enabled ML"},"properties":{"provisioningState":"Succeeded","metricId":"a0f4a733-4fce-4d49-b8a8-d30541fc1b45:mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay","createdAt":"2022-06-20T19:09:42.327Z","updatedAt":"2022-06-20T19:14:40.963Z","serviceBusEndpoint":"https://mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay.servicebus.windows.net:443/","status":"Active"}}
+DEBUG: msrest.service_client: Accept header absent and forced to application/json
+DEBUG: cli.azure.cli.core.auth.credential_adaptor: CredentialAdaptor.get_token
+DEBUG: cli.azure.cli.core.auth.msal_authentication: UserCredential.get_token: scopes=('https://management.core.windows.net//.default',), kwargs={}
+DEBUG: msal.application: Cache hit an AT
+DEBUG: msal.telemetry: Generate or reuse correlation_id: 6348a234-2e02-4743-a355-3ae48feaac46
+DEBUG: msrest.http_logger: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay/hybridConnections/ml-aks?api-version=2017-04-01'
+DEBUG: msrest.http_logger: Request method: 'PUT'
+DEBUG: msrest.http_logger: Request headers:
+DEBUG: msrest.http_logger:     'Accept': 'application/json'
+DEBUG: msrest.http_logger:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: msrest.http_logger:     'accept-language': 'en-US'
+DEBUG: msrest.http_logger:     'Content-Length': '53'
+DEBUG: msrest.http_logger:     'User-Agent': 'python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29) msrest/0.6.21 msrest_azure/0.6.4 azure-mgmt-relay/0.1.0 Azure-SDK-For-Python AZURECLI/2.36.0 (DEB)'
+DEBUG: msrest.http_logger: Request body:
+DEBUG: msrest.http_logger: {"properties": {"requiresClientAuthorization": true}}
+DEBUG: msrest.universal_http: Configuring redirects: allow=True, max=30
+DEBUG: msrest.universal_http: Configuring request: timeout=100, verify=True, cert=None
+DEBUG: msrest.universal_http: Configuring proxies: ''
+DEBUG: msrest.universal_http: Evaluate proxies against ENV settings: True
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "PUT /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay/hybridConnections/ml-aks?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: msrest.http_logger: Response status: 200
+DEBUG: msrest.http_logger: Response headers:
+DEBUG: msrest.http_logger:     'Cache-Control': 'no-cache'
+DEBUG: msrest.http_logger:     'Pragma': 'no-cache'
+DEBUG: msrest.http_logger:     'Transfer-Encoding': 'chunked'
+DEBUG: msrest.http_logger:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: msrest.http_logger:     'Content-Encoding': 'gzip'
+DEBUG: msrest.http_logger:     'Expires': '-1'
+DEBUG: msrest.http_logger:     'Vary': 'Accept-Encoding'
+DEBUG: msrest.http_logger:     'x-ms-request-id': '589d14a0-e4a2-4585-917c-df7d2b306b97_M4SN1_M4SN1'
+DEBUG: msrest.http_logger:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: msrest.http_logger:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: msrest.http_logger:     'x-ms-ratelimit-remaining-subscription-writes': '1199'
+DEBUG: msrest.http_logger:     'x-ms-correlation-request-id': 'c7defd79-5c9e-4f6d-a421-94264887f4be'
+DEBUG: msrest.http_logger:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191514Z:c7defd79-5c9e-4f6d-a421-94264887f4be'
+DEBUG: msrest.http_logger:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: msrest.http_logger:     'X-Content-Type-Options': 'nosniff'
+DEBUG: msrest.http_logger:     'Date': 'Mon, 20 Jun 2022 19:15:13 GMT'
+DEBUG: msrest.http_logger: Response content:
+DEBUG: msrest.http_logger: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay/hybridConnections/ml-aks","name":"ml-aks","type":"Microsoft.Relay/Namespaces/HybridConnections","location":"North Europe","properties":{"createdAt":"2022-06-20T19:15:13.8253764Z","updatedAt":"2022-06-20T19:15:13.8253764Z","listenerCount":0,"requiresClientAuthorization":true}}
+DEBUG: msrest.service_client: Accept header absent and forced to application/json
+DEBUG: cli.azure.cli.core.auth.credential_adaptor: CredentialAdaptor.get_token
+DEBUG: cli.azure.cli.core.auth.msal_authentication: UserCredential.get_token: scopes=('https://management.core.windows.net//.default',), kwargs={}
+DEBUG: msal.application: Cache hit an AT
+DEBUG: msal.telemetry: Generate or reuse correlation_id: dd17390e-8c60-4285-a189-78d7be33ef15
+DEBUG: msrest.http_logger: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay/hybridConnections/ml-aks/authorizationRules/azureml_rw?api-version=2017-04-01'
+DEBUG: msrest.http_logger: Request method: 'PUT'
+DEBUG: msrest.http_logger: Request headers:
+DEBUG: msrest.http_logger:     'Accept': 'application/json'
+DEBUG: msrest.http_logger:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: msrest.http_logger:     'accept-language': 'en-US'
+DEBUG: msrest.http_logger:     'Content-Length': '56'
+DEBUG: msrest.http_logger:     'User-Agent': 'python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29) msrest/0.6.21 msrest_azure/0.6.4 azure-mgmt-relay/0.1.0 Azure-SDK-For-Python AZURECLI/2.36.0 (DEB)'
+DEBUG: msrest.http_logger: Request body:
+DEBUG: msrest.http_logger: {"properties": {"rights": ["Manage", "Send", "Listen"]}}
+DEBUG: msrest.universal_http: Configuring redirects: allow=True, max=30
+DEBUG: msrest.universal_http: Configuring request: timeout=100, verify=True, cert=None
+DEBUG: msrest.universal_http: Configuring proxies: ''
+DEBUG: msrest.universal_http: Evaluate proxies against ENV settings: True
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "PUT /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay/hybridConnections/ml-aks/authorizationRules/azureml_rw?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: msrest.http_logger: Response status: 200
+DEBUG: msrest.http_logger: Response headers:
+DEBUG: msrest.http_logger:     'Cache-Control': 'no-cache'
+DEBUG: msrest.http_logger:     'Pragma': 'no-cache'
+DEBUG: msrest.http_logger:     'Transfer-Encoding': 'chunked'
+DEBUG: msrest.http_logger:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: msrest.http_logger:     'Content-Encoding': 'gzip'
+DEBUG: msrest.http_logger:     'Expires': '-1'
+DEBUG: msrest.http_logger:     'Vary': 'Accept-Encoding'
+DEBUG: msrest.http_logger:     'x-ms-request-id': 'b76c2322-0959-41c8-a7df-2bd183d8de7f_M4SN1_M4SN1'
+DEBUG: msrest.http_logger:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: msrest.http_logger:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: msrest.http_logger:     'x-ms-ratelimit-remaining-subscription-writes': '1198'
+DEBUG: msrest.http_logger:     'x-ms-correlation-request-id': '571044da-590b-494a-9c94-b84dddcc935f'
+DEBUG: msrest.http_logger:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191515Z:571044da-590b-494a-9c94-b84dddcc935f'
+DEBUG: msrest.http_logger:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: msrest.http_logger:     'X-Content-Type-Options': 'nosniff'
+DEBUG: msrest.http_logger:     'Date': 'Mon, 20 Jun 2022 19:15:14 GMT'
+DEBUG: msrest.http_logger: Response content:
+DEBUG: msrest.http_logger: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay/hybridConnections/ml-aks/authorizationRules/azureml_rw","name":"azureml_rw","type":"Microsoft.Relay/Namespaces/HybridConnections/AuthorizationRules","location":"North Europe","properties":{"rights":["Manage","Send","Listen"]}}
+DEBUG: msrest.service_client: Accept header absent and forced to application/json
+DEBUG: cli.azure.cli.core.auth.credential_adaptor: CredentialAdaptor.get_token
+DEBUG: cli.azure.cli.core.auth.msal_authentication: UserCredential.get_token: scopes=('https://management.core.windows.net//.default',), kwargs={}
+DEBUG: msal.application: Cache hit an AT
+DEBUG: msal.telemetry: Generate or reuse correlation_id: 4093613c-b668-4d25-a4d4-13c46493f280
+DEBUG: msrest.http_logger: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay/hybridConnections/ml-aks/authorizationRules/azureml_rw/listKeys?api-version=2017-04-01'
+DEBUG: msrest.http_logger: Request method: 'POST'
+DEBUG: msrest.http_logger: Request headers:
+DEBUG: msrest.http_logger:     'Accept': 'application/json'
+DEBUG: msrest.http_logger:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: msrest.http_logger:     'accept-language': 'en-US'
+DEBUG: msrest.http_logger:     'User-Agent': 'python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29) msrest/0.6.21 msrest_azure/0.6.4 azure-mgmt-relay/0.1.0 Azure-SDK-For-Python AZURECLI/2.36.0 (DEB)'
+DEBUG: msrest.http_logger: Request body:
+DEBUG: msrest.http_logger: None
+DEBUG: msrest.universal_http: Configuring redirects: allow=True, max=30
+DEBUG: msrest.universal_http: Configuring request: timeout=100, verify=True, cert=None
+DEBUG: msrest.universal_http: Configuring proxies: ''
+DEBUG: msrest.universal_http: Evaluate proxies against ENV settings: True
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "POST /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay/hybridConnections/ml-aks/authorizationRules/azureml_rw/listKeys?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: msrest.http_logger: Response status: 200
+DEBUG: msrest.http_logger: Response headers:
+DEBUG: msrest.http_logger:     'Cache-Control': 'no-cache'
+DEBUG: msrest.http_logger:     'Pragma': 'no-cache'
+DEBUG: msrest.http_logger:     'Transfer-Encoding': 'chunked'
+DEBUG: msrest.http_logger:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: msrest.http_logger:     'Content-Encoding': 'gzip'
+DEBUG: msrest.http_logger:     'Expires': '-1'
+DEBUG: msrest.http_logger:     'Vary': 'Accept-Encoding'
+DEBUG: msrest.http_logger:     'x-ms-request-id': '4cdf7b5b-388e-4986-9d5b-74376177db97_M4SN1_M4SN1'
+DEBUG: msrest.http_logger:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: msrest.http_logger:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: msrest.http_logger:     'x-ms-ratelimit-remaining-subscription-writes': '1199'
+DEBUG: msrest.http_logger:     'x-ms-correlation-request-id': 'bfb4f6be-3dba-434f-aafe-fda547e52e89'
+DEBUG: msrest.http_logger:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191516Z:bfb4f6be-3dba-434f-aafe-fda547e52e89'
+DEBUG: msrest.http_logger:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: msrest.http_logger:     'X-Content-Type-Options': 'nosniff'
+DEBUG: msrest.http_logger:     'Date': 'Mon, 20 Jun 2022 19:15:15 GMT'
+DEBUG: msrest.http_logger: Response content:
+DEBUG: msrest.http_logger: {"primaryConnectionString":"Endpoint=sb://mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay.servicebus.windows.net/;SharedAccessKeyName=azureml_rw;SharedAccessKey=TGEeOCo3xwXM641nJV2qyqAZdlKfg36Jmstc+o9a1e8=;EntityPath=ml-aks","secondaryConnectionString":"Endpoint=sb://mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay.servicebus.windows.net/;SharedAccessKeyName=azureml_rw;SharedAccessKey=h2pBdOB9uL/dqrBadi5AF41pnIVfB7q487Ue495fzGI=;EntityPath=ml-aks","primaryKey":"TGEeOCo3xwXM641nJV2qyqAZdlKfg36Jmstc+o9a1e8=","secondaryKey":"h2pBdOB9uL/dqrBadi5AF41pnIVfB7q487Ue495fzGI=","keyName":"azureml_rw"}
+INFO: cli.azext_k8s_extension.partner_extensions.AzureMLKubernetes: ==== END RELAY CREATION ====
+INFO: cli.azext_k8s_extension.partner_extensions.AzureMLKubernetes: ==== BEGIN SERVICE BUS CREATION ====
+DEBUG: cli.azure.cli.core.commands.client_factory: Getting management service client client_type=ServiceBusManagementClient
+DEBUG: urllib3.util.retry: Converted retries value: 1 -> Retry(total=1, connect=None, read=None, redirect=None, status=None)
+DEBUG: msal.authority: openid_config = {'token_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/token', 'token_endpoint_auth_methods_supported': ['client_secret_post', 'private_key_jwt', 'client_secret_basic'], 'jwks_uri': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/discovery/v2.0/keys', 'response_modes_supported': ['query', 'fragment', 'form_post'], 'subject_types_supported': ['pairwise'], 'id_token_signing_alg_values_supported': ['RS256'], 'response_types_supported': ['code', 'id_token', 'code id_token', 'id_token token'], 'scopes_supported': ['openid', 'profile', 'email', 'offline_access'], 'issuer': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/v2.0', 'request_uri_parameter_supported': False, 'userinfo_endpoint': 'https://graph.microsoft.com/oidc/userinfo', 'authorization_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/authorize', 'device_authorization_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/devicecode', 'http_logout_supported': True, 'frontchannel_logout_supported': True, 'end_session_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/logout', 'claims_supported': ['sub', 'iss', 'cloud_instance_name', 'cloud_instance_host_name', 'cloud_graph_host_name', 'msgraph_host', 'aud', 'exp', 'iat', 'auth_time', 'acr', 'nonce', 'preferred_username', 'name', 'tid', 'ver', 'at_hash', 'c_hash', 'email'], 'kerberos_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/kerberos', 'tenant_region_scope': 'WW', 'cloud_instance_name': 'microsoftonline.com', 'cloud_graph_host_name': 'graph.windows.net', 'msgraph_host': 'graph.microsoft.com', 'rbac_url': 'https://pas.windows.net'}
+DEBUG: cli.azure.cli.core.auth.credential_adaptor: CredentialAdaptor.get_token: scopes=('https://management.core.windows.net//.default',), kwargs={}
+DEBUG: cli.azure.cli.core.auth.msal_authentication: UserCredential.get_token: scopes=('https://management.core.windows.net//.default',), kwargs={}
+DEBUG: msal.application: Cache hit an AT
+DEBUG: msal.telemetry: Generate or reuse correlation_id: 3886eb34-c94a-4188-b0da-6eadeb4a91c0
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade?api-version=2017-04-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'PUT'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Accept': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Length': '104'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-servicebus/7.1.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: {"location": "northeurope", "tags": {"created_by": "Azure Arc-enabled ML"}, "sku": {"name": "STANDARD"}}
+DEBUG: urllib3.connectionpool: Starting new HTTPS connection (1): management.azure.com:443
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "PUT /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '68c80fd4-eb34-4968-9e69-3937b7af6f51_M0SN1_M0SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-writes': '1198'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': 'acc44e21-de45-40da-8423-f114311b7fd5'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191521Z:acc44e21-de45-40da-8423-f114311b7fd5'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:15:20 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"sku":{"name":"Standard","tier":"Standard"},"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade","name":"mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade","type":"Microsoft.ServiceBus/Namespaces","location":"North Europe","tags":{"created_by":"Azure Arc-enabled ML"},"properties":{"provisioningState":"Created","metricId":"a0f4a733-4fce-4d49-b8a8-d30541fc1b45:mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade","createdAt":"2022-06-20T19:15:20.363Z","updatedAt":"2022-06-20T19:15:20.363Z","serviceBusEndpoint":"https://mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade.servicebus.windows.net:443/","status":"Activating"}}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade?api-version=2017-04-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-servicebus/7.1.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '3c9b4e43-b3ae-4411-8500-a34ab7c2480b_M0SN1_M0SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11993'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '0dfda290-3ef9-42e1-8a56-01495e8f24fa'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191551Z:0dfda290-3ef9-42e1-8a56-01495e8f24fa'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:15:50 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"sku":{"name":"Standard","tier":"Standard"},"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade","name":"mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade","type":"Microsoft.ServiceBus/Namespaces","location":"North Europe","tags":{"created_by":"Azure Arc-enabled ML"},"properties":{"provisioningState":"Created","metricId":"a0f4a733-4fce-4d49-b8a8-d30541fc1b45:mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade","createdAt":"2022-06-20T19:15:20.363Z","updatedAt":"2022-06-20T19:15:20.363Z","serviceBusEndpoint":"https://mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade.servicebus.windows.net:443/","status":"Activating"}}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade?api-version=2017-04-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-servicebus/7.1.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '736ea216-1d1d-41e2-bc5d-fb5c7d2c38fa_M0SN1_M0SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11992'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': 'e421d5d7-08d3-44cf-a7f9-92befaece569'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191622Z:e421d5d7-08d3-44cf-a7f9-92befaece569'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:16:22 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"sku":{"name":"Standard","tier":"Standard"},"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade","name":"mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade","type":"Microsoft.ServiceBus/Namespaces","location":"North Europe","tags":{"created_by":"Azure Arc-enabled ML"},"properties":{"provisioningState":"Succeeded","metricId":"a0f4a733-4fce-4d49-b8a8-d30541fc1b45:mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade","createdAt":"2022-06-20T19:15:20.363Z","updatedAt":"2022-06-20T19:16:05.14Z","serviceBusEndpoint":"https://mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade.servicebus.windows.net:443/","status":"Active"}}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/topics/computestate-updatedby-computeprovider?api-version=2017-04-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'PUT'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Accept': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Length': '80'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-servicebus/7.1.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: {"properties": {"defaultMessageTimeToLive": "P60D", "maxSizeInMegabytes": 5120}}
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "PUT /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/topics/computestate-updatedby-computeprovider?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': 'bc3ba3d2-1cdc-479b-9adb-3f2ea924dda1_M0SN1_M0SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-writes': '1197'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': 'af25d8e3-49ea-4e7c-9c36-059852ca8e72'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191625Z:af25d8e3-49ea-4e7c-9c36-059852ca8e72'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:16:25 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/topics/computestate-updatedby-computeprovider","name":"computestate-updatedby-computeprovider","type":"Microsoft.ServiceBus/Namespaces/Topics","location":"North Europe","properties":{"defaultMessageTimeToLive":"P60D","maxSizeInMegabytes":5120,"requiresDuplicateDetection":false,"duplicateDetectionHistoryTimeWindow":"PT10M","enableBatchedOperations":true,"sizeInBytes":0,"status":"Active","supportOrdering":true,"autoDeleteOnIdle":"P10675199DT2H48M5.4775807S","enablePartitioning":false,"enableExpress":false,"createdAt":"2022-06-20T19:16:25.217Z","updatedAt":"2022-06-20T19:16:25.247Z","accessedAt":"0001-01-01T00:00:00Z","subscriptionCount":0,"countDetails":{"activeMessageCount":0,"deadLetterMessageCount":0,"scheduledMessageCount":0,"transferMessageCount":0,"transferDeadLetterMessageCount":0}}}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/topics/computestate-updatedby-computeprovider/subscriptions/compute-scheduler-computestate?api-version=2017-04-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'PUT'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Accept': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Length': '100'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-servicebus/7.1.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: {"properties": {"lockDuration": "PT30S", "defaultMessageTimeToLive": "P14D", "maxDeliveryCount": 1}}
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "PUT /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/topics/computestate-updatedby-computeprovider/subscriptions/compute-scheduler-computestate?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '67b10f28-86fb-452c-9275-6887cfa163f1_M0SN1_M0SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-writes': '1196'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '2426fa37-98cb-4129-81bb-bb41ead97f24'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191627Z:2426fa37-98cb-4129-81bb-bb41ead97f24'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:16:27 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/topics/computestate-updatedby-computeprovider/subscriptions/compute-scheduler-computestate","name":"compute-scheduler-computestate","type":"Microsoft.ServiceBus/Namespaces/Topics/Subscriptions","location":"North Europe","properties":{"lockDuration":"PT30S","requiresSession":false,"defaultMessageTimeToLive":"P14D","deadLetteringOnMessageExpiration":false,"deadLetteringOnFilterEvaluationExceptions":true,"messageCount":0,"maxDeliveryCount":1,"status":"Active","enableBatchedOperations":true,"createdAt":"2022-06-20T19:16:27.6183868Z","updatedAt":"2022-06-20T19:16:27.6183868Z","accessedAt":"0001-01-01T00:00:00Z","countDetails":{"activeMessageCount":0,"deadLetterMessageCount":0,"scheduledMessageCount":0,"transferMessageCount":0,"transferDeadLetterMessageCount":0},"autoDeleteOnIdle":"P10675199DT2H48M5.4775807S"}}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/topics/jobstate-updatedby-computeprovider?api-version=2017-04-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'PUT'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Accept': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Length': '80'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-servicebus/7.1.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: {"properties": {"defaultMessageTimeToLive": "P60D", "maxSizeInMegabytes": 5120}}
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "PUT /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/topics/jobstate-updatedby-computeprovider?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '6d5f6add-8ad0-4fc0-9299-9cebf9bd1f73_M0SN1_M0SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-writes': '1195'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '22865dc9-8be7-41b3-aa5a-c52c90c9b806'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191630Z:22865dc9-8be7-41b3-aa5a-c52c90c9b806'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:16:30 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/topics/jobstate-updatedby-computeprovider","name":"jobstate-updatedby-computeprovider","type":"Microsoft.ServiceBus/Namespaces/Topics","location":"North Europe","properties":{"defaultMessageTimeToLive":"P60D","maxSizeInMegabytes":5120,"requiresDuplicateDetection":false,"duplicateDetectionHistoryTimeWindow":"PT10M","enableBatchedOperations":true,"sizeInBytes":0,"status":"Active","supportOrdering":true,"autoDeleteOnIdle":"P10675199DT2H48M5.4775807S","enablePartitioning":false,"enableExpress":false,"createdAt":"2022-06-20T19:16:30.207Z","updatedAt":"2022-06-20T19:16:30.26Z","accessedAt":"0001-01-01T00:00:00Z","subscriptionCount":0,"countDetails":{"activeMessageCount":0,"deadLetterMessageCount":0,"scheduledMessageCount":0,"transferMessageCount":0,"transferDeadLetterMessageCount":0}}}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/topics/jobstate-updatedby-computeprovider/subscriptions/compute-scheduler-jobstate?api-version=2017-04-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'PUT'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Accept': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Length': '100'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-servicebus/7.1.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: {"properties": {"lockDuration": "PT30S", "defaultMessageTimeToLive": "P14D", "maxDeliveryCount": 1}}
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "PUT /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/topics/jobstate-updatedby-computeprovider/subscriptions/compute-scheduler-jobstate?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': 'e452a128-f878-4ad5-8a1d-afa99b027aa6_M0SN1_M0SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-writes': '1194'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '7f3b27dc-e9ce-4dd6-9540-087de922fff5'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191633Z:7f3b27dc-e9ce-4dd6-9540-087de922fff5'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:16:33 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/topics/jobstate-updatedby-computeprovider/subscriptions/compute-scheduler-jobstate","name":"compute-scheduler-jobstate","type":"Microsoft.ServiceBus/Namespaces/Topics/Subscriptions","location":"North Europe","properties":{"lockDuration":"PT30S","requiresSession":false,"defaultMessageTimeToLive":"P14D","deadLetteringOnMessageExpiration":false,"deadLetteringOnFilterEvaluationExceptions":true,"messageCount":0,"maxDeliveryCount":1,"status":"Active","enableBatchedOperations":true,"createdAt":"2022-06-20T19:16:33.0820615Z","updatedAt":"2022-06-20T19:16:33.0820615Z","accessedAt":"0001-01-01T00:00:00Z","countDetails":{"activeMessageCount":0,"deadLetterMessageCount":0,"scheduledMessageCount":0,"transferMessageCount":0,"transferDeadLetterMessageCount":0},"autoDeleteOnIdle":"P10675199DT2H48M5.4775807S"}}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade?api-version=2017-04-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Accept': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-servicebus/7.1.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '40dae7ad-bc2d-45de-bd10-f679808d8c2f_M0SN1_M0SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11991'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '3813eabf-e3c3-4127-bbdb-cc9445b8c812'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191633Z:3813eabf-e3c3-4127-bbdb-cc9445b8c812'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:16:33 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"sku":{"name":"Standard","tier":"Standard"},"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade","name":"mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade","type":"Microsoft.ServiceBus/Namespaces","location":"North Europe","tags":{"created_by":"Azure Arc-enabled ML"},"properties":{"provisioningState":"Succeeded","metricId":"a0f4a733-4fce-4d49-b8a8-d30541fc1b45:mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade","createdAt":"2022-06-20T19:15:20.363Z","updatedAt":"2022-06-20T19:16:05.14Z","serviceBusEndpoint":"https://mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade.servicebus.windows.net:443/","status":"Active"}}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/AuthorizationRules?api-version=2017-04-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Accept': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-servicebus/7.1.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/AuthorizationRules?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': 'f399b44c-90b6-4e1d-8084-c2cb82fbb9f9_M0SN1_M0SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11990'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': 'fb69e82a-f17b-47bd-a6ea-908075a8707d'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191640Z:fb69e82a-f17b-47bd-a6ea-908075a8707d'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:16:39 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"value":[{"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/AuthorizationRules/RootManageSharedAccessKey","name":"RootManageSharedAccessKey","type":"Microsoft.ServiceBus/Namespaces/AuthorizationRules","location":"North Europe","properties":{"rights":["Listen","Manage","Send"]}}]}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/AuthorizationRules/RootManageSharedAccessKey/listKeys?api-version=2017-04-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'POST'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Accept': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-servicebus/7.1.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "POST /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade/AuthorizationRules/RootManageSharedAccessKey/listKeys?api-version=2017-04-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '027c21b8-efa0-4ba4-8962-b9552b32bbf2_M0SN1_M0SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server-SB': 'Service-Bus-Resource-Provider/SN1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Server': 'Service-Bus-Resource-Provider/SN1, Microsoft-HTTPAPI/2.0'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-writes': '1199'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': 'dd0104b3-8461-4175-be33-ad5727661c37'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYNORTH:20220620T191641Z:dd0104b3-8461-4175-be33-ad5727661c37'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:16:40 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"primaryConnectionString":"Endpoint=sb://mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=bYK+RejNIMYlqr7nUMQajYsRwjVzB/HwOeN3xgW1HDY=","secondaryConnectionString":"Endpoint=sb://mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=uVf30wyBRuVyPP12Od/Bd/GdkobVRzGGQVsgPGr8u3o=","primaryKey":"bYK+RejNIMYlqr7nUMQajYsRwjVzB/HwOeN3xgW1HDY=","secondaryKey":"uVf30wyBRuVyPP12Od/Bd/GdkobVRzGGQVsgPGr8u3o=","keyName":"RootManageSharedAccessKey"}
+INFO: cli.azext_k8s_extension.partner_extensions.AzureMLKubernetes: ==== END SERVICE BUS CREATION ====
+WARNING: msrest.serialization: location is not a known attribute of class <class 'azext_k8s_extension.vendored_sdks.v2022_03_01.models._models_py3.Extension'> and will be ignored
+DEBUG: cli.azure.cli.core.commands.client_factory: Getting management service client client_type=ResourceManagementClient
+DEBUG: urllib3.util.retry: Converted retries value: 1 -> Retry(total=1, connect=None, read=None, redirect=None, status=None)
+DEBUG: msal.authority: openid_config = {'token_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/token', 'token_endpoint_auth_methods_supported': ['client_secret_post', 'private_key_jwt', 'client_secret_basic'], 'jwks_uri': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/discovery/v2.0/keys', 'response_modes_supported': ['query', 'fragment', 'form_post'], 'subject_types_supported': ['pairwise'], 'id_token_signing_alg_values_supported': ['RS256'], 'response_types_supported': ['code', 'id_token', 'code id_token', 'id_token token'], 'scopes_supported': ['openid', 'profile', 'email', 'offline_access'], 'issuer': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/v2.0', 'request_uri_parameter_supported': False, 'userinfo_endpoint': 'https://graph.microsoft.com/oidc/userinfo', 'authorization_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/authorize', 'device_authorization_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/devicecode', 'http_logout_supported': True, 'frontchannel_logout_supported': True, 'end_session_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/logout', 'claims_supported': ['sub', 'iss', 'cloud_instance_name', 'cloud_instance_host_name', 'cloud_graph_host_name', 'msgraph_host', 'aud', 'exp', 'iat', 'auth_time', 'acr', 'nonce', 'preferred_username', 'name', 'tid', 'ver', 'at_hash', 'c_hash', 'email'], 'kerberos_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/kerberos', 'tenant_region_scope': 'WW', 'cloud_instance_name': 'microsoftonline.com', 'cloud_graph_host_name': 'graph.windows.net', 'msgraph_host': 'graph.microsoft.com', 'rbac_url': 'https://pas.windows.net'}
+DEBUG: cli.azure.cli.core.auth.credential_adaptor: CredentialAdaptor.get_token: scopes=('https://management.core.windows.net//.default',), kwargs={}
+DEBUG: cli.azure.cli.core.auth.msal_authentication: UserCredential.get_token: scopes=('https://management.core.windows.net//.default',), kwargs={}
+DEBUG: msal.application: Cache hit an AT
+DEBUG: msal.telemetry: Generate or reuse correlation_id: 89f8d13a-7da0-4250-8827-f212038c2899
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/providers/Microsoft.KubernetesConfiguration?api-version=2021-04-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Accept': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-resource/20.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: Starting new HTTPS connection (1): management.azure.com:443
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/providers/Microsoft.KubernetesConfiguration?api-version=2021-04-01 HTTP/1.1" 200 1215
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11999'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': 'ea130cf7-676e-4a18-9d63-bb25c286a3c0'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': 'ea130cf7-676e-4a18-9d63-bb25c286a3c0'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T191641Z:ea130cf7-676e-4a18-9d63-bb25c286a3c0'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:16:41 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Length': '1215'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/providers/Microsoft.KubernetesConfiguration","namespace":"Microsoft.KubernetesConfiguration","authorizations":[{"applicationId":"c699bf69-fb1d-4eaf-999b-99e6b2ae4d85","roleDefinitionId":"90155430-a360-410f-af5d-89dc284d85c6"},{"applicationId":"03db181c-e9d3-4868-9097-f0b728327182","roleDefinitionId":"DE2ADB97-42D8-49C8-8FCF-DBB53EF936AC"},{"applicationId":"a0f92522-89de-4c5e-9a75-0044ccf66efd","roleDefinitionId":"b3429810-7d5c-420e-8605-cf280f3099f2"},{"applicationId":"bd9b7cd5-dac1-495f-b013-ac871e98fa5f","roleDefinitionId":"0d44c8f0-08b9-44d4-9f59-e51c83f95200"},{"applicationId":"585fc3c3-9a59-4720-8319-53cce041a605","roleDefinitionId":"4a9ce2ee-6de2-43ba-a7bd-8f316de763a7"}],"resourceTypes":[{"resourceType":"sourceControlConfigurations","locations":["East US","West Europe","West Central US","West US 2","West US 3","South Central US","East US 2","North Europe","UK South","Southeast Asia","Australia East","France Central","Central US","North Central US","West US","Korea Central","East Asia","Japan East","Canada East","Canada Central","Norway East","Germany West Central","Sweden Central","Switzerland North","Australia Southeast","Central India","East US 2 EUAP","Central US EUAP"],"apiVersions":["2022-03-01","2021-03-01","2020-10-01-preview","2020-07-01-preview","2019-11-01-preview"],"defaultApiVersion":"2022-03-01","capabilities":"SupportsExtension"},{"resourceType":"extensions","locations":["East US","West Europe","West Central US","West US 2","West US 3","South Central US","East US 2","North Europe","UK South","Southeast Asia","Australia East","France Central","Central US","North Central US","West US","Korea Central","East Asia","Japan East","Canada East","Canada Central","Norway East","Germany West Central","Sweden Central","Switzerland North","Australia Southeast","Central India","East US 2 EUAP","Central US EUAP"],"apiVersions":["2022-04-02-preview","2022-03-01","2021-09-01","2021-05-01-preview","2020-07-01-preview"],"defaultApiVersion":"2022-03-01","capabilities":"SystemAssignedResourceIdentity, SupportsExtension"},{"resourceType":"fluxConfigurations","locations":["East US","West Europe","West Central US","West US 2","West US 3","South Central US","East US 2","North Europe","UK South","Southeast Asia","Australia East","France Central","Central US","North Central US","West US","Korea Central","East Asia","Japan East","Canada East","Canada Central","Norway East","Germany West Central","Sweden Central","Switzerland North","Australia Southeast","Central India"],"apiVersions":["2022-03-01","2022-01-01-preview","2021-11-01-preview","2021-06-01-preview"],"defaultApiVersion":"2022-03-01","capabilities":"SupportsExtension"},{"resourceType":"operations","locations":[],"apiVersions":["2022-03-01","2022-01-01-preview","2021-12-01-preview","2021-11-01-preview","2021-09-01","2021-06-01-preview","2021-05-01-preview","2021-03-01","2020-10-01-preview","2020-07-01-preview","2019-11-01-preview"],"capabilities":"None"},{"resourceType":"privateLinkScopes","locations":["East US 2 EUAP"],"apiVersions":["2022-04-02-preview"],"capabilities":"SupportsTags, SupportsLocation"},{"resourceType":"privateLinkScopes/privateEndpointConnections","locations":["East US 2 EUAP"],"apiVersions":["2022-04-02-preview"],"capabilities":"None"},{"resourceType":"privateLinkScopes/privateEndpointConnectionProxies","locations":["East US 2 EUAP"],"apiVersions":["2022-04-02-preview"],"capabilities":"None"}],"registrationState":"Registered","registrationPolicy":"RegistrationRequired"}
+DEBUG: cli.azure.cli.core.commands.client_factory: Getting management service client client_type=ResourceManagementClient
+DEBUG: urllib3.util.retry: Converted retries value: 1 -> Retry(total=1, connect=None, read=None, redirect=None, status=None)
+DEBUG: msal.authority: openid_config = {'token_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/token', 'token_endpoint_auth_methods_supported': ['client_secret_post', 'private_key_jwt', 'client_secret_basic'], 'jwks_uri': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/discovery/v2.0/keys', 'response_modes_supported': ['query', 'fragment', 'form_post'], 'subject_types_supported': ['pairwise'], 'id_token_signing_alg_values_supported': ['RS256'], 'response_types_supported': ['code', 'id_token', 'code id_token', 'id_token token'], 'scopes_supported': ['openid', 'profile', 'email', 'offline_access'], 'issuer': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/v2.0', 'request_uri_parameter_supported': False, 'userinfo_endpoint': 'https://graph.microsoft.com/oidc/userinfo', 'authorization_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/authorize', 'device_authorization_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/devicecode', 'http_logout_supported': True, 'frontchannel_logout_supported': True, 'end_session_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/oauth2/v2.0/logout', 'claims_supported': ['sub', 'iss', 'cloud_instance_name', 'cloud_instance_host_name', 'cloud_graph_host_name', 'msgraph_host', 'aud', 'exp', 'iat', 'auth_time', 'acr', 'nonce', 'preferred_username', 'name', 'tid', 'ver', 'at_hash', 'c_hash', 'email'], 'kerberos_endpoint': 'https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47/kerberos', 'tenant_region_scope': 'WW', 'cloud_instance_name': 'microsoftonline.com', 'cloud_graph_host_name': 'graph.windows.net', 'msgraph_host': 'graph.microsoft.com', 'rbac_url': 'https://pas.windows.net'}
+DEBUG: cli.azure.cli.core.auth.credential_adaptor: CredentialAdaptor.get_token: scopes=('https://management.core.windows.net//.default',), kwargs={}
+DEBUG: cli.azure.cli.core.auth.msal_authentication: UserCredential.get_token: scopes=('https://management.core.windows.net//.default',), kwargs={}
+DEBUG: msal.application: Cache hit an AT
+DEBUG: msal.telemetry: Generate or reuse correlation_id: 33b8bbd4-553a-46e8-a516-53e58cb1d10f
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml?api-version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'PUT'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Length': '2668'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Accept': 'application/json'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: {"properties": {"extensionType": "microsoft.azureml.kubernetes", "releaseTrain": "stable", "scope": {"cluster": {"releaseNamespace": "azureml"}}, "configurationSettings": {"enableTraining": "True", "enableInference": "True", "inferenceRouterServiceType": "LoadBalancer", "allowInsecureConnections": "True", "inferenceLoadBalancerHA": "False", "clusterPurpose": "DevTest", "cluster_name": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks", "domain": "northeurope.cloudapp.azure.com", "location": "northeurope", "jobSchedulerLocation": "northeurope", "cluster_name_friendly": "ml-aks", "relayserver.hybridConnectionResourceID": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay/hybridConnections/ml-aks", "relayserver.hybridConnectionName": "ml-aks", "servicebus.resourceID": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade", "servicebus.topicSubMapping.computestate-updatedby-computeprovider": "compute-scheduler-computestate", "servicebus.topicSubMapping.jobstate-updatedby-computeprovider": "compute-scheduler-jobstate", "clusterId": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks", "prometheus.prometheusSpec.externalLabels.cluster_name": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks"}, "configurationProtectedSettings": {"relayServerConnectionString": "Endpoint=sb://mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay.servicebus.windows.net/;SharedAccessKeyName=azureml_rw;SharedAccessKey=TGEeOCo3xwXM641nJV2qyqAZdlKfg36Jmstc+o9a1e8=;EntityPath=ml-aks", "serviceBusConnectionString": "Endpoint=sb://mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=bYK+RejNIMYlqr7nUMQajYsRwjVzB/HwOeN3xgW1HDY=", "relayserver.relayConnectionString": "Endpoint=sb://mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay.servicebus.windows.net/;SharedAccessKeyName=azureml_rw;SharedAccessKey=TGEeOCo3xwXM641nJV2qyqAZdlKfg36Jmstc+o9a1e8=;EntityPath=ml-aks", "servicebus.connectionString": "Endpoint=sb://mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=bYK+RejNIMYlqr7nUMQajYsRwjVzB/HwOeN3xgW1HDY="}}}
+DEBUG: urllib3.connectionpool: Starting new HTTPS connection (1): management.azure.com:443
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "PUT /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml?api-version=2022-03-01 HTTP/1.1" 201 2418
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 201
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Length': '2418'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Location': 'https://northeurope.rp.kubernetesconfiguration.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-writes': '1199'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Azure-AsyncOperation': 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': 'aef81b99-6ef4-4e8f-a141-c5830e3f2c8d'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': 'aef81b99-6ef4-4e8f-a141-c5830e3f2c8d'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T191645Z:aef81b99-6ef4-4e8f-a141-c5830e3f2c8d'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:16:44 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml","name":"aml","type":"Microsoft.KubernetesConfiguration/extensions","properties":{"extensionType":"microsoft.azureml.kubernetes","autoUpgradeMinorVersion":true,"releaseTrain":"stable","version":null,"scope":{"cluster":{"releaseNamespace":"azureml"}},"provisioningState":"Creating","configurationSettings":{"enableTraining":"True","enableInference":"True","inferenceRouterServiceType":"LoadBalancer","allowInsecureConnections":"True","inferenceLoadBalancerHA":"False","clusterPurpose":"DevTest","cluster_name":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks","domain":"northeurope.cloudapp.azure.com","location":"northeurope","jobSchedulerLocation":"northeurope","cluster_name_friendly":"ml-aks","relayserver.hybridConnectionResourceID":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay/hybridConnections/ml-aks","relayserver.hybridConnectionName":"ml-aks","servicebus.resourceID":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade","servicebus.topicSubMapping.computestate-updatedby-computeprovider":"compute-scheduler-computestate","servicebus.topicSubMapping.jobstate-updatedby-computeprovider":"compute-scheduler-jobstate","clusterId":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks","prometheus.prometheusSpec.externalLabels.cluster_name":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks"},"configurationProtectedSettings":{"relayServerConnectionString":"","serviceBusConnectionString":"","relayserver.relayConnectionString":"","servicebus.connectionString":""},"statuses":[],"aksAssignedIdentity":null},"systemData":{"createdBy":null,"createdByType":null,"createdAt":"2022-06-20T19:16:45.0294649+00:00","lastModifiedBy":null,"lastModifiedByType":null,"lastModifiedAt":"2022-06-20T19:16:45.0294649+00:00"}}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11996'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2019-11-01-Preview, 2021-05-01-preview, 2021-06-01-preview, 2021-09-01, 2021-11-01-preview, 2022-01-01-preview, 2022-03-01, 2022-04-02-preview'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '4d056ca9-1895-439c-8794-b3c6d3b81619'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '4d056ca9-1895-439c-8794-b3c6d3b81619'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T191715Z:4d056ca9-1895-439c-8794-b3c6d3b81619'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:17:15 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035","name":"2ad81c01-354f-4c17-913b-8ab4da5a7035","status":"Creating"}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11995'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2019-11-01-Preview, 2021-05-01-preview, 2021-06-01-preview, 2021-09-01, 2021-11-01-preview, 2022-01-01-preview, 2022-03-01, 2022-04-02-preview'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '18cd8014-684f-4373-a277-85b59e37c721'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '18cd8014-684f-4373-a277-85b59e37c721'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T191746Z:18cd8014-684f-4373-a277-85b59e37c721'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:17:46 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035","name":"2ad81c01-354f-4c17-913b-8ab4da5a7035","status":"Creating"}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11994'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2019-11-01-Preview, 2021-05-01-preview, 2021-06-01-preview, 2021-09-01, 2021-11-01-preview, 2022-01-01-preview, 2022-03-01, 2022-04-02-preview'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '19e77c03-0d50-4a1d-a77b-7c8002dfa245'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '19e77c03-0d50-4a1d-a77b-7c8002dfa245'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T191817Z:19e77c03-0d50-4a1d-a77b-7c8002dfa245'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:18:17 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035","name":"2ad81c01-354f-4c17-913b-8ab4da5a7035","status":"Creating"}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11993'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2019-11-01-Preview, 2021-05-01-preview, 2021-06-01-preview, 2021-09-01, 2021-11-01-preview, 2022-01-01-preview, 2022-03-01, 2022-04-02-preview'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': 'ec140876-b6df-4e09-868f-8196f4b74fef'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': 'ec140876-b6df-4e09-868f-8196f4b74fef'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T191848Z:ec140876-b6df-4e09-868f-8196f4b74fef'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:18:47 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035","name":"2ad81c01-354f-4c17-913b-8ab4da5a7035","status":"Creating"}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11992'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2019-11-01-Preview, 2021-05-01-preview, 2021-06-01-preview, 2021-09-01, 2021-11-01-preview, 2022-01-01-preview, 2022-03-01, 2022-04-02-preview'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': 'd9c225a5-2d8c-4374-b06e-0aa90390d09d'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': 'd9c225a5-2d8c-4374-b06e-0aa90390d09d'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T191919Z:d9c225a5-2d8c-4374-b06e-0aa90390d09d'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:19:18 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035","name":"2ad81c01-354f-4c17-913b-8ab4da5a7035","status":"Creating"}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11991'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2019-11-01-Preview, 2021-05-01-preview, 2021-06-01-preview, 2021-09-01, 2021-11-01-preview, 2022-01-01-preview, 2022-03-01, 2022-04-02-preview'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '32576d2f-bcbf-473b-9c98-8f00a5e17492'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '32576d2f-bcbf-473b-9c98-8f00a5e17492'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T191950Z:32576d2f-bcbf-473b-9c98-8f00a5e17492'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:19:50 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035","name":"2ad81c01-354f-4c17-913b-8ab4da5a7035","status":"Creating"}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11993'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2019-11-01-Preview, 2021-05-01-preview, 2021-06-01-preview, 2021-09-01, 2021-11-01-preview, 2022-01-01-preview, 2022-03-01, 2022-04-02-preview'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '8d064fdf-1fce-4b45-b382-4f5e954a89f2'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '8d064fdf-1fce-4b45-b382-4f5e954a89f2'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T192020Z:8d064fdf-1fce-4b45-b382-4f5e954a89f2'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:20:20 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035","name":"2ad81c01-354f-4c17-913b-8ab4da5a7035","status":"Creating"}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11992'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2019-11-01-Preview, 2021-05-01-preview, 2021-06-01-preview, 2021-09-01, 2021-11-01-preview, 2022-01-01-preview, 2022-03-01, 2022-04-02-preview'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '316dcf99-e61c-4d4d-88b8-8fa880b8ee6e'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '316dcf99-e61c-4d4d-88b8-8fa880b8ee6e'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T192051Z:316dcf99-e61c-4d4d-88b8-8fa880b8ee6e'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:20:51 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035","name":"2ad81c01-354f-4c17-913b-8ab4da5a7035","status":"Creating"}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11991'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2019-11-01-Preview, 2021-05-01-preview, 2021-06-01-preview, 2021-09-01, 2021-11-01-preview, 2022-01-01-preview, 2022-03-01, 2022-04-02-preview'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '00df2c00-27e8-4f0d-ba0d-8db90411e7cd'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '00df2c00-27e8-4f0d-ba0d-8db90411e7cd'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T192122Z:00df2c00-27e8-4f0d-ba0d-8db90411e7cd'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:21:22 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035","name":"2ad81c01-354f-4c17-913b-8ab4da5a7035","status":"Creating"}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11990'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2019-11-01-Preview, 2021-05-01-preview, 2021-06-01-preview, 2021-09-01, 2021-11-01-preview, 2022-01-01-preview, 2022-03-01, 2022-04-02-preview'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '714bdde3-05a7-49d1-9863-11a5875991e8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '714bdde3-05a7-49d1-9863-11a5875991e8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T192153Z:714bdde3-05a7-49d1-9863-11a5875991e8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:21:52 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035","name":"2ad81c01-354f-4c17-913b-8ab4da5a7035","status":"Creating"}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11989'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2019-11-01-Preview, 2021-05-01-preview, 2021-06-01-preview, 2021-09-01, 2021-11-01-preview, 2022-01-01-preview, 2022-03-01, 2022-04-02-preview'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '376d2a0c-5bef-4228-886e-0c6d0bf04515'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '376d2a0c-5bef-4228-886e-0c6d0bf04515'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T192224Z:376d2a0c-5bef-4228-886e-0c6d0bf04515'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:22:23 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035","name":"2ad81c01-354f-4c17-913b-8ab4da5a7035","status":"Creating"}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11988'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2019-11-01-Preview, 2021-05-01-preview, 2021-06-01-preview, 2021-09-01, 2021-11-01-preview, 2022-01-01-preview, 2022-03-01, 2022-04-02-preview'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': 'cdfb2555-d3bb-47ed-899d-fa63a1666ea7'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': 'cdfb2555-d3bb-47ed-899d-fa63a1666ea7'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T192255Z:cdfb2555-d3bb-47ed-899d-fa63a1666ea7'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:22:55 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035","name":"2ad81c01-354f-4c17-913b-8ab4da5a7035","status":"Creating"}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035?api-Version=2022-03-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11987'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2019-11-01-Preview, 2021-05-01-preview, 2021-06-01-preview, 2021-09-01, 2021-11-01-preview, 2022-01-01-preview, 2022-03-01, 2022-04-02-preview'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': '18b14737-d682-468d-811f-13c908d5d6f7'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': '18b14737-d682-468d-811f-13c908d5d6f7'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T192326Z:18b14737-d682-468d-811f-13c908d5d6f7'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:23:25 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/ManagedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml/operations/2ad81c01-354f-4c17-913b-8ab4da5a7035","name":"2ad81c01-354f-4c17-913b-8ab4da5a7035","status":"Succeeded"}
+DEBUG: cli.azure.cli.core.sdk.policies: Request URL: 'https://management.azure.com/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml?api-version=2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies: Request method: 'GET'
+DEBUG: cli.azure.cli.core.sdk.policies: Request headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-client-request-id': '94d752ea-f0cc-11ec-ad62-00155d406c34'
+DEBUG: cli.azure.cli.core.sdk.policies:     'CommandName': 'k8s-extension create'
+DEBUG: cli.azure.cli.core.sdk.policies:     'ParameterSetName': '--name --extension-type --config --cluster-type --cluster-name --resource-group --scope --debug'
+DEBUG: cli.azure.cli.core.sdk.policies:     'User-Agent': 'AZURECLI/2.36.0 (DEB) azsdk-python-azure-mgmt-kubernetesconfiguration/1.0.0 Python/3.8.13 (Linux-5.10.102.1-microsoft-standard-WSL2-x86_64-with-glibc2.29)'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Authorization': '*****'
+DEBUG: cli.azure.cli.core.sdk.policies: Request body:
+DEBUG: cli.azure.cli.core.sdk.policies: This request has no body
+DEBUG: urllib3.connectionpool: https://management.azure.com:443 "GET /subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml?api-version=2022-03-01 HTTP/1.1" 200 None
+DEBUG: cli.azure.cli.core.sdk.policies: Response status: 200
+DEBUG: cli.azure.cli.core.sdk.policies: Response headers:
+DEBUG: cli.azure.cli.core.sdk.policies:     'Cache-Control': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Pragma': 'no-cache'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Transfer-Encoding': 'chunked'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Type': 'application/json; charset=utf-8'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Content-Encoding': 'gzip'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Expires': '-1'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Vary': 'Accept-Encoding'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-ratelimit-remaining-subscription-reads': '11986'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+DEBUG: cli.azure.cli.core.sdk.policies:     'api-supported-versions': '2022-03-01'
+DEBUG: cli.azure.cli.core.sdk.policies:     'X-Content-Type-Options': 'nosniff'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-request-id': 'dd8ccee3-4574-48f3-8a51-92f2394860b4'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-correlation-request-id': 'dd8ccee3-4574-48f3-8a51-92f2394860b4'
+DEBUG: cli.azure.cli.core.sdk.policies:     'x-ms-routing-request-id': 'GERMANYWESTCENTRAL:20220620T192327Z:dd8ccee3-4574-48f3-8a51-92f2394860b4'
+DEBUG: cli.azure.cli.core.sdk.policies:     'Date': 'Mon, 20 Jun 2022 19:23:26 GMT'
+DEBUG: cli.azure.cli.core.sdk.policies: Response content:
+DEBUG: cli.azure.cli.core.sdk.policies: {"id":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml","name":"aml","type":"Microsoft.KubernetesConfiguration/extensions","properties":{"extensionType":"microsoft.azureml.kubernetes","autoUpgradeMinorVersion":true,"releaseTrain":"stable","version":"1.1.5","scope":{"cluster":{"releaseNamespace":"azureml"}},"provisioningState":"Succeeded","configurationSettings":{"enableTraining":"True","enableInference":"True","inferenceRouterServiceType":"LoadBalancer","allowInsecureConnections":"True","inferenceLoadBalancerHA":"False","clusterPurpose":"DevTest","cluster_name":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks","domain":"northeurope.cloudapp.azure.com","location":"northeurope","jobSchedulerLocation":"northeurope","cluster_name_friendly":"ml-aks","relayserver.hybridConnectionResourceID":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay/hybridConnections/ml-aks","relayserver.hybridConnectionName":"ml-aks","servicebus.resourceID":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade","servicebus.topicSubMapping.computestate-updatedby-computeprovider":"compute-scheduler-computestate","servicebus.topicSubMapping.jobstate-updatedby-computeprovider":"compute-scheduler-jobstate","clusterId":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks","prometheus.prometheusSpec.externalLabels.cluster_name":"/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks"},"configurationProtectedSettings":{"relayServerConnectionString":"","serviceBusConnectionString":"","relayserver.relayConnectionString":"","servicebus.connectionString":""},"statuses":[],"aksAssignedIdentity":{"type":null,"principalId":"6dc5e9d2-9354-436d-ac70-f7bc9af414db","tenantId":null}},"systemData":{"createdBy":null,"createdByType":null,"createdAt":"2022-06-20T19:16:45.0294649+00:00","lastModifiedBy":null,"lastModifiedByType":null,"lastModifiedAt":"2022-06-20T19:16:45.0294649+00:00"}}
+DEBUG: cli.knack.cli: Event: CommandInvoker.OnTransformResult [<function _resource_group_transform at 0x7f33770fc310>, <function _x509_from_base64_to_hex_transform at 0x7f33770fc3a0>]
+DEBUG: cli.knack.cli: Event: CommandInvoker.OnFilterResult []
+DEBUG: cli.knack.cli: Event: Cli.SuccessfulExecute []
+DEBUG: cli.knack.cli: Event: Cli.PostExecute [<function AzCliLogging.deinit_cmd_metadata_logging at 0x7f33771cc820>]
+INFO: az_command_data_logger: exit code: 0
+INFO: cli.__main__: Command ran in 807.462 seconds (init: 0.256, invoke: 807.207)
+INFO: telemetry.save: Save telemetry record of length 3188 in cache
+INFO: telemetry.check: Returns Positive.
+INFO: telemetry.main: Begin creating telemetry upload process.
+INFO: telemetry.process: Creating upload process: "/usr/bin/../../opt/az/bin/python3 /opt/az/lib/python3.8/site-packages/azure/cli/telemetry/__init__.py /home/tomas/.azure"
+INFO: telemetry.process: Return from creating process
+INFO: telemetry.main: Finish creating telemetry upload process.
+{
+  "aksAssignedIdentity": {
+    "principalId": "6dc5e9d2-9354-436d-ac70-f7bc9af414db",
+    "tenantId": null,
+    "type": null
+  },
+  "autoUpgradeMinorVersion": true,
+  "configurationProtectedSettings": {
+    "relayServerConnectionString": "",
+    "relayserver.relayConnectionString": "",
+    "serviceBusConnectionString": "",
+    "servicebus.connectionString": ""
+  },
+  "configurationSettings": {
+    "allowInsecureConnections": "True",
+    "clusterId": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks",
+    "clusterPurpose": "DevTest",
+    "cluster_name": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks",
+    "cluster_name_friendly": "ml-aks",
+    "domain": "northeurope.cloudapp.azure.com",
+    "enableInference": "True",
+    "enableTraining": "True",
+    "inferenceLoadBalancerHA": "False",
+    "inferenceRouterServiceType": "LoadBalancer",
+    "jobSchedulerLocation": "northeurope",
+    "location": "northeurope",
+    "prometheus.prometheusSpec.externalLabels.cluster_name": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks",
+    "relayserver.hybridConnectionName": "ml-aks",
+    "relayserver.hybridConnectionResourceID": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.Relay/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelmrelay/hybridConnections/ml-aks",
+    "servicebus.resourceID": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ServiceBus/namespaces/mlaksa0f4a7334fce4d49b8a8d30541fc1b45dazurelcdeade",
+    "servicebus.topicSubMapping.computestate-updatedby-computeprovider": "compute-scheduler-computestate",
+    "servicebus.topicSubMapping.jobstate-updatedby-computeprovider": "compute-scheduler-jobstate"
+  },
+  "customLocationSettings": null,
+  "errorInfo": null,
+  "extensionType": "microsoft.azureml.kubernetes",
+  "id": "/subscriptions/a0f4a733-4fce-4d49-b8a8-d30541fc1b45/resourceGroups/d-azurelm/providers/Microsoft.ContainerService/managedClusters/ml-aks/providers/Microsoft.KubernetesConfiguration/extensions/aml",
+  "identity": null,
+  "name": "aml",
+  "packageUri": null,
+  "provisioningState": "Succeeded",
+  "releaseTrain": "stable",
+  "resourceGroup": "d-azurelm",
+  "scope": {
+    "cluster": {
+      "releaseNamespace": "azureml"
+    },
+    "namespace": null
+  },
+  "statuses": [],
+  "systemData": {
+    "createdAt": "2022-06-20T19:16:45.029464+00:00",
+    "createdBy": null,
+    "createdByType": null,
+    "lastModifiedAt": "2022-06-20T19:16:45.029464+00:00",
+    "lastModifiedBy": null,
+    "lastModifiedByType": null
+  },
+  "type": "Microsoft.KubernetesConfiguration/extensions",
+  "version": "1.1.5"
+}
