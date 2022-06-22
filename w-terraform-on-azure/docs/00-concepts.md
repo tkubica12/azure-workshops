@@ -9,6 +9,7 @@
 - [GitOps processes](#gitops-processes)
   - [Module change flow](#module-change-flow)
   - [Project change flow](#project-change-flow)
+- [Terraform vs. other tools](#terraform-vs-other-tools)
 
 # Key benefits of Infrastructure as Code
 - Repeatable outcomes regardless who and when executes it (unlike humans copy and pasting)
@@ -179,3 +180,13 @@ flowchart TD
     tfplantest -. stored plan .-> deploytest[/Deploy to test env/];
     tfplanprod -. stored plan .-> deployprod[/Deploy to production - manuall trigger/];
 ```
+
+# Terraform vs. other tools
+Terraform is primarily infrastructure (including cloud PaaS resources) tool and in this space there are following alternatives for Azure:
+- **Terraform** - multi-cloud, very well known with great documentation and community, large ecosystem. Standard provider implementations might miss latest features of cloud vendors, especial previews (this can now be worked aroud with AzApi provider that provides thin layer on top of auto-generated APIs). Support for standard programming language can be added with CDKs (reaction to Pulumi success). Pull-based GitOps model is not well established yet (there is Kubernetes Operator for Terraform Coud only - probably as reaction to Crossplane).
+- **Bicep/ARM** - Azure-only native solution that supports every single resource even previews and private previews and is free part of Azure. Good authoring tooling in VS Code, but smaller ecosystem. Currently lacks some state management capabilities for pure desired state deployments on subscription level. Can be used for marketplace items (important if you are solution provider).
+- **Pulumi** - key selling point is usage of programming languages rather than DSL bringing powerful constructs, which is appreciated by developers (but not so much by Ops/SREs). Resource support is auto-generated so Pulumi can work with all resources including previews and supports multi-cloud. Community and ecosystem is smaller than Terraform.
+- **Crossplane** - thought leader in GitOps pull-based model together with Kubernetes style API. Rather than reinventing language, structures and state store, Crossplane leverages Kubernetes for this and is great together with Flux or ArgoCD. Support for resources is somewhat limited and while it might be great for cloud-native application teams (that use Kubernetes), it might not fit well to network teams, governance operators or security personel.
+- **Ansible** - popular imperative choice (with only roles being declarative) is somewhat different category and is generaly not best tool for cloud infrastructure provisioning (nevertheless it is very strong in Linux servers configuration management for traditional VM-based workloads). Due to its popularity with physical networking device management some teams might benefit from using Ansible with cloud resources also.
+
+There are other categories that might overlap with Terraform, but I personally prefer to use right tool for the job. Regarding OS configuration you should look at Ansible, Saltstack, Chef, Puppet or PowerShell DSC. For Kubernetes deployments go with Helm or Kustomize. 
