@@ -1,6 +1,9 @@
 # Workshop - Terraform on Azure
 This workshop will guide you throw best practices from initial few resources via modules, advanced concepts and abstractions all the way to process aspects and using CI/CD with GitHub. Example end state can also be found [here](https://github.com/tomas-iac).
 
+# Concepts
+First read about [concepts](./docs/00-concepts.md)
+
 # Lab 1 - Get started with Terraform on Azure
 In this lab we will setup Terraform and deploy our first few resources.
 
