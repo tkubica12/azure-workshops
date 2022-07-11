@@ -46,3 +46,6 @@
   - Per-pod identity with Pod identity (GA, fully supported)
   - Workload identity not yet supported
 ## Application
+- Use SDK to different providers
+- Use workload identity federation to echange Kubernetes token for AAD token
+- Use Pod Identity with Managed Identity
