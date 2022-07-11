@@ -22,3 +22,4 @@ List of demos:
 - [Azure API Management in AKS](./d-apim-in-aks/README.md)
 - [AKS with Private Link Service eg. in SaaS provider scenario](./d-aks-with-privatelinkservice/README.md)
 - [Azure private DNS resolver](./d-dns-resolver/README.md)
+- [Notes on using secrets with Azure Kubernetes Service](./d-kubernetes-secrets/README.md)
