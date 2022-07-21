@@ -1,0 +1,6 @@
+resources:
+- base/namespaces.yaml
+- base/app1-deployment.yaml
+- base/app2-deployment.yaml
+- base/app1-service.yaml
+- base/chaosmesh.yaml

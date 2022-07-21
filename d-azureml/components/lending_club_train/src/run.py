@@ -51,3 +51,7 @@ model.fit(x=X_train,
 # Evaluate model
 model.evaluate(X_test, y_test, verbose=2)
 
+# Register model
+model_path = "model"
+model_uri = 'runs:/{}/{}'.format(run_id, model_path) 
+mlflow.register_model(model_uri,"ledningclub")

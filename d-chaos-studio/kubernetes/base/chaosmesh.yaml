@@ -1,0 +1,24 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: chaos-mesh
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  url: https://charts.chaos-mesh.org
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: chaos-mesh
+  namespace: flux-system
+spec:
+  targetNamespace: chaos-mesh
+  chart:
+    spec:
+      chart: chaos-mesh
+      sourceRef:
+        kind: HelmRepository
+        name: chaos-mesh
+      version: 2.2.2
+  interval: 1m0s

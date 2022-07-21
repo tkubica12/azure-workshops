@@ -45,3 +45,5 @@ w-aks-intro/challenge/solutions/tomaskubica
 .terraform*
 *tfstate*
 .secrets
+
+garage
