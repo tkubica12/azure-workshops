@@ -13,7 +13,7 @@ metadata:
   name: chaos-mesh
   namespace: flux-system
 spec:
-  targetNamespace: chaos-mesh
+  targetNamespace: flux-system
   chart:
     spec:
       chart: chaos-mesh
