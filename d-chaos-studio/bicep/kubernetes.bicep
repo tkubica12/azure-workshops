@@ -83,7 +83,7 @@ resource fluxExtension 'Microsoft.KubernetesConfiguration/extensions@2022-03-01'
   }
 }
 
-resource fluxConfiguration 'Microsoft.KubernetesConfiguration/fluxConfigurations@2022-07-01' = {
+resource fluxConfiguration 'Microsoft.KubernetesConfiguration/fluxConfigurations@2022-03-01' = {
   scope: aks
   name: 'flux'
   properties: {
@@ -92,7 +92,7 @@ resource fluxConfiguration 'Microsoft.KubernetesConfiguration/fluxConfigurations
     sourceKind: 'GitRepository'
     gitRepository: {
       repositoryRef: {
-        branch: 'master'
+        branch: 'main'
       }
       syncIntervalInSeconds: 600
       timeoutInSeconds: 600

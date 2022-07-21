@@ -4,3 +4,5 @@ resources:
 - base/app2-deployment.yaml
 - base/app1-service.yaml
 - base/chaosmesh.yaml
+
+namespace: default

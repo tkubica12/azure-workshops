@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "14481538095352143779"
+      "templateHash": "18307362609297608067"
     }
   },
   "variables": {
@@ -1687,7 +1687,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "4711518535698428183"
+              "templateHash": "5208490323990675556"
             }
           },
           "parameters": {
@@ -1789,7 +1789,7 @@
             },
             {
               "type": "Microsoft.KubernetesConfiguration/fluxConfigurations",
-              "apiVersion": "2022-07-01",
+              "apiVersion": "2022-03-01",
               "scope": "[format('Microsoft.ContainerService/managedClusters/{0}', 'mesh-demo-aks')]",
               "name": "flux",
               "properties": {
@@ -1798,7 +1798,7 @@
                 "sourceKind": "GitRepository",
                 "gitRepository": {
                   "repositoryRef": {
-                    "branch": "master"
+                    "branch": "main"
                   },
                   "syncIntervalInSeconds": 600,
                   "timeoutInSeconds": 600,
