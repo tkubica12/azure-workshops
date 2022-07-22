@@ -23,3 +23,4 @@ List of demos:
 - [AKS with Private Link Service eg. in SaaS provider scenario](./d-aks-with-privatelinkservice/README.md)
 - [Azure private DNS resolver](./d-dns-resolver/README.md)
 - [Notes on using secrets with Azure Kubernetes Service](./d-kubernetes-secrets/README.md)
+- [Azure Chaos Studio demo](./d-chaos-studio/README.md)
