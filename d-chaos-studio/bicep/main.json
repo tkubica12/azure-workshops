@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "7703276920106429000"
+      "templateHash": "4814869949061044747"
     }
   },
   "variables": {
@@ -81,7 +81,8 @@
       "name": "[guid('chaosAgentsRbac')]",
       "properties": {
         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')).principalId]",
-        "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+        "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
+        "principalType": "ServicePrincipal"
       },
       "dependsOn": [
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]"
@@ -2411,7 +2412,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "4808826705371812765"
+              "templateHash": "11320405660925879882"
             }
           },
           "parameters": {
@@ -2446,7 +2447,7 @@
                 ],
                 "steps": [
                   {
-                    "name": "Kill random pods in default namespace",
+                    "name": "Kill random pod in default namespace",
                     "branches": [
                       {
                         "name": "Pod killer",
@@ -2455,11 +2456,55 @@
                             "type": "continuous",
                             "selectorId": "aks",
                             "name": "urn:csci:microsoft:azureKubernetesServiceChaosMesh:podChaos/2.1",
-                            "duration": "PT2M",
+                            "duration": "PT10S",
                             "parameters": [
                               {
                                 "key": "jsonSpec",
-                                "value": "                          {\r\n                            \"action\": \"pod-kill\",\r\n                            \"mode\": \"one\",\r\n                            \"selector\": {\r\n                              \"namespaces\": [\r\n                                  \"default\"\r\n                              ]\r\n                            }\r\n                          }\r\n                           "
+                                "value": "{\"action\":\"pod-kill\",\"mode\":\"one\",\"duration\":\"10s\",\"selector\":{\"namespaces\":[\"default\"]}}"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Kill another random pod in default namespace",
+                    "branches": [
+                      {
+                        "name": "Pod killer",
+                        "actions": [
+                          {
+                            "type": "continuous",
+                            "selectorId": "aks",
+                            "name": "urn:csci:microsoft:azureKubernetesServiceChaosMesh:podChaos/2.1",
+                            "duration": "PT10S",
+                            "parameters": [
+                              {
+                                "key": "jsonSpec",
+                                "value": "{\"action\":\"pod-kill\",\"mode\":\"one\",\"duration\":\"10s\",\"selector\":{\"namespaces\":[\"default\"]}}"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Kill another random pod in default namespace",
+                    "branches": [
+                      {
+                        "name": "Pod killer",
+                        "actions": [
+                          {
+                            "type": "continuous",
+                            "selectorId": "aks",
+                            "name": "urn:csci:microsoft:azureKubernetesServiceChaosMesh:podChaos/2.1",
+                            "duration": "PT10S",
+                            "parameters": [
+                              {
+                                "key": "jsonSpec",
+                                "value": "{\"action\":\"pod-kill\",\"mode\":\"one\",\"duration\":\"10s\",\"selector\":{\"namespaces\":[\"default\"]}}"
                               }
                             ]
                           }
@@ -2481,7 +2526,7 @@
                             "parameters": [
                               {
                                 "key": "jsonSpec",
-                                "value": "                          {\r\n                            \"action\": \"pod-failure\",\r\n                            \"mode\": \"one\",\r\n                            \"selector\": {\r\n                              \"labelSelectors\": {\r\n                                  \"app\": \"myapp1\"\r\n                              }\r\n                            }\r\n                          }\r\n                           "
+                                "value": "{\"action\":\"pod-failure\",\"mode\":\"one\",\"selector\":{\"namespaces\":[\"default\"],\"labelSelectors\":{\"app\":\"myapp1\"}}}"
                               }
                             ]
                           }
@@ -2498,7 +2543,7 @@
                             "parameters": [
                               {
                                 "key": "jsonSpec",
-                                "value": "                          {\r\n                            \"action\": \"pod-failure\",\r\n                            \"mode\": \"one\",\r\n                            \"selector\": {\r\n                              \"labelSelectors\": {\r\n                                  \"app\": \"myapp2\"\r\n                              }\r\n                            }\r\n                          }\r\n                           "
+                                "value": "{\"action\":\"pod-failure\",\"mode\":\"one\",\"selector\":{\"namespaces\":[\"default\"],\"labelSelectors\":{\"app\":\"myapp2\"}}}"
                               }
                             ]
                           }

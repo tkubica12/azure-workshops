@@ -31,7 +31,7 @@ resource podExperiments 'Microsoft.Chaos/experiments@2021-09-15-preview' = {
     ]
     steps: [
       {
-        name: 'Kill random pods in default namespace'
+        name: 'Kill random pod in default namespace'
         branches: [
           {
             name: 'Pod killer'
@@ -40,21 +40,55 @@ resource podExperiments 'Microsoft.Chaos/experiments@2021-09-15-preview' = {
                 type: 'continuous'
                 selectorId: 'aks'
                 name: 'urn:csci:microsoft:azureKubernetesServiceChaosMesh:podChaos/2.1'
-                duration: 'PT2M'
+                duration: 'PT10S'
                 parameters: [
                   {
                     key: 'jsonSpec'
-                    value: '''
-                          {
-                            "action": "pod-kill",
-                            "mode": "one",
-                            "selector": {
-                              "namespaces": [
-                                  "default"
-                              ]
-                            }
-                          }
-                           '''
+                    value: '{"action":"pod-kill","mode":"one","duration":"10s","selector":{"namespaces":["default"]}}'
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+      {
+        name: 'Kill another random pod in default namespace'
+        branches: [
+          {
+            name: 'Pod killer'
+            actions: [
+              {
+                type: 'continuous'
+                selectorId: 'aks'
+                name: 'urn:csci:microsoft:azureKubernetesServiceChaosMesh:podChaos/2.1'
+                duration: 'PT10S'
+                parameters: [
+                  {
+                    key: 'jsonSpec'
+                    value: '{"action":"pod-kill","mode":"one","duration":"10s","selector":{"namespaces":["default"]}}'
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+      {
+        name: 'Kill another random pod in default namespace'
+        branches: [
+          {
+            name: 'Pod killer'
+            actions: [
+              {
+                type: 'continuous'
+                selectorId: 'aks'
+                name: 'urn:csci:microsoft:azureKubernetesServiceChaosMesh:podChaos/2.1'
+                duration: 'PT10S'
+                parameters: [
+                  {
+                    key: 'jsonSpec'
+                    value: '{"action":"pod-kill","mode":"one","duration":"10s","selector":{"namespaces":["default"]}}'
                   }
                 ]
               }
@@ -76,17 +110,7 @@ resource podExperiments 'Microsoft.Chaos/experiments@2021-09-15-preview' = {
                 parameters: [
                   {
                     key: 'jsonSpec'
-                    value: '''
-                          {
-                            "action": "pod-failure",
-                            "mode": "one",
-                            "selector": {
-                              "labelSelectors": {
-                                  "app": "myapp1"
-                              }
-                            }
-                          }
-                           '''
+                    value: '{"action":"pod-failure","mode":"one","selector":{"namespaces":["default"],"labelSelectors":{"app":"myapp1"}}}'
                   }
                 ]
               }
@@ -103,17 +127,7 @@ resource podExperiments 'Microsoft.Chaos/experiments@2021-09-15-preview' = {
                 parameters: [
                   {
                     key: 'jsonSpec'
-                    value: '''
-                          {
-                            "action": "pod-failure",
-                            "mode": "one",
-                            "selector": {
-                              "labelSelectors": {
-                                  "app": "myapp2"
-                              }
-                            }
-                          }
-                           '''
+                    value: '{"action":"pod-failure","mode":"one","selector":{"namespaces":["default"],"labelSelectors":{"app":"myapp2"}}}'
                   }
                 ]
               }

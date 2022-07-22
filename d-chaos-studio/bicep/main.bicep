@@ -64,6 +64,7 @@ resource chaosAgentsRbac 'Microsoft.Authorization/roleAssignments@2020-10-01-pre
   properties: {
     principalId: chaosIdentity.properties.principalId
     roleDefinitionId: '/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c' // Contributor, but should be custom role for Chaos upload only
+    principalType: 'ServicePrincipal'
   }
 }
 

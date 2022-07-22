@@ -2,5 +2,7 @@ resources:
 - base/namespaces.yaml
 - base/app1-deployment.yaml
 - base/app2-deployment.yaml
+- base/client-deployment.yaml
 - base/app1-service.yaml
+- base/app2-service.yaml
 - base/chaosmesh.yaml

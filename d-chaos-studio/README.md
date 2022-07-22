@@ -40,4 +40,8 @@ az aks get-credentials -n mesh-demo-aks -g chaos
 I suggest to use k9s UI to demonstrate effects of experiments.
 
 ### Pod experiments
-Watch Pods. In first step random Pod is killed, in second step fault is injected into Pod in myapp1 and myapp2 so it stops responding. Not how myapp1 Pod recognize due to liveness probe while myapp2 is not.
+Watch Pods in k9s. 
+
+In first steps random Pods are killed roughly every 30 seconds.
+
+In next steps fault is injected into Pod in myapp1 and myapp2 so it stops responding. Note myapp1 recognize this as liveness probe and readiness probe fails so Kubernetes keep restarting Pod and does not send traffic to it. myapp2 due to missing probes has not detected issue and we have user impact here.
