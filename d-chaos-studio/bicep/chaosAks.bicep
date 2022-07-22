@@ -66,7 +66,7 @@ resource podExperiments 'Microsoft.Chaos/experiments@2021-09-15-preview' = {
         name: 'Fail one pod in myapp1'
         branches: [
           {
-            name: 'Pod fail'
+            name: 'Pod failure in myapp1'
             actions: [
               {
                 type: 'continuous'
@@ -83,6 +83,33 @@ resource podExperiments 'Microsoft.Chaos/experiments@2021-09-15-preview' = {
                             "selector": {
                               "labelSelectors": {
                                   "app": "myapp1"
+                              }
+                            }
+                          }
+                           '''
+                  }
+                ]
+              }
+            ]
+          }
+          {
+            name: 'Pod failure in myapp2'
+            actions: [
+              {
+                type: 'continuous'
+                selectorId: 'aks'
+                name: 'urn:csci:microsoft:azureKubernetesServiceChaosMesh:podChaos/2.1'
+                duration: 'PT2M'
+                parameters: [
+                  {
+                    key: 'jsonSpec'
+                    value: '''
+                          {
+                            "action": "pod-failure",
+                            "mode": "one",
+                            "selector": {
+                              "labelSelectors": {
+                                  "app": "myapp2"
                               }
                             }
                           }

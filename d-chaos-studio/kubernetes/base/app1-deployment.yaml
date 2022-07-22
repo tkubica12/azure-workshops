@@ -22,3 +22,7 @@ spec:
             cpu: "250m"
         ports:
         - containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
