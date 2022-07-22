@@ -114,3 +114,78 @@ resource fluxConfiguration 'Microsoft.KubernetesConfiguration/fluxConfigurations
     fluxExtension
   ]
 }
+
+// Chaos studio
+resource chaosTargetAks 'Microsoft.Chaos/targets@2021-09-15-preview' = {
+  scope: aks
+  name: 'microsoft-azurekubernetesservicechaosmesh'
+  properties: {}
+}
+
+resource NetworkChaos 'Microsoft.Chaos/targets/capabilities@2021-09-15-preview' = {
+  scope: aks
+  name: 'microsoft-azurekubernetesservicechaosmesh/NetworkChaos-2.1'
+  dependsOn: [
+    chaosTargetAks
+  ]
+}
+
+resource IOChaos 'Microsoft.Chaos/targets/capabilities@2021-09-15-preview' = {
+  scope: aks
+  name: 'microsoft-azurekubernetesservicechaosmesh/IOChaos-2.1'
+  dependsOn: [
+    chaosTargetAks
+  ]
+}
+
+resource KernelChaos 'Microsoft.Chaos/targets/capabilities@2021-09-15-preview' = {
+  scope: aks
+  name: 'microsoft-azurekubernetesservicechaosmesh/KernelChaos-2.1'
+  dependsOn: [
+    chaosTargetAks
+  ]
+}
+
+resource PodChaos 'Microsoft.Chaos/targets/capabilities@2021-09-15-preview' = {
+  scope: aks
+  name: 'microsoft-azurekubernetesservicechaosmesh/PodChaos-2.1'
+  dependsOn: [
+    chaosTargetAks
+  ]
+}
+
+resource StressChaos 'Microsoft.Chaos/targets/capabilities@2021-09-15-preview' = {
+  scope: aks
+  name: 'microsoft-azurekubernetesservicechaosmesh/StressChaos-2.1'
+  dependsOn: [
+    chaosTargetAks
+  ]
+}
+
+resource HTTPChaos 'Microsoft.Chaos/targets/capabilities@2021-09-15-preview' = {
+  scope: aks
+  name: 'microsoft-azurekubernetesservicechaosmesh/HTTPChaos-2.1'
+  dependsOn: [
+    chaosTargetAks
+  ]
+}
+
+resource DNSChaos 'Microsoft.Chaos/targets/capabilities@2021-09-15-preview' = {
+  scope: aks
+  name: 'microsoft-azurekubernetesservicechaosmesh/DNSChaos-2.1'
+  dependsOn: [
+    chaosTargetAks
+  ]
+}
+
+resource TimeChaos 'Microsoft.Chaos/targets/capabilities@2021-09-15-preview' = {
+  scope: aks
+  name: 'microsoft-azurekubernetesservicechaosmesh/TimeChaos-2.1'
+  dependsOn: [
+    chaosTargetAks
+  ]
+}
+
+
+// Outputs
+output aksId string = aks.id

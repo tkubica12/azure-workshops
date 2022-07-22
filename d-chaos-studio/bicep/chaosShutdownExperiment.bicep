@@ -169,5 +169,6 @@ resource shutdownExperimentRbac 'Microsoft.Authorization/roleAssignments@2020-10
   properties: {
     principalId: vmShutdownExperiment.identity.principalId
     roleDefinitionId: '/providers/Microsoft.Authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c' // Virtual Machine Contributor
+    principalType: 'ServicePrincipal'
   }
 }

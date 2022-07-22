@@ -166,6 +166,14 @@ module vmFaultsExperiment 'chaosVmFaultsExperiment.bicep' = {
   }
 }
 
+module aksExperiments 'chaosAks.bicep' = {
+  name: 'aksExperiments'
+  params: {
+    aksId: aks.outputs.aksId
+    location: location
+  }
+}
+
 // Outputs
 // output debug string = linuxVm1.outputs.vmId
 // output debug2 string = chaosTargetAgentVm1.id

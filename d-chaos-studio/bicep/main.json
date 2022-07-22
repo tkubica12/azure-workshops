@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "18307362609297608067"
+      "templateHash": "9833722939521792509"
     }
   },
   "variables": {
@@ -478,8 +478,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', 'appinsights')]",
-        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.Network/virtualNetworks', 'chaos-vnet')]"
       ]
     },
@@ -874,8 +874,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', 'appinsights')]",
-        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.Network/virtualNetworks', 'chaos-vnet')]"
       ]
     },
@@ -1266,8 +1266,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', 'appinsights')]",
-        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.Network/virtualNetworks', 'chaos-vnet')]"
       ]
     },
@@ -1658,8 +1658,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', 'appinsights')]",
-        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.Network/virtualNetworks', 'chaos-vnet')]"
       ]
     },
@@ -1687,7 +1687,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "5208490323990675556"
+              "templateHash": "7285391764642721879"
             }
           },
           "parameters": {
@@ -1820,8 +1820,104 @@
                 "[resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks')]",
                 "[extensionResourceId(resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks'), 'Microsoft.KubernetesConfiguration/extensions', 'flux')]"
               ]
+            },
+            {
+              "type": "Microsoft.Chaos/targets",
+              "apiVersion": "2021-09-15-preview",
+              "scope": "[format('Microsoft.ContainerService/managedClusters/{0}', 'mesh-demo-aks')]",
+              "name": "microsoft-azurekubernetesservicechaosmesh",
+              "properties": {},
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Chaos/targets/capabilities",
+              "apiVersion": "2021-09-15-preview",
+              "scope": "[format('Microsoft.ContainerService/managedClusters/{0}', 'mesh-demo-aks')]",
+              "name": "microsoft-azurekubernetesservicechaosmesh/NetworkChaos-2.1",
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks')]",
+                "[extensionResourceId(resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks'), 'Microsoft.Chaos/targets', 'microsoft-azurekubernetesservicechaosmesh')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Chaos/targets/capabilities",
+              "apiVersion": "2021-09-15-preview",
+              "scope": "[format('Microsoft.ContainerService/managedClusters/{0}', 'mesh-demo-aks')]",
+              "name": "microsoft-azurekubernetesservicechaosmesh/IOChaos-2.1",
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks')]",
+                "[extensionResourceId(resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks'), 'Microsoft.Chaos/targets', 'microsoft-azurekubernetesservicechaosmesh')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Chaos/targets/capabilities",
+              "apiVersion": "2021-09-15-preview",
+              "scope": "[format('Microsoft.ContainerService/managedClusters/{0}', 'mesh-demo-aks')]",
+              "name": "microsoft-azurekubernetesservicechaosmesh/KernelChaos-2.1",
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks')]",
+                "[extensionResourceId(resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks'), 'Microsoft.Chaos/targets', 'microsoft-azurekubernetesservicechaosmesh')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Chaos/targets/capabilities",
+              "apiVersion": "2021-09-15-preview",
+              "scope": "[format('Microsoft.ContainerService/managedClusters/{0}', 'mesh-demo-aks')]",
+              "name": "microsoft-azurekubernetesservicechaosmesh/PodChaos-2.1",
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks')]",
+                "[extensionResourceId(resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks'), 'Microsoft.Chaos/targets', 'microsoft-azurekubernetesservicechaosmesh')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Chaos/targets/capabilities",
+              "apiVersion": "2021-09-15-preview",
+              "scope": "[format('Microsoft.ContainerService/managedClusters/{0}', 'mesh-demo-aks')]",
+              "name": "microsoft-azurekubernetesservicechaosmesh/StressChaos-2.1",
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks')]",
+                "[extensionResourceId(resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks'), 'Microsoft.Chaos/targets', 'microsoft-azurekubernetesservicechaosmesh')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Chaos/targets/capabilities",
+              "apiVersion": "2021-09-15-preview",
+              "scope": "[format('Microsoft.ContainerService/managedClusters/{0}', 'mesh-demo-aks')]",
+              "name": "microsoft-azurekubernetesservicechaosmesh/HTTPChaos-2.1",
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks')]",
+                "[extensionResourceId(resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks'), 'Microsoft.Chaos/targets', 'microsoft-azurekubernetesservicechaosmesh')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Chaos/targets/capabilities",
+              "apiVersion": "2021-09-15-preview",
+              "scope": "[format('Microsoft.ContainerService/managedClusters/{0}', 'mesh-demo-aks')]",
+              "name": "microsoft-azurekubernetesservicechaosmesh/DNSChaos-2.1",
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks')]",
+                "[extensionResourceId(resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks'), 'Microsoft.Chaos/targets', 'microsoft-azurekubernetesservicechaosmesh')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Chaos/targets/capabilities",
+              "apiVersion": "2021-09-15-preview",
+              "scope": "[format('Microsoft.ContainerService/managedClusters/{0}', 'mesh-demo-aks')]",
+              "name": "microsoft-azurekubernetesservicechaosmesh/TimeChaos-2.1",
+              "dependsOn": [
+                "[resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks')]",
+                "[extensionResourceId(resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks'), 'Microsoft.Chaos/targets', 'microsoft-azurekubernetesservicechaosmesh')]"
+              ]
             }
-          ]
+          ],
+          "outputs": {
+            "aksId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.ContainerService/managedClusters', 'mesh-demo-aks')]"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -1870,7 +1966,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "5364224967840708027"
+              "templateHash": "14601930737951303518"
             }
           },
           "parameters": {
@@ -2054,7 +2150,8 @@
               "name": "[guid('shutdownExperimentRbac')]",
               "properties": {
                 "principalId": "[reference(resourceId('Microsoft.Chaos/experiments', 'vmShutdownExperiment'), '2021-09-15-preview', 'full').identity.principalId]",
-                "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
+                "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c",
+                "principalType": "ServicePrincipal"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Chaos/experiments', 'vmShutdownExperiment')]"
@@ -2113,7 +2210,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "12489132970561273513"
+              "templateHash": "6064792121901085501"
             }
           },
           "parameters": {
@@ -2272,7 +2369,8 @@
               "name": "[guid('vmFaultsExperimentRbac')]",
               "properties": {
                 "principalId": "[reference(resourceId('Microsoft.Chaos/experiments', 'vmFaultsExperiment'), '2021-09-15-preview', 'full').identity.principalId]",
-                "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7"
+                "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7",
+                "principalType": "ServicePrincipal"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Chaos/experiments', 'vmFaultsExperiment')]"
@@ -2287,6 +2385,131 @@
         "[resourceId('Microsoft.Resources/deployments', 'linuxVm2')]",
         "[resourceId('Microsoft.Resources/deployments', 'windowsVm1')]",
         "[resourceId('Microsoft.Resources/deployments', 'windowsVm2')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "aksExperiments",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "aksId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'aks')).outputs.aksId.value]"
+          },
+          "location": {
+            "value": "[variables('location')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.8.9.13224",
+              "templateHash": "16056478805669603555"
+            }
+          },
+          "parameters": {
+            "aksId": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Chaos/experiments",
+              "apiVersion": "2021-09-15-preview",
+              "name": "podKiller",
+              "location": "[parameters('location')]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "selectors": [
+                  {
+                    "type": "List",
+                    "id": "aks",
+                    "targets": [
+                      {
+                        "type": "ChaosTarget",
+                        "id": "[format('{0}/providers/Microsoft.Chaos/targets/microsoft-azurekubernetesservicechaosmesh', parameters('aksId'))]"
+                      }
+                    ]
+                  }
+                ],
+                "steps": [
+                  {
+                    "name": "Kill random pods in default namespace",
+                    "branches": [
+                      {
+                        "name": "Pod killer",
+                        "actions": [
+                          {
+                            "type": "continuous",
+                            "selectorId": "aks",
+                            "name": "urn:csci:microsoft:azureKubernetesServiceChaosMesh:podChaos/2.1",
+                            "duration": "PT2M",
+                            "parameters": [
+                              {
+                                "key": "jsonSpec",
+                                "value": "                          {\r\n                            \"action\": \"pod-kill\",\r\n                            \"mode\": \"one\",\r\n                            \"selector\": {\r\n                              \"namespaces\": [\r\n                                  \"default\"\r\n                              ]\r\n                            }\r\n                          }\r\n                           "
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Fail one pod in myapp1",
+                    "branches": [
+                      {
+                        "name": "Pod fail",
+                        "actions": [
+                          {
+                            "type": "continuous",
+                            "selectorId": "aks",
+                            "name": "urn:csci:microsoft:azureKubernetesServiceChaosMesh:podChaos/2.1",
+                            "duration": "PT2M",
+                            "parameters": [
+                              {
+                                "key": "jsonSpec",
+                                "value": "                          {\r\n                            \"action\": \"pod-failure\",\r\n                            \"mode\": \"one\",\r\n                            \"selector\": {\r\n                              \"labelSelectors\": {\r\n                                  \"app\": \"myapp1\"\r\n                              }\r\n                            }\r\n                          }\r\n                           "
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-10-01-preview",
+              "name": "[guid('podKillerRbac')]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.Chaos/experiments', 'podKiller'), '2021-09-15-preview', 'full').identity.principalId]",
+                "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/0ab0b1a8-8aac-4efd-b8c2-3ee1fb270be8",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Chaos/experiments', 'podKiller')]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'aks')]"
       ]
     }
   ]

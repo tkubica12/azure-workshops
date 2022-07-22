@@ -30,3 +30,14 @@ In portal check CPU usage of Windows VM 2.
 
 In portal check number of IO Write operations on Linux VM1 operating system disk.
 
+## Kubernetes experiments
+Download credentials to access cluster.
+
+```bash
+az aks get-credentials -n mesh-demo-aks -g chaos
+```
+
+I suggest to use k9s UI to demonstrate effects of experiments.
+
+### Pod experiments
+Watch Pods. In first step random Pod is killed, in second step fault is injected into Pod in myapp1 so it stops responding.
