@@ -1,6 +1,8 @@
 # Azure Chaos Studio demo
 This demonstration focus on chaos engineering with Azure Chaos Studio.
 
+See intro notes at [https://tkubica12.github.io/azure-workshops/chaosengineering.html](https://tkubica12.github.io/azure-workshops/chaosengineering.html)
+
 Deploy infrastructure with all neccessary configurations, VMs, Kubernetes cluster, chaos experiments etc.
 
 ```bash

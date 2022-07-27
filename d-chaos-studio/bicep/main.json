@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "9998343541809141335"
+      "templateHash": "13718882707579759420"
     }
   },
   "variables": {
@@ -479,8 +479,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', 'appinsights')]",
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
         "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
         "[resourceId('Microsoft.Network/virtualNetworks', 'chaos-vnet')]"
       ]
     },
@@ -875,8 +875,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', 'appinsights')]",
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
         "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
         "[resourceId('Microsoft.Network/virtualNetworks', 'chaos-vnet')]"
       ]
     },
@@ -1267,8 +1267,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', 'appinsights')]",
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
         "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
         "[resourceId('Microsoft.Network/virtualNetworks', 'chaos-vnet')]"
       ]
     },
@@ -1659,8 +1659,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', 'appinsights')]",
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
         "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
         "[resourceId('Microsoft.Network/virtualNetworks', 'chaos-vnet')]"
       ]
     },

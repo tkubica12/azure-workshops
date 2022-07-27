@@ -69,13 +69,13 @@ resource vmShutdownExperiment 'Microsoft.Chaos/experiments@2021-09-15-preview' =
         name: 'Shutdown VMs in zone 1'
         branches: [
           {
-            name: 'Force-shutdown Linux VM in zone 1 for 2 minutes'
+            name: 'Force-shutdown Linux VM in zone 1 for 1 minute'
             actions: [
               {
                 type: 'continuous'
                 selectorId: 'linux-vms-zone1'
                 name: 'urn:csci:microsoft:virtualMachine:shutdown/1.0'
-                duration: 'PT2M'
+                duration: 'PT1M'
                 parameters: [
                   {
                     key: 'abruptShutdown'
@@ -86,13 +86,13 @@ resource vmShutdownExperiment 'Microsoft.Chaos/experiments@2021-09-15-preview' =
             ]
           }
           {
-            name: 'Force-shutdown Windows VM in zone 1 for 3 minutes'
+            name: 'Force-shutdown Windows VM in zone 1 for 2 minutes'
             actions: [
               {
                 type: 'continuous'
                 selectorId: 'windows-vms-zone1'
                 name: 'urn:csci:microsoft:virtualMachine:shutdown/1.0'
-                duration: 'PT3M'
+                duration: 'PT2M'
                 parameters: [
                   {
                     key: 'abruptShutdown'
@@ -105,15 +105,15 @@ resource vmShutdownExperiment 'Microsoft.Chaos/experiments@2021-09-15-preview' =
         ]
       }
       {
-        name: 'Wait for 3 minutes'
+        name: 'Wait for 1 minute'
         branches: [
           {
-            name: 'Wait for 3 minutes'
+            name: 'Wait for 1 minute'
             actions: [
               {
                 type: 'delay'
                 name: 'urn:csci:microsoft:chaosStudio:TimedDelay/1.0'
-                duration: 'PT3M'
+                duration: 'PT1M'
               }
             ]
           }
@@ -123,13 +123,13 @@ resource vmShutdownExperiment 'Microsoft.Chaos/experiments@2021-09-15-preview' =
         name: 'Shutdown VMs in zone 2'
         branches: [
           {
-            name: 'Force-shutdown Linux VM in zone 2 for 2 minutes'
+            name: 'Force-shutdown Linux VM in zone 2 for 1 minute'
             actions: [
               {
                 type: 'continuous'
                 selectorId: 'linux-vms-zone2'
                 name: 'urn:csci:microsoft:virtualMachine:shutdown/1.0'
-                duration: 'PT2M'
+                duration: 'PT1M'
                 parameters: [
                   {
                     key: 'abruptShutdown'
@@ -140,13 +140,13 @@ resource vmShutdownExperiment 'Microsoft.Chaos/experiments@2021-09-15-preview' =
             ]
           }
           {
-            name: 'Force-shutdown Windows VM in zone 2 for 3 minutes'
+            name: 'Force-shutdown Windows VM in zone 2 for 2 minutes'
             actions: [
               {
                 type: 'continuous'
                 selectorId: 'windows-vms-zone2'
                 name: 'urn:csci:microsoft:virtualMachine:shutdown/1.0'
-                duration: 'PT3M'
+                duration: 'PT2M'
                 parameters: [
                   {
                     key: 'abruptShutdown'
