@@ -1,0 +1,273 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.8.9.13224",
+      "templateHash": "13750910122335171840"
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2022-01-01",
+      "name": "myvnet",
+      "location": "[variables('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.88.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "nodes",
+            "properties": {
+              "addressPrefix": "10.88.0.0/24",
+              "routeTable": {
+                "id": "[resourceId('Microsoft.Network/routeTables', 'routeTable')]"
+              }
+            }
+          },
+          {
+            "name": "apiserver",
+            "properties": {
+              "addressPrefix": "10.88.1.0/24",
+              "routeTable": {
+                "id": "[resourceId('Microsoft.Network/routeTables', 'routeTable')]"
+              },
+              "delegations": [
+                {
+                  "name": "apiserver",
+                  "properties": {
+                    "serviceName": "Microsoft.ContainerService/managedClusters"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "pods",
+            "properties": {
+              "addressPrefix": "10.88.2.0/23",
+              "routeTable": {
+                "id": "[resourceId('Microsoft.Network/routeTables', 'routeTable')]"
+              }
+            }
+          },
+          {
+            "name": "AzureFirewallSubnet",
+            "properties": {
+              "addressPrefix": "10.88.4.0/24"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/routeTables', 'routeTable')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/routeTables",
+      "apiVersion": "2022-01-01",
+      "name": "routeTable",
+      "location": "[variables('location')]",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Network/routeTables/routes",
+      "apiVersion": "2022-01-01",
+      "name": "[format('{0}/{1}', 'routeTable', 'defaultRoute')]",
+      "properties": {
+        "nextHopType": "VirtualAppliance",
+        "addressPrefix": "0.0.0.0/0",
+        "nextHopIpAddress": "[reference(resourceId('Microsoft.Network/azureFirewalls', 'myfw')).ipConfigurations[0].properties.privateIPAddress]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/azureFirewalls', 'myfw')]",
+        "[resourceId('Microsoft.Network/routeTables', 'routeTable')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/azureFirewalls",
+      "apiVersion": "2022-01-01",
+      "name": "myfw",
+      "location": "[variables('location')]",
+      "properties": {
+        "sku": {
+          "name": "AZFW_VNet",
+          "tier": "Standard"
+        },
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "subnet": {
+                "id": "[format('{0}/subnets/AzureFirewallSubnet', resourceId('Microsoft.Network/virtualNetworks', 'myvnet'))]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'fwip')]"
+              }
+            }
+          }
+        ],
+        "firewallPolicy": {
+          "id": "[resourceId('Microsoft.Network/firewallPolicies', 'myfwpolicy')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', 'myfwpolicy', 'aksFwRules')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'fwip')]",
+        "[resourceId('Microsoft.Network/firewallPolicies', 'myfwpolicy')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'myvnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2022-01-01",
+      "name": "fwip",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Standard",
+        "tier": "Regional"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static"
+      }
+    },
+    {
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2022-01-01",
+      "name": "myfwpolicy",
+      "location": "[variables('location')]",
+      "properties": {
+        "sku": {
+          "tier": "Standard"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+      "apiVersion": "2022-01-01",
+      "name": "[format('{0}/{1}', 'myfwpolicy', 'aksFwRules')]",
+      "properties": {
+        "priority": 100,
+        "ruleCollections": [
+          {
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "name": "aksFwRules",
+            "action": {
+              "type": "Allow"
+            },
+            "priority": 100,
+            "rules": [
+              {
+                "ruleType": "ApplicationRule",
+                "name": "aks",
+                "sourceAddresses": [
+                  "*"
+                ],
+                "targetFqdns": [
+                  "mcr.microsoft.com",
+                  "*.data.mcr.microsoft.com",
+                  "management.azure.com",
+                  "login.microsoftonline.com",
+                  "packages.microsoft.com",
+                  "acs-mirror.azureedge.net"
+                ],
+                "protocols": [
+                  {
+                    "protocolType": "Https",
+                    "port": 443
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/firewallPolicies', 'myfwpolicy')]"
+      ]
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2022-01-31-preview",
+      "name": "aksidentity",
+      "location": "[variables('location')]"
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-10-01-preview",
+      "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'aksidentity'))]",
+      "properties": {
+        "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'aksidentity')).principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'aksidentity')]"
+      ]
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2022-05-02-preview",
+      "name": "myaks",
+      "location": "[variables('location')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'aksidentity'))]": {}
+        }
+      },
+      "properties": {
+        "dnsPrefix": "myaks",
+        "agentPoolProfiles": [
+          {
+            "name": "nodes",
+            "count": 2,
+            "vmSize": "Standard_B2s",
+            "osType": "Linux",
+            "vnetSubnetID": "[format('{0}/subnets/nodes', resourceId('Microsoft.Network/virtualNetworks', 'myvnet'))]",
+            "podSubnetID": "[format('{0}/subnets/pods', resourceId('Microsoft.Network/virtualNetworks', 'myvnet'))]",
+            "mode": "System"
+          }
+        ],
+        "linuxProfile": {
+          "adminUsername": "aksadmin",
+          "ssh": {
+            "publicKeys": [
+              {
+                "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDNN/xTE/WrpgK5nROtHupBqlHHVXQAP3c2wcvDz8PO/xLIawd8bPtrbKTmJX3TEVYe+WwQAc5K2XZrzaVGmiZeZSsHhiG3lX9kh2BbxZ9WLtLwta5gmkby4HTdk4sD3yeFFfrrdqHip5+DGl/OijUZC4ihMV6bS9P8jmugxtQKMkIeUC41HaShkXM44rnTRAvQoDr9iJZrAuuKDIZwhIv3ax8J0eu8WaRAVa5t8uZjL2Tv2QmMyK4oZtj89aVsSQyn26T3omNXfJVC/0kltM/Iu3jYXoRZz+8zAOhpTk4C6IsquM0FYsjkNBiip7/9rQCVArNMK6/Hojdl04UvVbi/QZRh4wAc9Ii49ZvD6bIxa0fc3uNl0I/EHN+BknkfzyKXuZ31roTn6xtWLcGrNN9zU+pX9Y69BvRaz2rIeYTGkQ//N7XZRV+Iv4cCEOwOrDxA61xcNDQVMLzW79Q1gQp2vD5Mybn0/LD5hb1TlAxkJfZXfdabDh/BnEEOuZFZLrgMU4c39OeQMWMV/c1gctytmLiIg4LcjhLzyzYwAShFwo+Ajkb46GWyYJD5tVnaqtf5AC6oY6C0linO6UbmpBqoWuUvM+Z6biTEP+qrUhxQ+4XVC4DwPz9Tf+YuKRvxMS5bhVxEcAFdwi1NAwfOXRMNdHRp730uslHz69gR9s3pIw=="
+              }
+            ]
+          }
+        },
+        "networkProfile": {
+          "networkPlugin": "azure",
+          "outboundType": "userDefinedRouting",
+          "serviceCidr": "10.0.0.0/16",
+          "dnsServiceIP": "10.0.0.10",
+          "dockerBridgeCidr": "172.17.0.1/16"
+        },
+        "apiServerAccessProfile": {
+          "enablePrivateCluster": true,
+          "privateDNSZone": "system",
+          "enablePrivateClusterPublicFQDN": true,
+          "enableVnetIntegration": true,
+          "subnetId": "[format('{0}/subnets/apiserver', resourceId('Microsoft.Network/virtualNetworks', 'myvnet'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', 'myfwpolicy', 'aksFwRules')]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'aksidentity')]",
+        "[resourceId('Microsoft.Network/azureFirewalls', 'myfw')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'myvnet')]"
+      ]
+    }
+  ]
+}
