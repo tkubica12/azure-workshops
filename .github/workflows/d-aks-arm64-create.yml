@@ -61,23 +61,21 @@ jobs:
         run: terraform apply -auto-approve
 
       - name: Get Terraform outputs
-        run: echo ::set-output name=acr_name::$(terraform output -raw acr_name)
+        working-directory: ./d-aks-arm64/terraform
         id: tf-outputs
+        run: |
+          echo ::set-output name=acr_name::$(terraform output -raw acr_name)
 
       - name: ACR login
         working-directory: ./d-aks-arm64/terraform
         run: az acr login -n ${{ steps.tf-outputs.outputs.acr_name }}
 
-
-
-
-
-      # - name: Build
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     builder: ${{ steps.buildx.outputs.name }}
-      #     context: ./d-aks-arm64/app
-      #     file: ./Dockerfile
-      #     platforms: linux/amd64,linux/arm64
-      #     push: true
-      #     tags: [$(terraform output -raw acr_name).azurecr.io/d-aks-arm64:latest]
+      - name: Build
+        uses: docker/build-push-action@v2
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: ./d-aks-arm64/app
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/d-aks-arm64:latest
