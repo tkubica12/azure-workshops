@@ -98,7 +98,7 @@ jobs:
         uses: Azure/setup-kubectl@v3
 
       - name: Get AKS credentials
-        run: az aks get-credentials -n ${{ steps.tf-outputs.outputs.aks_name }} -g ${{ steps.tf-outputs.outputs.aks_rg }}
+        run: az aks get-credentials -n ${{ steps.tf-outputs.outputs.aks_name }} -g ${{ steps.tf-outputs.outputs.rg_name }}
 
       - name: Deploy Kubernetes objects
         working-directory: ./d-aks-arm64/kubernetes
