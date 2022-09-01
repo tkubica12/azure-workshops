@@ -47,9 +47,9 @@ jobs:
         working-directory: ./d-aks-arm64/terraform
         run: |
           terraform init \
-            -backend-config="storage_account_name=$(TF_STATE_BLOB_ACCOUNT_NAME)" \
-            -backend-config="container_name=$(TF_STATE_BLOB_CONTAINER_NAME)" \
-            -backend-config="key=$(TF_STATE_BLOB)" 
+            -backend-config=storage_account_name=$TF_STATE_BLOB_ACCOUNT_NAME \
+            -backend-config=container_name=$TF_STATE_BLOB_CONTAINER_NAME \
+            -backend-config=key=$TF_STATE_BLOB 
 
       - name: Terraform apply
         working-directory: ./d-aks-arm64/terraform
