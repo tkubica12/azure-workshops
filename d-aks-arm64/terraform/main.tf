@@ -51,4 +51,12 @@ resource "azurerm_kubernetes_cluster_node_pool" "main" {
 output "acr_name" {
   value = azurerm_container_registry.main.name
 }
+
+output "aks_name" {
+  value = azurerm_kubernetes_cluster.main.name
+}
+
+output "rg_name" {
+  value = azurerm_resource_group.main.name
+}
   

@@ -67,6 +67,8 @@ jobs:
         id: tf-outputs
         run: |
           echo "::set-output name=acr_name::$(terraform output -raw acr_name)"
+          echo "::set-output name=aks_name::$(terraform output -raw aks_name)"
+          echo "::set-output name=rg_name::$(terraform output -raw rg_name)"
 
       - name: ACR login
         working-directory: ./d-aks-arm64/terraform
@@ -91,3 +93,13 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-amd64:latest
+
+      - name: Install kubectl
+        uses: Azure/setup-kubectl@v3
+
+      - name: Get AKS credentials
+        run: az aks get-credentials -n ${{ steps.tf-outputs.outputs.aks_name }} -g ${{ steps.tf-outputs.outputs.aks_rg }}
+
+      - name: Deploy Kubernetes objects
+        working-directory: ./d-aks-arm64/kubernetes
+        run: kubectl get nodes
