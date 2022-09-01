@@ -1,17 +1,19 @@
-name: 'd-aks-arm64'
+name: d-aks-arm64
 
 on:
   workflow_dispatch:
+
+env:
+  TF_STATE_BLOB_ACCOUNT_NAME: tkubicastore
+  TF_STATE_BLOB_CONTAINER_NAME: tfstate
+  TF_STATE_BLOB_FILE: d-aks-arm64.tfstate
+  TF_STATE_BLOB_KEY: ${{ secrets.STORAGE_KEY }}
 
 jobs:
   docker:
     runs-on: ubuntu-latest
     environment: demo
-    env:
-      TF_STATE_BLOB_ACCOUNT_NAME: tkubicastore
-      TF_STATE_BLOB_CONTAINER_NAME: tfstate
-      TF_STATE_BLOB_FILE: d-aks-arm64.tfstate
-      TF_STATE_BLOB_KEY: ${{ secrets.STORAGE_KEY }}
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v2
