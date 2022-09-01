@@ -9,6 +9,9 @@ env:
   TF_STATE_BLOB_CONTAINER_NAME: tfstate
   TF_STATE_BLOB_FILE: d-aks-arm64.tfstate
   TF_STATE_BLOB_KEY: ${{ secrets.STORAGE_KEY }}
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
 jobs:
   docker:
