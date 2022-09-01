@@ -9,7 +9,9 @@ terraform {
       version = "~>3"
     }
   }
-  backend "azurerm" {}
+  backend "azurerm" {
+    use_oidc = true
+  }
 }
 
 provider "azurerm" {
