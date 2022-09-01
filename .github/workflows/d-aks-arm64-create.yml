@@ -68,8 +68,6 @@ jobs:
         run: |
           echo "::set-output name=acr_name::$(terraform output -raw acr_name)"
 
-      - run: echo ${{ steps.tf-outputs.outputs.acr_name }}
-
       - name: ACR login
         working-directory: ./d-aks-arm64/terraform
         run: az acr login -n ${{ steps.tf-outputs.outputs.acr_name }}
@@ -79,7 +77,7 @@ jobs:
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: ./d-aks-arm64/app
-          file: ./Dockerfile
+          file: ./d-aks-arm64/app/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/d-aks-arm64:latest
