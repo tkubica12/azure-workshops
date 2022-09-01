@@ -50,7 +50,7 @@ jobs:
             -backend-config=storage_account_name=$TF_STATE_BLOB_ACCOUNT_NAME \
             -backend-config=container_name=$TF_STATE_BLOB_CONTAINER_NAME \
             -backend-config=key=$TF_STATE_BLOB \
-            -backend-config=clinet_id=$ARM_CLIENT_ID \
+            -backend-config=client_id=$ARM_CLIENT_ID \
             -backend-config=subscription_id=$ARM_SUBSCRIPTION_ID \
             -backend-config=tenant_id=$ARM_TENANT_ID
 
