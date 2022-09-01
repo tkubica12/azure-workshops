@@ -79,3 +79,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/d-aks-arm64:latest
+          
