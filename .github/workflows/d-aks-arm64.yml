@@ -1,0 +1,49 @@
+name: 'd-aks-arm64'
+
+on:
+  workflow_dispatch:
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    environment: demo
+    env:
+      TF_STATE_BLOB_ACCOUNT_NAME: tkubicastore
+      TF_STATE_BLOB_CONTAINER_NAME: tfstate
+      TF_STATE_BLOB_FILE: d-aks-arm64.tfstate
+      TF_STATE_BLOB_KEY: ${{ secrets.STORAGE_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@master
+        with:
+          platforms: all
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@master
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # - name: Azure CLI script
+      #   uses: azure/CLI@v1
+      #   with:
+      #     inlineScript: |
+      #       az acr login -n 
+
+      # - name: Build
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     builder: ${{ steps.buildx.outputs.name }}
+      #     context: .
+      #     file: ./Dockerfile
+      #     platforms: linux/amd64,linux/arm64,linux/ppc64le
+      #     push: true
+      #     tags: ${{ steps.prep.outputs.tags }}
