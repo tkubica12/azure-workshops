@@ -46,3 +46,10 @@ resource "azurerm_kubernetes_cluster_node_pool" "main" {
   vm_size               = "Standard_D2pds_v5"
   node_count            = 1
 }
+
+
+output "acr_name" {
+  value = azurerm_container_registry.main.name
+}
+  
+}

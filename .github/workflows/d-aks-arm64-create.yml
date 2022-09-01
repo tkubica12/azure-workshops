@@ -1,4 +1,4 @@
-name: d-aks-arm64
+name: d-aks-arm64-create
 
 on:
   workflow_dispatch:
@@ -56,18 +56,16 @@ jobs:
         working-directory: ./d-aks-arm64/terraform
         run: terraform apply -auto-approve
 
-      # - name: Azure CLI script
-      #   uses: azure/CLI@v1
-      #   with:
-      #     inlineScript: |
-      #       az acr login -n 
+      - name: ACR login
+        working-directory: ./d-aks-arm64/terraform
+        run: az acr login -n $(terraform output -raw acr_name)
 
       # - name: Build
       #   uses: docker/build-push-action@v2
       #   with:
       #     builder: ${{ steps.buildx.outputs.name }}
-      #     context: .
+      #     context: ./d-aks-arm64/app
       #     file: ./Dockerfile
-      #     platforms: linux/amd64,linux/arm64,linux/ppc64le
+      #     platforms: linux/amd64,linux/arm64
       #     push: true
-      #     tags: ${{ steps.prep.outputs.tags }}
+      #     tags: [$(terraform output -raw acr_name).azurecr.io/d-aks-arm64:latest]
