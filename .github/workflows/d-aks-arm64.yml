@@ -2,6 +2,7 @@ name: d-aks-arm64
 
 on:
   workflow_dispatch:
+  push:
 
 env:
   TF_STATE_BLOB_ACCOUNT_NAME: tkubicastore
