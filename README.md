@@ -13,6 +13,7 @@ List of workshops:
 - [Introduction to Azure Kubernetes Service](./w-aks-intro/README.md)
 - [Introduction to storage in Azure](./w-storage/README.md)
 - [Introduction to networking in Azure](./w-networking/README.md)
+- [Terraform on Azure](./w-terraform-on-azure/README.md)
 
 # Demos
 Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
