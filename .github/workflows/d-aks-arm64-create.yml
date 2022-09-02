@@ -1,0 +1,115 @@
+name: d-aks-arm64-create
+
+on:
+  workflow_dispatch:
+  push:
+
+env:
+  TF_STATE_BLOB_ACCOUNT_NAME: tkubicastore
+  TF_STATE_RESOURCE_GROUP_NAME: base
+  TF_STATE_BLOB_CONTAINER_NAME: tfstate
+  TF_STATE_BLOB_FILE: d-aks-arm64.tfstate
+  TF_STATE_BLOB: d-aks-arm64.tfstate
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    environment: demo
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@master
+        with:
+          platforms: all
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@master
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        working-directory: ./d-aks-arm64/terraform
+        run: |
+          terraform init \
+            -backend-config=storage_account_name=$TF_STATE_BLOB_ACCOUNT_NAME \
+            -backend-config=resource_group_name=$TF_STATE_RESOURCE_GROUP_NAME \
+            -backend-config=container_name=$TF_STATE_BLOB_CONTAINER_NAME \
+            -backend-config=key=$TF_STATE_BLOB \
+            -backend-config=client_id=$ARM_CLIENT_ID \
+            -backend-config=subscription_id=$ARM_SUBSCRIPTION_ID \
+            -backend-config=tenant_id=$ARM_TENANT_ID
+
+      - name: Terraform apply
+        working-directory: ./d-aks-arm64/terraform
+        run: terraform apply -auto-approve
+
+      - name: Get Terraform outputs
+        working-directory: ./d-aks-arm64/terraform
+        id: tf-outputs
+        run: |
+          echo "::set-output name=acr_name::$(terraform output -raw acr_name)"
+          echo "::set-output name=aks_name::$(terraform output -raw aks_name)"
+          echo "::set-output name=rg_name::$(terraform output -raw rg_name)"
+
+      - name: ACR login
+        working-directory: ./d-aks-arm64/terraform
+        run: az acr login -n ${{ steps.tf-outputs.outputs.acr_name }}
+
+      - name: Build and push multi-arch image
+        uses: docker/build-push-action@v2
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: ./d-aks-arm64/app
+          file: ./d-aks-arm64/app/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-multi:${{ github.sha }}
+
+      - name: Build and push amd64 only image
+        uses: docker/build-push-action@v2
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: ./d-aks-arm64/app
+          file: ./d-aks-arm64/app/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-amd64:${{ github.sha }}
+
+      - name: Install kubectl
+        uses: Azure/setup-kubectl@v3
+
+      - name: Install Kustomize
+        uses: imranismail/setup-kustomize@v1
+      
+      - name: Edit and commit kustomization.yaml
+        working-directory: ./d-aks-arm64/kubernetes
+        run: |
+          kustomize edit set image \
+            registry/app-multi=${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-multi:${{ github.sha }} \
+            registry/app-amd64=${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-amd64:${{ github.sha }}
+
+      - name: Get AKS credentials
+        run: az aks get-credentials -n ${{ steps.tf-outputs.outputs.aks_name }} -g ${{ steps.tf-outputs.outputs.rg_name }}
+
+      - name: Deploy Kubernetes objects
+        working-directory: ./d-aks-arm64/kubernetes
+        run: kubectl apply -k .

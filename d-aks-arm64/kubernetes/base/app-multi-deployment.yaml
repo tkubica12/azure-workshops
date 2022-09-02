@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-multi
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: app-multi
+  template:
+    metadata:
+      labels:
+        app: app-multi
+    spec:
+      containers:
+      - name: app-multi
+        image: registry/app-multi:latest
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080

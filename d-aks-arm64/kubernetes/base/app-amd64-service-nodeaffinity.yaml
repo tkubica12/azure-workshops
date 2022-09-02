@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-amd64-nodeaffinity
+spec:
+  type: LoadBalancer
+  selector:
+    app: app-amd64-nodeaffinity
+  ports:
+  - port: 80
+    targetPort: 8080

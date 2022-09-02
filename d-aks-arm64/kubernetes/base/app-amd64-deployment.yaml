@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-amd64
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: app-amd64
+  template:
+    metadata:
+      labels:
+        app: app-amd64
+    spec:
+      containers:
+      - name: app-amd64
+        image: registry/app-amd64:latest
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
