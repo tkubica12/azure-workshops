@@ -82,7 +82,7 @@ jobs:
           file: ./d-aks-arm64/app/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-multi:latest
+          tags: ${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-multi:${{ github.sha }}
 
       - name: Build and push amd64 only image
         uses: docker/build-push-action@v2
