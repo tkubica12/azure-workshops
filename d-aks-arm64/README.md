@@ -1,4 +1,4 @@
-# Using ARM64 CPUs in Azure with AKS, GitHub Actions and multi-arch images in ACR
+# Using ARM64 CPUs in Azure with AKS, Terraform, GitHub Actions and multi-arch images in ACR
 GitHub actions in .github/workflows/aks-arm64-create.yml do the following>
 - Login to Azure using federated identity (OIDC via AAD)
 - Setup QEMU a build environment for multi architecture
