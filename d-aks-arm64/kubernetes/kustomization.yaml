@@ -3,6 +3,8 @@ kind: Kustomization
 resources:
 - base/app-multi-deployment.yaml
 - base/app-multi-service.yaml
+- base/app-amd64-deployment.yaml
+- base/app-amd64-service.yaml
 images:
 - name: registry/app-multi
   newName: znnz2dc5zrg2.azurecr.io/app-multi

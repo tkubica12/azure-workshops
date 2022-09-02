@@ -16,7 +16,7 @@ spec:
       - name: app-multi
         image: registry/app-multi:latest
         resources:
-          request:
+          requests:
             memory: "32Mi"
             cpu: "50m"
           limits:

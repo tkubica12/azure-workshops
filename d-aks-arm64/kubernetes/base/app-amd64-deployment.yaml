@@ -16,7 +16,7 @@ spec:
       - name: app-amd64
         image: registry/app-amd64:latest
         resources:
-          request:
+          requests:
             memory: "32Mi"
             cpu: "50m"
           limits:
