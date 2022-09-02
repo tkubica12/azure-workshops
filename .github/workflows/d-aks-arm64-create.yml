@@ -103,7 +103,9 @@ jobs:
       - name: Edit and commit kustomization.yaml
         working-directory: ./d-aks-arm64/kubernetes
         run: |
-          kustomize edit set image registry/app-multi=${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-multi:${{ github.sha }}
+          kustomize edit set image \
+            registry/app-multi=${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-multi:${{ github.sha }} \
+            registry/app-amd64=${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-amd64:${{ github.sha }}
 
       - name: Get AKS credentials
         run: az aks get-credentials -n ${{ steps.tf-outputs.outputs.aks_name }} -g ${{ steps.tf-outputs.outputs.rg_name }}
