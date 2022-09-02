@@ -104,9 +104,6 @@ jobs:
         working-directory: ./d-aks-arm64/kubernetes
         run: |
           kustomize edit set image registry/app-multi=${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-multi:${{ github.sha }}
-          git add .
-          git commit -m "Set `app` image tag to `${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-multi:${{ github.sha }}`"
-          git push
 
       - name: Get AKS credentials
         run: az aks get-credentials -n ${{ steps.tf-outputs.outputs.aks_name }} -g ${{ steps.tf-outputs.outputs.rg_name }}
