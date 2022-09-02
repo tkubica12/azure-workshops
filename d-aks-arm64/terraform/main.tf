@@ -29,7 +29,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   node_resource_group = "d-aks-arm64-nodes"
 
   default_node_pool {
-    name       = "x86"
+    name       = "amd64"
     node_count = 1
     vm_size    = "Standard_B2ms"
   }
