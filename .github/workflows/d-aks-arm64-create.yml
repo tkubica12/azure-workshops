@@ -101,10 +101,11 @@ jobs:
         uses: imranismail/setup-kustomize@v1
       
       - name: Edit and commit kustomization.yaml
+        working-directory: ./d-aks-arm64/kubernetes
         run: |
-          kustomize edit set image registry/app-multi=${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-multi:${GITHUB_SHA}
+          kustomize edit set image registry/app-multi=${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-multi:${{ github.sha }}
           git add .
-          git commit -m "Set `app` image tag to `${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-multi:${GITHUB_SHA}`"
+          git commit -m "Set `app` image tag to `${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-multi:${{ github.sha }}`"
           git push
 
       - name: Get AKS credentials
