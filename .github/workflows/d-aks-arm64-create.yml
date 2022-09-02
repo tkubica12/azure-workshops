@@ -90,7 +90,7 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           context: ./d-aks-arm64/app
           file: ./d-aks-arm64/app/Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags: ${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-amd64:${{ github.sha }}
 
