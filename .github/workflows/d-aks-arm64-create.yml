@@ -92,14 +92,24 @@ jobs:
           file: ./d-aks-arm64/app/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-amd64:latest
+          tags: ${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-amd64:${{ github.sha }}
 
       - name: Install kubectl
         uses: Azure/setup-kubectl@v3
+
+      - name: Install Kustomize
+        uses: imranismail/setup-kustomize@v1
+      
+      - name: Edit and commit kustomization.yaml
+        run: |
+          kustomize edit set image registry/app-multi=${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-multi:${GITHUB_SHA}
+          git add .
+          git commit -m "Set `app` image tag to `${{ steps.tf-outputs.outputs.acr_name }}.azurecr.io/app-multi:${GITHUB_SHA}`"
+          git push
 
       - name: Get AKS credentials
         run: az aks get-credentials -n ${{ steps.tf-outputs.outputs.aks_name }} -g ${{ steps.tf-outputs.outputs.rg_name }}
 
       - name: Deploy Kubernetes objects
         working-directory: ./d-aks-arm64/kubernetes
-        run: kubectl get nodes
+        run: kubectl apply -k .

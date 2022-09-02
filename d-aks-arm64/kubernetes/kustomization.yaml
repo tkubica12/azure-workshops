@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- base/app-multi-deployment.yaml
+- base/app-multi-service.yaml
+images:
+- name: registry/app-multi
+  newName: znnz2dc5zrg2.azurecr.io/app-multi
+  newTag: latest
