@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-multi
+spec:
+  type: LoadBalancer
+  selector:
+    app: app-multi
+  ports:
+  - port: 80
+    targetPort: 8080
