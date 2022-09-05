@@ -5,7 +5,12 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "2089944035568195504"
+      "templateHash": "10084204488317428958"
+    }
+  },
+  "parameters": {
+    "dev_object_id": {
+      "type": "string"
     }
   },
   "variables": {
@@ -68,6 +73,18 @@
       ]
     },
     {
+      "type": "Microsoft.DevCenter/devcenters/attachednetworks",
+      "apiVersion": "2022-08-01-preview",
+      "name": "[format('{0}/{1}', 'mydevcenter', 'myvnetattachement')]",
+      "properties": {
+        "networkConnectionId": "[resourceId('Microsoft.DevCenter/networkConnections', 'myvnetconnection')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DevCenter/devcenters', 'mydevcenter')]",
+        "[resourceId('Microsoft.DevCenter/networkConnections', 'myvnetconnection')]"
+      ]
+    },
+    {
       "type": "Microsoft.DevCenter/projects",
       "apiVersion": "2022-08-01-preview",
       "name": "myproject1",
@@ -122,13 +139,13 @@
       "location": "[variables('location')]",
       "properties": {
         "devBoxDefinitionName": "mydevbox_coder",
-        "networkConnectionName": "myvnetconnection",
+        "networkConnectionName": "myvnetattachement",
         "licenseType": "Windows_Client",
         "localAdministrator": "Enabled"
       },
       "dependsOn": [
         "[resourceId('Microsoft.DevCenter/devcenters/devboxdefinitions', 'mydevcenter', 'mydevbox_coder')]",
-        "[resourceId('Microsoft.DevCenter/networkConnections', 'myvnetconnection')]",
+        "[resourceId('Microsoft.DevCenter/devcenters/attachednetworks', 'mydevcenter', 'myvnetattachement')]",
         "[resourceId('Microsoft.DevCenter/projects', 'myproject1')]"
       ]
     },
@@ -139,13 +156,13 @@
       "location": "[variables('location')]",
       "properties": {
         "devBoxDefinitionName": "mydevbox_coder",
-        "networkConnectionName": "myvnetconnection",
+        "networkConnectionName": "myvnetattachement",
         "licenseType": "Windows_Client",
         "localAdministrator": "Enabled"
       },
       "dependsOn": [
         "[resourceId('Microsoft.DevCenter/devcenters/devboxdefinitions', 'mydevcenter', 'mydevbox_coder')]",
-        "[resourceId('Microsoft.DevCenter/networkConnections', 'myvnetconnection')]",
+        "[resourceId('Microsoft.DevCenter/devcenters/attachednetworks', 'mydevcenter', 'myvnetattachement')]",
         "[resourceId('Microsoft.DevCenter/projects', 'myproject1')]"
       ]
     },
@@ -154,8 +171,8 @@
       "apiVersion": "2022-04-01",
       "name": "[guid('current_user')]",
       "properties": {
-        "principalId": "d3b7888f-c26e-4961-a976-ff9d5b31dfd3",
-        "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/45d50f46-0b7"
+        "principalId": "[parameters('dev_object_id')]",
+        "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/45d50f46-0b78-4001-a660-4198cbe8cd05"
       }
     }
   ]

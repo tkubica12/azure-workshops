@@ -1,3 +1,5 @@
+param dev_object_id string
+
 var location = resourceGroup().location
 
 resource devcenter 'Microsoft.DevCenter/devcenters@2022-08-01-preview' = {
@@ -48,6 +50,15 @@ resource devcenter_network 'Microsoft.DevCenter/networkConnections@2022-08-01-pr
   }
 }
 
+// Attach network connection
+resource devcenter_network_attach 'Microsoft.DevCenter/devcenters/attachednetworks@2022-08-01-preview'  = {
+  parent: devcenter
+  name: 'myvnetattachement'
+  properties: {
+    networkConnectionId: devcenter_network.id
+  }
+}
+
 // Projects
 resource project1 'Microsoft.DevCenter/projects@2022-08-01-preview' = {
   name: 'myproject1'
@@ -95,7 +106,7 @@ resource devboxpool_coder 'Microsoft.DevCenter/projects/pools@2022-08-01-preview
   location: location
   properties: {
     devBoxDefinitionName: devbox_coder.name
-    networkConnectionName: devcenter_network.name
+    networkConnectionName: devcenter_network_attach.name
     licenseType: 'Windows_Client'
     localAdministrator: 'Enabled'
   }
@@ -107,7 +118,7 @@ resource devboxpool_dba 'Microsoft.DevCenter/projects/pools@2022-08-01-preview' 
   location: location
   properties: {
     devBoxDefinitionName: devbox_coder.name
-    networkConnectionName: devcenter_network.name
+    networkConnectionName: devcenter_network_attach.name
     licenseType: 'Windows_Client'
     localAdministrator: 'Enabled'
   }
@@ -117,7 +128,7 @@ resource devboxpool_dba 'Microsoft.DevCenter/projects/pools@2022-08-01-preview' 
 resource rbac_devbox_current_user 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid('current_user')
   properties: {
-    principalId: 'd3b7888f-c26e-4961-a976-ff9d5b31dfd3'
-    roleDefinitionId: '/providers/Microsoft.Authorization/roleDefinitions/45d50f46-0b7' // DevCenter Dev Box User
+    principalId: dev_object_id
+    roleDefinitionId: '/providers/Microsoft.Authorization/roleDefinitions/45d50f46-0b78-4001-a660-4198cbe8cd05' // DevCenter Dev Box User
   }
 }
