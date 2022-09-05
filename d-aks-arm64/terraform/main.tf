@@ -3,6 +3,7 @@ resource "random_string" "random" {
   length  = 12
   special = false
   upper   = false
+  numeric = false
 }
 
 // Resource group
