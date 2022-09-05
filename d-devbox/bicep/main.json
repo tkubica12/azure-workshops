@@ -1,0 +1,179 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.9.1.41621",
+      "templateHash": "10084204488317428958"
+    }
+  },
+  "parameters": {
+    "dev_object_id": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.DevCenter/devcenters",
+      "apiVersion": "2022-08-01-preview",
+      "name": "mydevcenter",
+      "location": "[variables('location')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'devcenter'))]": {}
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'devcenter')]"
+      ]
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2022-01-31-preview",
+      "name": "devcenter",
+      "location": "[variables('location')]"
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2022-01-01",
+      "name": "myvnet",
+      "location": "[variables('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.88.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "devbox",
+            "properties": {
+              "addressPrefix": "10.88.0.0/24"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.DevCenter/networkConnections",
+      "apiVersion": "2022-08-01-preview",
+      "name": "myvnetconnection",
+      "location": "[variables('location')]",
+      "properties": {
+        "domainJoinType": "AzureADJoin",
+        "subnetId": "[format('{0}/subnets/devbox', resourceId('Microsoft.Network/virtualNetworks', 'myvnet'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'myvnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.DevCenter/devcenters/attachednetworks",
+      "apiVersion": "2022-08-01-preview",
+      "name": "[format('{0}/{1}', 'mydevcenter', 'myvnetattachement')]",
+      "properties": {
+        "networkConnectionId": "[resourceId('Microsoft.DevCenter/networkConnections', 'myvnetconnection')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DevCenter/devcenters', 'mydevcenter')]",
+        "[resourceId('Microsoft.DevCenter/networkConnections', 'myvnetconnection')]"
+      ]
+    },
+    {
+      "type": "Microsoft.DevCenter/projects",
+      "apiVersion": "2022-08-01-preview",
+      "name": "myproject1",
+      "location": "[variables('location')]",
+      "properties": {
+        "devCenterId": "[resourceId('Microsoft.DevCenter/devcenters', 'mydevcenter')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DevCenter/devcenters', 'mydevcenter')]"
+      ]
+    },
+    {
+      "type": "Microsoft.DevCenter/devcenters/devboxdefinitions",
+      "apiVersion": "2022-08-01-preview",
+      "name": "[format('{0}/{1}', 'mydevcenter', 'mydevbox_coder')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "sku": {
+          "name": "general_a_4c16gb_v1"
+        },
+        "imageReference": {
+          "id": "[format('{0}/galleries/default/images/microsoftwindowsdesktop_windows-ent-cpc_win11-21h2-ent-cpc-os', resourceId('Microsoft.DevCenter/devcenters', 'mydevcenter'))]"
+        },
+        "osStorageType": "ssd_256gb"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DevCenter/devcenters', 'mydevcenter')]"
+      ]
+    },
+    {
+      "type": "Microsoft.DevCenter/devcenters/devboxdefinitions",
+      "apiVersion": "2022-08-01-preview",
+      "name": "[format('{0}/{1}', 'mydevcenter', 'mydevbox_dba')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "sku": {
+          "name": "general_a_4c16gb_v1"
+        },
+        "imageReference": {
+          "id": "[format('{0}/galleries/default/images/microsoftwindowsdesktop_windows-ent-cpc_win11-21h2-ent-cpc-os', resourceId('Microsoft.DevCenter/devcenters', 'mydevcenter'))]"
+        },
+        "osStorageType": "ssd_256gb"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DevCenter/devcenters', 'mydevcenter')]"
+      ]
+    },
+    {
+      "type": "Microsoft.DevCenter/projects/pools",
+      "apiVersion": "2022-08-01-preview",
+      "name": "[format('{0}/{1}', 'myproject1', 'mydevboxpool_coder')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "devBoxDefinitionName": "mydevbox_coder",
+        "networkConnectionName": "myvnetattachement",
+        "licenseType": "Windows_Client",
+        "localAdministrator": "Enabled"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DevCenter/devcenters/devboxdefinitions', 'mydevcenter', 'mydevbox_coder')]",
+        "[resourceId('Microsoft.DevCenter/devcenters/attachednetworks', 'mydevcenter', 'myvnetattachement')]",
+        "[resourceId('Microsoft.DevCenter/projects', 'myproject1')]"
+      ]
+    },
+    {
+      "type": "Microsoft.DevCenter/projects/pools",
+      "apiVersion": "2022-08-01-preview",
+      "name": "[format('{0}/{1}', 'myproject1', 'mydevboxpool_dba')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "devBoxDefinitionName": "mydevbox_coder",
+        "networkConnectionName": "myvnetattachement",
+        "licenseType": "Windows_Client",
+        "localAdministrator": "Enabled"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DevCenter/devcenters/devboxdefinitions', 'mydevcenter', 'mydevbox_coder')]",
+        "[resourceId('Microsoft.DevCenter/devcenters/attachednetworks', 'mydevcenter', 'myvnetattachement')]",
+        "[resourceId('Microsoft.DevCenter/projects', 'myproject1')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[guid('current_user')]",
+      "properties": {
+        "principalId": "[parameters('dev_object_id')]",
+        "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/45d50f46-0b78-4001-a660-4198cbe8cd05"
+      }
+    }
+  ]
+}
