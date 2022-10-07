@@ -5,6 +5,7 @@ We will demonstrate next/gen identity solution for your containers running in AK
 - Sidecar can be used to simulate Azure Metadata Endpoint so no change in application code is required if it uses managed identity already
 
 To demonstrate:
+
 ```bash
 # Deploy infrastructure and app
 cd terraform
@@ -101,6 +102,3 @@ My super data file
 
 ```
 
-
-
-https://wjqnugbhtdxymeaf.blob.core.windows.net/container/file.txt
