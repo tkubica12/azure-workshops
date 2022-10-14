@@ -78,8 +78,7 @@ resource "azapi_resource" "aks" {
   })
 
   response_export_values = [
-    "properties.oidcIssuerProfile.issuerURL",
-    "*"
+    "properties.oidcIssuerProfile.issuerURL"
   ]
 }
 
