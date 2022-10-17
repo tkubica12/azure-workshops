@@ -12,7 +12,7 @@ resource "azapi_resource" "aks" {
       addonProfiles = {}
       agentPoolProfiles = [
         {
-          count               = 1
+          count               = 2
           name                = "default"
           orchestratorVersion = "1.23.8"
           osDiskSizeGB        = 128
@@ -32,11 +32,6 @@ resource "azapi_resource" "aks" {
       networkProfile = {
         dnsServiceIP     = "10.245.0.10"
         dockerBridgeCidr = "172.17.0.1/16"
-        # loadBalancerProfile = {
-        #   managedOutboundIPs = {
-        #     count = 1
-        #   }
-        # }
         loadBalancerSku   = "Standard"
         networkPlugin     = "azure"
         networkPluginMode = "overlay"

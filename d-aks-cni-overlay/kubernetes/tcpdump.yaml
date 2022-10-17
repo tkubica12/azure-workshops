@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tcpdump
+spec:
+  containers:
+  - name: tcpdump
+    image: corfr/tcpdump
+    command: ['tail', '-f', '/dev/null']
+    securityContext:
+       privileged: true
+  hostNetwork: true
