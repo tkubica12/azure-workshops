@@ -10,6 +10,9 @@ Demonstrate OS-level encryption with Bitlocker integration on vm-ade and Custome
 ## Azure Disk server-side encryption (SSE)
 Demonstrate use of double-key encryption with Platform Managed Key (PMK) + Customer Managed Key (CMK) in Portal.
 
+## Azure Confidential VM
+One of the VMs is configured as confidential VM.
+
 ## Azure SQL Database data-at-rest encryption
 Demonstrate Transparent Data Encryption (TDE) with Customer Managed Key (CMK) in Portal.
 
