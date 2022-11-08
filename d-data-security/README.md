@@ -12,3 +12,31 @@ Using double-key encryption with Platform Managed Key (PMK) + Customer Managed K
 
 ## Azure SQL Database data-at-rest encryption
 This demo uses Transparent Data Encryption (TDE) with Customer Managed Key (CMK).
+
+## Azure SQL Ledger
+Connect to database 
+
+```sql
+-- Create updatable table
+CREATE TABLE dbo.MyAuditedTable (
+    Message nvarchar(100)
+)
+WITH (SYSTEM_VERSIONING = ON, LEDGER = ON);
+GO
+
+-- Insert and than update some data
+INSERT INTO dbo.MyAuditedTable (Message) VALUES ('My first message'), ('My second message'), ('My third message');
+
+UPDATE dbo.MyAuditedTable 
+SET Message = 'My modified message' 
+WHERE Message = 'My first message';
+
+-- See table history
+SELECT TOP (1000) * FROM [dbo].[MyAuditedTable] ORDER BY ledger_transaction_id
+
+-- See hashes of operations -> this is what gets stored in immutable storage or Azure Confidential Ledger
+SELECT * FROM sys.database_ledger_transactions
+
+-- You can add new data
+INSERT INTO dbo.MyAuditedTable (Message) VALUES ('My another message');
+```
