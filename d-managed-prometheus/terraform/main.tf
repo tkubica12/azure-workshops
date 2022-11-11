@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "main" {
-  name     = "d-amanaged-prometheus"
+  name     = "d-managed-prometheus"
   location = "westeurope"
 }
 
@@ -64,11 +64,85 @@ resource "azurerm_role_assignment" "grafana" {
   principal_id         = data.azurerm_client_config.current.object_id
 }
 
-// Assign Monitoring Reader role to Grafana
+// Assign Monitoring Data Reader role to Grafana
 data "azurerm_subscription" "current" {}
 
 resource "azurerm_role_assignment" "grafana_monitoring_reader" {
-  scope                = "/subscriptions/${data.azurerm_subscription.current.subscription_id}"
-  role_definition_name = "Monitoring Reader"
+  scope = azapi_resource.az_monitor_workspace.id
+  # scope                = "/subscriptions/${data.azurerm_subscription.current.subscription_id}"
+  role_definition_name = "Monitoring Data Reader"
   principal_id         = azapi_resource.grafana.identity[0].principal_id
+}
+
+output "endpointid" {
+  value = jsondecode(azapi_resource.az_monitor_workspace.output).properties.defaultIngestionSettings.dataCollectionEndpointResourceId
+}
+  
+
+// Rule collection
+# resource "azapi_resource" "rule_collection_endpoint" {
+#   schema_validation_enabled = false
+#   type                      = "Microsoft.Insights/dataCollectionEndpoints@2021-09-01-preview"
+#   name                      = "d-managed-prometheus"
+#   location                  = azurerm_resource_group.main.location
+#   parent_id                 = azurerm_resource_group.main.id
+#   body = jsonencode({
+#     kind = "Linux"
+#   })
+# }
+
+resource "azapi_resource" "rule_collection" {
+  schema_validation_enabled = false
+  type                      = "Microsoft.Insights/dataCollectionRules@2021-09-01-preview"
+  name                      = "d-managed-prometheus"
+  location                  = azurerm_resource_group.main.location
+  parent_id                 = azurerm_resource_group.main.id
+  body = jsonencode({
+    properties = {
+      dataCollectionEndpointId = jsondecode(azapi_resource.az_monitor_workspace.output).properties.defaultIngestionSettings.dataCollectionEndpointResourceId
+      dataFlows = [
+        {
+          destinations = [
+            "MonitoringAccount1"
+          ]
+          streams = [
+            "Microsoft-PrometheusMetrics"
+          ]
+        }
+      ]
+      dataSources = {
+        prometheusForwarder = [
+          {
+            name               = "PrometheusDataSource"
+            labelIncludeFilter = {}
+            streams = [
+              "Microsoft-PrometheusMetrics"
+            ]
+          }
+        ]
+      }
+      description = "DCR for Azure Monitor Metrics Profile (Managed Prometheus)"
+      destinations = {
+        monitoringAccounts = [
+          {
+            accountResourceId = "${azapi_resource.az_monitor_workspace.id}"
+            name              = "MonitoringAccount1"
+          }
+        ]
+      }
+    }
+    kind = "Linux"
+  })
+}
+
+resource "azapi_resource" "rule_collection_association" {
+  schema_validation_enabled = false
+  type                      = "Microsoft.Insights/dataCollectionRuleAssociations@2021-09-01-preview"
+  name                      = "aks"
+  parent_id                 = azapi_resource.aks.id
+  body = jsonencode({
+    properties = {
+      dataCollectionRuleId     = jsondecode(azapi_resource.az_monitor_workspace.output).properties.defaultIngestionSettings.dataCollectionRuleResourceId
+    }
+  })
 }
