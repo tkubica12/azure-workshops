@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-counter
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: prometheus-counter
+  template:
+    metadata:
+      labels:
+        app: prometheus-counter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/scheme: http
+        prometheus.io/path: /
+    spec:
+      containers:
+      - name: prometheus-counter
+        image: ghcr.io/tkubica12/prometheus-counter:latest
+        ports:
+        - containerPort: 8000
