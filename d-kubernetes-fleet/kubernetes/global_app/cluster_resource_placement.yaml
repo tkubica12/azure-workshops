@@ -1,0 +1,10 @@
+apiVersion: fleet.azure.com/v1alpha1
+kind: ClusterResourcePlacement
+metadata:
+  name: global_app
+spec:
+  resourceSelectors:
+    - group: ""
+      version: v1
+      kind: Namespace
+      name: global_app
