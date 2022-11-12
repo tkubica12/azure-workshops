@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kuard
-  namespace: global_app
+  namespace: globalapp
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: kuard
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: kuard
-          image: gcr.io/kuar-demo/kuard-amd64:blue
+          image: ghcr.io/tkubica12/todo-web:v1
           resources:
             requests:
               cpu: 100m

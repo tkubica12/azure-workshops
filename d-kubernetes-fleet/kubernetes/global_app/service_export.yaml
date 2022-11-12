@@ -2,4 +2,4 @@ apiVersion: networking.fleet.azure.com/v1alpha1
 kind: ServiceExport
 metadata:
   name: kuard
-  namespace: global_app
+  namespace: globalapp

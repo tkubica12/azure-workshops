@@ -1,2 +1,3 @@
 resources:
     - platform_services/
+    - global_app/
