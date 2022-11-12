@@ -29,4 +29,5 @@ List of demos:
 - [Using ARM64 CPUs in Azure with AKS, Terraform, GitHub Actions and multi-arch images in ACR](./d-aks-arm64/README.md)
 - [Microsoft Dev Box](./d-devbox/README.md)
 - [Azure Managed Prometheus and Grafana](./d-managed-prometheus/README.md)
+- [Azure Kubernetes Fleet Manager](./d-kubernetes-fleet/../README.md)
 - [Data encryption and security](./d-data-security/README.md)
