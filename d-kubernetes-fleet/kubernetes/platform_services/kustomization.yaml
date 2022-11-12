@@ -1,0 +1,3 @@
+resources:
+  - cluster_resource_placement.yaml
+  - namespace.yaml

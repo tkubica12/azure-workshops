@@ -1,0 +1,7 @@
+resources:
+    - cluster_resource_placement.yaml
+    - namespace.yaml
+    - deployment.yaml
+    - service.yaml
+    - service_export.yaml
+    - multi_cluster_service.yaml
