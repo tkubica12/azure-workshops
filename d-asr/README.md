@@ -1,4 +1,4 @@
-# Azure Site Recovery demo
+# DR between Azure regions with Azure Site Recovery
 This demo showcase VM replication from one region to another in enterprise-grade network with forced tunneling, private endpoints, hub-and-spoke topology, and Azure Firewall.
 
 1. Deploy

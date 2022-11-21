@@ -31,3 +31,4 @@ List of demos:
 - [Azure Managed Prometheus and Grafana](./d-managed-prometheus/README.md)
 - [Azure Kubernetes Fleet Manager](./d-kubernetes-fleet/../README.md)
 - [Data encryption and security](./d-data-security/README.md)
+- [DR between Azure regions with Azure Site Recovery](./d-asr/README.md)
