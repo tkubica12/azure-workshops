@@ -86,25 +86,3 @@ resource "azapi_resource" "aks" {
   ]
 }
 
-data "azapi_resource_action" "aks_credentials" {
-  type                   = "Microsoft.ContainerService/managedClusters@2022-07-02-preview"
-  resource_id            = azapi_resource.aks.id
-  action                 = "listClusterAdminCredential"
-  response_export_values = ["*"]
-}
-
-locals {
-  kubeconfig = base64decode(jsondecode(data.azapi_resource_action.aks_credentials.output).kubeconfigs[0].value)
-  cluster_ca_certificate = base64decode(yamldecode(local.kubeconfig).clusters[0].cluster.certificate-authority-data)
-  client_certificate = base64decode(yamldecode(local.kubeconfig).users[0].user.client-certificate-data)
-  client_key = base64decode(yamldecode(local.kubeconfig).users[0].user.client-key-data)
-  host = yamldecode(local.kubeconfig).clusters[0].cluster.server
-}
-
-resource "kubernetes_manifest" "deployment" {
-  manifest = yamldecode(file("../kubernetes/prometheus-counter.yaml"))
-}
-
-resource "kubernetes_manifest" "prometheus_config" {
-  manifest = yamldecode(file("../kubernetes/ama-metrics-prometheus-config-configmap.yaml"))
-}

@@ -1,6 +1,6 @@
 
 resource "azurerm_network_interface" "vm1" {
-  name                = "bcdr-win-vm1"
+  name                = "win-vm1"
   location            = var.primary_location
   resource_group_name = azurerm_resource_group.primary.name
 
@@ -12,7 +12,7 @@ resource "azurerm_network_interface" "vm1" {
 }
 
 resource "azurerm_windows_virtual_machine" "vm1" {
-  name                = "bcdr-win-vm1"
+  name                = "win-vm1"
   location            = var.primary_location
   resource_group_name = azurerm_resource_group.primary.name
   size                = "Standard_B2ms"
@@ -41,7 +41,7 @@ resource "azurerm_windows_virtual_machine" "vm1" {
 }
 
 resource "azurerm_site_recovery_replicated_vm" "vm1" {
-  name                                      = "vm1-replication"
+  name                                      = "win-vm1-r"
   resource_group_name                       = azurerm_resource_group.secondary.name
   recovery_vault_name                       = azurerm_recovery_services_vault.main.name
   source_recovery_fabric_name               = azurerm_site_recovery_fabric.primary.name

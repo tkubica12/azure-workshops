@@ -27,5 +27,5 @@ kubectl apply -k .
 6. Find external service IP and demonstrate global balancing of north-south traffic. 
 
 ```bash
-while true; do time -p curl http://20.23.180.148/info; echo; echo; sleep 1; done 
+while true; do time -p curl http://20.101.226.63/info; echo; echo; sleep 1; done 
 ```

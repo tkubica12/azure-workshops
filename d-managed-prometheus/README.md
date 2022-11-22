@@ -9,6 +9,11 @@ Solution creates:
 - Azure Kubernetes Service enrolled for monitoring
 - Simple application deployed to AKS demonstrating scraping custom prometheus metrics
 
+Deploynent:
+1. Deploy infrastructure using ```terraform apply``` in terraform folder
+2. Get cluster credentials with ```az aks get-credentials -n d-managed-prometheus -g d-managed-prometheus --admin```
+3. Deploy application with ```kubectl apply -f .``` in kubernetes folder
+
 To demonstrate:
 - Open Grafana and show built-in dashboards for nodes, workloads, pods etc.
 - Go to Explore section and search fo my_failure metrics (custom metrics from our app) and demonstrate how you can build custom view of custom metric
