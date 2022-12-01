@@ -32,6 +32,22 @@ module "network_secondary" {
   ip_range = "10.1.0.0/16"
 }
 
+// AZ solution
+resource "azurerm_resource_group" "az1" {
+  name     = "d-asr-az1"
+  location = var.primary_location
+}
+
+resource "azurerm_resource_group" "az2" {
+  name     = "d-asr-az2"
+  location = var.primary_location
+}
+
+resource "azurerm_resource_group" "zrs" {
+  name     = "d-asr-zrs"
+  location = var.primary_location
+}
+
 // Random string
 resource "random_string" "main" {
   length  = 12

@@ -1,5 +1,5 @@
 resource "azurerm_recovery_services_vault" "main" {
-  name                = "replication-vault"
+  name                = "reg-replication-vault"
   location            = azurerm_resource_group.secondary.location
   resource_group_name = azurerm_resource_group.secondary.name
   sku                 = "Standard"
@@ -49,7 +49,7 @@ resource "azurerm_site_recovery_replication_policy" "main" {
   resource_group_name                                  = azurerm_resource_group.secondary.name
   recovery_vault_name                                  = azurerm_recovery_services_vault.main.name
   recovery_point_retention_in_minutes                  = 180
-  application_consistent_snapshot_frequency_in_minutes = 15
+  application_consistent_snapshot_frequency_in_minutes = 60
 }
 
 resource "azurerm_site_recovery_protection_container_mapping" "main" {
