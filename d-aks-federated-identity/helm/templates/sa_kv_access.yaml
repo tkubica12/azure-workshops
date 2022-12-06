@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kvaccess
+  namespace: default
+  annotations:
+    azure.workload.identity/client-id: {{ .Values.kv_access_client_id }}
+  labels:
+    azure.workload.identity/use: "true"

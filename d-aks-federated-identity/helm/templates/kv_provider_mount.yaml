@@ -1,0 +1,25 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: azure-kv
+spec:
+  provider: azure
+  secretObjects:                             
+  - data:
+    - key: mysecret                           
+      objectName: mysecret        
+    secretName: mykubesecret   
+    type: Opaque  
+  parameters:
+    usePodIdentity: "false"
+    useVMManagedIdentity: "false"          
+    clientID: {{ .Values.kv_access_client_id }}
+    keyvaultName: {{ .Values.kv_name }}
+    cloudName: ""
+    objects:  |
+      array:
+        - |
+          objectName: mysecret
+          objectType: secret  
+          objectVersion: ""  
+    tenantId: {{ .Values.tenant_id }}

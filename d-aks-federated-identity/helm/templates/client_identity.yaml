@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-identity
+  namespace: default
+  labels:
+    name: client-identity
+  annotations:
+    "azure.workload.identity/inject-proxy-sidecar": "true"
+    "azure.workload.identity/proxy-sidecar-port": "8080"
+spec:
+  serviceAccountName: storageaccess
+  containers:
+  - name: client-identity
+    image: nginx:latest
