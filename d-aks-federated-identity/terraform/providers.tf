@@ -12,8 +12,8 @@ terraform {
       source  = "hashicorp/random"
       version = "~>3"
     }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
+    helm = {
+      source  = "hashicorp/helm"
       version = "~>2"
     }
   }
@@ -24,12 +24,18 @@ provider "azurerm" {
     resource_group {
       prevent_deletion_if_contains_resources = false
     }
+    key_vault {
+      purge_soft_delete_on_destroy    = true
+      recover_soft_deleted_key_vaults = true
+    }
   }
 }
 
-provider "kubernetes" {
-  host                   = local.host
-  client_certificate     = local.client_certificate
-  client_key             = local.client_key
-  cluster_ca_certificate = local.cluster_ca_certificate
+provider "helm" {
+  kubernetes {
+    host                   = azurerm_kubernetes_cluster.main.kube_config.0.host
+    client_certificate     = base64decode(azurerm_kubernetes_cluster.main.kube_config.0.client_certificate)
+    client_key             = base64decode(azurerm_kubernetes_cluster.main.kube_config.0.client_key)
+    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.main.kube_config.0.cluster_ca_certificate)
+  }
 }

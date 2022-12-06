@@ -1,10 +1,11 @@
-# AKS with federated identity using User Managed Identity and Terraform
+# AKS with federated identity using User Managed Identity, Terraform and Key Vault
 We will demonstrate next/gen identity solution for your containers running in AKS:
 - User Managed Identity can be easily managed with Terraform requiring no direct access to AAD
 - Federated identity solution (AKS OIDC with AAD federation) allows for no-credentials needed approach and replaces previous pod-identity solution
 - Sidecar can be used to simulate Azure Metadata Endpoint so no change in application code is required if it uses managed identity already
+- Secrets Provides Class can be used to access secrets from Azure Key Vault via workload identity (each class is mapped to its own workload idenity so multiple different security boundaries can be used in single cluster)
 
-To demonstrate:
+## Deploy and get credentials
 
 ```bash
 # Deploy infrastructure and app
@@ -14,7 +15,11 @@ terraform apply
 
 # Get cluster credentials
 az aks get-credentials -n d-aks-federated-identity -g d-aks-federated-identity --admin
+```
 
+## Demonstrate workload idenity manualy and via metadata endpoint
+
+```bash
 # Check app is running
 kubectl get pods
 
@@ -22,7 +27,7 @@ kubectl get pods
 terraform output blob_url
 
 # Jump to container
-kubectl exec -it client -- /bin/bash
+kubectl exec -it client-identity -- /bin/bash
 
 # AKS made token issued by OIDC available so you can exchange it for AAD token yourself
 env | grep AZURE
@@ -87,11 +92,11 @@ My super data file
 '
 
 # Get token using metadata endpoint (very widely supported in various SDKs)
-export STORAGE_ACCOUNT_URL="https://wjqnugbhtdxymeaf.blob.core.windows.net"
+export STORAGE_ACCOUNT_URL="https://ubjbgkwmlmqrkiyf.blob.core.windows.net"
 token2=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/identity/oauth2/token?resource=$STORAGE_ACCOUNT_URL&client_id=$AZURE_CLIENT_ID" | jq -r '.access_token')
 
 # Use token to access file on storage
-export BLOB_URL="https://wjqnugbhtdxymeaf.blob.core.windows.net/container/file.txt"
+export BLOB_URL="https://ubjbgkwmlmqrkiyf.blob.core.windows.net/container/file.txt"
 curl -H "Authorization: Bearer $token2" \
      -H "x-ms-version: 2020-04-08" \
     $BLOB_URL
@@ -99,6 +104,32 @@ curl -H "Authorization: Bearer $token2" \
 : '
 My super data file
 '
-
 ```
 
+Note this is what application SDK might do automatically for you, eg. SQL SDK.
+
+## Secrets provider from Key Vault using workload identity
+```bash
+# Jump to container
+kubectl exec -it client-secrets -- /bin/bash
+
+# Show how secret from Key Vault is mapped to file system
+ls /mnt/mysecretpath/ 
+
+: '
+mysecretpath
+'
+
+cat /mnt/mysecretpath/mysecret
+
+: '
+ThisIsVerySecret!
+'
+
+# Show how secret is in env due to secret sync
+echo $MY_SECRET
+
+: '
+ThisIsVerySecret!
+'
+```

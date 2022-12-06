@@ -31,5 +31,5 @@ resource "azurerm_storage_blob" "main" {
 resource "azurerm_role_assignment" "main" {
   role_definition_name = "Storage Blob Data Reader"
   scope                = azurerm_storage_account.main.id
-  principal_id         = azurerm_user_assigned_identity.identity1.principal_id
+  principal_id         = azurerm_user_assigned_identity.storage_access.principal_id
 }

@@ -1,39 +1,43 @@
 // User managed identity
-resource "azurerm_user_assigned_identity" "identity1" {
-  name                = "identity1"
+resource "azurerm_user_assigned_identity" "storage_access" {
+  name                = "storage_access"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+}
+
+resource "azurerm_user_assigned_identity" "kv_access" {
+  name                = "kv_access"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
 }
 
 // Federation with my AKS
-resource "azapi_resource" "identity1" {
+resource "azapi_resource" "storage_access" {
   type      = "Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials@2022-01-31-preview"
-  name      = "aks-federated-identity"
-  parent_id = azurerm_user_assigned_identity.identity1.id
+  name      = "storage_access"
+  parent_id = azurerm_user_assigned_identity.storage_access.id
   body = jsonencode({
     properties = {
       audiences = [
         "api://AzureADTokenExchange"
       ]
-      issuer  = jsondecode(azapi_resource.aks.output).properties.oidcIssuerProfile.issuerURL
-      subject = "system:serviceaccount:default:identity1"
+      issuer  = azurerm_kubernetes_cluster.main.oidc_issuer_url
+      subject = "system:serviceaccount:default:storageaccess"
     }
   })
 }
 
-// Kubernetes account mapped to user managed identity
-resource "kubernetes_service_account" "identity1" {
-  metadata {
-    name      = "identity1"
-    namespace = "default"
-
-    annotations = {
-      "azure.workload.identity/client-id" = azurerm_user_assigned_identity.identity1.client_id
+resource "azapi_resource" "kv_access" {
+  type      = "Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials@2022-01-31-preview"
+  name      = "kv_access"
+  parent_id = azurerm_user_assigned_identity.kv_access.id
+  body = jsonencode({
+    properties = {
+      audiences = [
+        "api://AzureADTokenExchange"
+      ]
+      issuer  = azurerm_kubernetes_cluster.main.oidc_issuer_url
+      subject = "system:serviceaccount:default:kvaccess"
     }
-
-    labels = {
-      "azure.workload.identity/use" = "true"
-    }
-  }
+  })
 }
-
