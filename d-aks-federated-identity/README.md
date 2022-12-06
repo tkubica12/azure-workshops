@@ -1,9 +1,9 @@
-# AKS with federated identity using User Managed Identity and Terraform
+# AKS with federated identity using User Managed Identity, Terraform and Key Vault
 We will demonstrate next/gen identity solution for your containers running in AKS:
 - User Managed Identity can be easily managed with Terraform requiring no direct access to AAD
 - Federated identity solution (AKS OIDC with AAD federation) allows for no-credentials needed approach and replaces previous pod-identity solution
 - Sidecar can be used to simulate Azure Metadata Endpoint so no change in application code is required if it uses managed identity already
-- Secrets Provides Class can be used to access secrets from Azure Key Vault in kooperation with workload identity (each class is mapped to its own workload idenity so multiple different security boundaries can be used in single cluster)
+- Secrets Provides Class can be used to access secrets from Azure Key Vault via workload identity (each class is mapped to its own workload idenity so multiple different security boundaries can be used in single cluster)
 
 ## Deploy and get credentials
 

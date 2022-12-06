@@ -41,35 +41,3 @@ resource "azapi_resource" "kv_access" {
     }
   })
 }
-
-# // Kubernetes accounts mapped to user managed identity
-# resource "kubernetes_service_account" "storage_access" {
-#   metadata {
-#     name      = "storageaccess"
-#     namespace = "default"
-
-#     annotations = {
-#       "azure.workload.identity/client-id" = azurerm_user_assigned_identity.storage_access.client_id
-#     }
-
-#     labels = {
-#       "azure.workload.identity/use" = "true"
-#     }
-#   }
-# }
-
-# resource "kubernetes_service_account" "kv_access" {
-#   metadata {
-#     name      = "kvaccess"
-#     namespace = "default"
-
-#     annotations = {
-#       "azure.workload.identity/client-id" = azurerm_user_assigned_identity.kv_access.client_id
-#     }
-
-#     labels = {
-#       "azure.workload.identity/use" = "true"
-#     }
-#   }
-# }
-

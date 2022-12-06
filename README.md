@@ -22,7 +22,7 @@ List of demos:
 - [Kubernetes operators](./d-kubernetes-operators/README.md)
 - [Azure API Management in AKS](./d-apim-in-aks/README.md)
 - [AKS with Private Link Service eg. in SaaS provider scenario](./d-aks-with-privatelinkservice/README.md)
-- [AKS with federated identity using User Managed Identity and Terraform](./d-aks-federated-identity/README.md)
+- [AKS with federated identity using User Managed Identity, Terraform and Key Vault](./d-aks-federated-identity/README.md)
 - [Azure private DNS resolver](./d-dns-resolver/README.md)
 - [Notes on using secrets with Azure Kubernetes Service](./d-kubernetes-secrets/README.md)
 - [Azure Chaos Studio demo](./d-chaos-studio/README.md)
