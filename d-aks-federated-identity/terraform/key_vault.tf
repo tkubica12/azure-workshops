@@ -27,4 +27,8 @@ resource "azurerm_key_vault_secret" "main" {
   name         = "mysecret"
   value        = "ThisIsVerySecret!"
   key_vault_id = azurerm_key_vault.main.id
+
+  depends_on = [
+    azurerm_role_assignment.kv_admin
+  ]
 }
