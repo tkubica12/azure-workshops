@@ -1,0 +1,76 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: storage-l2-a
+provisioner: disk.csi.azure.com
+parameters:
+  skuname: Premium_LRS 
+  tags: "L1={{ .Values.L1 }},L2=A"
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: storage-l2-b
+provisioner: disk.csi.azure.com
+parameters:
+  skuname: Premium_LRS 
+  tags: "L1={{ .Values.L1 }},L2=B"
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: a-a-a
+  namespace: a-a
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: storage-l2-a
+  resources:
+    requests:
+      storage: 16Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: a-b-a
+  namespace: a-b
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: storage-l2-a
+  resources:
+    requests:
+      storage: 8Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: b-a-a
+  namespace: b-a
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: storage-l2-b
+  resources:
+    requests:
+      storage: 8Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: b-b-a
+  namespace: b-b
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: storage-l2-b
+  resources:
+    requests:
+      storage: 32Gi
+---

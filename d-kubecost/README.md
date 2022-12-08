@@ -28,3 +28,15 @@ Access kubecost at http://localhost:9090
 ```
 kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090
 ```
+
+
+curl http://20.31.5.23/allocation/compute \
+  -d window=60m \
+  -d resolution=1m \
+  -d aggregate=namespace \
+  -d accumulate=true \
+  -G | jq
+
+
+
+20.31.5.23

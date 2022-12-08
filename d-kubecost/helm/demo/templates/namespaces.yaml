@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: a-a
+  labels:
+    L2: A
+    L3: A
+  annotations:
+    scheduler.alpha.kubernetes.io/node-selector: L2=A
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: a-b
+  labels:
+    L2: A
+    L3: B
+  annotations:
+    scheduler.alpha.kubernetes.io/node-selector: L2=A
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: b-a
+  labels:
+    L2: B
+    L3: A
+  annotations:
+    scheduler.alpha.kubernetes.io/node-selector: L2=B
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: b-b
+  labels:
+    L2: B
+    L3: B
+  annotations:
+    scheduler.alpha.kubernetes.io/node-selector: L2=B
+
+
+    
