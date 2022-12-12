@@ -10,7 +10,7 @@ terraform {
     }
     azapi = {
       source  = "Azure/azapi"
-      version = "~>0"
+      version = "~>1"
     }
   }
 
@@ -31,6 +31,10 @@ provider "azurerm" {
     }
     template_deployment {
       delete_nested_items_during_deletion = false
+    }
+    key_vault {
+      purge_soft_delete_on_destroy    = true
+      recover_soft_deleted_key_vaults = true
     }
   }
 }

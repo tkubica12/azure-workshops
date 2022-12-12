@@ -13,12 +13,18 @@ export aksid=$(terraform output -raw aksid)
 export amlidentity=$(terraform output -raw amlidentity)
 ```
 
+## Install or update Azure ML CLI
+
+```bash
+az extension add --upgrade -n ml
+```
+
 ## Attach AKS to Azure ML workspace
 
 ```bash
 az ml compute attach --name ml-aks \
     -g d-azurelm \
-    --workspace-name aml-tpchejeh \
+    --workspace-name $aml \
     --type Kubernetes  \
     --resource-id $aksid \
     --identity-type UserAssigned  \

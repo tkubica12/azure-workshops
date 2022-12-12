@@ -8,7 +8,7 @@ experiment_name: lendingclub-demo-experiment
 
 settings:
   default_datastore: azureml:workspaceblobstore
-  default_compute: azureml:ml-aks
+  default_compute: azureml:managed-cluster
 
 jobs:
   prepare_data:

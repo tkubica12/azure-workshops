@@ -11,7 +11,7 @@ output "acr_name" {
 }
 
 output "aksid" {
-  value = azurerm_kubernetes_cluster.demo.id
+  value = var.deploy_aks ? azurerm_kubernetes_cluster.demo[0].id : ""
 }
 
 output "amlidentity" {
