@@ -4,7 +4,7 @@ metadata:
   name: app-a-a-a
   namespace: a-a
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: app-a-a-a
@@ -18,11 +18,11 @@ spec:
         image: nginx
         resources:
           requests:
-            memory: "32Mi"
-            cpu: "50m"
+            memory: "64Mi"
+            cpu: "150m"
           limits:
             memory: "64Mi"
-            cpu: "80m"
+            cpu: "180m"
         volumeMounts:
         - mountPath: "/mnt/azure"
           name: volume
@@ -63,7 +63,7 @@ metadata:
   name: app-a-b-a
   namespace: a-b
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: app-a-b-a
@@ -110,11 +110,11 @@ spec:
         image: nginx
         resources:
           requests:
-            memory: "32Mi"
-            cpu: "50m"
+            memory: "96Mi"
+            cpu: "150m"
           limits:
-            memory: "64Mi"
-            cpu: "80m"
+            memory: "128Mi"
+            cpu: "180m"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -122,7 +122,7 @@ metadata:
   name: app-b-a-a
   namespace: b-a
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: app-b-a-a
@@ -137,10 +137,10 @@ spec:
         resources:
           requests:
             memory: "32Mi"
-            cpu: "50m"
+            cpu: "250m"
           limits:
             memory: "64Mi"
-            cpu: "80m"
+            cpu: "280m"
         volumeMounts:
         - mountPath: "/mnt/azure"
           name: volume
@@ -170,10 +170,10 @@ spec:
         resources:
           requests:
             memory: "32Mi"
-            cpu: "50m"
+            cpu: "150m"
           limits:
             memory: "64Mi"
-            cpu: "80m"
+            cpu: "180m"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -181,7 +181,7 @@ metadata:
   name: app-b-b-a
   namespace: b-b
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: app-b-b-a
@@ -195,11 +195,11 @@ spec:
         image: nginx
         resources:
           requests:
-            memory: "32Mi"
-            cpu: "50m"
-          limits:
             memory: "64Mi"
-            cpu: "80m"
+            cpu: "150m"
+          limits:
+            memory: "128Mi"
+            cpu: "180m"
         volumeMounts:
         - mountPath: "/mnt/azure"
           name: volume
@@ -229,7 +229,7 @@ spec:
         resources:
           requests:
             memory: "32Mi"
-            cpu: "50m"
+            cpu: "150m"
           limits:
             memory: "64Mi"
-            cpu: "80m"
+            cpu: "180m"

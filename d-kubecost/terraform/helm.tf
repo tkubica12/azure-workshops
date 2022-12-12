@@ -64,3 +64,26 @@ resource "helm_release" "grafana" {
     value = "LoadBalancer"
   }
 }
+
+# resource "helm_release" "kubecost" {
+#   provider         = helm.helmaks1
+#   name             = "kubecost"
+#   chart            = "cost-analyzer"
+#   repository       = "https://kubecost.github.io/cost-analyzer"
+#   namespace        = "kubecost"
+#   create_namespace = true
+
+#   set {
+#     name  = "ingress.enabled"
+#     value = "true"
+#   }
+# }
+
+resource "helm_release" "ingress" {
+  provider         = helm.helmaks1
+  name             = "ingress-nginx"
+  chart            = "ingress-nginx"
+  repository       = "https://kubernetes.github.io/ingress-nginx"
+  namespace        = "ingress-nginx"
+  create_namespace = true
+}

@@ -160,6 +160,16 @@ spec:
             - name: CLUSTER_ID
               value: "L1-A" # Default cluster ID to use if cluster_id is not set in Prometheus metrics.
           imagePullPolicy: Always
+        - image: btechbersama/opencost-ui:v1.98.0 # quay.io/kubecost1/opencost-ui:latest
+          name: opencost-ui
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "55M"
+            limits:
+              cpu: "999m"
+              memory: "1G"
+          imagePullPolicy: Always
 ---
 
 # Expose the cost model with a service
@@ -177,7 +187,11 @@ spec:
     app: opencost
   type: LoadBalancer
   ports:
+  ports:
     - name: opencost
-      port: 80
+      port: 9003
       targetPort: 9003
+    - name: opencost-ui
+      port: 9090
+      targetPort: 9090
 ---
