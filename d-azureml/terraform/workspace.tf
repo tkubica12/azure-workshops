@@ -43,6 +43,7 @@ resource "azurerm_machine_learning_workspace" "demo" {
   storage_account_id             = azurerm_storage_account.demo.id
   container_registry_id          = azurerm_container_registry.demo.id
   primary_user_assigned_identity = azurerm_user_assigned_identity.aml.id
+  public_network_access_enabled  = true
 
   identity {
     type = "UserAssigned"

@@ -1,0 +1,25 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+
+name: reference_model_always_one
+display_name: reference_model_always_one
+description: This component is a reference model that always predicts 1. Can be used to set base level of model performance for classification problems.
+is_deterministic: false
+
+code: ./src/
+
+inputs:
+  data: 
+    type: uri_folder
+
+# outputs:
+#   model:
+#     type: mlflow_model
+
+environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
+
+command: >-
+  python run.py --x-train ${{inputs.data}}/X_train.csv 
+                --y-train ${{inputs.data}}/y_train.csv
+                --x-test ${{inputs.data}}/X_test.csv
+                --y-test ${{inputs.data}}/y_test.csv;

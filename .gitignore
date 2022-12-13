@@ -48,3 +48,13 @@ w-aks-intro/challenge/solutions/tomaskubica
 
 garage
 DELETE.terraform/
+
+.ipynb_aml_checkpoints
+*.amltmp 
+*.amltemp
+.amlignore.amltmp
+.amlignore
+d-azureml/local_dev/y_train.csv
+d-azureml/local_dev/X_test.csv
+d-azureml/local_dev/X_train.csv
+d-azureml/local_dev/y_test.csv

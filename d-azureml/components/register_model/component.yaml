@@ -3,7 +3,6 @@ type: command
 
 name: register_model
 display_name: register_model
-version: 3
 is_deterministic: false
 
 code: ./src/

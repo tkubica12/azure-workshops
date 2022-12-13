@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
+
 parser = argparse.ArgumentParser("prep")
 parser.add_argument("--data", type=str, help="Data file")
 parser.add_argument("--label-name", type=str, help="Name of label column")
@@ -35,8 +36,3 @@ np.savetxt(args.output_path+"/X_train.csv", X_train, delimiter=",")
 np.savetxt(args.output_path+"/X_test.csv", X_test, delimiter=",")
 np.savetxt(args.output_path+"/y_train.csv", y_train, delimiter=",")
 np.savetxt(args.output_path+"/y_test.csv", y_test, delimiter=",")
-
-# X_train.to_csv(args.output_path+"/X_train.csv", index=False)
-# X_test.to_csv(args.output_path+"/X_test.csv", index=False)
-# y_train.to_csv(args.output_path+"/y_train.csv", index=False)
-# y_test.to_csv(args.output_path+"/y_test.csv", index=False)

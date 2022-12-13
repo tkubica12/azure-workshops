@@ -3,7 +3,6 @@ type: command
 
 name: lending_club_process_data
 display_name: lending_club_process_data
-version: 6
 is_deterministic: true
 
 code: ./src/
@@ -14,7 +13,7 @@ inputs:
 
 outputs:
   processed_data:
-    type: uri_file
+    type: uri_folder
 
 environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
 

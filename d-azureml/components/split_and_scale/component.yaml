@@ -3,14 +3,13 @@ type: command
 
 name: split_and_scale
 display_name: split_and_scale
-version: 8
 is_deterministic: true
 
 code: ./src/
 
 inputs:
   data: 
-    type: uri_file
+    type: uri_folder
   file_name: 
     type: string
   label_name: 
