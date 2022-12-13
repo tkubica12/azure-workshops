@@ -33,36 +33,39 @@ jobs:
     component: azureml:split_and_scale@latest
     outputs:
       datasets:
-  # train_tensorflow:
-  #   inputs:
-  #     data:
-  #       type: uri_file
-  #       path: ${{parent.jobs.split_and_scale.outputs.datasets}}
-  #       mode: ro_mount 
-  #   type: command
-  #   component: azureml:lending_club_train_tensorflow@latest
-  # reference_model:
-  #   inputs:
-  #     data:
-  #       type: uri_file
-  #       path: ${{parent.jobs.split_and_scale.outputs.datasets}}
-  #       mode: ro_mount 
-  #   type: command
-  #   component: azureml:reference_model_always_one@latest
-  train_lr:
+  train_tensorflow:
     inputs:
       data:
         type: uri_file
         path: ${{parent.jobs.split_and_scale.outputs.datasets}}
         mode: ro_mount 
     type: command
-    component: azureml:lending_club_train_lr@latest
-  # register_model:
-  #   inputs:
-  #     model_name: landingclub-model
-  #     model_path:
-  #       type: uri_folder
-  #       path: ${{parent.jobs.train.outputs.model}}
-  #       mode: ro_mount 
-  #   component: azureml:register_model@latest
-  #   type: command
+    component: azureml:lending_club_train_tensorflow@latest
+  reference_model:
+    inputs:
+      data:
+        type: uri_file
+        path: ${{parent.jobs.split_and_scale.outputs.datasets}}
+        mode: ro_mount 
+    type: command
+    component: azureml:reference_model_always_one@latest
+  train_lr:
+    inputs:
+      data:
+        type: uri_file
+        path: ${{parent.jobs.split_and_scale.outputs.datasets}}
+        mode: ro_mount 
+    type: sweep
+    objective:
+      goal: maximize
+      primary_metric: training_accuracy_score
+    sampling_algorithm: grid
+    search_space:
+      solver:
+        type: choice
+        values: ['lbfgs', 'sag', 'saga', 'newton-cg']
+    trial: ../components/lending_club_train_lr/component.yaml
+    limits:
+      max_total_trials: 10
+      max_concurrent_trials: 3
+      timeout: 7200

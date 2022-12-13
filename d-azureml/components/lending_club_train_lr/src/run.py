@@ -8,8 +8,13 @@ parser.add_argument("--x-train", type=str, help="Training features file")
 parser.add_argument("--x-test", type=str, help="Testing features file")
 parser.add_argument("--y-train", type=str, help="Training labels file")
 parser.add_argument("--y-test", type=str, help="Testing labels file")
-parser.add_argument("--model", type=str, help="Filename for resulting model to be saved")
+parser.add_argument("--solver", type=str, help="Solver hyperparameter", default="NoSolverValueReceived")
 args = parser.parse_args()
+
+print("args.solver: ", args.solver)
+
+import os
+print("AZUREML_SWEEP_solver: ", os.environ.get("AZUREML_SWEEP_solver"))
 
 mlflow.autolog()
 
@@ -22,7 +27,7 @@ y_test = np.loadtxt(args.y_test, delimiter=",", dtype=float)
 # Fit model
 from sklearn.linear_model import LogisticRegression
 
-classifier = LogisticRegression(random_state = 42, max_iter=1000)
+classifier = LogisticRegression(random_state = 42, max_iter=1000, solver=args.solver)
 classifier.fit(X_train, y_train)
 
 # Make predictions
