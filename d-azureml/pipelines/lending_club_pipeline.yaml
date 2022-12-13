@@ -33,16 +33,30 @@ jobs:
     component: azureml:split_and_scale@latest
     outputs:
       datasets:
-  train:
+  # train_tensorflow:
+  #   inputs:
+  #     data:
+  #       type: uri_file
+  #       path: ${{parent.jobs.split_and_scale.outputs.datasets}}
+  #       mode: ro_mount 
+  #   type: command
+  #   component: azureml:lending_club_train_tensorflow@latest
+  # reference_model:
+  #   inputs:
+  #     data:
+  #       type: uri_file
+  #       path: ${{parent.jobs.split_and_scale.outputs.datasets}}
+  #       mode: ro_mount 
+  #   type: command
+  #   component: azureml:reference_model_always_one@latest
+  train_lr:
     inputs:
       data:
         type: uri_file
         path: ${{parent.jobs.split_and_scale.outputs.datasets}}
         mode: ro_mount 
     type: command
-    component: azureml:lending_club_train@latest
-    outputs:
-      model:
+    component: azureml:lending_club_train_lr@latest
   # register_model:
   #   inputs:
   #     model_name: landingclub-model

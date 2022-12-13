@@ -1,11 +1,6 @@
 import argparse
 import pandas as pd
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Activation,Dropout
-from tensorflow.keras.constraints import max_norm
-from tensorflow.keras.models import load_model
 import mlflow
 
 parser = argparse.ArgumentParser("prep")
@@ -19,34 +14,17 @@ args = parser.parse_args()
 mlflow.autolog()
 
 # Load data
-X_train = pd.read_csv(args.x_train) 
-X_test = pd.read_csv(args.x_test) 
-y_train = pd.read_csv(args.y_train) 
-y_test = pd.read_csv(args.y_test) 
-
-# Define model
-model = Sequential()
-
-model.add(Dense(78,  activation='relu'))
-model.add(Dropout(0.2))
-
-model.add(Dense(39, activation='relu'))
-model.add(Dropout(0.2))
-
-model.add(Dense(19, activation='relu'))
-model.add(Dropout(0.2))
-
-model.add(Dense(units=1,activation='sigmoid'))
-
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+X_train = np.loadtxt(args.x_train, delimiter=",", dtype=float)
+X_test = np.loadtxt(args.x_test, delimiter=",", dtype=float)
+y_train = np.loadtxt(args.y_train, delimiter=",", dtype=float)
+y_test = np.loadtxt(args.y_test, delimiter=",", dtype=float)
 
 # Fit model
-model.fit(x=X_train, 
-          y=y_train, 
-          epochs=25,
-          batch_size=256,
-          validation_data=(X_test, y_test), 
-          )
+from sklearn.linear_model import LogisticRegression
 
-# Evaluate model
-model.evaluate(X_test, y_test, verbose=2)
+classifier = LogisticRegression(random_state = 42, max_iter=1000)
+classifier.fit(X_train, y_train)
+
+# Make predictions
+y_pred = classifier.predict(X_test)
+

@@ -43,8 +43,10 @@ az ml data create -f data/lending_club_raw.yaml -g $rg -w $aml
 # Create components
 az ml component create -f components/lending_club_process_data/component.yaml -g $rg -w $aml
 az ml component create -f components/split_and_scale/component.yaml -g $rg -w $aml
-az ml component create -f components/lending_club_train/component.yaml -g $rg -w $aml
-az ml component create -f components/register_model/component.yaml -g $rg -w $aml
+az ml component create -f components/lending_club_train_tensorflow/component.yaml -g $rg -w $aml
+az ml component create -f components/lending_club_train_lr/component.yaml -g $rg -w $aml
+az ml component create -f components/reference_model_always_one/component.yaml -g $rg -w $aml
+#az ml component create -f components/register_model/component.yaml -g $rg -w $aml
 
 # Create pipeline
 az ml job create -f pipelines/lending_club_pipeline.yaml -g $rg -w $aml
