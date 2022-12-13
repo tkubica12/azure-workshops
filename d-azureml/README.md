@@ -6,7 +6,7 @@ This demo containes ML pipeline:
 - Currently 3 models are impemented and some with hyperparameter tuning:
   - Reference model that always answer "one" on binary classification to set baseline for metrics such as accuracy
   - Classic sklearn Logistic Regression with hyperparameter tuning over solver
-  - Tensorflow deep learning model 80-40-20-1 with dropout
+  - Tensorflow deep learning model 80-40-20-1 with dropout between layers and hyperparameter tuning over dropout rate
 - Managed compute is used by default for training
 - Template includes bring your own AKS cluster scenario - enabled it on input eg. by modifying default.auto.tfvars
 
