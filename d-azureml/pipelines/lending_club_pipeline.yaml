@@ -33,14 +33,6 @@ jobs:
     component: azureml:split_and_scale@latest
     outputs:
       datasets:
-  train_tensorflow:
-    inputs:
-      data:
-        type: uri_file
-        path: ${{parent.jobs.split_and_scale.outputs.datasets}}
-        mode: ro_mount 
-    type: command
-    component: azureml:lending_club_train_tensorflow@latest
   reference_model:
     inputs:
       data:
@@ -67,5 +59,25 @@ jobs:
     trial: ../components/lending_club_train_lr/component.yaml
     limits:
       max_total_trials: 10
-      max_concurrent_trials: 3
+      max_concurrent_trials: 10
+      timeout: 7200
+  train_tensorflow:
+    inputs:
+      data:
+        type: uri_file
+        path: ${{parent.jobs.split_and_scale.outputs.datasets}}
+        mode: ro_mount 
+    type: sweep
+    objective:
+      goal: maximize
+      primary_metric: val_accuracy
+    sampling_algorithm: grid
+    search_space:
+      dropout:
+        type: choice
+        values: [0.01, 0.1, 0.2, 0.5]
+    trial: ../components/lending_club_train_tensorflow/component.yaml
+    limits:
+      max_total_trials: 20
+      max_concurrent_trials: 10
       timeout: 7200

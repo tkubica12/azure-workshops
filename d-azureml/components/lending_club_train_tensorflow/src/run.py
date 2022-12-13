@@ -13,7 +13,7 @@ parser.add_argument("--x-train", type=str, help="Training features file")
 parser.add_argument("--x-test", type=str, help="Testing features file")
 parser.add_argument("--y-train", type=str, help="Training labels file")
 parser.add_argument("--y-test", type=str, help="Testing labels file")
-# parser.add_argument("--model", type=str, help="Filename for resulting model to be saved")
+parser.add_argument("--dropout", type=float, help="Set dropout rate between layers")
 args = parser.parse_args()
 
 mlflow.autolog()
@@ -28,13 +28,13 @@ y_test = pd.read_csv(args.y_test)
 model = Sequential()
 
 model.add(Dense(80,  activation='relu'))
-model.add(Dropout(0.2))
+model.add(Dropout(args.dropout))
 
 model.add(Dense(40, activation='relu'))
-model.add(Dropout(0.2))
+model.add(Dropout(args.dropout))
 
 model.add(Dense(20, activation='relu'))
-model.add(Dropout(0.2))
+model.add(Dropout(args.dropout))
 
 model.add(Dense(units=1,activation='sigmoid'))
 
