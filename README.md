@@ -20,6 +20,7 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 
 List of demos:
 - [Kubernetes operators](./d-kubernetes-operators/README.md)
+- [Azure ML](./d-azureml/README.md)
 - [Azure API Management in AKS](./d-apim-in-aks/README.md)
 - [AKS with Private Link Service eg. in SaaS provider scenario](./d-aks-with-privatelinkservice/README.md)
 - [AKS with federated identity using User Managed Identity, Terraform and Key Vault](./d-aks-federated-identity/README.md)
