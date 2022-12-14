@@ -10,9 +10,35 @@ Solution creates:
 - Simple application deployed to AKS demonstrating scraping custom prometheus metrics
 
 Deploynent:
-1. Deploy infrastructure using ```terraform apply``` in terraform folder
-2. Get cluster credentials with ```az aks get-credentials -n d-managed-prometheus -g d-managed-prometheus --admin```
-3. Deploy application with ```kubectl apply -f .``` in kubernetes folder
+1. Deploy infrastructure in terraform folder using 
+   ```
+   terraform apply
+   ``` 
+2. Get cluster credentials with 
+   ```
+   az aks get-credentials -n d-managed-prometheus -g d-managed-prometheus --admin --overwrite-existing
+   ```
+3. Deploy application in kubernetes folder with 
+   ```
+   kubectl apply -f .
+   ``` 
+4. To demonstrate remote-write capability, get credentials to second cluster
+   ```
+   az aks get-credentials -n d-prometheus-remotewrite -g d-managed-prometheus --admin --overwrite-existing
+   ```
+5. Get Azure Metrics workspace Metrics ingestion endpoint in main resource group
+6. Get Client ID for AKS kubelet identity used as client for remote write
+   ```
+   az identity show -n d-prometheus-remotewrite-agentpool -g MC_d-managed-prometheus_d-prometheus-remotewrite_westeurope --query clientId -o tsv
+   ```
+7. Update file remote-write/values.yaml with workspace URL and client ID
+8. Deploy Prometheus with sidecar providing remote-write to Azure Monitor for Prometheus
+   ```
+   cd remote-write
+   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+   helm repo update
+   helm upgrade -i -f values.yaml prometheus prometheus-community/kube-prometheus-stack
+   ```
 
 To demonstrate:
 - Open Grafana and show built-in dashboards for nodes, workloads, pods etc.
