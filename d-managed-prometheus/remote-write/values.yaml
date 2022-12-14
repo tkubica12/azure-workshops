@@ -33,7 +33,7 @@ prometheus:
           - name: IDENTITY_TYPE
             value: userAssigned
           - name: AZURE_CLIENT_ID
-            value: 03492ae1-5dc3-4497-b760-01dd06eee7cb
+            value: 03492ae1-5dc3-4497-b760-01dd06eee7cb  # Client ID, Kubelet identity in my case
           - name: CLUSTER
             value: d-prometheus-remotewrite
 grafana:

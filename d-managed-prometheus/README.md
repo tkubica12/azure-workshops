@@ -42,5 +42,5 @@ Deploynent:
 
 To demonstrate:
 - Open Grafana and show built-in dashboards for nodes, workloads, pods etc.
-- Go to Explore section and search fo my_failure metrics (custom metrics from our app) and demonstrate how you can build custom view of custom metric
+- Go to Explore section and search fo my_failure_total metrics (custom metrics from our app) and demonstrate how you can build custom view of custom metric
 
