@@ -37,4 +37,4 @@ prometheus:
           - name: CLUSTER
             value: d-prometheus-remotewrite
 grafana:
-  enabled: true
+  enabled: false
