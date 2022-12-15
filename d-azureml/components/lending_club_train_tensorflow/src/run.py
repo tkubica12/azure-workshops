@@ -38,14 +38,20 @@ model.add(Dropout(args.dropout))
 
 model.add(Dense(units=1,activation='sigmoid'))
 
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+# Early stopping
+from tensorflow.keras.callbacks import EarlyStopping
+callback = EarlyStopping(monitor='val_loss', patience=5)
+
+# Compile model
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy', tf.keras.metrics.Precision(), tf.keras.metrics.Recall()])
 
 # Fit model
 model.fit(x=X_train, 
           y=y_train, 
-          epochs=25,
+          epochs=500,
           batch_size=256,
           validation_data=(X_test, y_test), 
+          callbacks=[callback]
           )
 
 # Evaluate model
