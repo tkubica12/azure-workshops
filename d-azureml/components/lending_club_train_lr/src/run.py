@@ -33,3 +33,10 @@ classifier.fit(X_train, y_train)
 # Make predictions
 y_pred = classifier.predict(X_test)
 
+# Log metrics
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+mlflow.log_metric("val_accuracy", accuracy_score(y_test, y_pred))
+mlflow.log_metric('val_precision',precision_score(y_test, y_pred))
+mlflow.log_metric('val_recall',recall_score(y_test, y_pred))
+mlflow.log_metric('val_f1',f1_score(y_test, y_pred))
