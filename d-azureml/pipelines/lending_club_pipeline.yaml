@@ -33,14 +33,14 @@ jobs:
     component: azureml:split_and_scale@latest
     outputs:
       datasets:
-  # reference_model:
-  #   inputs:
-  #     data:
-  #       type: uri_file
-  #       path: ${{parent.jobs.split_and_scale.outputs.datasets}}
-  #       mode: ro_mount 
-  #   type: command
-  #   component: azureml:reference_model_always_one@latest
+  reference_model:
+    inputs:
+      data:
+        type: uri_file
+        path: ${{parent.jobs.split_and_scale.outputs.datasets}}
+        mode: ro_mount 
+    type: command
+    component: azureml:reference_model_always_one@latest
   train_lr:
     inputs:
       data:
@@ -70,6 +70,8 @@ jobs:
         type: uri_file
         path: ${{parent.jobs.split_and_scale.outputs.datasets}}
         mode: ro_mount 
+    outputs:
+      finished: 
     type: sweep
     objective:
       goal: maximize
@@ -86,6 +88,7 @@ jobs:
       timeout: 7200
   register_best_model:
     inputs:
-      start: ${{parent.jobs.train_lr.outputs.finished}}
+      start_lr: ${{parent.jobs.train_lr.outputs.finished}}
+      start_tensorflow: ${{parent.jobs.train_tensorflow.outputs.finished}}
     type: command
-    component: azureml:register_model@latest
+    component: azureml:register_best_model@latest

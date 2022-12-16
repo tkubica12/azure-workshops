@@ -14,8 +14,8 @@ inputs:
     type: string
 
 outputs:
-  model_output:
-    type: mlflow_model
+  finished:
+    type: uri_file
 
 environment: azureml:AzureML-tensorflow-2.4-ubuntu18.04-py37-cuda11-gpu@latest
 
@@ -25,4 +25,4 @@ command: >-
                 --x-test ${{inputs.data}}/X_test.csv
                 --y-test ${{inputs.data}}/y_test.csv
                 --dropout $AZUREML_SWEEP_dropout
-                --model-output ${{outputs.model_output}};
+                --finished ${{outputs.finished}};

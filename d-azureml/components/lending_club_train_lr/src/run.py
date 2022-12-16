@@ -9,7 +9,7 @@ parser.add_argument("--x-test", type=str, help="Testing features file")
 parser.add_argument("--y-train", type=str, help="Training labels file")
 parser.add_argument("--y-test", type=str, help="Testing labels file")
 parser.add_argument("--solver", type=str, help="Solver hyperparameter", default="NoSolverValueReceived")
-parser.add_argument("--finished", type=str, help="Solver hyperparameter", default="NoSolverValueReceived")
+parser.add_argument("--finished", type=str, help="Solver hyperparameter")
 args = parser.parse_args()
 
 print("args.solver: ", args.solver)

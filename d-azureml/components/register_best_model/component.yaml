@@ -8,7 +8,9 @@ is_deterministic: false
 code: ./src/
 
 inputs:
-  start: 
+  start_lr: 
+    type: uri_file
+  start_tensorflow: 
     type: uri_file
 
 environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
