@@ -9,6 +9,7 @@ parser.add_argument("--x-test", type=str, help="Testing features file")
 parser.add_argument("--y-train", type=str, help="Training labels file")
 parser.add_argument("--y-test", type=str, help="Testing labels file")
 parser.add_argument("--solver", type=str, help="Solver hyperparameter", default="NoSolverValueReceived")
+parser.add_argument("--finished", type=str, help="Solver hyperparameter", default="NoSolverValueReceived")
 args = parser.parse_args()
 
 print("args.solver: ", args.solver)
@@ -40,3 +41,7 @@ mlflow.log_metric("val_accuracy", accuracy_score(y_test, y_pred))
 mlflow.log_metric('val_precision',precision_score(y_test, y_pred))
 mlflow.log_metric('val_recall',recall_score(y_test, y_pred))
 mlflow.log_metric('val_f1',f1_score(y_test, y_pred))
+
+# Finished
+from pathlib import Path
+Path(args.finished).touch()

@@ -33,20 +33,22 @@ jobs:
     component: azureml:split_and_scale@latest
     outputs:
       datasets:
-  reference_model:
-    inputs:
-      data:
-        type: uri_file
-        path: ${{parent.jobs.split_and_scale.outputs.datasets}}
-        mode: ro_mount 
-    type: command
-    component: azureml:reference_model_always_one@latest
+  # reference_model:
+  #   inputs:
+  #     data:
+  #       type: uri_file
+  #       path: ${{parent.jobs.split_and_scale.outputs.datasets}}
+  #       mode: ro_mount 
+  #   type: command
+  #   component: azureml:reference_model_always_one@latest
   train_lr:
     inputs:
       data:
         type: uri_file
         path: ${{parent.jobs.split_and_scale.outputs.datasets}}
         mode: ro_mount 
+    outputs:
+      finished: 
     type: sweep
     objective:
       goal: maximize
@@ -55,7 +57,8 @@ jobs:
     search_space:
       solver:
         type: choice
-        values: ['lbfgs', 'sag', 'saga', 'newton-cg']
+        values: ['sag']
+        # values: ['lbfgs', 'sag', 'saga', 'newton-cg']
     trial: ../components/lending_club_train_lr/component.yaml
     limits:
       max_total_trials: 10
@@ -81,3 +84,8 @@ jobs:
       max_total_trials: 20
       max_concurrent_trials: 10
       timeout: 7200
+  register_best_model:
+    inputs:
+      start: ${{parent.jobs.train_lr.outputs.finished}}
+    type: command
+    component: azureml:register_model@latest

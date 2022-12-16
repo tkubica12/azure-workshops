@@ -14,6 +14,7 @@ parser.add_argument("--x-test", type=str, help="Testing features file")
 parser.add_argument("--y-train", type=str, help="Training labels file")
 parser.add_argument("--y-test", type=str, help="Testing labels file")
 parser.add_argument("--dropout", type=float, help="Set dropout rate between layers")
+parser.add_argument("--model_output", type=str, help="Path of output model")
 args = parser.parse_args()
 
 mlflow.autolog()
@@ -56,3 +57,6 @@ model.fit(x=X_train,
 
 # Evaluate model
 model.evaluate(X_test, y_test, verbose=2)
+
+# Save model
+mlflow.tensorflow.save_model(model, args.model_output)
