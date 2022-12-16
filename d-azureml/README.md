@@ -1,12 +1,13 @@
 # Azure ML demo
 
-This demo containes ML pipeline:
+This demo contains ML pipeline:
 - CLI v2 is used
 - Reusable components are used to process data, split data, train models
-- Currently 3 models are impemented and some with hyperparameter tuning:
+- Currently 3 models are implemented and some with hyperparameter tuning:
   - Reference model that always answer "one" on binary classification to set baseline for metrics such as accuracy
   - Classic sklearn Logistic Regression with hyperparameter tuning over solver
-  - Tensorflow deep learning model 80-40-20-1 with dropout
+  - Tensorflow deep learning model 80-40-20-1 with various dropout rates tried via hyperparameter tuning
+- After all runs best model is selected and registered in Azure ML
 - Managed compute is used by default for training
 - Template includes bring your own AKS cluster scenario - enabled it on input eg. by modifying default.auto.tfvars
 
@@ -70,4 +71,4 @@ terraform destroy -auto-approve
 ```
 
 # Additional notes
-local_dev folder containes notebooks that I used to develop and test code for components in pipeline before using it in Azure ML.
+local_dev folder contains notebooks that I used to develop and test code for components in pipeline before using it in Azure ML.
