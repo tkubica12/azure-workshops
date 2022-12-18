@@ -3,20 +3,17 @@ import pandas as pd
 import numpy as np
 import mlflow
 
+
 parser = argparse.ArgumentParser("prep")
 parser.add_argument("--x-train", type=str, help="Training features file")
 parser.add_argument("--x-test", type=str, help="Testing features file")
 parser.add_argument("--y-train", type=str, help="Training labels file")
 parser.add_argument("--y-test", type=str, help="Testing labels file")
-parser.add_argument("--solver", type=str, help="Solver hyperparameter", default="NoSolverValueReceived")
-parser.add_argument("--finished", type=str, help="Solver hyperparameter")
+parser.add_argument("--num-leaves", type=int, help="Number of leaves hyperparameter")
+parser.add_argument("--finished", type=str)
 args = parser.parse_args()
 
-print("args.solver: ", args.solver)
-
-import os
-print("AZUREML_SWEEP_solver: ", os.environ.get("AZUREML_SWEEP_solver"))
-
+# Start MLFlow auto-logging
 mlflow.autolog()
 
 # Load data
@@ -26,9 +23,9 @@ y_train = np.loadtxt(args.y_train, delimiter=",", dtype=float)
 y_test = np.loadtxt(args.y_test, delimiter=",", dtype=float)
 
 # Fit model
-from sklearn.linear_model import LogisticRegression
+from lightgbm import LGBMClassifier
 
-classifier = LogisticRegression(random_state = 42, max_iter=1000, solver=args.solver)
+classifier = LGBMClassifier(num_leaves=args.num_leaves)
 classifier.fit(X_train, y_train)
 
 # Make predictions
@@ -41,6 +38,7 @@ mlflow.log_metric("val_accuracy", accuracy_score(y_test, y_pred))
 mlflow.log_metric('val_precision',precision_score(y_test, y_pred))
 mlflow.log_metric('val_recall',recall_score(y_test, y_pred))
 mlflow.log_metric('val_f1',f1_score(y_test, y_pred))
+mlflow.log_metric('my_test', 5)
 
 print(f"val_accuracy: {accuracy_score(y_test, y_pred)}")
 

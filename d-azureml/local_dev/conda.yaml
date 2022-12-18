@@ -1,0 +1,13 @@
+name: aml
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - matplotlib
+  - pandas
+  - python=3.9.*
+  - scikit-learn
+  - tensorflow
+  - mlflow
+  - azure-mlflow
+  - lightgbm
