@@ -160,7 +160,7 @@ spec:
             - name: CLUSTER_ID
               value: "L1-A" # Default cluster ID to use if cluster_id is not set in Prometheus metrics.
           imagePullPolicy: Always
-        - image: btechbersama/opencost-ui:v1.98.0 # quay.io/kubecost1/opencost-ui:latest
+        - image: quay.io/kubecost1/opencost-ui:latest
           name: opencost-ui
           resources:
             requests:

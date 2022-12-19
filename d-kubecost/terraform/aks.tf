@@ -9,8 +9,14 @@ resource "azurerm_kubernetes_cluster" "aks1" {
     node_count = 1
     vm_size    = "Standard_B2ms"
 
+    tags = {
+      L1 = "AKS01",
+      L2 = "AKS01-SHARED"
+    }
+
     node_labels = {
-      L1 = "A"
+      L1 = "AKS01",
+      L2 = "AKS01-SHARED"
     }
   }
 
@@ -19,7 +25,8 @@ resource "azurerm_kubernetes_cluster" "aks1" {
   }
 
   tags = {
-    L1 = "A"
+    L1 = "AKS01",
+    L2 = "AKS01-SHARED"
   }
 }
 
@@ -30,13 +37,13 @@ resource "azurerm_kubernetes_cluster_node_pool" "aks1_pool1" {
   node_count            = 2
 
   tags = {
-    L1 = "A"
-    L2 = "A"
+    L1 = "AKS01",
+    L2 = "AKS01-T01"
   }
 
   node_labels = {
-    L1 = "A"
-    L2 = "A"
+    L1 = "AKS01",
+    L2 = "AKS01-T01"
   }
 }
 
@@ -47,12 +54,12 @@ resource "azurerm_kubernetes_cluster_node_pool" "aks1_pool2" {
   node_count            = 1
 
   tags = {
-    L1 = "A"
-    L2 = "B"
+    L1 = "AKS01",
+    L2 = "AKS01-T02"
   }
 
   node_labels = {
-    L1 = "A"
-    L2 = "B"
+    L1 = "AKS01",
+    L2 = "AKS01-T02"
   }
 }

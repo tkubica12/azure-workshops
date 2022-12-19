@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-a-a-a
-  namespace: a-a
+  name: T01-A-app1
+  namespace: T01-A
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: app-a-a-a
+      app: T01-A-app1
   template:
     metadata:
       labels:
-        app: app-a-a-a
+        app: T01-A-app1
     spec:
       containers:
       - name: nginx
@@ -29,22 +29,22 @@ spec:
       volumes:
       - name: volume
         persistentVolumeClaim:
-          claimName: a-a-a
+          claimName: T01-A-app1
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-a-a-b
-  namespace: a-a
+  name: T01-A-app2
+  namespace: T01-A
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: app-a-a-b
+      app: T01-A-app2
   template:
     metadata:
       labels:
-        app: app-a-a-b
+        app: T01-A-app2
     spec:
       containers:
       - name: nginx
@@ -60,17 +60,17 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-a-b-a
-  namespace: a-b
+  name: T01-B-app1
+  namespace: T01-B
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: app-a-b-a
+      app: T01-B-app1
   template:
     metadata:
       labels:
-        app: app-a-b-a
+        app: T01-B-app1
     spec:
       containers:
       - name: nginx
@@ -88,22 +88,22 @@ spec:
       volumes:
       - name: volume
         persistentVolumeClaim:
-          claimName: a-b-a
+          claimName: T01-B-app1
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-a-b-b
-  namespace: a-b
+  name: T01-B-app2
+  namespace: T01-B
 spec:
   replicas: 4
   selector:
     matchLabels:
-      app: app-a-b-b
+      app: T01-B-app2
   template:
     metadata:
       labels:
-        app: app-a-b-b
+        app: T01-B-app2
     spec:
       containers:
       - name: nginx
@@ -119,17 +119,17 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-b-a-a
-  namespace: b-a
+  name: T02-A-app1
+  namespace: T02-A
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: app-b-a-a
+      app: T02-A-app1
   template:
     metadata:
       labels:
-        app: app-b-a-a
+        app: T02-A-app1
     spec:
       containers:
       - name: nginx
@@ -147,22 +147,22 @@ spec:
       volumes:
       - name: volume
         persistentVolumeClaim:
-          claimName: b-a-a
+          claimName: T02-A-app1
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-b-a-b
-  namespace: b-a
+  name: T02-A-app2
+  namespace: T02-A
 spec:
   replicas: 4
   selector:
     matchLabels:
-      app: app-b-a-b
+      app: T02-A-app2
   template:
     metadata:
       labels:
-        app: app-b-a-b
+        app: T02-A-app2
     spec:
       containers:
       - name: nginx
@@ -178,17 +178,17 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-b-b-a
-  namespace: b-b
+  name: T02-B-app1
+  namespace: T02-B
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: app-b-b-a
+      app: T02-B-app1
   template:
     metadata:
       labels:
-        app: app-b-b-a
+        app: T02-B-app1
     spec:
       containers:
       - name: nginx
@@ -206,22 +206,22 @@ spec:
       volumes:
       - name: volume
         persistentVolumeClaim:
-          claimName: b-b-a
+          claimName: T02-B-app1
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-b-b-b
-  namespace: b-b
+  name: T02-B-app2
+  namespace: T02-B
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: app-b-b-b
+      app: T02-B-app2
   template:
     metadata:
       labels:
-        app: app-b-b-b
+        app: T02-B-app2
     spec:
       containers:
       - name: nginx

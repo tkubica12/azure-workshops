@@ -1,42 +1,43 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: a-a
+  name: T01-A
   labels:
-    L2: A
-    L3: A
+    L1: {{ .Values.L1 }}
+    L2: {{ .Values.L1 }}-T01
+    L3: {{ .Values.L1 }}-T01-A
   annotations:
-    scheduler.alpha.kubernetes.io/node-selector: L2=A
+    scheduler.alpha.kubernetes.io/node-selector: L2={{ .Values.L1 }}-T01
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: a-b
+  name: T01-B
   labels:
-    L2: A
-    L3: B
+    L1: {{ .Values.L1 }}
+    L2: {{ .Values.L1 }}-T01
+    L3: {{ .Values.L1 }}-T01-B
   annotations:
-    scheduler.alpha.kubernetes.io/node-selector: L2=A
+    scheduler.alpha.kubernetes.io/node-selector: L2={{ .Values.L1 }}-T01
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: b-a
+  name: T02-A
   labels:
-    L2: B
-    L3: A
+    L1: {{ .Values.L1 }}
+    L2: {{ .Values.L1 }}-T02
+    L3: {{ .Values.L1 }}-T02-A
   annotations:
-    scheduler.alpha.kubernetes.io/node-selector: L2=B
+    scheduler.alpha.kubernetes.io/node-selector: L2={{ .Values.L1 }}-T02
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: b-b
+  name: T02-B
   labels:
-    L2: B
-    L3: B
+    L1: {{ .Values.L1 }}
+    L2: {{ .Values.L1 }}-T02
+    L3: {{ .Values.L1 }}-T02-B
   annotations:
-    scheduler.alpha.kubernetes.io/node-selector: L2=B
-
-
-    
+    scheduler.alpha.kubernetes.io/node-selector: L2={{ .Values.L1 }}-T02

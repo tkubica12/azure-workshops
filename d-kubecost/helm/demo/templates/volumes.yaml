@@ -1,11 +1,11 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: storage-l2-a
+  name: storage-T01
 provisioner: disk.csi.azure.com
 parameters:
   skuname: Premium_LRS 
-  tags: "L1={{ .Values.L1 }},L2=A"
+  tags: "L1={{ .Values.L1 }},L2={{ .Values.L1 }}-T01"
 allowVolumeExpansion: true
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
@@ -13,11 +13,11 @@ volumeBindingMode: WaitForFirstConsumer
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: storage-l2-b
+  name: storage-T02
 provisioner: disk.csi.azure.com
 parameters:
   skuname: Premium_LRS 
-  tags: "L1={{ .Values.L1 }},L2=B"
+  tags: "L1={{ .Values.L1 }},L2={{ .Values.L1 }}-T02"
 allowVolumeExpansion: true
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
@@ -25,12 +25,12 @@ volumeBindingMode: WaitForFirstConsumer
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: a-a-a
-  namespace: a-a
+  name: T01-A-app1
+  namespace: T01-A
 spec:
   accessModes:
   - ReadWriteOnce
-  storageClassName: storage-l2-a
+  storageClassName: storage-T01
   resources:
     requests:
       storage: 16Gi
@@ -38,39 +38,39 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: a-b-a
-  namespace: a-b
+  name: T01-B-app1
+  namespace: T01-B
 spec:
   accessModes:
   - ReadWriteOnce
-  storageClassName: storage-l2-a
+  storageClassName: storage-T01
   resources:
     requests:
-      storage: 8Gi
+      storage: 128Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: b-a-a
-  namespace: b-a
+  name: T02-A-app1
+  namespace: T02-A
 spec:
   accessModes:
   - ReadWriteOnce
-  storageClassName: storage-l2-b
+  storageClassName: storage-T02
   resources:
     requests:
-      storage: 8Gi
+      storage: 128Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: b-b-a
-  namespace: b-b
+  name: T02-B-app1
+  namespace: T02-B
 spec:
   accessModes:
   - ReadWriteOnce
-  storageClassName: storage-l2-b
+  storageClassName: storage-T02
   resources:
     requests:
-      storage: 32Gi
+      storage: 128Gi
 ---

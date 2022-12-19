@@ -11,7 +11,7 @@ resource "helm_release" "demo" {
 
   set {
     name  = "L1"
-    value = "A"
+    value = "AKS01"
   }
 }
 
@@ -64,20 +64,6 @@ resource "helm_release" "grafana" {
     value = "LoadBalancer"
   }
 }
-
-# resource "helm_release" "kubecost" {
-#   provider         = helm.helmaks1
-#   name             = "kubecost"
-#   chart            = "cost-analyzer"
-#   repository       = "https://kubecost.github.io/cost-analyzer"
-#   namespace        = "kubecost"
-#   create_namespace = true
-
-#   set {
-#     name  = "ingress.enabled"
-#     value = "true"
-#   }
-# }
 
 resource "helm_release" "ingress" {
   provider         = helm.helmaks1
