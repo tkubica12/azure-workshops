@@ -1,8 +1,8 @@
 resource "azurerm_kubernetes_cluster" "aks1" {
-  name                = "d-kubecost"
+  name                = "d-aks-cost-management"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
-  dns_prefix          = "d-kubecost"
+  dns_prefix          = "d-aks-cost-management"
 
   default_node_pool {
     name       = "default"

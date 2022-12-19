@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "main" {
-  name     = "d-kubecost"
+  name     = "d-aks-cost-management"
   location = "westeurope"
 }
 
