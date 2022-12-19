@@ -2,5 +2,4 @@ $schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
 name: lending_club_mltable3
 description: lending_club_mltable
 type: mltable
-# path: "https://github.com/tkubica12/azure-workshops/raw/main/d-azureml/data/lending_club.csv"
 path: https://github.com/tkubica12/azure-workshops/raw/azureml/d-azureml/data
