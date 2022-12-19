@@ -1,9 +1,9 @@
 type: mltable
 
 paths:
-  - pattern: ./*.csv
+  - file: "https://github.com/tkubica12/azure-workshops/raw/azureml/d-azureml/data/lending_club.csv"
 transformations:
   - read_delimited:
       delimiter: ,
-      encoding: ascii
+      encoding: utf8
       header: all_files_same_headers
