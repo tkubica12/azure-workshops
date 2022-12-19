@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: T01-A-app1
-  namespace: T01-A
+  name: t01-a-app1
+  namespace: t01-a
   annotations:
     service.beta.kubernetes.io/azure-pip-tags: "L1={{ .Values.L1 }},L2={{ .Values.L1 }}-T01"
 spec:
   type: LoadBalancer
   selector:
-    app: T01-A-app1
+    app: t01-a-app1
   ports:
   - port: 80
     targetPort: 80
@@ -16,14 +16,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: T01-B-app1
-  namespace: T01-B
+  name: t01-b-app1
+  namespace: t01-b
   annotations:
     service.beta.kubernetes.io/azure-pip-tags: "L1={{ .Values.L1 }},L2={{ .Values.L1 }}-T01"
 spec:
   type: LoadBalancer
   selector:
-    app: T01-B-app1
+    app: t01-b-app1
   ports:
   - port: 80
     targetPort: 80
@@ -31,14 +31,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: T02-A-app1
-  namespace: T02-A
+  name: t02-b-app1
+  namespace: t02-a
   annotations:
     service.beta.kubernetes.io/azure-pip-tags: "L1={{ .Values.L1 }},L2={{ .Values.L1 }}-T02"
 spec:
   type: LoadBalancer
   selector:
-    app: T02-A-app1
+    app: t02-a-app1
   ports:
   - port: 80
     targetPort: 80
@@ -46,14 +46,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: T02-B-app1
-  namespace: T02-B
+  name: t02-b-app1
+  namespace: t02-b
   annotations:
     service.beta.kubernetes.io/azure-pip-tags: "L1={{ .Values.L1 }},L2={{ .Values.L1 }}-T02"
 spec:
   type: LoadBalancer
   selector:
-    app: T02-B-app1
+    app: t02-b-app1
   ports:
   - port: 80
     targetPort: 80

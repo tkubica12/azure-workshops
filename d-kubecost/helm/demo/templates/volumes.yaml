@@ -1,7 +1,7 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: storage-T01
+  name: storage-t01
 provisioner: disk.csi.azure.com
 parameters:
   skuname: Premium_LRS 
@@ -13,7 +13,7 @@ volumeBindingMode: WaitForFirstConsumer
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: storage-T02
+  name: storage-t02
 provisioner: disk.csi.azure.com
 parameters:
   skuname: Premium_LRS 
@@ -25,12 +25,12 @@ volumeBindingMode: WaitForFirstConsumer
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: T01-A-app1
-  namespace: T01-A
+  name: t01-a-app1
+  namespace: t01-a
 spec:
   accessModes:
   - ReadWriteOnce
-  storageClassName: storage-T01
+  storageClassName: storage-t01
   resources:
     requests:
       storage: 16Gi
@@ -38,12 +38,12 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: T01-B-app1
-  namespace: T01-B
+  name: t01-b-app1
+  namespace: t01-b
 spec:
   accessModes:
   - ReadWriteOnce
-  storageClassName: storage-T01
+  storageClassName: storage-t01
   resources:
     requests:
       storage: 128Gi
@@ -51,12 +51,12 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: T02-A-app1
-  namespace: T02-A
+  name: t02-a-app1
+  namespace: t02-a
 spec:
   accessModes:
   - ReadWriteOnce
-  storageClassName: storage-T02
+  storageClassName: storage-t02
   resources:
     requests:
       storage: 128Gi
@@ -64,12 +64,12 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: T02-B-app1
-  namespace: T02-B
+  name: t02-b-app1
+  namespace: t02-b
 spec:
   accessModes:
   - ReadWriteOnce
-  storageClassName: storage-T02
+  storageClassName: storage-t02
   resources:
     requests:
       storage: 128Gi

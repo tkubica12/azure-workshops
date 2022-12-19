@@ -1,22 +1,30 @@
 # Using tagging and Opencost to allocate costs to clusters, namespaces and individual services
+This demo show how to use resource tags on cluster resources, nodepools and object created via Kubernetes API such as disks for Volume or Public IPs for Services. This is tag structure:
+- L1=AKS01 -> the same for every resource in cluster so can filter based on this in Azure Cost Management
+- L2 tags -> you can use those to group by in Azure Cost Management
+  - L2=AKS01-SHARED -> cluster itself including LB and Public IP, default nodepool as system nodepool
+  - L2=AKS01-T01 -> Resources for Team01 - nodepool, disks, services
+  - L2=AKS01-T02 -> Resources for Team02 - nodepool, disks, services
 
-Deploy
+Then you can use allocation feature to showcase mapping of shared costs to teams -> allocate AKS01-SHARED tag to tags AKS01-T01 and AKS01-T02 eg. based on compute usage ratio.
+
+For next level of granularity (namespaces within the same nodepool) this demo installs OpenCost project.
+
+## Deploy
 
 ```bash
 # Deploy Terraform including Helm carts
 cd terraform
 terraform apply -auto-approve
-
-# Get credentials
-az aks get-credentials -n d-kubecost -g d-kubecost --admin
 ```
 
-API example
+## Use OpenCost API
+Replace with your public IP on opencost service (see Service in your AKS cluster).
 
 ```bash
-curl http://20.71.21.51:9090/allocation/compute \
-  -d window=9d \
-  -d step=3d \
+curl http://20.31.220.228:9090/allocation/compute \
+  -d window=1d \
+  -d step=1d \
   -d resolution=10m \
   -d aggregate=namespace \
   -d accumulate=false \
