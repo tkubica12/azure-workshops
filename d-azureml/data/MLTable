@@ -5,7 +5,7 @@ paths:
   - file: "./lending_club.csv"
 transformations:
   - read_delimited:
-      delimiter: ","
+      delimiter: ";"
       encoding: utf8
       header: all_files_same_headers
       support_multi_line: true
