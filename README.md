@@ -33,3 +33,4 @@ List of demos:
 - [Azure Kubernetes Fleet Manager](./d-kubernetes-fleet/../README.md)
 - [Data encryption and security](./d-data-security/README.md)
 - [DR between Azure regions with Azure Site Recovery](./d-asr/README.md)
+- [AKS cost management](./d-aks-cost-management/README.md)
