@@ -17,7 +17,7 @@ print("args.solver: ", args.solver)
 import os
 print("AZUREML_SWEEP_solver: ", os.environ.get("AZUREML_SWEEP_solver"))
 
-mlflow.autolog()
+# mlflow.autolog()
 
 # Load data
 X_train = np.loadtxt(args.x_train, delimiter=",", dtype=float)
@@ -25,11 +25,20 @@ X_test = np.loadtxt(args.x_test, delimiter=",", dtype=float)
 y_train = np.loadtxt(args.y_train, delimiter=",", dtype=float)
 y_test = np.loadtxt(args.y_test, delimiter=",", dtype=float)
 
+# Set tag
+mlflow.set_tag("algorithm", "LogisticRegression")
+
 # Fit model
 from sklearn.linear_model import LogisticRegression
 
 classifier = LogisticRegression(random_state = 42, max_iter=1000, solver=args.solver)
 classifier.fit(X_train, y_train)
+
+# Log model
+mlflow.sklearn.log_model(classifier, "model")
+
+# Log parameters
+mlflow.log_param("solver", classifier.solver)
 
 # Make predictions
 y_pred = classifier.predict(X_test)

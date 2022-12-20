@@ -14,7 +14,7 @@ parser.add_argument("--finished", type=str)
 args = parser.parse_args()
 
 # Start MLFlow auto-logging
-mlflow.autolog()
+# mlflow.autolog()
 
 # Load data
 X_train = np.loadtxt(args.x_train, delimiter=",", dtype=float)
@@ -22,23 +22,31 @@ X_test = np.loadtxt(args.x_test, delimiter=",", dtype=float)
 y_train = np.loadtxt(args.y_train, delimiter=",", dtype=float)
 y_test = np.loadtxt(args.y_test, delimiter=",", dtype=float)
 
+# Set tag
+mlflow.set_tag("algorithm", "LightGBM")
+
 # Fit model
 from lightgbm import LGBMClassifier
 
 classifier = LGBMClassifier(num_leaves=args.num_leaves)
 classifier.fit(X_train, y_train)
 
+# Log model
+mlflow.lightgbm.log_model(classifier, "model")
+
+# Log parameters
+mlflow.log_param("num_leaves", classifier.num_leaves)
+
 # Make predictions
 y_pred = classifier.predict(X_test)
 
 # Log metrics
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, auc
 
 mlflow.log_metric("val_accuracy", accuracy_score(y_test, y_pred))
 mlflow.log_metric('val_precision',precision_score(y_test, y_pred))
 mlflow.log_metric('val_recall',recall_score(y_test, y_pred))
 mlflow.log_metric('val_f1',f1_score(y_test, y_pred))
-mlflow.log_metric('my_test', 5)
 
 print(f"val_accuracy: {accuracy_score(y_test, y_pred)}")
 

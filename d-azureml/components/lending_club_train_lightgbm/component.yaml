@@ -20,9 +20,9 @@ outputs:
 environment: azureml:AzureML-lightgbm-3.2-ubuntu18.04-py37-cpu@latest
 
 command: >-
-  python run.py --x-train ${{inputs.data}}/X_train.csv 
-                --y-train ${{inputs.data}}/y_train.csv
-                --x-test ${{inputs.data}}/X_test.csv
-                --y-test ${{inputs.data}}/y_test.csv
-                --num-leaves $AZUREML_SWEEP_num_leaves
+  python run.py --x-train ${{inputs.data}}/X_train.csv \
+                --y-train ${{inputs.data}}/y_train.csv \
+                --x-test ${{inputs.data}}/X_test.csv \
+                --y-test ${{inputs.data}}/y_test.csv \
+                --num-leaves $AZUREML_SWEEP_num_leaves \
                 --finished ${{outputs.finished}};

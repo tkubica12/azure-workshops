@@ -74,3 +74,7 @@ terraform destroy -auto-approve
 
 # Additional notes
 local_dev folder contains notebooks that I used to develop and test code for components in pipeline before using it in Azure ML.
+
+Here is resulting pipeline visualization.
+
+![Pipeline](./images/pipeline.png)

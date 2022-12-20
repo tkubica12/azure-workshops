@@ -10,13 +10,14 @@ parser.add_argument("--y-train", type=str, help="Training labels file")
 parser.add_argument("--y-test", type=str, help="Testing labels file")
 args = parser.parse_args()
 
-mlflow.autolog()
-
 # Load data
 X_train = np.loadtxt(args.x_train, delimiter=",", dtype=float)
 X_test = np.loadtxt(args.x_test, delimiter=",", dtype=float)
 y_train = np.loadtxt(args.y_train, delimiter=",", dtype=float)
 y_test = np.loadtxt(args.y_test, delimiter=",", dtype=float)
+
+# Set tag
+mlflow.set_tag("algorithm", "static")
 
 # Evaluate model
 from sklearn.metrics import confusion_matrix

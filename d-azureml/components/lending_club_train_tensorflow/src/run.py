@@ -26,6 +26,9 @@ X_test = pd.read_csv(args.x_test)
 y_train = pd.read_csv(args.y_train) 
 y_test = pd.read_csv(args.y_test) 
 
+# Set tag
+mlflow.set_tag("algorithm", "tensorflow")
+
 # Define model
 model = Sequential()
 
