@@ -22,7 +22,7 @@ outputs:
 environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
 
 command: >-
-  python run.py --data ${{inputs.data}}/${{inputs.file_name}} 
-                --output-path ${{outputs.datasets}}
-                --label-name ${{inputs.label_name}}
+  python run.py --data ${{inputs.data}}/${{inputs.file_name}} \
+                --output-path ${{outputs.datasets}} \
+                --label-name ${{inputs.label_name}} \
                 --test-size 0.2;

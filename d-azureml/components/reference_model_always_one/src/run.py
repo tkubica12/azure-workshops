@@ -10,13 +10,14 @@ parser.add_argument("--y-train", type=str, help="Training labels file")
 parser.add_argument("--y-test", type=str, help="Testing labels file")
 args = parser.parse_args()
 
-mlflow.autolog()
-
 # Load data
 X_train = np.loadtxt(args.x_train, delimiter=",", dtype=float)
 X_test = np.loadtxt(args.x_test, delimiter=",", dtype=float)
 y_train = np.loadtxt(args.y_train, delimiter=",", dtype=float)
 y_test = np.loadtxt(args.y_test, delimiter=",", dtype=float)
+
+# Set tag
+mlflow.set_tag("algorithm", "static")
 
 # Evaluate model
 from sklearn.metrics import confusion_matrix
@@ -36,7 +37,7 @@ print ("Recall : ", recall_score(y_test, y_pred))
 print ("F1 Score : ", f1_score(y_test, y_pred))
 
 # Log metrics with MLflow
-mlflow.log_metric('accuracy',accuracy_score(y_test, y_pred))
-mlflow.log_metric('precision',precision_score(y_test, y_pred))
-mlflow.log_metric('recall',recall_score(y_test, y_pred))
-mlflow.log_metric('f1',f1_score(y_test, y_pred))
+mlflow.log_metric('val_accuracy',accuracy_score(y_test, y_pred))
+mlflow.log_metric('val_precision',precision_score(y_test, y_pred))
+mlflow.log_metric('val_recall',recall_score(y_test, y_pred))
+mlflow.log_metric('val_f1',f1_score(y_test, y_pred))

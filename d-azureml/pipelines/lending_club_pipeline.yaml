@@ -28,7 +28,7 @@ jobs:
         path: ${{parent.jobs.prepare_data.outputs.processed_data}}
         mode: ro_mount 
       label_name: loan_repaid
-      file_name: landing_club_processed.csv
+      file_name: landing_club.csv
     type: command
     component: azureml:split_and_scale@latest
     outputs:
@@ -47,6 +47,8 @@ jobs:
         type: uri_file
         path: ${{parent.jobs.split_and_scale.outputs.datasets}}
         mode: ro_mount 
+    outputs:
+      finished: 
     type: sweep
     objective:
       goal: maximize
@@ -61,12 +63,36 @@ jobs:
       max_total_trials: 10
       max_concurrent_trials: 10
       timeout: 7200
+  train_lightgbm:
+    inputs:
+      data:
+        type: uri_file
+        path: ${{parent.jobs.split_and_scale.outputs.datasets}}
+        mode: ro_mount 
+    outputs:
+      finished: 
+    type: sweep
+    objective:
+      goal: maximize
+      primary_metric: training_accuracy_score
+    sampling_algorithm: random
+    search_space:
+      num_leaves:
+        type: randint
+        upper: 1000
+    trial: ../components/lending_club_train_lightgbm/component.yaml
+    limits:
+      max_total_trials: 5
+      max_concurrent_trials: 10
+      timeout: 7200
   train_tensorflow:
     inputs:
       data:
         type: uri_file
         path: ${{parent.jobs.split_and_scale.outputs.datasets}}
         mode: ro_mount 
+    outputs:
+      finished: 
     type: sweep
     objective:
       goal: maximize
@@ -81,3 +107,10 @@ jobs:
       max_total_trials: 20
       max_concurrent_trials: 10
       timeout: 7200
+  register_best_model:
+    inputs:
+      start_lr: ${{parent.jobs.train_lr.outputs.finished}}
+      start_tensorflow: ${{parent.jobs.train_tensorflow.outputs.finished}}
+      start_lightgbm: ${{parent.jobs.train_lightgbm.outputs.finished}}
+    type: command
+    component: azureml:register_best_model@latest

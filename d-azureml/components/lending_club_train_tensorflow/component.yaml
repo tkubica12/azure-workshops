@@ -13,11 +13,16 @@ inputs:
   dropout: 
     type: string
 
+outputs:
+  finished:
+    type: uri_file
+
 environment: azureml:AzureML-tensorflow-2.4-ubuntu18.04-py37-cuda11-gpu@latest
 
 command: >-
-  python run.py --x-train ${{inputs.data}}/X_train.csv 
-                --y-train ${{inputs.data}}/y_train.csv
-                --x-test ${{inputs.data}}/X_test.csv
-                --y-test ${{inputs.data}}/y_test.csv
-                --dropout $AZUREML_SWEEP_dropout;
+  python run.py --x-train ${{inputs.data}}/X_train.csv \
+                --y-train ${{inputs.data}}/y_train.csv \
+                --x-test ${{inputs.data}}/X_test.csv \
+                --y-test ${{inputs.data}}/y_test.csv \
+                --dropout $AZUREML_SWEEP_dropout \
+                --finished ${{outputs.finished}};

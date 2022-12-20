@@ -1,0 +1,28 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+
+name: lending_club_train_lightgbm
+display_name: lending_club_train_lightgbm
+is_deterministic: false
+
+code: ./src/
+
+inputs:
+  data: 
+    type: uri_folder
+  num_leaves: 
+    type: string
+
+outputs:
+  finished:
+    type: uri_file
+
+environment: azureml:AzureML-lightgbm-3.2-ubuntu18.04-py37-cpu@latest
+
+command: >-
+  python run.py --x-train ${{inputs.data}}/X_train.csv \
+                --y-train ${{inputs.data}}/y_train.csv \
+                --x-test ${{inputs.data}}/X_test.csv \
+                --y-test ${{inputs.data}}/y_test.csv \
+                --num-leaves $AZUREML_SWEEP_num_leaves \
+                --finished ${{outputs.finished}};

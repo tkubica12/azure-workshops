@@ -1,12 +1,13 @@
 # Azure ML demo
 
-This demo containes ML pipeline:
+This demo contains ML pipeline:
 - CLI v2 is used
 - Reusable components are used to process data, split data, train models
-- Currently 3 models are impemented and some with hyperparameter tuning:
+- Currently 3 models are implemented and some with hyperparameter tuning:
   - Reference model that always answer "one" on binary classification to set baseline for metrics such as accuracy
   - Classic sklearn Logistic Regression with hyperparameter tuning over solver
-  - Tensorflow deep learning model 80-40-20-1 with dropout
+  - Tensorflow deep learning model 80-40-20-1 with various dropout rates tried via hyperparameter tuning
+- After all runs best model is selected and registered in Azure ML
 - Managed compute is used by default for training
 - Template includes bring your own AKS cluster scenario - enabled it on input eg. by modifying default.auto.tfvars
 
@@ -49,13 +50,16 @@ cd ..
 
 # Register data
 az ml data create -f data/lending_club_raw.yaml -g $rg -w $aml
+az ml data create -f data/lending_club_mltable.yaml -g $rg -w $aml
 
 # Create components
 az ml component create -f components/lending_club_process_data/component.yaml -g $rg -w $aml
 az ml component create -f components/split_and_scale/component.yaml -g $rg -w $aml
 az ml component create -f components/lending_club_train_tensorflow/component.yaml -g $rg -w $aml
 az ml component create -f components/lending_club_train_lr/component.yaml -g $rg -w $aml
+az ml component create -f components/lending_club_train_lightgbm/component.yaml -g $rg -w $aml
 az ml component create -f components/reference_model_always_one/component.yaml -g $rg -w $aml
+az ml component create -f components/register_best_model/component.yaml -g $rg -w $aml
 
 # Create pipeline
 az ml job create -f pipelines/lending_club_pipeline.yaml -g $rg -w $aml
@@ -69,4 +73,8 @@ terraform destroy -auto-approve
 ```
 
 # Additional notes
-local_dev folder containes notebooks that I used to develop and test code for components in pipeline before using it in Azure ML.
+local_dev folder contains notebooks that I used to develop and test code for components in pipeline before using it in Azure ML.
+
+Here is resulting pipeline visualization.
+
+![Pipeline](./images/pipeline.png)
