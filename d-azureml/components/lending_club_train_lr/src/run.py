@@ -9,6 +9,7 @@ parser.add_argument("--x-test", type=str, help="Testing features file")
 parser.add_argument("--y-train", type=str, help="Training labels file")
 parser.add_argument("--y-test", type=str, help="Testing labels file")
 parser.add_argument("--solver", type=str, help="Solver hyperparameter", default="NoSolverValueReceived")
+parser.add_argument("--saved-scaler", type=str, help="SSaved scaler file to log with model as artefact")
 parser.add_argument("--finished", type=str, help="Solver hyperparameter")
 args = parser.parse_args()
 
@@ -27,6 +28,9 @@ y_test = np.loadtxt(args.y_test, delimiter=",", dtype=float)
 
 # Set tag
 mlflow.set_tag("algorithm", "LogisticRegression")
+
+# Log scaler artefact
+mlflow.log_artifact(args.saved_scaler)
 
 # Fit model
 from sklearn.linear_model import LogisticRegression

@@ -14,6 +14,7 @@ parser.add_argument("--x-test", type=str, help="Testing features file")
 parser.add_argument("--y-train", type=str, help="Training labels file")
 parser.add_argument("--y-test", type=str, help="Testing labels file")
 parser.add_argument("--dropout", type=float, help="Set dropout rate between layers")
+parser.add_argument("--saved-scaler", type=str, help="SSaved scaler file to log with model as artefact")
 parser.add_argument("--model_output", type=str, help="Path of output model")
 parser.add_argument("--finished", type=str, help="Solver hyperparameter")
 args = parser.parse_args()
@@ -28,6 +29,9 @@ y_test = pd.read_csv(args.y_test)
 
 # Set tag
 mlflow.set_tag("algorithm", "tensorflow")
+
+# Log scaler artefact
+mlflow.log_artifact(args.saved_scaler)
 
 # Define model
 model = Sequential()

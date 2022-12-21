@@ -9,12 +9,10 @@ parser.add_argument("--x-train", type=str, help="Training features file")
 parser.add_argument("--x-test", type=str, help="Testing features file")
 parser.add_argument("--y-train", type=str, help="Training labels file")
 parser.add_argument("--y-test", type=str, help="Testing labels file")
+parser.add_argument("--saved-scaler", type=str, help="SSaved scaler file to log with model as artefact")
 parser.add_argument("--num-leaves", type=int, help="Number of leaves hyperparameter")
 parser.add_argument("--finished", type=str)
 args = parser.parse_args()
-
-# Start MLFlow auto-logging
-# mlflow.autolog()
 
 # Load data
 X_train = np.loadtxt(args.x_train, delimiter=",", dtype=float)
@@ -24,6 +22,9 @@ y_test = np.loadtxt(args.y_test, delimiter=",", dtype=float)
 
 # Set tag
 mlflow.set_tag("algorithm", "LightGBM")
+
+# Log scaler artefact
+mlflow.log_artifact(args.saved_scaler)
 
 # Fit model
 from lightgbm import LGBMClassifier

@@ -58,3 +58,4 @@ d-azureml/local_dev/y_train.csv
 d-azureml/local_dev/X_test.csv
 d-azureml/local_dev/X_train.csv
 d-azureml/local_dev/y_test.csv
+d-azureml/local_dev/scaler.save

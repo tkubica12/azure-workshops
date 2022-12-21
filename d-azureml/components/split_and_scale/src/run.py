@@ -31,6 +31,10 @@ scaler = MinMaxScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
+# Save scaler
+import joblib
+joblib.dump(scaler, args.output_path+"/scaler.save")
+
 # Save outputs
 np.savetxt(args.output_path+"/X_train.csv", X_train, delimiter=",")
 np.savetxt(args.output_path+"/X_test.csv", X_test, delimiter=",")

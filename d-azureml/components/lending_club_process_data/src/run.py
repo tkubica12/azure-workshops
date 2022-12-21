@@ -14,8 +14,12 @@ print(f"Processed data file: {args.processed_data}",)
 df = pd.read_csv(args.raw_data) 
 
 # Create binary label
-df['loan_repaid'] = np.where(df['loan_status'] == 'Fully Paid', 1, 0)
-df = df.drop(labels='loan_status', axis=1)
+if 'loan_status' in df:
+    print("loan_status column exists, create binary label loan_repaid")
+    df['loan_repaid'] = np.where(df['loan_status'] == 'Fully Paid', 1, 0)
+    df = df.drop(labels='loan_status', axis=1)
+else:
+    print("loan_status column does not exist, ignore")
 
 # Drop features
 df = df.drop(labels=['emp_title', 'emp_length', 'title', 'grade', 'issue_d'] , axis=1)

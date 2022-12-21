@@ -19,10 +19,11 @@ outputs:
 
 environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
 
-command: >-
+command: |
   python run.py --x-train ${{inputs.data}}/X_train.csv \
                 --y-train ${{inputs.data}}/y_train.csv \
                 --x-test ${{inputs.data}}/X_test.csv \
                 --y-test ${{inputs.data}}/y_test.csv \
+                --saved-scaler ${{inputs.data}}/scaler.save \
                 --solver $AZUREML_SWEEP_solver \
                 --finished ${{outputs.finished}};
