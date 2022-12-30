@@ -31,6 +31,11 @@ scaler = MinMaxScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
+# Oversample train data to get more balanced label
+from imblearn.over_sampling import SMOTE
+sm = SMOTE(random_state = 2)
+X_train, y_train = sm.fit_resample(X_train, y_train.ravel())
+
 # Save scaler
 import joblib
 joblib.dump(scaler, args.output_path+"/scaler.save")

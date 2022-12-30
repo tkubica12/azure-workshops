@@ -31,18 +31,21 @@ y_test = pd.read_csv(args.y_test)
 mlflow.set_tag("algorithm", "tensorflow")
 
 # Log scaler artefact
-mlflow.log_artifact(args.saved_scaler)
+mlflow.log_artifact(args.saved_scaler, "model")
 
 # Define model
 model = Sequential()
 
-model.add(Dense(80,  activation='relu'))
+model.add(Dense(150,  activation='relu'))
 model.add(Dropout(args.dropout))
 
-model.add(Dense(40, activation='relu'))
+model.add(Dense(75, activation='relu'))
 model.add(Dropout(args.dropout))
 
-model.add(Dense(20, activation='relu'))
+model.add(Dense(37, activation='relu'))
+model.add(Dropout(args.dropout))
+
+model.add(Dense(18, activation='relu'))
 model.add(Dropout(args.dropout))
 
 model.add(Dense(units=1,activation='sigmoid'))

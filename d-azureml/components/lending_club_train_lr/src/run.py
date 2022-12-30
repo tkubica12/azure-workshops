@@ -30,7 +30,7 @@ y_test = np.loadtxt(args.y_test, delimiter=",", dtype=float)
 mlflow.set_tag("algorithm", "LogisticRegression")
 
 # Log scaler artefact
-mlflow.log_artifact(args.saved_scaler)
+mlflow.log_artifact(args.saved_scaler, "model")
 
 # Fit model
 from sklearn.linear_model import LogisticRegression

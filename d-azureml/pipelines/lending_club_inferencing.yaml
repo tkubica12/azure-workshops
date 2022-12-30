@@ -1,0 +1,30 @@
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
+type: pipeline
+
+description: Tomas lendingclub inferencing demo pipeline
+
+display_name: lendingclub-demo-inferencing
+experiment_name: lendingclub-demo-inferencing
+
+settings:
+  default_datastore: azureml:workspaceblobstore
+  default_compute: azureml:managed-cluster
+
+jobs:
+  prepare_data:
+    inputs:
+      raw_data:
+        type: uri_file
+        path: azureml:lending_club_inferencing:1
+        mode: ro_mount 
+    type: command
+    component: azureml:lending_club_process_data@latest
+    outputs:
+      processed_data:
+  deploy_latest_model:
+    inputs:
+      model_name: lending_club
+    type: command
+    component: azureml:deploy_latest_model@latest
+    # outputs:
+    #   finished:

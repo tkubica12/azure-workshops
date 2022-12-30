@@ -3,8 +3,8 @@ type: pipeline
 
 description: Tomas lendingclub demo pipeline
 
-display_name: lendingclub-demo-pipeline
-experiment_name: lendingclub-demo-experiment
+display_name: lendingclub-demo-training
+experiment_name: lendingclub-demo-training
 
 settings:
   default_datastore: azureml:workspaceblobstore
@@ -18,34 +18,64 @@ jobs:
         path: azureml:lending_club_raw:1
         mode: ro_mount 
     type: command
-    component: azureml:lending_club_process_data@latest
+    component: file:../components/lending_club_process_data/component.yaml
     outputs:
       processed_data:
-  split_and_scale:
+  split:
     inputs:
       data:
         type: uri_file
         path: ${{parent.jobs.prepare_data.outputs.processed_data}}
         mode: ro_mount 
       label_name: loan_repaid
-      file_name: landing_club.csv
+      file_name: lending_club.csv
+      test_size: 0.2
     type: command
-    component: azureml:split_and_scale@latest
+    component: azureml:split@latest
     outputs:
-      datasets:
+      train:
+      test:
+  scale:
+    inputs:
+      train_input:
+        type: uri_file
+        path: ${{parent.jobs.split.outputs.train}}
+        mode: ro_mount 
+      test_input:
+        type: uri_file
+        path: ${{parent.jobs.split.outputs.test}}
+        mode: ro_mount 
+    type: command
+    component: azureml:scale@latest
+    outputs:
+      train:
+      test:
+      scaler:
   reference_model:
     inputs:
-      data:
+      train_input:
         type: uri_file
-        path: ${{parent.jobs.split_and_scale.outputs.datasets}}
+        path: ${{parent.jobs.scale.outputs.train}}
+        mode: ro_mount 
+      test_input:
+        type: uri_file
+        path: ${{parent.jobs.scale.outputs.test}}
         mode: ro_mount 
     type: command
     component: azureml:reference_model_always_one@latest
   train_lr:
     inputs:
-      data:
+      train_input:
         type: uri_file
-        path: ${{parent.jobs.split_and_scale.outputs.datasets}}
+        path: ${{parent.jobs.scale.outputs.train}}
+        mode: ro_mount 
+      test_input:
+        type: uri_file
+        path: ${{parent.jobs.scale.outputs.test}}
+        mode: ro_mount 
+      saved_scaler:
+        type: uri_file
+        path: ${{parent.jobs.scale.outputs.scaler}}
         mode: ro_mount 
     outputs:
       finished: 
@@ -65,9 +95,17 @@ jobs:
       timeout: 7200
   train_lightgbm:
     inputs:
-      data:
+      train_input:
         type: uri_file
-        path: ${{parent.jobs.split_and_scale.outputs.datasets}}
+        path: ${{parent.jobs.scale.outputs.train}}
+        mode: ro_mount 
+      test_input:
+        type: uri_file
+        path: ${{parent.jobs.scale.outputs.test}}
+        mode: ro_mount 
+      saved_scaler:
+        type: uri_file
+        path: ${{parent.jobs.scale.outputs.scaler}}
         mode: ro_mount 
     outputs:
       finished: 
@@ -87,9 +125,17 @@ jobs:
       timeout: 7200
   train_tensorflow:
     inputs:
-      data:
+      train_input:
         type: uri_file
-        path: ${{parent.jobs.split_and_scale.outputs.datasets}}
+        path: ${{parent.jobs.scale.outputs.train}}
+        mode: ro_mount 
+      test_input:
+        type: uri_file
+        path: ${{parent.jobs.scale.outputs.test}}
+        mode: ro_mount 
+      saved_scaler:
+        type: uri_file
+        path: ${{parent.jobs.scale.outputs.scaler}}
         mode: ro_mount 
     outputs:
       finished: 
