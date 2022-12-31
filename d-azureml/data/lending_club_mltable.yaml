@@ -1,5 +1,5 @@
 $schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
-name: lending_club_mltable3
+name: lending_club_mltable
 description: lending_club_mltable
 type: mltable
-path: https://github.com/tkubica12/azure-workshops/raw/azureml/d-azureml/data
+path: https://github.com/tkubica12/azure-workshops/raw/main/d-azureml/data

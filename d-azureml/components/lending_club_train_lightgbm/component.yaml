@@ -8,7 +8,11 @@ is_deterministic: false
 code: ./src/
 
 inputs:
-  data: 
+  train_input: 
+    type: uri_folder
+  test_input: 
+    type: uri_folder
+  saved_scaler: 
     type: uri_folder
   num_leaves: 
     type: string
@@ -19,10 +23,11 @@ outputs:
 
 environment: azureml:AzureML-lightgbm-3.2-ubuntu18.04-py37-cpu@latest
 
-command: >-
-  python run.py --x-train ${{inputs.data}}/X_train.csv \
-                --y-train ${{inputs.data}}/y_train.csv \
-                --x-test ${{inputs.data}}/X_test.csv \
-                --y-test ${{inputs.data}}/y_test.csv \
+command: |
+  python run.py --x-train ${{inputs.train_input}}/X_train.csv \
+                --y-train ${{inputs.train_input}}/y_train.csv \
+                --x-test ${{inputs.test_input}}/X_test.csv \
+                --y-test ${{inputs.test_input}}/y_test.csv \
+                --saved-scaler ${{inputs.saved_scaler}}/scaler.save \
                 --num-leaves $AZUREML_SWEEP_num_leaves \
                 --finished ${{outputs.finished}};

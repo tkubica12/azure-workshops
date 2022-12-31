@@ -1,8 +1,8 @@
 $schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
 type: command
 
-name: split_and_scale
-display_name: split_and_scale
+name: split
+display_name: split
 is_deterministic: true
 
 code: ./src/
@@ -14,15 +14,20 @@ inputs:
     type: string
   label_name: 
     type: string
+  test_size: 
+    type: number
 
 outputs:
-  datasets:
+  train:
+    type: uri_folder
+  test:
     type: uri_folder
 
 environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
 
 command: >-
   python run.py --data ${{inputs.data}}/${{inputs.file_name}} \
-                --output-path ${{outputs.datasets}} \
+                --output-path-train ${{outputs.train}} \
+                --output-path-test ${{outputs.test}} \
                 --label-name ${{inputs.label_name}} \
-                --test-size 0.2;
+                --test-size ${{inputs.test_size}};

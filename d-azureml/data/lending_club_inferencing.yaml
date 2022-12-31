@@ -1,0 +1,6 @@
+$schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
+name: lending_club_inferencing
+description: lending_club_inferencing
+type: uri_file
+path: "https://github.com/tkubica12/azure-workshops/raw/azureml/d-azureml/data/lending_club_inferencing.csv"   # CHANGE to main branch later
+version: 1

@@ -1,0 +1,23 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+
+name: oversample
+display_name: oversample
+is_deterministic: true
+
+code: ./src/
+
+inputs:
+  train_input: 
+    type: uri_folder
+
+outputs:
+  train:
+    type: uri_folder
+
+environment: azureml:imbalanced-learning@latest
+
+command: >-
+  python run.py --output-path-train ${{outputs.train}} \
+                --input-x-train ${{inputs.train_input}}/X_train.csv \
+                --input-y-train ${{inputs.train_input}}/y_train.csv;

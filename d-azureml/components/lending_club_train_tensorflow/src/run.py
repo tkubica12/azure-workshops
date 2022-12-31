@@ -14,6 +14,7 @@ parser.add_argument("--x-test", type=str, help="Testing features file")
 parser.add_argument("--y-train", type=str, help="Training labels file")
 parser.add_argument("--y-test", type=str, help="Testing labels file")
 parser.add_argument("--dropout", type=float, help="Set dropout rate between layers")
+parser.add_argument("--saved-scaler", type=str, help="SSaved scaler file to log with model as artefact")
 parser.add_argument("--model_output", type=str, help="Path of output model")
 parser.add_argument("--finished", type=str, help="Solver hyperparameter")
 args = parser.parse_args()
@@ -29,16 +30,22 @@ y_test = pd.read_csv(args.y_test)
 # Set tag
 mlflow.set_tag("algorithm", "tensorflow")
 
+# Log scaler artefact
+mlflow.log_artifact(args.saved_scaler, "model")
+
 # Define model
 model = Sequential()
 
-model.add(Dense(80,  activation='relu'))
+model.add(Dense(150,  activation='relu'))
 model.add(Dropout(args.dropout))
 
-model.add(Dense(40, activation='relu'))
+model.add(Dense(75, activation='relu'))
 model.add(Dropout(args.dropout))
 
-model.add(Dense(20, activation='relu'))
+model.add(Dense(37, activation='relu'))
+model.add(Dropout(args.dropout))
+
+model.add(Dense(18, activation='relu'))
 model.add(Dropout(args.dropout))
 
 model.add(Dense(units=1,activation='sigmoid'))

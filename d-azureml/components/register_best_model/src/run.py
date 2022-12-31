@@ -33,6 +33,6 @@ print(f"Best algorithm: {best_algorithm}")
 print(f"Best hyperparameters: {best_hyperparameters}")
 
 # Register model
-model_name = "landing_club"
+model_name = "lending_club"
 model_path = f"runs:/{best_run_id}/model"
 model = mlflow.register_model(model_uri=model_path, name=model_name)

@@ -1,0 +1,33 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+
+name: scale
+display_name: scale
+is_deterministic: true
+
+code: ./src/
+
+inputs:
+  train_input: 
+    type: uri_folder
+  test_input: 
+    type: uri_folder
+
+outputs:
+  train:
+    type: uri_folder
+  test:
+    type: uri_folder
+  scaler:
+    type: uri_folder
+
+environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
+
+command: >-
+  python run.py --output-path-train ${{outputs.train}} \
+                --output-path-test ${{outputs.test}} \
+                --output-file-scaler ${{outputs.scaler}}/scaler.save \
+                --input-x-train ${{inputs.train_input}}/X_train.csv \
+                --input-y-train ${{inputs.train_input}}/y_train.csv \
+                --input-x-test ${{inputs.test_input}}/X_test.csv \
+                --input-y-test ${{inputs.test_input}}/y_test.csv;
