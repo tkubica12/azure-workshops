@@ -77,7 +77,7 @@ jobs:
     inputs:
       train_input:
         type: uri_file
-        path: ${{parent.jobs.oversample.outputs.train}}
+        path: ${{parent.jobs.scale.outputs.train}}
         mode: ro_mount 
       test_input:
         type: uri_file
@@ -107,7 +107,7 @@ jobs:
     inputs:
       train_input:
         type: uri_file
-        path: ${{parent.jobs.oversample.outputs.train}}
+        path: ${{parent.jobs.scale.outputs.train}}
         mode: ro_mount 
       test_input:
         type: uri_file
@@ -137,7 +137,7 @@ jobs:
     inputs:
       train_input:
         type: uri_file
-        path: ${{parent.jobs.oversample.outputs.train}}
+        path: ${{parent.jobs.scale.outputs.train}}
         mode: ro_mount 
       test_input:
         type: uri_file

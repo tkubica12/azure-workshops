@@ -1,15 +1,16 @@
 # Azure ML demo
 
 This demo contains ML pipeline:
-- CLI v2 is used
-- Reusable components are used to process data, split data, train models
+- CLI v2 is used so steps can be easily automated in CI/CD pipeline
+- Reusable components are used to split, scale and oversample data (currently demo does not use oversampling as data are not badly imbalanced and prediction get worse when used - nevertheless for demo purposes it is part of pipeline and used for reference model)
 - Currently 3 models are implemented and some with hyperparameter tuning:
   - Reference model that always answer "one" on binary classification to set baseline for metrics such as accuracy
   - Classic sklearn Logistic Regression with hyperparameter tuning over solver
-  - Tensorflow deep learning model 80-40-20-1 with various dropout rates tried via hyperparameter tuning
+  - Tensorflow deep learning model 150-75-37-18-1 with various dropout rates tried via hyperparameter tuning
 - After all runs best model is selected and registered in Azure ML
 - Managed compute is used by default for training
 - Template includes bring your own AKS cluster scenario - enabled it on input eg. by modifying default.auto.tfvars
+- Custom environment (Docker image) is used for oversampling component (to include imbalanced-learn library)
 
 ## Deploy infrastructure
 
@@ -63,13 +64,11 @@ az ml component create -f components/oversample/component.yaml -g $rg -w $aml
 az ml component create -f components/reference_model_always_one/component.yaml -g $rg -w $aml
 az ml component create -f components/register_best_model/component.yaml -g $rg -w $aml
 
-az ml component create -f components/split_and_scale/component.yaml -g $rg -w $aml
-az ml component create -f components/lending_club_process_data/component.yaml -g $rg -w $aml
-az ml component create -f components/deploy_latest_model/component.yaml -g $rg -w $aml
+  #ml component create -f components/deploy_latest_model/component.yaml -g $rg -w $aml
 
 # Create training pipeline
 az ml job create -f pipelines/lending_club_training.yaml -g $rg -w $aml
-az ml job create -f pipelines/lending_club_inferencing.yaml -g $rg -w $aml
+  #az ml job create -f pipelines/lending_club_inferencing.yaml -g $rg -w $aml
 ```
 
 # Destroy infrastructure
