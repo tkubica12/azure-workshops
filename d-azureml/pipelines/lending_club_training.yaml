@@ -51,11 +51,21 @@ jobs:
       train:
       test:
       scaler:
-  reference_model:
+  oversample:
     inputs:
       train_input:
         type: uri_file
         path: ${{parent.jobs.scale.outputs.train}}
+        mode: ro_mount 
+    type: command
+    component: azureml:oversample@latest
+    outputs:
+      train:
+  reference_model:
+    inputs:
+      train_input:
+        type: uri_file
+        path: ${{parent.jobs.oversample.outputs.train}}
         mode: ro_mount 
       test_input:
         type: uri_file
@@ -67,7 +77,7 @@ jobs:
     inputs:
       train_input:
         type: uri_file
-        path: ${{parent.jobs.scale.outputs.train}}
+        path: ${{parent.jobs.oversample.outputs.train}}
         mode: ro_mount 
       test_input:
         type: uri_file
@@ -97,7 +107,7 @@ jobs:
     inputs:
       train_input:
         type: uri_file
-        path: ${{parent.jobs.scale.outputs.train}}
+        path: ${{parent.jobs.oversample.outputs.train}}
         mode: ro_mount 
       test_input:
         type: uri_file
@@ -127,7 +137,7 @@ jobs:
     inputs:
       train_input:
         type: uri_file
-        path: ${{parent.jobs.scale.outputs.train}}
+        path: ${{parent.jobs.oversample.outputs.train}}
         mode: ro_mount 
       test_input:
         type: uri_file

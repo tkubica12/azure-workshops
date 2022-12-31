@@ -53,14 +53,18 @@ az ml data create -f data/lending_club_raw.yaml -g $rg -w $aml
 az ml data create -f data/lending_club_inferencing.yaml -g $rg -w $aml
 az ml data create -f data/lending_club_mltable.yaml -g $rg -w $aml
 
+# Create environments
+az ml environment create -f environments/imblearn/environment.yaml -g $rg -w $aml
+
 # Create components
 az ml component create -f components/split/component.yaml -g $rg -w $aml
 az ml component create -f components/scale/component.yaml -g $rg -w $aml
+az ml component create -f components/oversample/component.yaml -g $rg -w $aml
 az ml component create -f components/reference_model_always_one/component.yaml -g $rg -w $aml
+az ml component create -f components/register_best_model/component.yaml -g $rg -w $aml
 
 az ml component create -f components/split_and_scale/component.yaml -g $rg -w $aml
 az ml component create -f components/lending_club_process_data/component.yaml -g $rg -w $aml
-az ml component create -f components/register_best_model/component.yaml -g $rg -w $aml
 az ml component create -f components/deploy_latest_model/component.yaml -g $rg -w $aml
 
 # Create training pipeline

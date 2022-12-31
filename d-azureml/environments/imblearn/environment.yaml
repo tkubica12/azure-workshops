@@ -1,0 +1,5 @@
+$schema: https://azuremlschemas.azureedge.net/latest/environment.schema.json
+name: imbalanced-learning
+build:
+  path: .
+description: Environment for imbalanced learning preparation

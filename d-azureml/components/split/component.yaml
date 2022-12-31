@@ -15,7 +15,7 @@ inputs:
   label_name: 
     type: string
   test_size: 
-    type: integer
+    type: number
 
 outputs:
   train:
