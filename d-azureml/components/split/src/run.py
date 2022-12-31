@@ -2,8 +2,6 @@ import argparse
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-# from sklearn.preprocessing import MinMaxScaler
-
 
 parser = argparse.ArgumentParser("prep")
 parser.add_argument("--data", type=str, help="Data file")
@@ -27,20 +25,6 @@ y = df[args.label_name].values
 
 # Split data into train and test
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20)
-
-# # Scale features
-# scaler = MinMaxScaler()
-# X_train = scaler.fit_transform(X_train)
-# X_test = scaler.transform(X_test)
-
-# # Oversample train data to get more balanced label
-# from imblearn.over_sampling import SMOTE
-# sm = SMOTE(random_state = 2)
-# X_train, y_train = sm.fit_resample(X_train, y_train.ravel())
-
-# # Save scaler
-# import joblib
-# joblib.dump(scaler, args.output_path+"/scaler.save")
 
 # Save outputs
 np.savetxt(args.output_path_train+"/X_train.csv", X_train, delimiter=",")

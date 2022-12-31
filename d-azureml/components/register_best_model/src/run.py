@@ -4,7 +4,7 @@ import pickle
 import mlflow
 from azureml.core import Run, Experiment
 
-# Get currect experiment and root run ID
+# Get current experiment and root run ID
 experiment_name = Run.get_context().parent.experiment.name
 root_run_id = Run.get_context().parent.id
 
@@ -17,7 +17,6 @@ runs = mlflow.search_runs(experiment_names=experiment_name, filter_string=filter
 
 # Print all models
 print(runs[["metrics.val_accuracy", "tags.algorithm", "tags.hyperparameters"]].sort_values(by="metrics.val_accuracy", ascending=False))
-# print(runs[["metrics.val_accuracy", "tags.estimator_name", "tags.hyperparameters"]].sort_values(by="metrics.val_accuracy", ascending=False))
 print("-------------------")
 
 # Find best model
