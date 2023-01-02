@@ -1,11 +1,11 @@
 # Lab 8 - Using ConfigMaps to manage configuration files in containers
-In this lab we will use ConfigMap to create configuration data to be injected into containers so we can change comples application configuration without rebuilding container image.
+In this lab we will use ConfigMap to create configuration data to be injected into containers so we can change complex application configuration without rebuilding container image.
 
 Why is this helpful?
 - Any configuration that needs to be changed during deployment to different environments should not be baked into image. You always use THE SAME image in all environments (so what was tested is actually in production).
 - So far we have used environmental variables to do so (eg. PostgreSQL connection string), but sometimes applications require complex configuration files (json, ini file, yaml).
 
-In our case we will want to reconfigure NGINX by changing its conf files. Suppose we want to have different configurations in our test and prod environments (eg. more verbose debugging and diagnostic stats page in test, but disabled in produciton for performance reasons). Note our web does not use health probes at the moment. We can point probes to main page, but that would not be efficient (can be too big causing unnecessary overhead) and would confuse our logs and statistics. Let's configure NGINX feature to serve /health for this purpose.
+In our case we will want to reconfigure NGINX by changing its conf files. Suppose we want to have different configurations in our test and prod environments (eg. more verbose debugging and diagnostic stats page in test, but disabled in production for performance reasons). Note our web does not use health probes at the moment. We can point probes to main page, but that would not be efficient (can be too big causing unnecessary overhead) and would confuse our logs and statistics. Let's configure NGINX feature to serve /health for this purpose.
 
 File healthvhost.conf is already available in your base folder. We will now use it to create ConfigMap. This change will probably be for all environments so we can do it in base kustomization.yaml file:
 
@@ -16,7 +16,7 @@ configMapGenerator:
   - healthvhost.conf 
 ```
 
-Note if this would be environemnt specific you can use the same thing in overlay using the same (create healthvhost.conf file in your test folder and reference in your kustomization.yaml file in test folder).
+Note if this would be environment specific you can use the same thing in overlay using the same (create healthvhost.conf file in your test folder and reference in your kustomization.yaml file in test folder).
 
 Check ConfigMap
 
@@ -67,3 +67,6 @@ If everything works, configure livenessProbe and readinessProbe in your web-depl
 ```
 
 Make sure your application works. In this labs you have seen how ConfigMaps can be used to change complex configuration files without rebuilding container image.
+
+# Optional challenge - move NGINX port configuration to ConfigMap
+Now we have configuration file in ConfigMap, but assign variable NGINX_HTTP_PORT_NUMBER directly in our Deployment definition. Add this rather as another item into your ConfigMap and change Deployment to reference this value from there.
