@@ -81,7 +81,7 @@ kubectl create secret generic psql-secret --from-literal=postgresqlurl='jdbc:pos
 kubectl create secret generic psql-secret --from-literal=postgresqlurl="jdbc:postgresql://${prefix}-psql.postgres.database.azure.com:5432/todo?user=psqladmin&password=Azure12345678!&ssl=true"
 ```
 
-Deploy api application and service (make sure you modify image to match your registry). Also note we are using liveness probe (used for detection that application is alive) and readiness probe (used for balancers to understand whether application is ready to serve requests).
+Deploy api application and service (make sure you modify image to match your registry). Also note we are using liveness probe (used for detection that application is alive) and readiness probe (used for balancers to understand whether application is ready to serve requests) as well as startup probe to give our container enough time to start properly.
 
 ```bash
 kubectl apply -f api-deployment.yaml
@@ -92,7 +92,7 @@ Watch application logs to make sure there are no errors.
 
 ```bash
 # Get logs from api Pod
-kubectl logs api-5548d8dc44-tm2wz
+kubectl logs api-5548d8dc44-tm2wz   # Change name of Pod to match your Pod name
 
 # You should see: My Spring Boot app started ...
 ```
@@ -105,12 +105,16 @@ First find out what is public IP of Azure Application Gateway component (managed
 az network public-ip show -n applicationgateway-appgwpip -g MC_$prefix-rg_$prefix-aks_northeurope --query ipAddress -o tsv
 ```
 
-In standard situation you will register this IP with your domain (A record). For simplicity we will now use nip.io service which provider DNS resolution service something.1.2.3.4.nip.io -> 1.2.3.4. Modify ingress.yaml to reflect your nip.io based hostname.
+Deploy Service for web part and Ingress component that will create reverse proxy for both of our components. Note we are simply running on IP directly, but in most cases you will want to add "host" section so you can host multiple FQDNs on the same IP.
 
 ```bash
+kubectl apply -f web-service.yaml
 kubectl apply -f ingress.yaml
 ```
 
 Open application in your browser. You should be able to add, edit and delete todo items. If not, troubleshoot.
 
 Congratulations! Your app is running properly.
+
+# Optional challenge - make PHP app work under the same IP
+Remember your PHP app you have built in optional section of Lab01? Deploy it now to your cluster and make it be served under the same ingress using /php path (eg. on yourappgwip/php). Note that you app does not know about path /php and expects access on root therefore in order to make it work you need to rewrite backend path on ingress and at the same time our todo app deployed previously must not be broken. Check this link for annotations: [https://learn.microsoft.com/en-us/azure/application-gateway/ingress-controller-annotations#list-of-supported-annotations](https://learn.microsoft.com/en-us/azure/application-gateway/ingress-controller-annotations#list-of-supported-annotations)

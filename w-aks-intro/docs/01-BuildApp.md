@@ -32,7 +32,7 @@ Build api container directly in repository
 
 ```bash
 # Go to myappspa folder
-cd resources/src/web
+cd resources/src/api
 
 # Build backend microservice
 az acr build --registry $prefix --image api:v1 .

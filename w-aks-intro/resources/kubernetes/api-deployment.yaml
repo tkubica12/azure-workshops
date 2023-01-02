@@ -23,6 +23,12 @@ spec:
             secretKeyRef:
               name: psql-secret
               key: postgresqlurl
+        startupProbe:
+          httpGet:
+            path: /
+            port: 8080
+          failureThreshold: 30
+          periodSeconds: 10
         livenessProbe: 
           httpGet:
             path: /

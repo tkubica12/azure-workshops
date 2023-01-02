@@ -7,7 +7,4 @@ Dockefile for Doom application is available in src folder and runs on port 8000.
 
 Dockefile for Wolfenstein application is available in src folder and runs on port 8000. Deploy it to your Kubernetes cluster and let it run on wolfenstein.wolfenstein.games.yourip.nip.io (on port 80).
 
-Make screenshots of your apps running in browser.
-
-When your are ready, create folder yourname (eg. tomaskubica) in w-als-intro/challenge/solutions folder and create Pull request with your changes including deployment YAML files and screenshots.
-
+Make screenshots of your apps running in browser to proof you have completed and celebrate!
