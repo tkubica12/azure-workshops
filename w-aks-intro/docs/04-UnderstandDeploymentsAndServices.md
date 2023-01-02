@@ -31,9 +31,9 @@ curl http://web/info
 exit
 ```
 
-In Kubernetes it is important to understand concept of labels which are used to identify objects. You have seen that Service was using labels as selector - all Pods that match set of such labels are part of it, traffic being balanced to those. Also Deployment (in fact ReplicaSet which it creates) is using labels to identify Pods that are part of it and reconcilation loop keeps track of desired vs. actual Pods with such labels running. We will not test this behavior.
+In Kubernetes it is important to understand concept of labels which are used to identify objects. You have seen that Service was using labels as selector - all Pods that match set of such labels are part of it, traffic being balanced to those. Also Deployment (in fact ReplicaSet which it creates) is using labels to identify Pods that are part of it and reconciliation loop keeps track of desired vs. actual Pods with such labels running. We will not test this behavior.
 
-We will use live edit (never use it in production, this is for troubleshooting only) of one of your web Pods and change lable from app: web to app: somethingelse.
+We will use live edit (never use it in production, this is for troubleshooting only) of one of your web Pods and change label from app: web to app: somethingelse.
 
 ```bash
 kubectl edit pod web-bd6c684fc-v6xfp
@@ -73,3 +73,6 @@ kubectl get deployment,replicaset
 ```
 
 Note we might loose just one or two requests - and this can get better once we properly use probes and ingress (in later lab).
+
+# Optional challenge - scale out your application
+Your AKS cluster is configured with autoscaling to add additional nodes should capacity of cluster get exceeded. Play with requests limits and replicas in your deployment so you achieve state where no additional pods can fit existing 2-node cluster and additional node gets provisioned automatically.
