@@ -35,9 +35,12 @@ az aks create -n $prefix-aks \
     --attach-acr $prefix \
     --enable-aad \
     --enable-azure-rbac \
-    --enable-addons monitoring,ingress-appgw,azure-keyvault-secrets-provider \
+    --enable-addons monitoring,ingress-appgw,azure-keyvault-secrets-provider,azure-policy \
     --enable-managed-identity \
     --enable-cluster-autoscaler \
+    --enable-defender \
+    --enable-oidc-issuer \
+    --enable-workload-identity \
     --min-count 2 \
     --max-count 4 \
     --network-policy azure \
@@ -57,8 +60,11 @@ az aks create -n $prefix-aks `
     --attach-acr $prefix `
     --enable-aad `
     --enable-azure-rbac `
-    --enable-addons monitoring,ingress-appgw,azure-keyvault-secrets-provider `
+    --enable-addons monitoring,ingress-appgw,azure-keyvault-secrets-provider,azure-policy `
     --enable-cluster-autoscaler `
+    --enable-defender `
+    --enable-oidc-issuer `
+    --enable-workload-identity `
     --min-count 2 `
     --max-count 4 `
     --enable-managed-identity `
@@ -73,7 +79,7 @@ Assign RBAC for yourself to AKS, get AKS config file (credentials) and log in - 
 ```bash
 # Make yourself admin of Kubernetes cluster (in bash)
 az role assignment create --role "Azure Kubernetes Service RBAC Cluster Admin" \
-    --assignee-object-id  $(az ad signed-in-user show --query objectId -o tsv) \
+    --assignee-object-id  $(az ad signed-in-user show --query id -o tsv) \
     --scope $(az aks show -n $prefix-aks -g $prefix-rg --query id -o tsv)
 
 # Make yourself admin of Kubernetes cluster (in powershell)
@@ -110,7 +116,7 @@ or kubectl (or k9s or kubelens):
 
 ```bash
 # Delete pod
-kubectl delete pod web-55d45bb8cd-mtwml
+kubectl delete pod web-55d45bb8cd-mtwml  # replace with your pod name
 
 # Check new one is created
 kubectl get pods
@@ -125,3 +131,8 @@ kubectl port-forward web-bd6c684fc-2dbkj 12345:80
 # Access application from different window
 curl http://localhost:12345/info
 ```
+
+# Optional challenge - give read-only access to your colleague
+Select one of your colleagues that currently has no access to your cluster and use RBAC to giv him/her read-only access to your cluster to see running pods and nodes.
+
+[https://learn.microsoft.com/en-us/azure/aks/manage-azure-rbac#create-role-assignments-for-users-to-access-cluster](https://learn.microsoft.com/en-us/azure/aks/manage-azure-rbac#create-role-assignments-for-users-to-access-cluster)
