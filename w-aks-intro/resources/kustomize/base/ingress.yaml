@@ -8,7 +8,8 @@ metadata:
     kubernetes.io/ingress.class: azure/application-gateway
 spec:
   rules:
-  - http:
+  - host: 20.82.159.217.nip.io
+    http:
       paths:
       - pathType: Prefix
         path: "/"

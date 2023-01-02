@@ -40,11 +40,11 @@ We will now deploy test environment of this application. First let's create new 
 # Create namespace
 kubectl create namespace test 
 
-# Create Secret in PowerShell in namespace test
-kubectl create secret generic psql-secret --namespace test --from-literal=postgresqlurl="jdbc:postgresql://${prefix}-psql.postgres.database.azure.com:5432/todo?user=psqladmin&password=Azure12345678!&ssl=true"
-
 # Create Secret in Bash in namespace test
 kubectl create secret generic psql-secret --namespace test --from-literal=postgresqlurl='jdbc:postgresql://'${prefix}'-psql.postgres.database.azure.com:5432/todo?user=psqladmin&password=Azure12345678!&ssl=true'
+
+# Create Secret in PowerShell in namespace test
+kubectl create secret generic psql-secret --namespace test --from-literal=postgresqlurl="jdbc:postgresql://${prefix}-psql.postgres.database.azure.com:5432/todo?user=psqladmin&password=Azure12345678!&ssl=true"
 ```
 
 Look at base folder - you will se YAML files that are familiar to you. Only difference is they do not contain changes you introduced during previous labs. kustomization.yaml file lists links to those files (please note - there are some addition YAML files in base not yet referenced - keep it as it is now, we will use those in following labs). We will work in environments/test folder that will contain customizations for your test environment:
@@ -52,10 +52,10 @@ Look at base folder - you will se YAML files that are familiar to you. Only diff
   - We are referencing our base as starting point
   - We target this deployment to namespace test
   - In images section change netName to reflect your container registry
-  - patchesStrategicMerge referes to web-deployment.yaml file that contains basic identification of object and fielt we want to change (replicas in our case -> to be 2)
+  - patchesStrategicMerge refers to web-deployment.yaml file that contains basic identification of object and field we want to change (replicas in our case -> to be 2)
   - For ingress we are using different patch strategy - direct patch of field rather then merge - change value to fit your ip address
 
-Let's deploy this.
+So - do not touch base folder at all, but modify files under environments/test and let's deploy this.
 
 ```bash
 cd ../kustomize
@@ -65,17 +65,25 @@ kubectl get pods -n test
 
 Open browser and you should see application in test environment running fine using v2.
 
-Now it is your turn - create production environment with following requirements:
+Now it is your turn - create **production environment** with following requirements:
 - web will use v1 (v2 is not ready for production)
 - both web and api should run in 3 replicas
 - production must run in production namespace
 - external URL should be prod.yourip.nip.io
-- we will use the same database for simplicity (sure in real life test environemnt will have different DB = different connection string in secret)
+- we will use the same database for simplicity (sure in real life test environment will have different DB = different connection string in secret)
 
-Prepare production folder in your environments, deploy and make sure application is working fine.
+Prepare production folder in your environments, create kustomization files there, production configuration, deploy and make sure application is working fine.
 
 Tips:
 - Have you created namespace?
 - Have you created secret in new namespace?
 - Have you added patches files and references in kustomization.yaml to get 3 replicas of api and web?
 - Have you changed host for ingress?
+
+# Optional challenge - create application template using Helm
+Rework solution using Helm template instead of Kustomize. Make sure template has configurable parameters such as:
+- image name/tag/registry
+- number of replicas
+- ingress host
+
+Make sure you have just one template, but 2 values file to deploy to test vs. production.

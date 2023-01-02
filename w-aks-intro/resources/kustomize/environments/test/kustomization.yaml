@@ -21,4 +21,4 @@ patches:
     patch: |-
       - op: replace
         path: /spec/rules/0/host
-        value: test.20.82.220.171.nip.io
+        value: test.20.82.159.217.nip.io
