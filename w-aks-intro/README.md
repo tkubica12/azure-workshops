@@ -42,3 +42,16 @@ In this lab we will use ConfigMap to create configuration data to be injected in
 
 [guide](./docs/08-ApplicationConfigurations.md)
 
+# Lab 9 - Monitoring
+In this lab we will enable basic monitoring using open source tool for metrics with Azure managed services (Azure Managed Grafana anf Azure Monitor for Prometheus) and also try built-in Azure Container Insights for logging and Azure-centric UI.
+
+[guide](./docs/09-Monitoring.md)
+
+# Coming up next
+
+### Lab x - Using Key Vault for secrets
+### Lab x - security hardening
+### Lab x - autoscaling
+### Lab x - CI/CD
+### Lab x - GitOps
+### Lab x - Progressive delivery

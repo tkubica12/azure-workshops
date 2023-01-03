@@ -26,6 +26,8 @@ az network vnet subnet create -g $prefix-rg --vnet-name $prefix-vnet -n db --add
 
 ```bash
 # Create AKS cluster (bash)
+az extension add --name aks-preview
+
 az aks create -n $prefix-aks \
     -g $prefix-rg \
     --node-count 2 \
@@ -35,7 +37,7 @@ az aks create -n $prefix-aks \
     --attach-acr $prefix \
     --enable-aad \
     --enable-azure-rbac \
-    --enable-addons monitoring,ingress-appgw,azure-keyvault-secrets-provider,azure-policy \
+    --enable-addons ingress-appgw,azure-keyvault-secrets-provider,azure-policy \
     --enable-managed-identity \
     --enable-cluster-autoscaler \
     --enable-defender \

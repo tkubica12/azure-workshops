@@ -1,0 +1,45 @@
+kind: ConfigMap
+apiVersion: v1
+data:
+  schema-version:
+    v1
+  config-version:
+    ver1
+  log-data-collection-settings: |-
+    [log_collection_settings]
+       [log_collection_settings.stdout]
+          enabled = true
+          exclude_namespaces = ["kube-system","gatekeeper-system"]
+
+       [log_collection_settings.stderr]
+          enabled = true
+          exclude_namespaces = ["kube-system","gatekeeper-system"]
+
+       [log_collection_settings.env_var]
+          enabled = false
+
+       [log_collection_settings.enrich_container_logs]
+          enabled = false
+
+       [log_collection_settings.collect_all_kube_events]
+          enabled = false
+
+       [log_collection_settings.schema]
+          containerlog_schema_version = "v2"
+
+
+  prometheus-data-collection-settings: |-
+    [prometheus_data_collection_settings.cluster]
+        interval = "10m"
+        monitor_kubernetes_pods = false
+
+    [prometheus_data_collection_settings.node]
+        interval = "10m"
+
+  metric_collection_settings: |-
+    [metric_collection_settings.collect_kube_system_pv_metrics]
+      enabled = false
+
+metadata:
+  name: container-azm-ms-agentconfig
+  namespace: kube-system
