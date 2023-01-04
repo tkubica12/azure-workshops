@@ -53,7 +53,7 @@ Look at base folder - you will se YAML files that are familiar to you. Only diff
   - We target this deployment to namespace test
   - In images section change netName to reflect your container registry
   - patchesStrategicMerge refers to web-deployment.yaml file that contains basic identification of object and field we want to change (replicas in our case -> to be 2)
-  - For ingress we are using different patch strategy - direct patch of field rather then merge - change value to fit your ip address
+  - For ingress we are using different patch strategy - direct patch of field rather then merge - change value to fit your FQDN. Because we now have both test and production version running on the same IP, we will recognize apps with hostname. This requires DNS and for simplicity we will use nip.io. So your test will run on test.yourip.nip.io while your production on prod.yourip.nip.io.
 
 So - do not touch base folder at all, but modify files under environments/test and let's deploy this.
 
