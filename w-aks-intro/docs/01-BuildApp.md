@@ -31,7 +31,7 @@ az acr create -n $prefix -g $prefix-rg --sku Basic --admin-enabled
 Build api container directly in repository
 
 ```bash
-# Go to myappspa folder
+# Go to api folder
 cd resources/src/api
 
 # Build backend microservice

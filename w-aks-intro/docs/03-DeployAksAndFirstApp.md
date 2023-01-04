@@ -26,7 +26,7 @@ az network vnet subnet create -g $prefix-rg --vnet-name $prefix-vnet -n db --add
 
 ```bash
 # Create AKS cluster (bash)
-az extension add --name aks-preview
+az extension add --upgrade --name aks-preview
 
 az aks create -n $prefix-aks \
     -g $prefix-rg \
@@ -90,7 +90,7 @@ az role assignment create --role "Azure Kubernetes Service RBAC Cluster Admin" `
     --scope $(az aks show -n $prefix-aks -g $prefix-rg --query id -o tsv)
 
 # Get kubeconfig
-az aks get-credentials -g $prefix-rg -n $prefix-aks
+az aks get-credentials -g $prefix-rg -n $prefix-aks --overwrite-existing
 
 # Access cluster and get list of nodes
 kubectl get nodes
