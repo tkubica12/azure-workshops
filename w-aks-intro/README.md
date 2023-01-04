@@ -47,9 +47,13 @@ In this lab we will enable basic monitoring using open source tool for metrics w
 
 [guide](./docs/09-Monitoring.md)
 
+# Lab 10 - Using Azure Key Vault to manage secrets
+While using Kubernetes Secrets objects is good start (and certainly way better than storing secrets in deployment files) it is typically not considered enterprise-grade. For it we will use specialized Azure Key Vault service and integrate it with Kubernetes.
+
+[guide](./docs/10-KeyVault.md)
+
 # Coming up next
 
-### Lab x - Using Key Vault for secrets
 ### Lab x - security hardening
 ### Lab x - autoscaling
 ### Lab x - CI/CD
