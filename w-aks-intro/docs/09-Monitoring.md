@@ -106,4 +106,4 @@ You can also see live log stream - either in Insights section or if you do not u
 ![](./images/logs06.png)
 
 # Optional challenge - find failing Pods
-Using Grafana or Azure Monitor find failing Pods. Can you create alerting rule to notify you when Pods are failing?
+Using Grafana or Azure Monitor to find failing Pods. Can you create alerting rule to notify you when Pods are failing?

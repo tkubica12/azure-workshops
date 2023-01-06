@@ -19,8 +19,8 @@
 
 ## Organizer
 - Get subscription ready with enough VM core quotas (B-series) -> use EA, CSP or PAYG, but NOT trial subscriptions due to low quota
-- Every participant to be Owner of this subscription for siplicity (you can delete subscription after training - it is good practice have short-lived subscription just for purpose of training and then people should use your dev/sandbox environment)
+- Every participant to be Owner of this subscription for simplicity (you can delete subscription after training - it is good practice have short-lived subscription just for purpose of training and then people should use your dev/sandbox environment)
 - Prefer subscription in customer tenant
 - Give access on Owner level to instructor one day before start so shared coponents can be prepared
-- Check every participant is prepared as per previous section (especialy they can access environment) so time is not lost
-- Trainier need to deploy environment.bicep template in resource/containerapp folder before start of lab 2
+- Check every participant is prepared as per previous section (especially they can access environment) so time is not lost
+- Trainer need to deploy environment.bicep template in resource/containerapp folder before start of lab 2
