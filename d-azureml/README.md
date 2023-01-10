@@ -44,7 +44,7 @@ az ml compute attach --name ml-aks \
     --user-assigned-identities $amlidentity
 ```
 
-## Deploy Azure ML stuff
+## Lending club demo
 
 ```bash
 cd ..
@@ -69,6 +69,23 @@ az ml component create -f components/register_best_model/component.yaml -g $rg -
 # Create training pipeline
 az ml job create -f pipelines/lending_club_training.yaml -g $rg -w $aml
   #az ml job create -f pipelines/lending_club_inferencing.yaml -g $rg -w $aml
+```
+
+## Intel Image Classification demo
+
+```bash
+# Download data source, upload to Azure ML and create metadata (annotations and MLTable files)
+cd data/intel_image_classification
+python prep.py --subscription d3b7888f-c26e-4961-a976-ff9d5b31dfd3 --group d-azurelm --workspace aml-am0bg611
+cd ../..
+
+# Create MLTables
+# az ml data create -f data/intel_image_classification/train.yaml -g $rg -w $aml
+# az ml data create -f data/intel_image_classification/test.yaml -g $rg -w $aml
+
+# Create training pipeline
+az ml job create -f pipelines/intel_image_class_automl_small.yaml -g $rg -w $aml
+az ml job create -f pipelines/intel_image_class_automl_large.yaml -g $rg -w $aml
 ```
 
 # Destroy infrastructure
