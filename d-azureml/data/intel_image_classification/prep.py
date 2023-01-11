@@ -118,9 +118,7 @@ if __name__ == "__main__":
     parser.add_argument("--subscription", type=str, help="Subscription ID")
     parser.add_argument("--group", type=str, help="Resource group name")
     parser.add_argument("--workspace", type=str, help="Workspace name")
-    parser.add_argument(
-        "--data_path", type=str, default="./localdata", help="Dataset location"
-    )
+    parser.add_argument("--data_path", type=str, default="./localdata", help="Dataset location")
 
     args, unknown = parser.parse_known_args()
     args_dict = vars(args)

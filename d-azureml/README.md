@@ -73,6 +73,8 @@ az ml job create -f pipelines/lending_club_training.yaml -g $rg -w $aml
 
 ## Intel Image Classification demo
 
+### Azure ML
+
 ```bash
 # Download data source, upload to Azure ML and create metadata (annotations and MLTable files)
 cd data/intel_image_classification
@@ -86,7 +88,21 @@ cd ../..
 # Create training pipeline
 az ml job create -f pipelines/intel_image_class_automl_small.yaml -g $rg -w $aml
 az ml job create -f pipelines/intel_image_class_automl_large.yaml -g $rg -w $aml
+az ml job create -f pipelines/intel_image_class_cnn.yaml -g $rg -w $aml
 ```
+
+### Custom Vision
+
+```bash
+# Install SDK
+pip install azure-cognitiveservices-vision-customvision
+
+# From UI get endpoint and key and upload data using script
+cd data/intel_image_classification
+python custom_vision_upload.py --training-endpoint https://northeurope.api.cognitive.microsoft.com/ --training-key a5e94be5af04427296bd604f3d8f505d
+```
+
+In UI run training with 6 hours budget.
 
 # Destroy infrastructure
 

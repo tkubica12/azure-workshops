@@ -18,4 +18,8 @@ output "amlidentity" {
   value = azurerm_user_assigned_identity.aml.id
 }
 
+output "custom_vision_name" {
+  value = azurerm_cognitive_account.custom_vision.name
+}
+
   
