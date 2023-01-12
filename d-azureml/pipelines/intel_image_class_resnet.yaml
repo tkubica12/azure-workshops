@@ -1,17 +1,17 @@
 $schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
 type: pipeline
 
-description: intel_image_class_cnn pipeline
+description: intel_image_class_resnet pipeline
 
-display_name: intel_image_class_cnn
-experiment_name: intel_image_class_cnn
+display_name: intel_image_class_resnet
+experiment_name: intel_image_class_resnet
 
 settings:
   default_datastore: azureml:workspaceblobstore
   default_compute: azureml:gpu-spot-cluster
 
 jobs:
-  tensorflow_cnn:
+  tensorflow_resnet:
     inputs:
       training_data:
         type: uri_file
@@ -22,4 +22,4 @@ jobs:
         path: azureml:IntelImageClassification-test:8
         mode: ro_mount 
     type: command
-    component: file:../components/intel_image_class_cnn/component.yaml
+    component: file:../components/intel_image_class_resnet/component.yaml

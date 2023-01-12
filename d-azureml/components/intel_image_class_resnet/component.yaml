@@ -1,0 +1,19 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+
+name: intel_image_class_resnet
+display_name: intel_image_class_resnet
+is_deterministic: false
+
+code: ./src/
+
+inputs:
+  training_data: 
+    type: uri_folder
+  test_data: 
+    type: uri_folder
+
+environment: azureml:AzureML-tensorflow-2.4-ubuntu18.04-py37-cuda11-gpu@latest
+
+command: >-
+  python run.py --training-data ${{inputs.training_data}}/ --test-data ${{inputs.test_data}}/
