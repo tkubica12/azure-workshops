@@ -49,7 +49,7 @@ model = tf.keras.Sequential([
         tf.keras.layers.GlobalAveragePooling2D(),
         tf.keras.layers.Dense(512, activation='relu'),
         tf.keras.layers.Dense(128, activation='relu'),
-        tf.keras.layers.Dropout(0.2),                     # Dropout layer to prevent overfitting
+        tf.keras.layers.Dropout(0.5),                     # Dropout layer to prevent overfitting
         tf.keras.layers.Dense(64, activation='relu'),
         tf.keras.layers.Dense(6, activation='softmax')    # Final layer for 6 classes
     ])

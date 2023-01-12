@@ -15,11 +15,11 @@ jobs:
     inputs:
       training_data:
         type: uri_file
-        path: azureml:IntelImageClassification-train:4
+        path: azureml:IntelImageClassification-train:1
         mode: ro_mount 
       test_data:
         type: uri_file
-        path: azureml:IntelImageClassification-test:8
+        path: azureml:IntelImageClassification-test:1
         mode: ro_mount 
     type: command
     component: file:../components/intel_image_class_cnn/component.yaml
