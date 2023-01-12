@@ -20,5 +20,5 @@ validation_data:
   type: mltable
 
 limits:
-  max_trials: 1
+  max_trials: 5
   max_concurrent_trials: 1

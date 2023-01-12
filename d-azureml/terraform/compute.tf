@@ -43,6 +43,12 @@ resource "azurerm_machine_learning_compute_cluster" "demo" {
       azurerm_user_assigned_identity.aml.id,
     ]
   }
+
+  lifecycle {
+    ignore_changes = [
+      ssh[0].admin_password
+    ]
+  }
 }
 
 resource "azurerm_machine_learning_compute_cluster" "gpu" {
@@ -50,7 +56,7 @@ resource "azurerm_machine_learning_compute_cluster" "gpu" {
   name                          = "gpu-cluster"
   location                      = azurerm_resource_group.demo.location
   vm_priority                   = "Dedicated"
-  vm_size                       = "Standard_NC6"
+  vm_size                       = "STANDARD_NC6"
   machine_learning_workspace_id = azurerm_machine_learning_workspace.demo.id
   ssh_public_access_enabled     = true
   local_auth_enabled            = true
@@ -73,6 +79,12 @@ resource "azurerm_machine_learning_compute_cluster" "gpu" {
       azurerm_user_assigned_identity.aml.id,
     ]
   }
+
+  lifecycle {
+    ignore_changes = [
+      ssh[0].admin_password
+    ]
+  }
 }
 
 resource "azurerm_machine_learning_compute_cluster" "gpu_spot" {
@@ -80,7 +92,7 @@ resource "azurerm_machine_learning_compute_cluster" "gpu_spot" {
   name                          = "gpu-spot-cluster"
   location                      = azurerm_resource_group.demo.location
   vm_priority                   = "LowPriority"
-  vm_size                       = "Standard_NC6s_v3"
+  vm_size                       = "STANDARD_NC6S_V3"
   machine_learning_workspace_id = azurerm_machine_learning_workspace.demo.id
   ssh_public_access_enabled     = true
   local_auth_enabled            = true
@@ -101,6 +113,12 @@ resource "azurerm_machine_learning_compute_cluster" "gpu_spot" {
     type = "UserAssigned"
     identity_ids = [
       azurerm_user_assigned_identity.aml.id,
+    ]
+  }
+
+  lifecycle {
+    ignore_changes = [
+      ssh[0].admin_password
     ]
   }
 }

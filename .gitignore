@@ -61,3 +61,4 @@ d-azureml/local_dev/y_test.csv
 d-azureml/local_dev/scaler.save
 
 d-azureml/data/intel_image_classification/localdata/
+d-azureml/local_dev/localdata/

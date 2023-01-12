@@ -1,0 +1,25 @@
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
+type: pipeline
+
+description: intel_image_class_resnet pipeline
+
+display_name: intel_image_class_resnet
+experiment_name: intel_image_class_resnet
+
+settings:
+  default_datastore: azureml:workspaceblobstore
+  default_compute: azureml:gpu-spot-cluster
+
+jobs:
+  tensorflow_resnet:
+    inputs:
+      training_data:
+        type: uri_file
+        path: azureml:IntelImageClassification-train:1
+        mode: ro_mount 
+      test_data:
+        type: uri_file
+        path: azureml:IntelImageClassification-test:1
+        mode: ro_mount 
+    type: command
+    component: file:../components/intel_image_class_resnet/component.yaml
