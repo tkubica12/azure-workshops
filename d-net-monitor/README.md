@@ -26,6 +26,7 @@ Also you can modify two locations used for template - use form without whitespac
   
 TBD:
 - Alert action - run Logic App with complex behavior
+- Alert for connection failure
 - Logic App
 
 # About planned maintenance

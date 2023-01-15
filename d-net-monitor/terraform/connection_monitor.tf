@@ -257,7 +257,7 @@ resource "azurerm_network_connection_monitor" "agent2agent" {
     }
 
     tcp_configuration {
-      port                      = 22
+      port                      = 3389
       destination_port_behavior = "ListenIfAvailable"
     }
   }
