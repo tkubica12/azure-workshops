@@ -37,3 +37,9 @@ variable "existing_watcher_rg_location2" {
   default = ""
   description = "There can be just watcher per region. Leave blank if you want to create a new one, specify id if you have one already"
 }
+
+variable "email" {
+  type = string
+  default = "admin@tkubica.biz"
+  description = "Email address to to send alerts to"
+}

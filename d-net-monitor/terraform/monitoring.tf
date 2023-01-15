@@ -43,9 +43,23 @@ resource "azurerm_network_watcher" "location2" {
   resource_group_name = azurerm_resource_group.main.name
 }
 
+data "azurerm_network_watcher" "location1" {
+  count               = var.existing_watcher_name_location1 == "" ? 0 : 1
+  name                = local.network_watcher_name_location1
+  resource_group_name = local.network_watcher_rg_location1
+}
+
+data "azurerm_network_watcher" "location2" {
+  count               = var.existing_watcher_name_location1 == "" ? 0 : 1
+  name                = local.network_watcher_name_location2
+  resource_group_name = local.network_watcher_rg_location2
+}
+
 locals {
   network_watcher_name_location1 = var.existing_watcher_name_location1 == "" ? azurerm_network_watcher.location1[0].name : var.existing_watcher_name_location1
   network_watcher_name_location2 = var.existing_watcher_name_location2 == "" ? azurerm_network_watcher.location2[0].name : var.existing_watcher_name_location2
   network_watcher_rg_location1   = var.existing_watcher_rg_location1 == "" ? azurerm_resource_group.main.name : var.existing_watcher_rg_location1
   network_watcher_rg_location2   = var.existing_watcher_rg_location2 == "" ? azurerm_resource_group.main.name : var.existing_watcher_rg_location2
+  network_watcher_id_location1   = var.existing_watcher_name_location1 == "" ? azurerm_network_watcher.location1[0].id : data.azurerm_network_watcher.location1[0].id
+  network_watcher_id_location2   = var.existing_watcher_name_location2 == "" ? azurerm_network_watcher.location2[0].id : data.azurerm_network_watcher.location2[0].id
 }
