@@ -23,10 +23,10 @@ Also you can modify two locations used for template - use form without whitespac
 - Alert for metric on NVA
 - Alert action - send email
 - Alert action - webhook
+- Alert for connection failure
   
 TBD:
 - Alert action - run Logic App with complex behavior
-- Alert for connection failure
 - Logic App
 
 # About planned maintenance
