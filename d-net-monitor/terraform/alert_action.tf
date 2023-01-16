@@ -9,12 +9,12 @@ resource "azurerm_monitor_action_group" "main" {
     use_common_alert_schema = true
   }
 
-#   logic_app_receiver {
-#     name                    = "logicappaction"
-#     resource_id             = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-logicapp/providers/Microsoft.Logic/workflows/logicapp"
-#     callback_url            = "https://logicapptriggerurl/..."
-#     use_common_alert_schema = true
-#   }
+  logic_app_receiver {
+    name                    = "mylogicapp"
+    resource_id             = azurerm_log_analytics_workspace.main.id
+    callback_url            = azurerm_logic_app_trigger_http_request.main.callback_url
+    use_common_alert_schema = true
+  }
 
   webhook_receiver {
     name                    = "api_call_example"

@@ -104,13 +104,13 @@ resource "azurerm_subnet_network_security_group_association" "location2" {
 
 // Enable flow logs
 resource "azurerm_network_watcher_flow_log" "location1" {
-  network_watcher_name = local.network_watcher_name_location1
-  resource_group_name  = local.network_watcher_rg_location1
-  name                 = "flow-${azurerm_network_security_group.location1.name}"
-
+  network_watcher_name      = local.network_watcher_name_location1
+  resource_group_name       = local.network_watcher_rg_location1
+  name                      = "flow-${azurerm_network_security_group.location1.name}"
   network_security_group_id = azurerm_network_security_group.location1.id
   storage_account_id        = azurerm_storage_account.location1.id
   enabled                   = true
+  version                   = 2
 
   retention_policy {
     enabled = true
@@ -127,13 +127,13 @@ resource "azurerm_network_watcher_flow_log" "location1" {
 }
 
 resource "azurerm_network_watcher_flow_log" "location2" {
-  network_watcher_name = local.network_watcher_name_location2
-  resource_group_name  = local.network_watcher_rg_location2
-  name                 = "flow-${azurerm_network_security_group.location2.name}"
-
+  network_watcher_name      = local.network_watcher_name_location2
+  resource_group_name       = local.network_watcher_rg_location2
+  name                      = "flow-${azurerm_network_security_group.location2.name}"
   network_security_group_id = azurerm_network_security_group.location2.id
   storage_account_id        = azurerm_storage_account.location2.id
   enabled                   = true
+  version                   = 2
 
   retention_policy {
     enabled = true

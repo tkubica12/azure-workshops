@@ -11,6 +11,15 @@ In default.auto.tfvars configure existing Network Watcher instances if you have 
 
 Also you can modify two locations used for template - use form without whitespace such as eastus2, westeurope, northeurope etc.
 
+To deploy template run:
+```bash
+cd terraform
+terraform init
+terraform apply -auto-approve
+```
+
+In order for Logic App to work got to myteams connector in Azure Portal and click on Authorize so connector gets token to Teams.
+
 # Scenario deployed
 - 2 VNETs in different regions peered to each other
 - VM in every VNET with Network Watcher agent installed
@@ -24,11 +33,9 @@ Also you can modify two locations used for template - use form without whitespac
 - Alert action - send email
 - Alert action - webhook
 - Alert for connection failure
-  
-TBD:
-- Alert action - run Logic App with complex behavior
 - Logic App
-
+- Alert action - run Logic App with complex behavior
+  
 # About planned maintenance
 Patching requiring reboot -> you will be notified, often you will get option to initiate reboot when it is convenient for you
 

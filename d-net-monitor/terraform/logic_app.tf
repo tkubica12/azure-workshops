@@ -2,6 +2,47 @@ resource "azurerm_logic_app_workflow" "main" {
   name                = random_string.main.result
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
+
+  workflow_parameters = {
+    "$connections" = <<EOF
+{
+    "defaultValue": {},
+    "type": "Object"
+}
+EOF
+  }
+
+  parameters = {
+    "$connections" = <<EOF
+{
+    "teams": {
+        "connectionId": "${azurerm_api_connection.teams.id}",
+        "connectionName": "teams",
+        "id": "${azurerm_api_connection.teams.managed_api_id}"
+    }
+}
+EOF
+  }
+}
+
+data "azurerm_managed_api" "teams" {
+  name     = "teams"
+  location = "West Europe"
+}
+
+resource "azurerm_api_connection" "teams" {
+  name                = "myteams"
+  resource_group_name = azurerm_resource_group.main.name
+  managed_api_id      = data.azurerm_managed_api.teams.id
+  display_name        = "myteams"
+
+#   parameter_values = {
+#     connectionString = azurerm_servicebus_namespace.example.default_primary_connection_string
+#   }
+
+  lifecycle {
+    ignore_changes = ["parameter_values"]
+  }
 }
 
 resource "azurerm_logic_app_trigger_http_request" "main" {
