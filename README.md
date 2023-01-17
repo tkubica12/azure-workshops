@@ -35,3 +35,4 @@ List of demos:
 - [DR between Azure regions with Azure Site Recovery](./d-asr/README.md)
 - [AKS cost management](./d-aks-cost-management/README.md)
 - [Azure Network Monitoring](./d-net-monitor/README.md)
+- [Azure Dedicated Hosts](./d-dedicated-hosts/README.md)
