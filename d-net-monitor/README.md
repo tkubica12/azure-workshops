@@ -48,6 +48,6 @@ General recommendation: most pause events are less than 10 seconds and it is usu
 
 # Docs
 - [Resource Health Events](https://learn.microsoft.com/en-us/azure/service-health/resource-health-vm-annotation)
-- [VM maintenance](https://learn.microsoft.com/en-us/azure/virtual-machines/maintenance-and-update)
+- [VM maintenance](https://learn.microsoft.com/en-us/azure/virtual-machines/maintenance-and-updates)
 - [Scheduled Events](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/scheduled-events)
 - [Time-sync](https://learn.microsoft.com/en-us/azure/virtual-machines/linux/time-sync)
