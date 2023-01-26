@@ -62,7 +62,7 @@ az aks create -n $prefix-aks `
     --attach-acr $prefix `
     --enable-aad `
     --enable-azure-rbac `
-    --enable-addons monitoring,ingress-appgw,azure-keyvault-secrets-provider,azure-policy `
+    --enable-addons ingress-appgw,azure-keyvault-secrets-provider,azure-policy `
     --enable-cluster-autoscaler `
     --enable-defender `
     --enable-oidc-issuer `
