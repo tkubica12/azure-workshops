@@ -31,7 +31,7 @@ az extension add --upgrade --name aks-preview
 az aks create -n $prefix-aks \
     -g $prefix-rg \
     --node-count 2 \
-    --node-vm-size Standard_B4ms \
+    --node-vm-size Standard_D2as_v4 \
     --zones 1 2 3 \
     --appgw-subnet-cidr 10.99.5.0/24 \
     --attach-acr $prefix \

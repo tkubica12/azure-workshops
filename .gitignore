@@ -39,7 +39,7 @@ local.properties
 .texlipse
 
 w-aks-intro/resources/kustomize/environments/tomas
-w-aks-intro/challenge/solutions/tomaskubica
+w-aks-intro/challenge/solutions/
 
 .terraform
 .terraform*
