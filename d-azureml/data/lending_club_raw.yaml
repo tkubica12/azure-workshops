@@ -1,6 +1,0 @@
-$schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
-name: lending_club_raw
-description: lending_club_raw
-type: uri_file
-path: "https://github.com/tkubica12/azure-workshops/raw/main/d-azureml/data/lending_club.csv"
-version: 1

@@ -1,5 +1,0 @@
-$schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
-name: metadata-IntelImageClassification-test
-description: Data asset created from local MLTable.
-type: mltable
-path: ./localdata/IntelImageClassification-test/metadata

@@ -20,7 +20,7 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 
 List of demos:
 - [Kubernetes operators](./d-kubernetes-operators/README.md)
-- [Azure ML](./d-azureml/README.md)
+- [Azure ML](https://github.com/tkubica12/ai-demos/tree/main/azureml)
 - [Azure API Management in AKS](./d-apim-in-aks/README.md)
 - [AKS with Private Link Service eg. in SaaS provider scenario](./d-aks-with-privatelinkservice/README.md)
 - [AKS with federated identity using User Managed Identity, Terraform and Key Vault](./d-aks-federated-identity/README.md)
@@ -36,4 +36,4 @@ List of demos:
 - [AKS cost management](./d-aks-cost-management/README.md)
 - [Azure Network Monitoring](./d-net-monitor/README.md)
 - [Azure Dedicated Hosts](./d-dedicated-hosts/README.md)
-- [Azure OpenAI Service](./d-openai/README.md)
+- [Azure OpenAI Service](https://github.com/tkubica12/ai-demos/tree/main/openai)
