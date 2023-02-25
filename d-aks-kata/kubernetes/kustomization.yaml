@@ -1,0 +1,9 @@
+resources:
+  - trusted.yaml
+  - untrusted.yaml
+
+replicas:
+  - name: trusted-app
+    count: 2
+  - name: untrusted-app
+    count: 2
