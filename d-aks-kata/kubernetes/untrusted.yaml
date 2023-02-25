@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: untrusted-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: untrusted-app
+  template:
+    metadata:
+      labels:
+        app: untrusted-app
+    spec:
+      runtimeClassName: kata-mshv-vm-isolation
+      containers:
+      - name: untrusted-app
+        image: ubuntu
+        command: ["bash", "-c", "while true; do uname -r; sleep 10; done"]
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "4000m"
+          requests:
+            memory: "128Mi"
+            cpu: "1000m"
