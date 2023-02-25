@@ -16,14 +16,14 @@
 ## Kubernetes Secrets
 - Secrets are encrypted at rest on platform level (Microsoft-managed)
 - Easy to use
-- Works in every other environment
+- Works in every environment
 - No support for customer-provided key
 - No support for true multitenancy (different vaults for different apps)
 - Secrets not stored in certified hardware-based vault
 ## Kubernetes Secrets encrypted with KMS
 - Secrets are encrypted at rest using customer-provided key (stored in vault)
 - Easy to use
-- Works in every other environment
+- Works in every environment
 - No support for true multitenancy (different vaults for different apps)
 - Secrets not stored in certified hardware-based vault (but encryption key is)
 ## Secrets Provider Class
@@ -44,7 +44,7 @@
 - Identity used to access vault in case of AKS:
   - Single identity (systems assigned, user-managed)
   - Per-pod identity with Pod identity (GA, fully supported)
-  - Workload identity not yet supported
+  - Workload identity via MSI layer
 ## Application
 - Use SDK to different providers
 - Use workload identity federation to echange Kubernetes token for AAD token
