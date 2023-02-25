@@ -7,3 +7,5 @@ replicas:
     count: 2
   - name: untrusted-app
     count: 2
+
+namespace: default
