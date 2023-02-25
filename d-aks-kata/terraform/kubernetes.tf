@@ -91,10 +91,6 @@ resource "azapi_resource" "flux_extension" {
   name      = "flux"
   parent_id = azapi_resource.aks.id
 
-  identity {
-    type = "SystemAssigned"
-  }
-
   body = jsonencode({
     properties = {
       extensionType           = "microsoft.flux"
@@ -112,10 +108,6 @@ resource "azapi_resource" "flux_config" {
   depends_on = [
     azapi_resource.flux_extension
   ]
-
-  identity {
-    type = "SystemAssigned"
-  }
 
   body = jsonencode({
     properties = {
