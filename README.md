@@ -18,22 +18,25 @@ List of workshops:
 # Demos
 Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 
-List of demos:
+## Kubernetes demos
 - [Kubernetes operators](./d-kubernetes-operators/README.md)
-- [Azure ML](https://github.com/tkubica12/ai-demos/tree/main/azureml)
-- [Azure API Management in AKS](./d-apim-in-aks/README.md)
 - [AKS with Private Link Service eg. in SaaS provider scenario](./d-aks-with-privatelinkservice/README.md)
 - [AKS with federated identity using User Managed Identity, Terraform and Key Vault](./d-aks-federated-identity/README.md)
-- [Azure private DNS resolver](./d-dns-resolver/README.md)
+- [AKS with Kata containers](./d-aks-kata/README.md)
 - [Notes on using secrets with Azure Kubernetes Service](./d-kubernetes-secrets/README.md)
-- [Azure Chaos Studio demo](./d-chaos-studio/README.md)
+- [Azure Kubernetes Fleet Manager](./d-kubernetes-fleet/../README.md)
+- [AKS cost management](./d-aks-cost-management/README.md)
 - [Using ARM64 CPUs in Azure with AKS, Terraform, GitHub Actions and multi-arch images in ACR](./d-aks-arm64/README.md)
+
+## Other demos
+- [Azure API Management in AKS](./d-apim-in-aks/README.md)
+- [Azure private DNS resolver](./d-dns-resolver/README.md)
+- [Azure Chaos Studio demo](./d-chaos-studio/README.md)
 - [Microsoft Dev Box](./d-devbox/README.md)
 - [Azure Managed Prometheus and Grafana](./d-managed-prometheus/README.md)
-- [Azure Kubernetes Fleet Manager](./d-kubernetes-fleet/../README.md)
 - [Data encryption and security](./d-data-security/README.md)
 - [DR between Azure regions with Azure Site Recovery](./d-asr/README.md)
-- [AKS cost management](./d-aks-cost-management/README.md)
 - [Azure Network Monitoring](./d-net-monitor/README.md)
 - [Azure Dedicated Hosts](./d-dedicated-hosts/README.md)
+- [Azure ML](https://github.com/tkubica12/ai-demos/tree/main/azureml)
 - [Azure OpenAI Service](https://github.com/tkubica12/ai-demos/tree/main/openai)
