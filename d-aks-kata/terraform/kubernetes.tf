@@ -130,7 +130,7 @@ resource "azapi_resource" "flux_config" {
         timeoutInSeconds      = 120
         syncIntervalInSeconds = 120
         repositoryRef = {
-          branch = "d-aks-kata"
+          branch = "main"
         }
       }
     }
