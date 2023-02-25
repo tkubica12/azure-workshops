@@ -18,15 +18,15 @@ List of workshops:
 # Demos
 Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 
-## Kubernetes demos
-- [Kubernetes operators](./d-kubernetes-operators/README.md)
-- [AKS with Private Link Service eg. in SaaS provider scenario](./d-aks-with-privatelinkservice/README.md)
-- [AKS with federated identity using User Managed Identity, Terraform and Key Vault](./d-aks-federated-identity/README.md)
-- [AKS with Kata containers](./d-aks-kata/README.md)
-- [Notes on using secrets with Azure Kubernetes Service](./d-kubernetes-secrets/README.md)
+## Azure Kubernetes Service demos
+- [Operators](./d-aks-operators/README.md)
+- [Private Link Service eg. in SaaS provider scenario](./d-aks-privatelinkservice/README.md)
+- [Workload Federated Identity using User Managed Identity, Terraform and Key Vault](./d-aks-federated-identity/README.md)
+- [Kata containers for strict isolation](./d-aks-kata/README.md)
+- [Secrets - notes and tips](./d-aks-secrets/README.md)
 - [Azure Kubernetes Fleet Manager](./d-kubernetes-fleet/../README.md)
-- [AKS cost management](./d-aks-cost-management/README.md)
-- [Using ARM64 CPUs in Azure with AKS, Terraform, GitHub Actions and multi-arch images in ACR](./d-aks-arm64/README.md)
+- [Cost management](./d-aks-cost-management/README.md)
+- [ARM64 CPUs - AKS, Terraform, GitHub Actions and multi-arch images in ACR](./d-aks-arm64/README.md)
 
 ## Other demos
 - [Azure API Management in AKS](./d-apim-in-aks/README.md)
