@@ -14,7 +14,34 @@ spec:
     spec:
       runtimeClassName: kata-mshv-vm-isolation
       containers:
-      - name: untrusted-app
+      - name: sysbench
+        image: ljishen/sysbench
+        command: ["bash", "-c", "while true; do echo -e '\nKernel:'; uname -r; echo -e '\nCPU test:'; sysbench-1.0/sysbench/sysbench --test=cpu --threads=1 run | grep 'total time taken by event execution'; echo -e '\nRAM test:'; sysbench-1.0/sysbench/sysbench --test=memory run | grep 'total time taken by event execution'; done"]
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "4000m"
+          requests:
+            memory: "128Mi"
+            cpu: "1000m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: untrusted-app-burstable
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: untrusted-app-burstable
+  template:
+    metadata:
+      labels:
+        app: untrusted-app-burstable
+    spec:
+      runtimeClassName: kata-mshv-vm-isolation
+      containers:
+      - name: sysbench
         image: ljishen/sysbench
         command: ["bash", "-c", "while true; do echo -e '\nKernel:'; uname -r; echo -e '\nCPU test:'; sysbench-1.0/sysbench/sysbench --test=cpu --threads=1 run | grep 'total time taken by event execution'; echo -e '\nRAM test:'; sysbench-1.0/sysbench/sysbench --test=memory run | grep 'total time taken by event execution'; done"]
         resources:
