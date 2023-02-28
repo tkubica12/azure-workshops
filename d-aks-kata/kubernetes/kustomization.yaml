@@ -7,9 +7,5 @@ replicas:
     count: 1
   - name: untrusted-app
     count: 1
-  - name: trusted-app-burstable
-    count: 1
-  - name: untrusted-app-burstable
-    count: 1
 
 namespace: default
