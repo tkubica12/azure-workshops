@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: untrusted-app
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: untrusted-app
@@ -15,8 +15,8 @@ spec:
       runtimeClassName: kata-mshv-vm-isolation
       containers:
       - name: untrusted-app
-        image: ubuntu
-        command: ["bash", "-c", "while true; do uname -r; sleep 10; done"]
+        image: ljishen/sysbench
+        command: ["bash", "-c", "while true; do echo -e '\nKernel:'; uname -r; echo -e '\nCPU test:'; sysbench-1.0/sysbench/sysbench --test=cpu --threads=1 run | grep 'total time taken by event execution'; echo -e '\nRAM test:'; sysbench-1.0/sysbench/sysbench --test=memory run | grep 'total time taken by event execution'; done"]
         resources:
           limits:
             memory: "128Mi"
