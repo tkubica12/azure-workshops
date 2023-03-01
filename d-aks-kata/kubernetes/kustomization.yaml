@@ -1,11 +1,17 @@
 resources:
   - trusted.yaml
+  - trusted_burstable.yaml
   - untrusted.yaml
+  - untrusted_burstable.yaml
 
 replicas:
   - name: trusted-app
     count: 1
+  - name: trusted-app-burstable
+    count: 1
   - name: untrusted-app
+    count: 1
+  - name: untrusted-app-burstable
     count: 1
 
 namespace: default

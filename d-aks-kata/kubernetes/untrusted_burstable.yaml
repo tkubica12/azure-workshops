@@ -1,25 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: trusted-app
+  name: untrusted-app-burstable
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: trusted-app
+      app: untrusted-app-burstable
   template:
     metadata:
       labels:
-        app: trusted-app
+        app: untrusted-app-burstable
     spec:
+      runtimeClassName: kata-mshv-vm-isolation
       containers:
       - name: sysbench
         image: ljishen/sysbench
         command: ["bash", "-c", "while true; do echo -e '\nKernel:'; uname -r; echo -e '\nCPU test:'; sysbench-1.0/sysbench/sysbench --test=cpu --num-threads=4 run | grep 'total time:'; echo -e '\nRAM test:'; sysbench-1.0/sysbench/sysbench --test=memory --num-threads=4 --memory-total-size=64M run | grep 'total time:'; done"]
         resources:
           limits:
-            memory: "128Mi"
-            cpu: "1000m"
+            memory: "512Mi"
+            cpu: "4000m"
           requests:
             memory: "128Mi"
             cpu: "1000m"

@@ -26,15 +26,15 @@ resource "azapi_resource" "aks" {
       addonProfiles = {}
       agentPoolProfiles = [
         {
-          count               = 2
+          count               = 1
           name                = "default"
           orchestratorVersion = "1.25.5"
-          osDiskSizeGB        = 96
+          osDiskSizeGB        = 128
           osDiskType          = "Ephemeral"
           osSKU               = "Mariner"
           osType              = "Linux"
           type                = "VirtualMachineScaleSets"
-          vmSize              = "Standard_D4s_v3"
+          vmSize              = "Standard_D16s_v3"
           mode                = "System"
           vnetSubnetID        = azurerm_subnet.aks.id
           workloadRuntime     = "KataMshvVmIsolation"
@@ -86,54 +86,54 @@ resource "azapi_resource" "aks" {
   ]
 }
 
-resource "azapi_resource" "flux_extension" {
-  type      = "Microsoft.KubernetesConfiguration/extensions@2021-09-01"
-  name      = "flux"
-  parent_id = azapi_resource.aks.id
+# resource "azapi_resource" "flux_extension" {
+#   type      = "Microsoft.KubernetesConfiguration/extensions@2021-09-01"
+#   name      = "flux"
+#   parent_id = azapi_resource.aks.id
 
-  body = jsonencode({
-    properties = {
-      extensionType           = "microsoft.flux"
-      autoUpgradeMinorVersion = true
-    }
-  })
-}
+#   body = jsonencode({
+#     properties = {
+#       extensionType           = "microsoft.flux"
+#       autoUpgradeMinorVersion = true
+#     }
+#   })
+# }
 
-resource "azapi_resource" "flux_config" {
-  type                      = "Microsoft.KubernetesConfiguration/fluxConfigurations@2022-03-01"
-  name                      = "mydemo"
-  parent_id                 = azapi_resource.aks.id
-  schema_validation_enabled = false
+# resource "azapi_resource" "flux_config" {
+#   type                      = "Microsoft.KubernetesConfiguration/fluxConfigurations@2022-03-01"
+#   name                      = "mydemo"
+#   parent_id                 = azapi_resource.aks.id
+#   schema_validation_enabled = false
 
-  depends_on = [
-    azapi_resource.flux_extension
-  ]
+#   depends_on = [
+#     azapi_resource.flux_extension
+#   ]
 
-  body = jsonencode({
-    properties = {
-      scope      = "cluster"
-      namespace  = "flux-system"
-      sourceKind = "GitRepository"
-      kustomizations = {
-        myapp = {
-          name                   = "mydemo"
-          path                   = "./d-aks-kata/kubernetes"
-          force                  = true
-          prune                  = true
-          timeoutInSeconds       = 120
-          intervalInSeconds      = 120
-          retryIntervalInSeconds = 120
-        }
-      }
-      gitRepository = {
-        url                   = "https://github.com/tkubica12/azure-workshops"
-        timeoutInSeconds      = 120
-        syncIntervalInSeconds = 120
-        repositoryRef = {
-          branch = "main"
-        }
-      }
-    }
-  })
-}
+#   body = jsonencode({
+#     properties = {
+#       scope      = "cluster"
+#       namespace  = "flux-system"
+#       sourceKind = "GitRepository"
+#       kustomizations = {
+#         myapp = {
+#           name                   = "mydemo"
+#           path                   = "./d-aks-kata/kubernetes"
+#           force                  = true
+#           prune                  = true
+#           timeoutInSeconds       = 120
+#           intervalInSeconds      = 120
+#           retryIntervalInSeconds = 120
+#         }
+#       }
+#       gitRepository = {
+#         url                   = "https://github.com/tkubica12/azure-workshops"
+#         timeoutInSeconds      = 120
+#         syncIntervalInSeconds = 120
+#         repositoryRef = {
+#           branch = "main"
+#         }
+#       }
+#     }
+#   })
+# }
 
