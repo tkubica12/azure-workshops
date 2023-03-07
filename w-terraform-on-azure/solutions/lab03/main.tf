@@ -1,6 +1,6 @@
 // Resource Group
 resource "azurerm_resource_group" "demo" {
-  name     = "lab03rg"
+  name     = "yourname-rg"
   location = "westeurope"
 }
 

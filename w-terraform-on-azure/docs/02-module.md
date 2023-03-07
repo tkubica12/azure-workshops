@@ -34,9 +34,9 @@ But how will applications get this password? Should we output it in Terraform? M
 - In azuresql module store password in Key Vault under key=nameofyourserver (see [https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_secret))
 
 ## Private Endpoint and using AzApi provider when AzureRm does not support what you need
-First we need to deploy Azure Private DNS zone for Private Endpoint of our Azure SQL. This is typicaly part of landing zone and networking, so for now let's create it in our root module.
+First we need to deploy Azure Private DNS zone for Private Endpoint of our Azure SQL. This is typically part of landing zone and networking, so for now let's create it in our root module.
 
-Terraform AzureRm supports this, neverheless let's try alternative - using AzApi, which is just auto-generated API wrapper. We have already added this to your providers.tf file. Have a look at Azure API documentation: [https://docs.microsoft.com/en-us/rest/api/dns/privatedns/private-zones/create-or-update](https://docs.microsoft.com/en-us/rest/api/dns/privatedns/private-zones/create-or-update)
+Terraform AzureRm supports this, nevertheless let's try alternative - using AzApi, which is just auto-generated API wrapper. We have already added this to your providers.tf file. Have a look at Azure API documentation: [https://docs.microsoft.com/en-us/rest/api/dns/privatedns/private-zones/create-or-update](https://docs.microsoft.com/en-us/rest/api/dns/privatedns/private-zones/create-or-update)
 
 Resulting AzApi resource will look like this:
 

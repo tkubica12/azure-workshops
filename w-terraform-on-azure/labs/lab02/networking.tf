@@ -13,7 +13,7 @@ resource "azurerm_subnet" "vm" {
 }
 
 resource "azurerm_subnet" "db" {
-  name                 = "vm-subnet"
+  name                 = "db-subnet"
   resource_group_name  = azurerm_resource_group.demo.name
   virtual_network_name = azurerm_virtual_network.demo.name
   address_prefixes     = ["10.0.1.0/24"]

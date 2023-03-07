@@ -1,9 +1,9 @@
 # Lab 3 - More advanced concepts: versioning, conditions, structure inputs and abstractions, cycles
 
 ## Conditionals
-As first tak we will want make our Azure SQL module more universal by adding configuration of auditing to Azure Monitor (Log Analytics workspace is being created in root module already), but conditionaly. We want to configure this for our produciton deployments, but not for dev environments to save costs. We need to make sure module can be parametrized to deploy auditing only when asked for.
+As first tak we will want make our Azure SQL module more universal by adding configuration of auditing to Azure Monitor (Log Analytics workspace is being created in root module already), but conditionally. We want to configure this for our production deployments, but not for dev environments to save costs. We need to make sure module can be parametrized to deploy auditing only when asked for.
 
-Here are resources to be placed in module (do not forget to also decalre logWorkspaceId variable):
+Here are resources to be placed in module (do not forget to also declare logWorkspaceId variable):
 
 ```
 resource "azurerm_mssql_database_extended_auditing_policy" "module" {
@@ -45,7 +45,7 @@ Now let's declare boolean variable called enableAudit (should default to false) 
 No without any changes to your root module use ```terraform plan``` and make sure there are no errors or resources being planned. Then configure root module to deploy with enableAudit se to true and logWorkspaceId set. See additional resources in ```terraform plan``` and than apply.
 
 ## Loops
-Often you need to create the same resource mutliple times, call module multiple times or repeat one structure inside resource. Terraform supports loops on all mentioned levels. It is often preferable to use for each with map so keys are fixed and predictable. Using simple for loop with index number might have negative side effects eg. if you insert item in array (than it might renumber therefore recreate all resources which might cause downtime - eg. when touching existing firewall rules).
+Often you need to create the same resource multiple times, call module multiple times or repeat one structure inside resource. Terraform supports loops on all mentioned levels. It is often preferable to use for each with map so keys are fixed and predictable. Using simple for loop with index number might have negative side effects eg. if you insert item in array (than it might renumber therefore recreate all resources which might cause downtime - eg. when touching existing firewall rules).
 
 We will want to create multiple databases and rather than having separate module calls create input abstraction map and loop over it. 
 
@@ -87,7 +87,7 @@ Combine the to move databases map from locals to separate YAML files and load it
 ## Import existing resources to state and create Terraform definition
 Currently there is no easy 100% reliable to automatically convert clicked resources into nice working Terraform code. Check out project [Azure Terrafy](https://github.com/Azure/aztfy/releases) that provides simplification of bellow proces, but is not as time of writing this ready for safe production use. We will use traditional manual way. 
 
-Main purpose of this is to make "unmanaged" resource part of Terraform so it can be managed by it from now on. Note with stateless resources it is usually much faster to create template from scratch, but there are scenarios when existing resources simply cannot be recreated, because they contain some importans state (eg. databased) or are in active use (eg. VPN connection to on-premises).
+Main purpose of this is to make "unmanaged" resource part of Terraform so it can be managed by it from now on. Note with stateless resources it is usually much faster to create template from scratch, but there are scenarios when existing resources simply cannot be recreated, because they contain some important state (eg. database) or are in active use (eg. VPN connection to on-premises).
 
 Use Azure CLI to create "unmanaged" resource:
 
@@ -116,11 +116,11 @@ Lets import this resource now
 terraform import azurerm_storage_account.example $(az storage account show -n tomasteststore123 -g lab03rg --query id -o tsv)
 ```
 
-With resource imported let's now run ```terraform plan```. If we have typed template correctly, we should see no changes are needed. If Terraform wants to do any change on our resource keep tuning your template until it is correctly reflexting your existing resource.
+With resource imported let's now run ```terraform plan```. If we have typed template correctly, we should see no changes are needed. If Terraform wants to do any change on our resource keep tuning your template until it is correctly reflecting your existing resource.
 
-Only when done with this, remove resource lock and run ```terraform apply``` - from now on this reasource is managed by Terraform.
+Only when done with this, remove resource lock and run ```terraform apply``` - from now on this resource is managed by Terraform.
 
-Note: situation can get much more complicated with complex resources with a lot of interactions. Therefore use import feature only when fixing some issue or when you need to import something criticaly important. Otherwise is better to create new infrastructure managed by Terraform from day one. While Azure Terrafy can significantly simplify this process it will probably never be 100% reliable and templates produced still need to be modified to include best practicies (such as no hardcoded values etc.).
+Note: situation can get much more complicated with complex resources with a lot of interactions. Therefore use import feature only when fixing some issue or when you need to import something critically important. Otherwise is better to create new infrastructure managed by Terraform from day one. While Azure Terrafy can significantly simplify this process it will probably never be 100% reliable and templates produced still need to be modified to include best practices (such as no hardcoded values etc.).
 
 ## Modules versioning and remote reference
 Modules should be version controlled and reusable so used by multiple projects so should be stored in central repository (you may use mono-repo style and put all modules in single repo or use repo per module - both strategies has certain advantages). Since modules need to evolve and might introduce breaking changes it is important for projects to be able to reference specific version they want to use.
@@ -135,7 +135,7 @@ Modules should be version controlled and reusable so used by multiple projects s
 5. Run ```terraform init``` to download module and you are ready to apply
 
 ## Working with multiple roots
-Supppose we need to have different root resources - eg. network was deployed with infrastructure template and this is different team from application projects that are just using shared resource. What if we need read attribute of some resources that has been deployed with someone elses template? Sure we can pass value as argument, but what are other options?
+Suppose we need to have different root resources - eg. network was deployed with infrastructure template and this is different team from application projects that are just using shared resource. What if we need read attribute of some resources that has been deployed with someone elses template? Sure we can pass value as argument, but what are other options?
 
 ### Referencing existing resource with "data" objects
 Create another root template by creating folder and with following provider and just local state:
@@ -186,9 +186,9 @@ output "ipRangeFromData" {
 
 ### Referencing existing state
 Output of one template (eg. network infrastructure) can be used with other templates using various techniques:
-- You can directly reference remote state as desribed [here](https://www.terraform.io/language/state/remote-state-data), but it is consider unsecure as you get access to full state file which might include sensitive information.
+- You can directly reference remote state as described [here](https://www.terraform.io/language/state/remote-state-data), but it is consider unsecure as you get access to full state file which might include sensitive information.
 - If you use Terraform Cloud you can leverage specific feature to securely access outputs.
-- When running everything in CI/CD such as GitHub Actions store outputs as artefacts or commit non-sensitive values to repo.
+- When running everything in CI/CD such as GitHub Actions store outputs as artifacts or commit non-sensitive values to repo.
 - Store secrets in Azure Key Vault. 
   - If possible get rid of secrets all together by using Managed Identities everywhere.
   - If you need secrets prefer accessing it from application rather than loading to Terraform so it is not stored in tfstate file.

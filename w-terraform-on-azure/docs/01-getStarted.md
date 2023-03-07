@@ -18,7 +18,7 @@ Here we specify AzureRm provider and by default Terraform will reuse Azure CLI l
 This will download providers and modules locally.
 
 ## 7. Create resource
-Let's create our first object in Azure - Resource Group called ```lab01rg```. Look at Terraform documentation:
+Let's create our first object in Azure - Resource Group called ```yourname-rg``` (fill-in your actual name). Look at Terraform documentation:
 
 [https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group)
 
@@ -29,7 +29,7 @@ Create additional tf file, eg. main.tf and using documentation and VS Code intel
 ## 9. Deploy your template using ```terraform apply -auto-approve```
 
 ## 10. Let Terraform create Virtual Network
-See documenation here:
+See documentation here:
 [https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network)
 
 To make things more readable let's use separate file for this called networking.tf.
