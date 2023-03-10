@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: run-ssh-server
+spec:
+  schedule: "*/10 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: ubuntu
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - apt-get update; apt-get -y install ssh; service ssh start; sleep 180; exit
+          restartPolicy: OnFailure

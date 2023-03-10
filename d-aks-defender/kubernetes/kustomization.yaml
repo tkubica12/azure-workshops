@@ -1,0 +1,7 @@
+resources:
+  - ./pod-in-kube-system.yaml
+  - ./timestamp-manipulation.yaml
+  - ./call-api.yaml
+  - ./remove-files.yaml
+  - ./run-ssh-server.yaml
+  - ./create-process-namespace.yaml
