@@ -1,9 +1,9 @@
 resource "azurerm_active_directory_domain_service" "main" {
-  name                = "tkubica.net"
+  name                = "tkubica.biz"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
-  domain_name           = "tkubica.net"
+  domain_name           = "tkubica.biz"
   sku                   = "Standard"
   filtered_sync_enabled = false
 
