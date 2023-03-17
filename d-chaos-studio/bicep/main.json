@@ -1732,7 +1732,7 @@
               },
               "properties": {
                 "dnsPrefix": "mesh-demo-aks",
-                "kubernetesVersion": "1.23.8",
+                "kubernetesVersion": "1.24.9",
                 "networkProfile": {
                   "networkPlugin": "azure",
                   "serviceCidr": "192.168.0.0/22",
