@@ -4,6 +4,12 @@ resource "azurerm_resource_group" "main" {
   location = var.location
 }
 
+resource "azurerm_role_assignment" "fadmin_contributor" {
+  scope                = azurerm_resource_group.main.id
+  role_definition_name = "Contributor"
+  principal_id         = azuread_user.admin.object_id
+}
+
 // Random suffix
 resource "random_string" "storage" {
   length  = 8

@@ -36,7 +36,7 @@ resource "azurerm_storage_container" "team2" {
   container_access_type = "private"
 }
 
-// RBAC assignments
+// Dataplane RBAC assignments
 resource "azurerm_role_assignment" "storage_blob_team1" {
   scope                = "${azurerm_storage_account.blob.id}/blobServices/default/containers/${azurerm_storage_container.team1.name}"
   role_definition_name = "Storage Blob Data Contributor"
@@ -46,5 +46,18 @@ resource "azurerm_role_assignment" "storage_blob_team1" {
 resource "azurerm_role_assignment" "storage_blob_team2" {
   scope                = "${azurerm_storage_account.blob.id}/blobServices/default/containers/${azurerm_storage_container.team2.name}"
   role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_user_assigned_identity.identity2.principal_id
+}
+
+// Controlplane RBAC assignments
+resource "azurerm_role_assignment" "storage_account_blob_team1" {
+  scope                = azurerm_storage_account.blob.id
+  role_definition_name = "Reader"
+  principal_id         = azurerm_user_assigned_identity.identity1.principal_id
+}
+
+resource "azurerm_role_assignment" "storage_account_blob_team2" {
+  scope                = azurerm_storage_account.blob.id
+  role_definition_name = "Reader"
   principal_id         = azurerm_user_assigned_identity.identity2.principal_id
 }

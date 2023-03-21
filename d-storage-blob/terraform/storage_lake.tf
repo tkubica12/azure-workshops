@@ -110,3 +110,16 @@ resource "azurerm_storage_data_lake_gen2_path" "team1_folder1_subfolder1" {
     azurerm_storage_data_lake_gen2_path.team1_folder1
   ]
 }
+
+// Controlplane RBAC assignments
+resource "azurerm_role_assignment" "storage_account_lake_team1" {
+  scope                = azurerm_storage_account.lake.id
+  role_definition_name = "Reader"
+  principal_id         = azurerm_user_assigned_identity.identity1.principal_id
+}
+
+resource "azurerm_role_assignment" "storage_account_lake_team2" {
+  scope                = azurerm_storage_account.lake.id
+  role_definition_name = "Reader"
+  principal_id         = azurerm_user_assigned_identity.identity2.principal_id
+}
