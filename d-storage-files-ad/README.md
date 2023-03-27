@@ -1,4 +1,4 @@
-# Azure Files demo
+# Azure Files demo with AD integration
 
 1. Deploy demo infrastructure with ```terraform apply -var existing_admin_password=mypassword```
 2. Use Bastion to connect to admin VM using fadmin@tkubica.biz account and password stored in Key Vault

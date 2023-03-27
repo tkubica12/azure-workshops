@@ -39,4 +39,7 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 - [Azure Network Monitoring](./d-net-monitor/README.md)
 - [Azure Dedicated Hosts](./d-dedicated-hosts/README.md)
 - [Azure ML](https://github.com/tkubica12/ai-demos/tree/main/azureml)
-- [Azure OpenAI Service](https://github.com/tkubica12/ai-demos/tree/main/openai)
+- [Azure OpenAI Service](https://github.com/tkubica12/ai-demos/tree/main/openai) 
+- [Azure Files with AD integration](./d-azure-files-ad/README.md)) 
+- [Azure Disk shared with SCSI PR](./d-storage-disk-shared/README.md) 
+- [Azure Blob storage demo](./d-azure-blob-storage/README.md)
