@@ -21,7 +21,7 @@ resource "azurerm_windows_virtual_machine" "vm3" {
   zone                = 1
 
   network_interface_ids = [
-    azurerm_network_interface.vm3.id,
+    azurerm_network_interface.zrs.id,
   ]
 
   os_disk {
