@@ -17,7 +17,7 @@ resource "azapi_resource" "aks" {
         {
           count               = 1
           name                = "default"
-          orchestratorVersion = "1.23.8"
+          orchestratorVersion = "1.25"
           osDiskSizeGB        = 128
           osDiskType          = "Managed"
           osSKU               = "Ubuntu"
@@ -30,7 +30,7 @@ resource "azapi_resource" "aks" {
       dnsPrefix               = "d-managed-prometheus"
       enablePodSecurityPolicy = false
       enableRBAC              = true
-      kubernetesVersion       = "1.23.8"
+      kubernetesVersion       = "1.25"
       networkProfile = {
         dnsServiceIP     = "10.0.0.10"
         dockerBridgeCidr = "172.17.0.1/16"

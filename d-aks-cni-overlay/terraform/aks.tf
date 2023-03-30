@@ -1,76 +1,37 @@
-resource "azapi_resource" "aks" {
-  type      = "Microsoft.ContainerService/managedClusters@2022-07-02-preview"
-  name      = "d-aks-cni-overlay"
-  location  = azurerm_resource_group.aks.location
-  parent_id = azurerm_resource_group.aks.id
+resource "azurerm_kubernetes_cluster" "main" {
+  name                = "d-aks-cni-overlay"
+  location            = azurerm_resource_group.aks.location
+  resource_group_name = azurerm_resource_group.aks.name
+  dns_prefix          = "d-aks-cni-overlay"
+
+
+  network_profile {
+    network_policy      = "calico"
+    network_plugin      = "azure"
+    network_plugin_mode = "Overlay"
+    service_cidr        = "192.168.196.0/22"
+    dns_service_ip      = "192.168.196.10"
+    outbound_type       = "userDefinedRouting"
+  }
+
+  default_node_pool {
+    name                   = "system"
+    node_count             = 2
+    vm_size                = "Standard_B2ms"
+    vnet_subnet_id         = azurerm_subnet.aks.id
+    zones                  = [1, 2, 3]
+
+    node_labels = {
+      "dedication" = "system"
+    }
+  }
+
   identity {
     type         = "SystemAssigned"
-    identity_ids = []
   }
-  body = jsonencode({
-    properties = {
-      addonProfiles = {}
-      agentPoolProfiles = [
-        {
-          count               = 2
-          name                = "default"
-          orchestratorVersion = "1.23.8"
-          osDiskSizeGB        = 128
-          osDiskType          = "Managed"
-          osSKU               = "Ubuntu"
-          osType              = "Linux"
-          type                = "VirtualMachineScaleSets"
-          vmSize              = "Standard_B2ms"
-          mode                = "System"
-          vnetSubnetID        = azurerm_subnet.aks.id
-        }
-      ]
-      dnsPrefix               = "d-aks-federated-identity"
-      enablePodSecurityPolicy = false
-      enableRBAC              = true
-      kubernetesVersion       = "1.23.8"
-      networkProfile = {
-        dnsServiceIP     = "10.245.0.10"
-        dockerBridgeCidr = "172.17.0.1/16"
-        loadBalancerSku   = "Standard"
-        networkPlugin     = "azure"
-        networkPluginMode = "overlay"
-        outboundType      = "UserDefinedRouting"
-        podCidrs = [
-          "10.244.0.0/16"
-        ]
-        serviceCidrs = [
-          "10.245.0.0/16"
-        ]
-      }
-      nodeResourceGroup = "MC_d-aks-cni-overlay"
-      storageProfile = {
-        blobCSIDriver = {
-          enabled = false
-        }
-        diskCSIDriver = {
-          enabled = true
-          version = "v1"
-        }
-        fileCSIDriver = {
-          enabled = true
-        }
-        snapshotController = {
-          enabled = true
-        }
-      }
-    }
-    sku = {
-      name = "Basic"
-      tier = "Free"
-    }
-  })
-
-  response_export_values = [
-    "*"
-  ]
 
   depends_on = [
-    azurerm_firewall.main
+    azurerm_firewall.main,
+    azurerm_subnet_route_table_association.main
   ]
 }
