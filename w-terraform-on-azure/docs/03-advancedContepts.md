@@ -51,7 +51,8 @@ We will want to create multiple databases and rather than having separate module
 
 This is required structure (put it into your root module):
 
-```locals {
+```
+locals {
   databases = {
     tomdb1 = {
       skuName = "S0"
