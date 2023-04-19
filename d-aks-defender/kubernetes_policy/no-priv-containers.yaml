@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: no-priv-containers
+  namespace: policy-demo
+spec:
+  automountServiceAccountToken: false
+  containers:
+  - name: nginx
+    image: nginx
+    securityContext:
+      privileged: true
