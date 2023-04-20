@@ -1,0 +1,70 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: bigboy
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: bigboyrolecustom
+subjects:
+- kind: ServiceAccount
+  name: bigboy
+  namespace: defender-demo
+roleRef:
+  kind: ClusterRole
+  name: bigboy
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: bigboyroleclusteradmin
+subjects:
+- kind: ServiceAccount
+  name: bigboy
+  namespace: defender-demo
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bigboy
+  namespace: defender-demo
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: apiaccess
+  labels:
+    name: apiaccess
+  namespace: defender-demo
+spec:
+  serviceAccountName: bigboy
+  automountServiceAccountToken: true
+  containers:
+  - name: bigboy
+    image: nginx
+    command: ["/bin/bash", "-c", "while true; do curl --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt https://kubernetes.default/api/v1/namespaces/kube-system/pods -H \"Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)\"; sleep 60; done"]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: deleteevents
+  labels:
+    name: deleteevents
+  namespace: defender-demo
+spec:
+  serviceAccountName: bigboy
+  automountServiceAccountToken: true
+  containers:
+  - name: bigboy
+    image: nginx
+    command: ["/bin/bash", "-c", "while true; do curl -X DELETE --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt  https://kubernetes.default/apis/events.k8s.io/v1/namespaces/defender-demo/events -H \"Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)\"; sleep 60; done"]
