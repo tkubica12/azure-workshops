@@ -27,6 +27,7 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 - [Azure Kubernetes Fleet Manager](./d-kubernetes-fleet/../README.md)
 - [Cost management](./d-aks-cost-management/README.md)
 - [ARM64 CPUs - AKS, Terraform, GitHub Actions and multi-arch images in ACR](./d-aks-arm64/README.md)
+- [Microsoft Defender for Containers](./d-aks-defender/README.md)
 
 ## Other demos
 - [Azure API Management in AKS](./d-apim-in-aks/README.md)
