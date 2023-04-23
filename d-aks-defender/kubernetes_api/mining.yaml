@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mining
+  labels:
+    name: mining
+  namespace: defender-demo
+spec:
+  containers:
+  - name: mining
+    image: miningcontainers/xmrig:latest

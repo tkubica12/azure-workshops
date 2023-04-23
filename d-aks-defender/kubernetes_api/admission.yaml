@@ -1,0 +1,25 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: defender.demo.com
+webhooks:
+- name: defender.demo.com
+  namespaceSelector:
+    matchExpressions:
+      - key: fakekey
+        operator: In
+        values: ["fakevalue"]
+  rules:
+  - apiGroups:   [""]
+    apiVersions: ["v1"]
+    operations:  ["CREATE"]
+    resources:   ["pods"]
+    scope:       "Namespaced"
+  clientConfig:
+    service:
+      namespace: "fake-namespace"
+      name: "fake-service"
+    caBundle: fakedata
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  timeoutSeconds: 5

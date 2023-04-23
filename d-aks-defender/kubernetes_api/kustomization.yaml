@@ -1,0 +1,5 @@
+resources:
+    - namespace.yaml
+    - high-priv-api.yaml
+    - mining.yaml
+    - admission.yaml

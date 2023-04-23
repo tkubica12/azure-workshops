@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: timestamp-manipulation
+spec:
+  schedule: "*/10 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: ubuntu
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - cp /bin/bash /tmp/bash; touch /tmp/bash -r /bin/bash
+          restartPolicy: OnFailure

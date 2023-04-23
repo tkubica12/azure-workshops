@@ -1,0 +1,10 @@
+resources:
+  - namespace.yaml
+  - limit-volumes.yaml
+  - no-priv-containers.yaml
+  - no-api-credentials.yaml
+  - no-external-lb.yaml
+  - no-sysadmin-cap.yaml
+  - no-sysctl.yaml
+  - no-priv-escalation.yaml
+  - https-ingress-only.yaml

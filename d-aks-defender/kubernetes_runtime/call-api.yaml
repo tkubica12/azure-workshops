@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: call-api
+spec:
+  schedule: "*/10 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: ubuntu
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - apt update; apt install -y curl; curl -k "https://$KUBERNETES_SERVICE_HOST"/api/v1/pods; sleep 5; exit
+          restartPolicy: OnFailure
