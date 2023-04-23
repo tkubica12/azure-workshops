@@ -12,7 +12,7 @@ resource "azurerm_role_assignment" "acr" {
   principal_id         = azurerm_user_assigned_identity.main.principal_id
 }
 
-resource "azapi_resource_action" "import" {
+resource "azapi_resource_action" "cve-2016-4977" {
   type                   = "Microsoft.ContainerRegistry/registries@2023-01-01-preview"
   resource_id            = azurerm_container_registry.main.id
   action                 = "importImage"
@@ -20,10 +20,28 @@ resource "azapi_resource_action" "import" {
 {
   "source": {
     "registryUri": "registry.hub.docker.com",
-    "sourceImage": "library/ubuntu:13.10"
+    "sourceImage": "vulnerables/cve-2016-4977:latest"
   },
   "targetTags": [
-    "ubuntu:13.10"
+    "vulnerables/cve-2016-4977:latest"
+  ],
+  "mode": "Force"
+}
+EOF
+}
+
+resource "azapi_resource_action" "cve-2016-7434" {
+  type                   = "Microsoft.ContainerRegistry/registries@2023-01-01-preview"
+  resource_id            = azurerm_container_registry.main.id
+  action                 = "importImage"
+  body = <<EOF
+{
+  "source": {
+    "registryUri": "registry.hub.docker.com",
+    "sourceImage": "vulnerables/cve-2016-7434:latest"
+  },
+  "targetTags": [
+    "vulnerables/cve-2016-7434:latest"
   ],
   "mode": "Force"
 }
