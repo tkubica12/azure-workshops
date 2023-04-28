@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://argoproj.github.io/argo-helm
-    # targetRevision: d-aks-argo-cd-and-rollouts
+    targetRevision: 2.26.1
     chart: argo/argo-rollouts
     helm:
       releaseName: argorollouts
