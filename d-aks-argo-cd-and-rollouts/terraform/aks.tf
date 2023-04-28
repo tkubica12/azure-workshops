@@ -16,7 +16,8 @@ resource "azurerm_kubernetes_cluster" "aks1" {
 
   lifecycle {
     ignore_changes = [
-      azure_policy_enabled
+      azure_policy_enabled,
+      microsoft_defender
     ]
   }
 }

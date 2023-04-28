@@ -1,6 +1,9 @@
 resource "helm_release" "bootstrap" {
-  name  = "demo"
-  chart = "../charts/bootstrap"
+  name      = "demo"
+  chart     = "../charts/bootstrap"
+  namespace = "argocd"
+
+  depends_on = [helm_release.argocd]
 }
 
 resource "helm_release" "argocd" {
