@@ -1,4 +1,5 @@
 resource "azurerm_storage_account" "main" {
+  count                             = var.enable_storage ? 1 : 0
   name                              = random_string.main.result
   resource_group_name               = azurerm_resource_group.main.name
   location                          = azurerm_resource_group.main.location
@@ -31,21 +32,25 @@ resource "azurerm_storage_account" "main" {
 }
 
 resource "azurerm_storage_account_customer_managed_key" "main" {
-  storage_account_id = azurerm_storage_account.main.id
+  count              = var.enable_storage ? 1 : 0
+  storage_account_id = azurerm_storage_account.main[0].id
   key_vault_id       = azurerm_key_vault.main.id
-  key_name           = azurerm_key_vault_key.storageaccount.name
+  key_name           = azurerm_key_vault_key.storageaccount[0].name
+
+  depends_on = [
+    azurerm_role_assignment.kv_storage
+  ]
 }
 
-resource "azurerm_key_vault_access_policy" "storage" {
-  key_vault_id = azurerm_key_vault.main.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = azurerm_storage_account.main.identity.0.principal_id
-
-  key_permissions    = ["Get", "Create", "List", "Restore", "Recover", "UnwrapKey", "WrapKey", "Purge", "Encrypt", "Decrypt", "Sign", "Verify"]
-  secret_permissions = ["Get"]
+resource "azurerm_role_assignment" "kv_storage" {
+  count                = var.enable_storage ? 1 : 0
+  scope                = azurerm_key_vault.main.id
+  role_definition_name = "Key Vault Crypto Service Encryption User"
+  principal_id         = azurerm_storage_account.main[0].identity.0.principal_id
 }
 
 resource "azurerm_key_vault_key" "storageaccount" {
+  count        = var.enable_storage ? 1 : 0
   name         = "key-storageaccount"
   key_vault_id = azurerm_key_vault.main.id
   key_type     = "RSA"
@@ -53,7 +58,6 @@ resource "azurerm_key_vault_key" "storageaccount" {
   key_opts     = ["decrypt", "encrypt", "sign", "unwrapKey", "verify", "wrapKey"]
 
   depends_on = [
-    azurerm_key_vault_access_policy.main,
-    azurerm_key_vault_access_policy.storage,
+    azurerm_role_assignment.kv_main,
   ]
 }

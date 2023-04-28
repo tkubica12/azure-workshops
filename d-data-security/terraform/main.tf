@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "main" {
-  name     = "d-data-and-compute-security-${random_string.short.result}"
+  name     = "d-data-and-compute-security"
   location = "West Europe"
 }
 

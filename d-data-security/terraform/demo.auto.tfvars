@@ -1,0 +1,9 @@
+enable_ade              = false
+enable_sse              = false
+enable_sql              = false
+enable_ledger           = false
+enable_storage          = false
+enable_confidential_vm  = false
+enable_bastion          = true
+enable_aks              = true
+current_user_name       = "admin@tkubica.biz"

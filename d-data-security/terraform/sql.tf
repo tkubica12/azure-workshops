@@ -1,4 +1,5 @@
 resource "azurerm_mssql_server" "main" {
+  count                        = var.enable_sql ? 1 : 0
   name                         = random_string.main.result
   resource_group_name          = azurerm_resource_group.main.name
   location                     = azurerm_resource_group.main.location
@@ -18,8 +19,9 @@ resource "azurerm_mssql_server" "main" {
 }
 
 resource "azurerm_mssql_database" "main" {
+  count          = var.enable_sql ? 1 : 0
   name           = "sql-db"
-  server_id      = azurerm_mssql_server.main.id
+  server_id      = azurerm_mssql_server.main[0].id
   collation      = "SQL_Latin1_General_CP1_CI_AS"
   license_type   = "LicenseIncluded"
   max_size_gb    = 4
@@ -30,13 +32,14 @@ resource "azurerm_mssql_database" "main" {
 }
 
 resource "azurerm_key_vault_key" "tde" {
+  count        = var.enable_sql ? 1 : 0
   name         = "key-tde"
   key_vault_id = azurerm_key_vault.main.id
   key_type     = "RSA"
   key_size     = 2048
 
   depends_on = [
-    azurerm_key_vault_access_policy.main
+    azurerm_role_assignment.kv_main
   ]
 
   key_opts = [
@@ -45,29 +48,26 @@ resource "azurerm_key_vault_key" "tde" {
   ]
 }
 
-resource "azurerm_key_vault_access_policy" "tde" {
-  key_vault_id = azurerm_key_vault.main.id
-  tenant_id    = azurerm_mssql_server.main.identity.0.tenant_id
-  object_id    = azurerm_mssql_server.main.identity.0.principal_id
-
-  key_permissions = [
-    "WrapKey",
-    "UnwrapKey",
-    "Get"
-  ]
+resource "azurerm_role_assignment" "kv_tde" {
+  count                = var.enable_sql ? 1 : 0
+  scope                = azurerm_key_vault.main.id
+  role_definition_name = "Key Vault Crypto Service Encryption User"
+  principal_id         = azurerm_mssql_server.main[0].identity.0.principal_id
 }
 
 resource "azurerm_mssql_server_transparent_data_encryption" "main" {
-  server_id        = azurerm_mssql_server.main.id
-  key_vault_key_id = azurerm_key_vault_key.tde.id
+  count            = var.enable_sql ? 1 : 0
+  server_id        = azurerm_mssql_server.main[0].id
+  key_vault_key_id = azurerm_key_vault_key.tde[0].id
 
   depends_on = [
-    azurerm_key_vault_access_policy.tde,
+    azurerm_role_assignment.kv_tde,
     azurerm_key_vault_key.tde
   ]
 }
 
 resource "azurerm_attestation_provider" "main" {
+  count               = var.enable_sql ? 1 : 0
   name                = random_string.main.result
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location

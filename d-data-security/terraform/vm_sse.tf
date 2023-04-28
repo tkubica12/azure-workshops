@@ -1,4 +1,5 @@
 resource "azurerm_network_interface" "vm_sse" {
+  count               = var.enable_sse ? 1 : 0
   name                = "vm_sse-nic"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
@@ -11,6 +12,7 @@ resource "azurerm_network_interface" "vm_sse" {
 }
 
 resource "azurerm_windows_virtual_machine" "vm_sse" {
+  count                      = var.enable_sse ? 1 : 0
   name                       = "vm-sse"
   resource_group_name        = azurerm_resource_group.main.name
   location                   = azurerm_resource_group.main.location
@@ -20,13 +22,13 @@ resource "azurerm_windows_virtual_machine" "vm_sse" {
   encryption_at_host_enabled = true
 
   network_interface_ids = [
-    azurerm_network_interface.vm_sse.id,
+    azurerm_network_interface.vm_sse[0].id,
   ]
 
   os_disk {
     caching                = "ReadWrite"
     storage_account_type   = "Standard_LRS"
-    disk_encryption_set_id = azurerm_disk_encryption_set.sse.id
+    disk_encryption_set_id = azurerm_disk_encryption_set.sse[0].id
   }
 
   source_image_reference {
@@ -37,19 +39,19 @@ resource "azurerm_windows_virtual_machine" "vm_sse" {
   }
 
   depends_on = [
-    azurerm_key_vault_access_policy.sse,
-    azurerm_key_vault_key.sse,
+    azurerm_role_assignment.kv_sse
   ]
 }
 
 resource "azurerm_key_vault_key" "sse" {
+  count        = var.enable_sse ? 1 : 0
   name         = "key-sse"
   key_vault_id = azurerm_key_vault.main.id
   key_type     = "RSA"
   key_size     = 2048
 
   depends_on = [
-    azurerm_key_vault_access_policy.main
+    azurerm_role_assignment.kv_main
   ]
 
   key_opts = [
@@ -62,25 +64,20 @@ resource "azurerm_key_vault_key" "sse" {
   ]
 }
 
-resource "azurerm_key_vault_access_policy" "sse" {
-  key_vault_id = azurerm_key_vault.main.id
-
-  tenant_id = azurerm_disk_encryption_set.sse.identity.0.tenant_id
-  object_id = azurerm_disk_encryption_set.sse.identity.0.principal_id
-
-  key_permissions = [
-    "WrapKey",
-    "UnwrapKey",
-    "Get"
-  ]
+resource "azurerm_role_assignment" "kv_sse" {
+  count                = var.enable_sse ? 1 : 0
+  scope                = azurerm_key_vault.main.id
+  role_definition_name = "Key Vault Crypto Service Encryption User"
+  principal_id         = azurerm_disk_encryption_set.sse[0].identity.0.principal_id
 }
 
 
 resource "azurerm_disk_encryption_set" "sse" {
+  count               = var.enable_sse ? 1 : 0
   name                = "sse-encryption-set"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
-  key_vault_key_id    = azurerm_key_vault_key.sse.id
+  key_vault_key_id    = azurerm_key_vault_key.sse[0].id
   encryption_type     = "EncryptionAtRestWithPlatformAndCustomerKeys"
 
   identity {
@@ -88,23 +85,17 @@ resource "azurerm_disk_encryption_set" "sse" {
   }
 }
 
-resource "azurerm_role_assignment" "sse" {
-  scope                = azurerm_key_vault.main.id
-  role_definition_name = "Key Vault Crypto Service Encryption User"
-  principal_id         = azurerm_disk_encryption_set.sse.identity.0.principal_id
-}
-
 resource "azurerm_managed_disk" "sse" {
+  count                  = var.enable_sse ? 1 : 0
   name                   = "data-disk-sse"
   location               = azurerm_resource_group.main.location
   resource_group_name    = azurerm_resource_group.main.name
   storage_account_type   = "Standard_LRS"
   create_option          = "Empty"
   disk_size_gb           = "32"
-  disk_encryption_set_id = azurerm_disk_encryption_set.sse.id
+  disk_encryption_set_id = azurerm_disk_encryption_set.sse[0].id
 
   depends_on = [
-    azurerm_role_assignment.sse,
-    azurerm_key_vault_access_policy.sse
+    azurerm_role_assignment.kv_sse[0],
   ]
 }

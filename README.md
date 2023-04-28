@@ -35,7 +35,7 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 - [Azure Chaos Studio demo](./d-chaos-studio/README.md)
 - [Microsoft Dev Box](./d-devbox/README.md)
 - [Azure Managed Prometheus and Grafana](./d-managed-prometheus/README.md)
-- [Data encryption and security](./d-data-security/README.md)
+- [Data encryption, security and confidential computing](./d-data-security/README.md)
 - [DR between Azure regions with Azure Site Recovery](./d-asr/README.md)
 - [Azure Network Monitoring](./d-net-monitor/README.md)
 - [Azure Dedicated Hosts](./d-dedicated-hosts/README.md)
