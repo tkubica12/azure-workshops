@@ -14,6 +14,12 @@ spec:
     helm:
       releaseName: argorollouts
 
+      parameters:
+      - name: "dashboard.enabled"
+        value: true
+      - name: "dashboard.service.type"
+        value: LoadBalancer
+
   destination:
     server: https://kubernetes.default.svc
     namespace: argorollouts
