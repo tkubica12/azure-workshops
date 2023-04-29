@@ -8,7 +8,7 @@ resource "azurerm_kubernetes_cluster" "aks1" {
     name                        = "default"
     node_count                  = 1
     vm_size                     = "Standard_B4ms"
-    temporary_name_for_rotation = "default-temp"
+    temporary_name_for_rotation = "defaulttemp"
   }
 
   identity {
