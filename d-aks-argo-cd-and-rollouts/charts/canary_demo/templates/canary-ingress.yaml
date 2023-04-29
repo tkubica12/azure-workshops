@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: canary-demo
+spec:
+  ingressClassName: ingress-nginx
+  rules:
+  - host: canary.{{ .Values.externalIp }}.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend: 
+          services:
+            name: canary-demo
+            port:
+              number: 80
