@@ -28,6 +28,7 @@ spec:
   strategy:
     canary:
       canaryService: canary-demo-preview
+      stableService: canary-demo
       trafficRouting:
         nginx:
           stableIngress: canary-demo
