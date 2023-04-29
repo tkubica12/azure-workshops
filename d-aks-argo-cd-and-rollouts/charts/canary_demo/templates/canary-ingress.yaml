@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: canary-demo
 spec:
-  ingressClassName: ingress-nginx
+  ingressClassName: nginx
   rules:
   - host: canary.{{ .Values.externalIp }}.nip.io
     http:
