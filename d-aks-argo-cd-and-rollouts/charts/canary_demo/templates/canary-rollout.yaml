@@ -34,8 +34,7 @@ spec:
           stableIngress: canary-demo
       steps:
       - setWeight: 5
-      # - pause: {duration: 60}
-      - pause: {}
+      - pause: {} # manual step
       - setWeight: 10
       - pause: {duration: 10}
       - setWeight: 20
