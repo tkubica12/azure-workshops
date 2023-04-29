@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: canary-demo
-        image: argoproj/rollouts-demo:green
+        image: argoproj/rollouts-demo:blue
         imagePullPolicy: Always
         ports:
         - name: http
@@ -29,6 +29,10 @@ spec:
     canary:
       canaryService: canary-demo-preview
       steps:
+      - setWeight: 5
+      - pause: {duration: 60}
+      - setWeight: 10
+      - pause: {duration: 10}
       - setWeight: 20
       - pause: {duration: 10}
       - setWeight: 40
