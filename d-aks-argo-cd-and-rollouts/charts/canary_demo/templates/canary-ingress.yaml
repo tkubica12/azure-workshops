@@ -11,7 +11,7 @@ spec:
       - path: /
         pathType: Prefix
         backend: 
-          services:
+          service:
             name: canary-demo
             port:
               number: 80
