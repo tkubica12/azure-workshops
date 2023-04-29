@@ -28,6 +28,9 @@ spec:
   strategy:
     canary:
       canaryService: canary-demo-preview
+      trafficRouting:
+        nginx:
+          stableIngress: canary-demo
       steps:
       - setWeight: 5
       - pause: {duration: 60}
