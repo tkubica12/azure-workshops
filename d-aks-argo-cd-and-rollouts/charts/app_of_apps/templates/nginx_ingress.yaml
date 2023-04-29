@@ -20,7 +20,7 @@ spec:
             type: LoadBalancer
   destination:
     server: https://kubernetes.default.svc 
-    namespace: shared-components
+    namespace: ingress-nginx
   syncPolicy:
     automated:
       prune: true
