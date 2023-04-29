@@ -16,9 +16,9 @@ spec:
 
       parameters:
       - name: "dashboard.enabled"
-        value: true
+        value: "true"
       - name: "dashboard.service.type"
-        value: LoadBalancer
+        value: "LoadBalancer"
 
   destination:
     server: https://kubernetes.default.svc
