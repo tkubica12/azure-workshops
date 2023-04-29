@@ -16,7 +16,7 @@ spec:
 
       parameters:
       - name: "externalIp"
-        value: "20.240.18.204"
+        value: "20.240.16.63"
 
   destination:
     server: https://kubernetes.default.svc
