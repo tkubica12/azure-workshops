@@ -5,9 +5,10 @@ resource "azurerm_kubernetes_cluster" "aks1" {
   dns_prefix          = "d-aks-argo-cd-and-rollouts"
 
   default_node_pool {
-    name       = "default"
-    node_count = 1
-    vm_size    = "Standard_B4ms"
+    name                        = "default"
+    node_count                  = 1
+    vm_size                     = "Standard_B4ms"
+    temporary_name_for_rotation = "default-temp"
   }
 
   identity {
