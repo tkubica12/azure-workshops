@@ -15,10 +15,8 @@ spec:
       releaseName: canary-demo
 
       parameters:
-      - name: "dashboard.enabled"
-        value: "true"
-      - name: "dashboard.service.type"
-        value: "LoadBalancer"
+      - name: "externalIp"
+        value: "20.240.18.204"
 
   destination:
     server: https://kubernetes.default.svc
