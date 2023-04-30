@@ -39,3 +39,13 @@ provider "helm" {
     cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks1.kube_config.0.cluster_ca_certificate)
   }
 }
+
+provider "helm" {
+  alias = "aks2"
+  kubernetes {
+    host                   = azurerm_kubernetes_cluster.aks2.kube_config.0.host
+    client_certificate     = base64decode(azurerm_kubernetes_cluster.aks2.kube_config.0.client_certificate)
+    client_key             = base64decode(azurerm_kubernetes_cluster.aks2.kube_config.0.client_key)
+    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks2.kube_config.0.cluster_ca_certificate)
+  }
+}
