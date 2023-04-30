@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/tkubica12/azure-workshops
-    targetRevision: d-aks-argo-cd-and-rollouts
+    targetRevision: main
     path: d-aks-argo-cd-and-rollouts/charts/app_of_apps
     helm:
       releaseName: app-of-apps
