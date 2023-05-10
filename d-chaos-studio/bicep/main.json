@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.8.9.13224",
-      "templateHash": "13718882707579759420"
+      "version": "0.15.31.15270",
+      "templateHash": "6633035273889084842"
     }
   },
   "variables": {
@@ -80,7 +80,7 @@
       "apiVersion": "2020-10-01-preview",
       "name": "[guid('chaosAgentsRbac')]",
       "properties": {
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')).principalId]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity'), '2022-01-31-preview').principalId]",
         "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
         "principalType": "ServicePrincipal"
       },
@@ -99,19 +99,19 @@
         "mode": "Incremental",
         "parameters": {
           "appInsightsKey": {
-            "value": "[reference(resourceId('Microsoft.Insights/components', 'appinsights')).InstrumentationKey]"
+            "value": "[reference(resourceId('Microsoft.Insights/components', 'appinsights'), '2020-02-02').InstrumentationKey]"
           },
           "diagnosticsBlobUri": {
-            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))).primaryEndpoints.blob]"
+            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id))), '2021-09-01').primaryEndpoints.blob]"
           },
           "chaosIdentityClientId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')).clientId]"
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity'), '2022-01-31-preview').clientId]"
           },
           "chaosIdentityId": {
             "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]"
           },
           "chaosIdentityTenantId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')).tenantId]"
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity'), '2022-01-31-preview').tenantId]"
           },
           "location": {
             "value": "[variables('location')]"
@@ -132,8 +132,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "8403273817329381577"
+              "version": "0.15.31.15270",
+              "templateHash": "7946762725875693212"
             }
           },
           "parameters": {
@@ -270,7 +270,7 @@
                 "enableAutomaticUpgrade": false,
                 "typeHandlerVersion": "1.0",
                 "settings": {
-                  "profile": "[reference(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')), 'Microsoft.Chaos/targets', 'Microsoft-Agent')).agentProfileId]",
+                  "profile": "[reference(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')), 'Microsoft.Chaos/targets', 'Microsoft-Agent'), '2021-09-15-preview').agentProfileId]",
                   "auth.msi.clientid": "[parameters('chaosIdentityClientId')]",
                   "appinsightskey": "[parameters('appInsightsKey')]"
                 }
@@ -479,8 +479,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', 'appinsights')]",
-        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.Network/virtualNetworks', 'chaos-vnet')]"
       ]
     },
@@ -495,19 +495,19 @@
         "mode": "Incremental",
         "parameters": {
           "appInsightsKey": {
-            "value": "[reference(resourceId('Microsoft.Insights/components', 'appinsights')).InstrumentationKey]"
+            "value": "[reference(resourceId('Microsoft.Insights/components', 'appinsights'), '2020-02-02').InstrumentationKey]"
           },
           "diagnosticsBlobUri": {
-            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))).primaryEndpoints.blob]"
+            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id))), '2021-09-01').primaryEndpoints.blob]"
           },
           "chaosIdentityClientId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')).clientId]"
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity'), '2022-01-31-preview').clientId]"
           },
           "chaosIdentityId": {
             "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]"
           },
           "chaosIdentityTenantId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')).tenantId]"
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity'), '2022-01-31-preview').tenantId]"
           },
           "location": {
             "value": "[variables('location')]"
@@ -528,8 +528,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "8403273817329381577"
+              "version": "0.15.31.15270",
+              "templateHash": "7946762725875693212"
             }
           },
           "parameters": {
@@ -666,7 +666,7 @@
                 "enableAutomaticUpgrade": false,
                 "typeHandlerVersion": "1.0",
                 "settings": {
-                  "profile": "[reference(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')), 'Microsoft.Chaos/targets', 'Microsoft-Agent')).agentProfileId]",
+                  "profile": "[reference(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')), 'Microsoft.Chaos/targets', 'Microsoft-Agent'), '2021-09-15-preview').agentProfileId]",
                   "auth.msi.clientid": "[parameters('chaosIdentityClientId')]",
                   "appinsightskey": "[parameters('appInsightsKey')]"
                 }
@@ -875,8 +875,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', 'appinsights')]",
-        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.Network/virtualNetworks', 'chaos-vnet')]"
       ]
     },
@@ -891,19 +891,19 @@
         "mode": "Incremental",
         "parameters": {
           "appInsightsKey": {
-            "value": "[reference(resourceId('Microsoft.Insights/components', 'appinsights')).InstrumentationKey]"
+            "value": "[reference(resourceId('Microsoft.Insights/components', 'appinsights'), '2020-02-02').InstrumentationKey]"
           },
           "diagnosticsBlobUri": {
-            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))).primaryEndpoints.blob]"
+            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id))), '2021-09-01').primaryEndpoints.blob]"
           },
           "chaosIdentityClientId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')).clientId]"
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity'), '2022-01-31-preview').clientId]"
           },
           "chaosIdentityId": {
             "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]"
           },
           "chaosIdentityTenantId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')).tenantId]"
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity'), '2022-01-31-preview').tenantId]"
           },
           "location": {
             "value": "[variables('location')]"
@@ -924,8 +924,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "14536371765549656185"
+              "version": "0.15.31.15270",
+              "templateHash": "10485937926849779807"
             }
           },
           "parameters": {
@@ -1058,7 +1058,7 @@
                 "enableAutomaticUpgrade": false,
                 "typeHandlerVersion": "1.0",
                 "settings": {
-                  "profile": "[reference(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')), 'Microsoft.Chaos/targets', 'Microsoft-Agent')).agentProfileId]",
+                  "profile": "[reference(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')), 'Microsoft.Chaos/targets', 'Microsoft-Agent'), '2021-09-15-preview').agentProfileId]",
                   "auth.msi.clientid": "[parameters('chaosIdentityClientId')]",
                   "appinsightskey": "[parameters('appInsightsKey')]"
                 }
@@ -1267,8 +1267,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', 'appinsights')]",
-        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.Network/virtualNetworks', 'chaos-vnet')]"
       ]
     },
@@ -1283,19 +1283,19 @@
         "mode": "Incremental",
         "parameters": {
           "appInsightsKey": {
-            "value": "[reference(resourceId('Microsoft.Insights/components', 'appinsights')).InstrumentationKey]"
+            "value": "[reference(resourceId('Microsoft.Insights/components', 'appinsights'), '2020-02-02').InstrumentationKey]"
           },
           "diagnosticsBlobUri": {
-            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))).primaryEndpoints.blob]"
+            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id))), '2021-09-01').primaryEndpoints.blob]"
           },
           "chaosIdentityClientId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')).clientId]"
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity'), '2022-01-31-preview').clientId]"
           },
           "chaosIdentityId": {
             "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]"
           },
           "chaosIdentityTenantId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')).tenantId]"
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity'), '2022-01-31-preview').tenantId]"
           },
           "location": {
             "value": "[variables('location')]"
@@ -1316,8 +1316,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "14536371765549656185"
+              "version": "0.15.31.15270",
+              "templateHash": "10485937926849779807"
             }
           },
           "parameters": {
@@ -1450,7 +1450,7 @@
                 "enableAutomaticUpgrade": false,
                 "typeHandlerVersion": "1.0",
                 "settings": {
-                  "profile": "[reference(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')), 'Microsoft.Chaos/targets', 'Microsoft-Agent')).agentProfileId]",
+                  "profile": "[reference(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')), 'Microsoft.Chaos/targets', 'Microsoft-Agent'), '2021-09-15-preview').agentProfileId]",
                   "auth.msi.clientid": "[parameters('chaosIdentityClientId')]",
                   "appinsightskey": "[parameters('appInsightsKey')]"
                 }
@@ -1659,8 +1659,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', 'appinsights')]",
-        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]",
         "[resourceId('Microsoft.Network/virtualNetworks', 'chaos-vnet')]"
       ]
     },
@@ -1687,8 +1687,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "7285391764642721879"
+              "version": "0.15.31.15270",
+              "templateHash": "9080600259283607051"
             }
           },
           "parameters": {
@@ -1711,7 +1711,7 @@
               "apiVersion": "2020-10-01-preview",
               "name": "[guid('aksIdentityRbac')]",
               "properties": {
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'aksIdentity')).principalId]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'aksIdentity'), '2022-01-31-preview').principalId]",
                 "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
                 "principalType": "ServicePrincipal"
               },
@@ -1732,7 +1732,7 @@
               },
               "properties": {
                 "dnsPrefix": "mesh-demo-aks",
-                "kubernetesVersion": "1.24.9",
+                "kubernetesVersion": "1.26",
                 "networkProfile": {
                   "networkPlugin": "azure",
                   "serviceCidr": "192.168.0.0/22",
@@ -1936,28 +1936,28 @@
         "mode": "Incremental",
         "parameters": {
           "chaosIdentityClientId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')).clientId]"
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity'), '2022-01-31-preview').clientId]"
           },
           "chaosIdentityId": {
             "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]"
           },
           "chaosIdentityTenantId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')).tenantId]"
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity'), '2022-01-31-preview').tenantId]"
           },
           "location": {
             "value": "[variables('location')]"
           },
           "linuxVm1Id": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'linuxVm1')).outputs.vmId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'linuxVm1'), '2020-10-01').outputs.vmId.value]"
           },
           "linuxVm2Id": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'linuxVm2')).outputs.vmId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'linuxVm2'), '2020-10-01').outputs.vmId.value]"
           },
           "windowsVm1Id": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'windowsVm1')).outputs.vmId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'windowsVm1'), '2020-10-01').outputs.vmId.value]"
           },
           "windowsVm2Id": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'windowsVm2')).outputs.vmId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'windowsVm2'), '2020-10-01').outputs.vmId.value]"
           }
         },
         "template": {
@@ -1966,8 +1966,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "14601930737951303518"
+              "version": "0.15.31.15270",
+              "templateHash": "3551199835016085917"
             }
           },
           "parameters": {
@@ -2053,13 +2053,13 @@
                     "name": "Shutdown VMs in zone 1",
                     "branches": [
                       {
-                        "name": "Force-shutdown Linux VM in zone 1 for 2 minutes",
+                        "name": "Force-shutdown Linux VM in zone 1 for 1 minute",
                         "actions": [
                           {
                             "type": "continuous",
                             "selectorId": "linux-vms-zone1",
                             "name": "urn:csci:microsoft:virtualMachine:shutdown/1.0",
-                            "duration": "PT2M",
+                            "duration": "PT1M",
                             "parameters": [
                               {
                                 "key": "abruptShutdown",
@@ -2070,13 +2070,13 @@
                         ]
                       },
                       {
-                        "name": "Force-shutdown Windows VM in zone 1 for 3 minutes",
+                        "name": "Force-shutdown Windows VM in zone 1 for 2 minutes",
                         "actions": [
                           {
                             "type": "continuous",
                             "selectorId": "windows-vms-zone1",
                             "name": "urn:csci:microsoft:virtualMachine:shutdown/1.0",
-                            "duration": "PT3M",
+                            "duration": "PT2M",
                             "parameters": [
                               {
                                 "key": "abruptShutdown",
@@ -2089,15 +2089,15 @@
                     ]
                   },
                   {
-                    "name": "Wait for 3 minutes",
+                    "name": "Wait for 1 minute",
                     "branches": [
                       {
-                        "name": "Wait for 3 minutes",
+                        "name": "Wait for 1 minute",
                         "actions": [
                           {
                             "type": "delay",
                             "name": "urn:csci:microsoft:chaosStudio:TimedDelay/1.0",
-                            "duration": "PT3M"
+                            "duration": "PT1M"
                           }
                         ]
                       }
@@ -2107,13 +2107,13 @@
                     "name": "Shutdown VMs in zone 2",
                     "branches": [
                       {
-                        "name": "Force-shutdown Linux VM in zone 2 for 2 minutes",
+                        "name": "Force-shutdown Linux VM in zone 2 for 1 minute",
                         "actions": [
                           {
                             "type": "continuous",
                             "selectorId": "linux-vms-zone2",
                             "name": "urn:csci:microsoft:virtualMachine:shutdown/1.0",
-                            "duration": "PT2M",
+                            "duration": "PT1M",
                             "parameters": [
                               {
                                 "key": "abruptShutdown",
@@ -2124,13 +2124,13 @@
                         ]
                       },
                       {
-                        "name": "Force-shutdown Windows VM in zone 2 for 3 minutes",
+                        "name": "Force-shutdown Windows VM in zone 2 for 2 minutes",
                         "actions": [
                           {
                             "type": "continuous",
                             "selectorId": "windows-vms-zone2",
                             "name": "urn:csci:microsoft:virtualMachine:shutdown/1.0",
-                            "duration": "PT3M",
+                            "duration": "PT2M",
                             "parameters": [
                               {
                                 "key": "abruptShutdown",
@@ -2180,28 +2180,28 @@
         "mode": "Incremental",
         "parameters": {
           "chaosIdentityClientId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')).clientId]"
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity'), '2022-01-31-preview').clientId]"
           },
           "chaosIdentityId": {
             "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')]"
           },
           "chaosIdentityTenantId": {
-            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity')).tenantId]"
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'chaosidentity'), '2022-01-31-preview').tenantId]"
           },
           "location": {
             "value": "[variables('location')]"
           },
           "linuxVm1Id": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'linuxVm1')).outputs.vmId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'linuxVm1'), '2020-10-01').outputs.vmId.value]"
           },
           "linuxVm2Id": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'linuxVm2')).outputs.vmId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'linuxVm2'), '2020-10-01').outputs.vmId.value]"
           },
           "windowsVm1Id": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'windowsVm1')).outputs.vmId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'windowsVm1'), '2020-10-01').outputs.vmId.value]"
           },
           "windowsVm2Id": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'windowsVm2')).outputs.vmId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'windowsVm2'), '2020-10-01').outputs.vmId.value]"
           }
         },
         "template": {
@@ -2210,8 +2210,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "6064792121901085501"
+              "version": "0.15.31.15270",
+              "templateHash": "15640489116383937897"
             }
           },
           "parameters": {
@@ -2399,7 +2399,7 @@
         "mode": "Incremental",
         "parameters": {
           "aksId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'aks')).outputs.aksId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'aks'), '2020-10-01').outputs.aksId.value]"
           },
           "location": {
             "value": "[variables('location')]"
@@ -2411,8 +2411,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "16086266160037410037"
+              "version": "0.15.31.15270",
+              "templateHash": "160754782078432435"
             }
           },
           "parameters": {

@@ -33,7 +33,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2022-04-01' = {
   }
   properties: {
     dnsPrefix: 'mesh-demo-aks'
-    kubernetesVersion: '1.23.8'
+    kubernetesVersion: '1.26'
     networkProfile: {
       networkPlugin: 'azure'
       serviceCidr: '192.168.0.0/22'
