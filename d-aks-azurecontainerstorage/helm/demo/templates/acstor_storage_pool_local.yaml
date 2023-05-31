@@ -1,0 +1,8 @@
+apiVersion: containerstorage.azure.com/v1alpha1
+kind: StoragePool
+metadata:
+  name: local
+  namespace: acstor
+spec:
+  poolType:
+    ephemeralDisk: {}

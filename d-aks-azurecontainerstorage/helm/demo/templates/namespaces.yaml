@@ -1,0 +1,20 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: acstor-disk
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: acstor-local
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: csi-disk
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: manual-local
+---

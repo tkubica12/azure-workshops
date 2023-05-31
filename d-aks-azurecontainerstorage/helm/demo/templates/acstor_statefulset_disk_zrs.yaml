@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: acstor-disk-zrs
+  namespace: acstor-disk
+spec:
+  selector:
+    matchLabels:
+      app: acstor-disk-zrs
+  serviceName: "nginx"
+  replicas: 3
+  minReadySeconds: 0
+  template:
+    metadata:
+      labels:
+        app: acstor-disk-zrs
+    spec:
+      terminationGracePeriodSeconds: 10
+      nodeSelector:
+        acstor.azure.com/io-engine: acstor
+      containers:
+      - name: fio
+        image: nixery.dev/shell/fio
+        args:
+          - sleep
+          - "1000000"
+        volumeMounts:
+        - name: acstor-disk
+          mountPath: /data
+        - name: fio
+          mountPath: /fio
+      volumes:
+        - name: fio
+          configMap:
+            name: fio
+  volumeClaimTemplates:
+  - metadata:
+      name: acstor-disk
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: acstor-disk-zrs
+      resources:
+        requests:
+          storage: 100Gi

@@ -1,0 +1,11 @@
+apiVersion: containerstorage.azure.com/v1alpha1
+kind: StoragePool
+metadata:
+  name: disk-zrs
+  namespace: acstor
+spec:
+  poolType:
+    azureDisk:
+      storageClassName: premium-zrs
+  resources:
+    requests: {"storage": 1Ti}
