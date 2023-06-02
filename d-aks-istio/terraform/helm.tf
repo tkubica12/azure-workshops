@@ -3,10 +3,10 @@ resource "helm_release" "books" {
   chart     = "../charts/books"
   namespace = "demo"
 
-  depends_on = [helm_release.namespaces]
+  depends_on = [helm_release.cluster_config]
 }
 
-resource "helm_release" "namespaces" {
-  name  = "namespaces"
-  chart = "../charts/namespaces"
+resource "helm_release" "cluster_config" {
+  name  = "cluster-config"
+  chart = "../charts/cluster_config"
 }
