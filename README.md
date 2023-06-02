@@ -30,6 +30,7 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 - [Microsoft Defender for Containers](./d-aks-defender/README.md)
 - [ChaosMesh](./d-aks-chaosmesh/README.md)
 - [AKS with ArcoCD and Argo Rollouts](./d-aks-argo-cd-and-rollouts/README.md)
+- [Istio addon with Prometheus and Grafana](./d-aks-istio/README.md)
 
 ## Other demos
 - [Azure API Management in AKS](./d-apim-in-aks/README.md)
