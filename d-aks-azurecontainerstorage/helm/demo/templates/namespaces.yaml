@@ -11,6 +11,11 @@ metadata:
 kind: Namespace
 apiVersion: v1
 metadata:
+  name: acstor-esan
+---
+kind: Namespace
+apiVersion: v1
+metadata:
   name: csi-disk
 ---
 kind: Namespace

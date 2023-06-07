@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: acstor-esan
+  namespace: acstor-esan
+spec:
+  selector:
+    matchLabels:
+      app: acstor-esan
+  serviceName: "nginx"
+  replicas: 3
+  minReadySeconds: 0
+  template:
+    metadata:
+      labels:
+        app: acstor-esan
+    spec:
+      terminationGracePeriodSeconds: 10
+      nodeSelector:
+        acstor.azure.com/io-engine: acstor
+      containers:
+      - name: fio
+        image: nixery.dev/shell/fio
+        args:
+          - sleep
+          - "1000000"
+        volumeMounts:
+        - name: acstor-esan
+          mountPath: /data
+        - name: fio
+          mountPath: /fio
+      volumes:
+        - name: fio
+          configMap:
+            name: fio
+  volumeClaimTemplates:
+  - metadata:
+      name: acstor-esan
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: acstor-esan
+      resources:
+        requests:
+          storage: 100Gi
