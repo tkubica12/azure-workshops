@@ -25,6 +25,34 @@ resource "azapi_resource" "web_ext" {
               cpu    = 0.25
               memory = "0.5Gi"
             }
+            volumeMounts = [
+              {
+                volumeName = "myfiles"
+                mountPath  = "/myfiles"
+              }
+            ]
+          }
+        ]
+        initContainers = [
+          {
+            name  = "init-container"
+            image = "ubuntu:latest"
+            command = [
+              "/bin/bash",
+              "-c",
+              "sleep 1"
+            ]
+            resources = {
+              cpu    = 0.25
+              memory = "0.5Gi"
+            }
+          }
+        ]
+        volumes = [
+          {
+            name        = "myfiles"
+            storageName = "myfiles"
+            storageType = "AzureFile"
           }
         ]
       }

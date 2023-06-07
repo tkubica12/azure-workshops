@@ -8,9 +8,12 @@ resource "azapi_resource" "job" {
     properties = {
       environmentId = azapi_resource.aca_ext_env.id
       configuration = {
-        triggerType       = "Schedule"
-        replicaTimeout    = 600
-        replicaRetryLimit = 5
+        triggerType         = "Schedule"
+        manualTriggerConfig = null
+        registries          = null
+        secrets             = null
+        replicaTimeout      = 600
+        replicaRetryLimit   = 5
         scheduleTriggerConfig = {
           replicaCompletionCount = 1
           parallelism            = 1
@@ -28,8 +31,17 @@ resource "azapi_resource" "job" {
             }
           }
         ]
+        initContainers = null
+        volumes        = null
       }
       workloadProfileName = "Consumption"
     }
   })
+
+  lifecycle {
+    ignore_changes = [
+      schema_validation_enabled,
+      type
+    ]
+  }
 }

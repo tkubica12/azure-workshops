@@ -69,3 +69,19 @@ resource "azapi_resource" "aca_ext_env" {
     }
   })
 }
+
+resource "azapi_resource" "storage_env_mapping" {
+  type      = "Microsoft.App/managedEnvironments/storages@2022-11-01-preview"
+  name      = "myfiles"
+  parent_id = azapi_resource.aca_ext_env.id
+  body = jsonencode({
+    properties = {
+      azureFile = {
+        accessMode  = "ReadOnly"
+        accountKey  = azurerm_storage_account.files.primary_access_key
+        accountName = azurerm_storage_account.files.name
+        shareName   = azurerm_storage_share.main.name
+      }
+    }
+  })
+}
