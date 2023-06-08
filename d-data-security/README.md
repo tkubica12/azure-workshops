@@ -36,7 +36,7 @@ AKS cluster currently includes:
 ### SGX-enabled nodepool
 Go to SGX VMSS, node and use Bastion to connect to node.
 
-Install procmon and dump standard process - both variables can be seen plain text in dump.
+Install procdump and dump standard process - both variables can be seen plain text in dump.
 
 ```bash
 sudo apt install procdump

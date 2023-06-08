@@ -4,7 +4,7 @@ This is demo of open source project ChaosMesh on AKS. For broader view on Chaos 
 To access dashboard you need to create token
 
 ```bash
-az aks get-credentials -n d-aks-chaosmesh -g d-aks-chaosmesh --admin
+az aks get-credentials -n d-aks-chaosmesh -g d-aks-chaosmesh --admin --overwrite-existing
 kubectl create token chaosdashboard
 ```
 

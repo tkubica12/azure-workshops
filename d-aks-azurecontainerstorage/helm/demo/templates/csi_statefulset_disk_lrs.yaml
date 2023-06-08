@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: csi-disk-lrs
+  namespace: csi-disk
+spec:
+  selector:
+    matchLabels:
+      app: csi-disk-lrs
+  serviceName: "nginx"
+  replicas: 3
+  minReadySeconds: 0
+  template:
+    metadata:
+      labels:
+        app: csi-disk-lrs
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: fio
+        image: nixery.dev/shell/fio
+        args:
+          - sleep
+          - "1000000"
+        volumeMounts:
+        - name: csi-disk
+          mountPath: /data
+        - name: fio
+          mountPath: /fio
+      volumes:
+        - name: fio
+          configMap:
+            name: fio
+  volumeClaimTemplates:
+  - metadata:
+      name: csi-disk
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: premiumv2-lrs
+      resources:
+        requests:
+          storage: 100Gi

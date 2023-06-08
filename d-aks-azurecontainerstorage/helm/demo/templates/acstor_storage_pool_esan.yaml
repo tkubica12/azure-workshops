@@ -1,0 +1,10 @@
+apiVersion: containerstorage.azure.com/v1alpha1
+kind: StoragePool
+metadata:
+  name: esan
+  namespace: acstor
+spec:
+  poolType:
+    elasticSan: {}
+  resources:
+    requests: {"storage": 1Ti}
