@@ -2,6 +2,7 @@
 
 Demonstrations:
 - Connect to ext container and see access to Internet does not go via FW by calling curl http://ifconfig.io. Then connect to int container, do the same and see error message from firewall - UDRs work.
+- Ingress news - show ingress configuration with TCP options, session affinity, IP whitelisting
 - Showcase /27 subnet
 - Init container - show in web-ext
 - Files mounted as volume - show on ext-env and then jump to web-ext container an list /myfiles

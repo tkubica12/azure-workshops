@@ -3,6 +3,12 @@ resource "azapi_resource" "web_ext" {
   name      = "web-ext"
   location  = azurerm_resource_group.main.location
   parent_id = azurerm_resource_group.main.id
+  identity {
+    type = "UserAssigned"
+    identity_ids = [
+      azurerm_user_assigned_identity.kv_reader.id
+    ]
+  }
   body = jsonencode({
     properties = {
       environmentId = azapi_resource.aca_ext_env.id
@@ -12,6 +18,13 @@ resource "azapi_resource" "web_ext" {
           external   = true
           targetPort = 80
         }
+        secrets = [
+          {
+            identity    = azurerm_user_assigned_identity.kv_reader.id
+            keyVaultUrl = azurerm_key_vault_secret.main.id
+            name        = "mysecret"
+          }
+        ]
       }
       template = {
         scale = {
@@ -29,6 +42,12 @@ resource "azapi_resource" "web_ext" {
               {
                 volumeName = "myfiles"
                 mountPath  = "/myfiles"
+              }
+            ]
+            env = [
+              {
+                name      = "mysecret"
+                secretRef = "mysecret"
               }
             ]
           }

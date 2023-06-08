@@ -10,3 +10,5 @@ resource "random_string" "main" {
   special = false
   numeric = false
 }
+
+data "azurerm_client_config" "current" {}
