@@ -27,6 +27,10 @@ resource "azurerm_kubernetes_cluster" "aks1" {
 
   monitor_metrics {}
 
+  oms_agent {
+    log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
+  }
+
   service_mesh_profile {
     mode                             = "Istio"
     internal_ingress_gateway_enabled = true
@@ -41,6 +45,12 @@ resource "azurerm_kubernetes_cluster" "aks1" {
   }
 }
 
+resource "azurerm_role_assignment" "aks1" {
+  scope                = azurerm_kubernetes_cluster.aks1.id
+  role_definition_name = "Azure Kubernetes Service RBAC Cluster Admin"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
+
 resource "azurerm_kubernetes_cluster_extension" "aks1" {
   name           = "flux"
   cluster_id     = azurerm_kubernetes_cluster.aks1.id
@@ -50,19 +60,23 @@ resource "azurerm_kubernetes_cluster_extension" "aks1" {
 resource "azurerm_kubernetes_flux_configuration" "aks1" {
   name       = "my-flux-config"
   cluster_id = azurerm_kubernetes_cluster.aks1.id
-  namespace  = "flux"
+  namespace  = "flux-system"
+  scope      = "cluster"
 
   git_repository {
-    url             = "https://github.com/tkubica12/azure-workshops"
-    reference_type  = "branch"
-    reference_value = "d-aks"
+    url                      = "https://github.com/tkubica12/azure-workshops"
+    reference_type           = "branch"
+    reference_value          = "d-aks"
+    sync_interval_in_seconds = 120
+    timeout_in_seconds       = 120
   }
 
   kustomizations {
     name                       = "my-kustomization1"
     path                       = "d-aks/kubernetes/clusters/d-aks"
-    sync_interval_in_seconds   = 180
-    retry_interval_in_seconds  = 180
+    sync_interval_in_seconds   = 120
+    retry_interval_in_seconds  = 120
+    timeout_in_seconds         = 300
     recreating_enabled         = true
     garbage_collection_enabled = true
   }
@@ -95,6 +109,12 @@ resource "azurerm_kubernetes_cluster" "aks2" {
       microsoft_defender
     ]
   }
+}
+
+resource "azurerm_role_assignment" "aks2" {
+  scope                = azurerm_kubernetes_cluster.aks2.id
+  role_definition_name = "Azure Kubernetes Service RBAC Cluster Admin"
+  principal_id         = data.azurerm_client_config.current.object_id
 }
 
 resource "azurerm_kubernetes_cluster_extension" "aks2" {

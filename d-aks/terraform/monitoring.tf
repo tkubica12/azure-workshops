@@ -21,6 +21,12 @@ resource "azurerm_dashboard_grafana" "main" {
   }
 }
 
+resource "azurerm_role_assignment" "grafana" {
+  scope                = azurerm_dashboard_grafana.main.id
+  role_definition_name = "Grafana Admin"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
+
 resource "azurerm_log_analytics_workspace" "main" {
   name                = random_string.main.result
   resource_group_name = azurerm_resource_group.main.name
@@ -29,132 +35,54 @@ resource "azurerm_log_analytics_workspace" "main" {
   retention_in_days   = 30
 }
 
-# data "azurerm_monitor_data_collection_endpoint" "main" {
-#   name                = azurerm_monitor_workspace.main.name
-#   resource_group_name = azurerm_monitor_workspace.main.resource_group_name
+# data "azapi_resource" "azurerm_monitor_workspace" {
+#   name      = azurerm_monitor_workspace.main.name
+#   parent_id = azurerm_resource_group.main.id
+#   type      = "microsoft.monitor/accounts@2021-06-03-preview"
+
+#   response_export_values = ["*"]
 # }
 
-# resource "azurerm_monitor_data_collection_rule" "main" {
-#   name                        = "aks-to-prometheus"
-#   resource_group_name         = azurerm_resource_group.main.name
-#   location                    = azurerm_resource_group.main.location
-#   data_collection_endpoint_id = data.azurerm_monitor_data_collection_endpoint.main.logs_ingestion_endpoint
+resource "azurerm_monitor_data_collection_endpoint" "main" {
+  name                          = "aks-endpoint"
+  resource_group_name           = azurerm_resource_group.main.name
+  location                      = azurerm_resource_group.main.location
+  kind                          = "Linux"
+  public_network_access_enabled = true
+}
 
-#   destinations {
-#     log_analytics {
-#       workspace_resource_id = azurerm_log_analytics_workspace.example.id
-#       name                  = "example-destination-log"
-#     }
+resource "azurerm_monitor_data_collection_rule" "main" {
+  name                        = "aks-to-prometheus"
+  resource_group_name         = azurerm_resource_group.main.name
+  location                    = azurerm_resource_group.main.location
+  data_collection_endpoint_id = azurerm_monitor_data_collection_endpoint.main.id
 
-#     event_hub {
-#       event_hub_id = azurerm_eventhub.example.id
-#       name         = "example-destination-eventhub"
-#     }
+  destinations {
+    monitor_account {
+      monitor_account_id = azurerm_monitor_workspace.main.id
+      name               = "MonitoringAccount1"
+    }
+  }
 
-#     storage_blob {
-#       storage_account_id = azurerm_storage_account.example.id
-#       container_name     = azurerm_storage_container.example.name
-#       name               = "example-destination-storage"
-#     }
+  data_flow {
+    streams      = ["Microsoft-PrometheusMetrics"]
+    destinations = ["MonitoringAccount1"]
+  }
 
-#     azure_monitor_metrics {
-#       name = "example-destination-metrics"
-#     }
-#   }
+  data_sources {
+    prometheus_forwarder {
+      name = "PrometheusDataSource"
+      streams = [ "Microsoft-PrometheusMetrics" ]
+    }
+  }
 
-#   data_flow {
-#     streams      = ["Microsoft-InsightsMetrics"]
-#     destinations = ["example-destination-metrics"]
-#   }
+  depends_on = [
+    azurerm_monitor_workspace.main
+  ]
+}
 
-#   data_flow {
-#     streams      = ["Microsoft-InsightsMetrics", "Microsoft-Syslog", "Microsoft-Perf"]
-#     destinations = ["example-destination-log"]
-#   }
-
-#   data_flow {
-#     streams       = ["Custom-MyTableRawData"]
-#     destinations  = ["example-destination-log"]
-#     output_stream = "Microsoft-Syslog"
-#     transform_kql = "source | project TimeGenerated = Time, Computer, Message = AdditionalContext"
-#   }
-
-#   data_sources {
-#     syslog {
-#       facility_names = ["*"]
-#       log_levels     = ["*"]
-#       name           = "example-datasource-syslog"
-#     }
-
-#     iis_log {
-#       streams         = ["Microsoft-W3CIISLog"]
-#       name            = "example-datasource-iis"
-#       log_directories = ["C:\\Logs\\W3SVC1"]
-#     }
-
-#     log_file {
-#       name          = "example-datasource-logfile"
-#       format        = "text"
-#       streams       = ["Custom-MyTableRawData"]
-#       file_patterns = ["C:\\JavaLogs\\*.log"]
-#       settings {
-#         text {
-#           record_start_timestamp_format = "ISO 8601"
-#         }
-#       }
-#     }
-
-#     performance_counter {
-#       streams                       = ["Microsoft-Perf", "Microsoft-InsightsMetrics"]
-#       sampling_frequency_in_seconds = 60
-#       counter_specifiers            = ["Processor(*)\\% Processor Time"]
-#       name                          = "example-datasource-perfcounter"
-#     }
-
-#     windows_event_log {
-#       streams        = ["Microsoft-WindowsEvent"]
-#       x_path_queries = ["*![System/Level=1]"]
-#       name           = "example-datasource-wineventlog"
-#     }
-
-#     extension {
-#       streams            = ["Microsoft-WindowsEvent"]
-#       input_data_sources = ["example-datasource-wineventlog"]
-#       extension_name     = "example-extension-name"
-#       extension_json = jsonencode({
-#         a = 1
-#         b = "hello"
-#       })
-#       name = "example-datasource-extension"
-#     }
-#   }
-
-#   stream_declaration {
-#     stream_name = "Custom-MyTableRawData"
-#     column {
-#       name = "Time"
-#       type = "datetime"
-#     }
-#     column {
-#       name = "Computer"
-#       type = "string"
-#     }
-#     column {
-#       name = "AdditionalContext"
-#       type = "string"
-#     }
-#   }
-
-#   identity {
-#     type         = "UserAssigned"
-#     identity_ids = [azurerm_user_assigned_identity.example.id]
-#   }
-
-#   description = "data collection rule example"
-#   tags = {
-#     foo = "bar"
-#   }
-#   depends_on = [
-#     azurerm_log_analytics_solution.example
-#   ]
-# }
+resource "azurerm_monitor_data_collection_rule_association" "aks1" {
+  target_resource_id          = azurerm_kubernetes_cluster.aks1.id
+  data_collection_endpoint_id = azurerm_monitor_data_collection_endpoint.main.id
+  description                 = "aks1"
+}
