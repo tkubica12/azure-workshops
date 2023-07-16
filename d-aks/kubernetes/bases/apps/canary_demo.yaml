@@ -10,4 +10,4 @@ spec:
   releaseName: canary-demo
   chart: 
     spec:
-      chart: d-aks/kubernetes/charts/canary-demo
+      chart: d-aks/kubernetes/charts/canary_demo
