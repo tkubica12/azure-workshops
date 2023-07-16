@@ -5,6 +5,7 @@ metadata:
   labels:
     name: web-http
 spec:
+  ingressClassName: nginx
   rules:
   - host: web.demo.tkubica.biz
     http:

@@ -35,11 +35,11 @@ resource "azurerm_kubernetes_cluster" "aks1" {
     log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
   }
 
-  service_mesh_profile {
-    mode                             = "Istio"
-    internal_ingress_gateway_enabled = true
-    external_ingress_gateway_enabled = true
-  }
+  # service_mesh_profile {
+  #   mode                             = "Istio"
+  #   internal_ingress_gateway_enabled = false
+  #   external_ingress_gateway_enabled = false
+  # }
 
   lifecycle {
     ignore_changes = [
