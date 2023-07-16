@@ -12,6 +12,8 @@ graph LR;
 flux_entrypoint --> cluster_layer([Cluster kustomize layer])
 cluster_layer -- patches ---> base_layer_infra([Infra kustomize layer])
 cluster_layer -- patches ---> base_layer_apps([Apps kustomize layer])
+base_layer_infra -- patches --> argo_rollouts([Argo rollouts controller])
+argo_rollouts -- patches --> argo_rollouts_resources[/Resources: controller, service, .../]
 base_layer_infra -- patches --> namespaces[/Resource: namespaces/]
 base_layer_infra -- input variables --> cert_manager[[Helm: cert-manager]]
 base_layer_infra -- input variables --> nginx_ingress[[Helm: nginx-ingress]]
