@@ -2,4 +2,4 @@ resources:
   - namespaces.yaml
   - cert_manager.yaml
   - nginx_ingress.yaml
-  - https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml  # Argo Rollouts
+  - ../argo_rollouts
