@@ -4,6 +4,7 @@ resource "azurerm_kubernetes_cluster" "aks1" {
   resource_group_name  = azurerm_resource_group.main.name
   dns_prefix           = "d-aks"
   azure_policy_enabled = true
+  
   azure_active_directory_role_based_access_control {
     managed            = true
     azure_rbac_enabled = true
@@ -11,7 +12,10 @@ resource "azurerm_kubernetes_cluster" "aks1" {
 
   default_node_pool {
     name                        = "default"
-    node_count                  = 1
+    node_count                  = 2
+    enable_auto_scaling         = true
+    min_count                   = 2
+    max_count                   = 5
     vm_size                     = "Standard_B4ms"
     temporary_name_for_rotation = "defaulttemp"
   }
