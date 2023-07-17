@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-http
+  labels:
+    name: web-http
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: web.demo.tkubica.biz
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: web
+            port: 
+              number: 80

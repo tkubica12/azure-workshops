@@ -1,0 +1,13 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: canary-demo
+  namespace: flux-system
+  annotations:
+    clusterconfig.azure.com/use-managed-source: "true"
+spec:
+  interval: 1m
+  releaseName: canary-demo
+  chart: 
+    spec:
+      chart: d-aks/kubernetes/charts/canary_demo

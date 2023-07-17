@@ -1,0 +1,5 @@
+resources:
+  - namespaces.yaml
+  - cert_manager.yaml
+  - nginx_ingress.yaml
+  - ../argo_rollouts
