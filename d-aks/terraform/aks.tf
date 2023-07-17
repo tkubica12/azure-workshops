@@ -70,7 +70,7 @@ resource "azurerm_kubernetes_flux_configuration" "aks1" {
   git_repository {
     url                      = "https://github.com/tkubica12/azure-workshops"
     reference_type           = "branch"
-    reference_value          = "d-aks"
+    reference_value          = "main"
     sync_interval_in_seconds = 120
     timeout_in_seconds       = 120
   }
