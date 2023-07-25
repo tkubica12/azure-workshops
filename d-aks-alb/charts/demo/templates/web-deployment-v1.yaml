@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web1
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: web1
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: web1
+    spec:
+      containers:
+      - name: web
+        image: ghcr.io/tkubica12/web:1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
