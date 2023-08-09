@@ -11,13 +11,14 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   service_mesh_profile {
-    mode = "Istio"
+    mode                             = "Istio"
+    external_ingress_gateway_enabled = true
   }
 
   default_node_pool {
     name       = "default"
     node_count = 3
-    vm_size    = "Standard_B2ms"
+    vm_size    = "Standard_B4ms"
   }
 
   identity {
