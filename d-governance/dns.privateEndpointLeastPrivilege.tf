@@ -152,29 +152,7 @@ resource "azapi_resource" "policyPrivateLinkDnsDeny" {
   type      = "Microsoft.Authorization/policyDefinitions@2021-06-01"
   name      = "policyPrivateLinkDnsDeny"
   parent_id = "/subscriptions/${var.subscription_id}"
-
-  body = jsonencode({
-    properties = {
-      "mode" : "All",
-      "policyRule" : {
-        "if" : {
-          "allOf" : [
-            {
-              "field" : "type",
-              "equals" : "Microsoft.Network/privateDnsZones"
-            },
-            {
-              "field" : "name",
-              "contains" : "privatelink."
-            }
-          ]
-        },
-        "then" : {
-          "effect" : "Deny"
-        }
-      }
-    }
-  })
+  body      = file("${path.module}/policies/policyPrivateLinkDnsDeny.json")
 }
 
 // Assign policy
@@ -194,7 +172,7 @@ resource "azapi_resource" "assignmentPrivateLinkDnsDeny" {
           message = "Creation of privatelink DNS zones in user subscription is not allowed by company policy. Please use our central private DNS zones that are integrated with hybrid DNS system."
         }
       ]
-      notScopes = []
+      notScopes          = []
       parameters         = {}
       policyDefinitionId = azapi_resource.policyPrivateLinkDnsDeny.id
     }

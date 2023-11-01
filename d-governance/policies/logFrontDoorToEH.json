@@ -1,0 +1,235 @@
+{
+    "properties": {
+        "displayName": "Audit Logs from Front Door to Event Hub",
+        "policyType": "Custom",
+        "mode": "All",
+        "description": "Deploys the diagnostic settings for Front Door to stream to a Event Hub when any Front Door which is missing this diagnostic settings is created or updated.",
+        "metadata": {
+            "version": "1.0.0",
+            "category": "AuditLogs"
+        },
+        "parameters": {
+            "effect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "Enable or disable the execution of the policy",
+                    "portalReview": true
+                },
+                "allowedValues": [
+                    "DeployIfNotExists",
+                    "Disabled"
+                ],
+                "defaultValue": "DeployIfNotExists"
+            },
+            "eventHubRuleId": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Event Hub Authorization Rule Id",
+                    "description": "The Event Hub authorization rule Id for Azure Diagnostics. The authorization rule needs to be at Event Hub namespace level. e.g. /subscriptions/{subscription Id}/resourceGroups/{resource group}/providers/Microsoft.EventHub/namespaces/{Event Hub namespace}/authorizationrules/{authorization rule}",
+                    "strongType": "Microsoft.EventHub/Namespaces/AuthorizationRules",
+                    "assignPermissions": true
+                }
+            },
+            "eventHubName": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Event Hub Name",
+                    "description": "Event Hub Name"
+                }
+            },
+            "FrontDoorAccessLog": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "FrontDoor Access Log",
+                    "description": "Whether to enable logs stream to the Event Hub for this Log type - True or False",
+                    "portalReview": true
+                },
+                "allowedValues": [
+                    "True",
+                    "False"
+                ],
+                "defaultValue": "True"
+            },
+            "FrontDoorHealthProbeLog": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "FrontDoor Health Probe Log",
+                    "description": "Whether to enable logs stream to the Event Hub for this Log type - True or False",
+                    "portalReview": true
+                },
+                "allowedValues": [
+                    "True",
+                    "False"
+                ],
+                "defaultValue": "True"
+            },
+            "FrontDoorWebApplicationFirewallLog": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "FrontDoor WebApplicationFirewall Log",
+                    "description": "Whether to enable logs stream to the Event Hub for this Log type - True or False",
+                    "portalReview": true
+                },
+                "allowedValues": [
+                    "True",
+                    "False"
+                ],
+                "defaultValue": "True"
+            }
+        },
+        "policyRule": {
+            "if": {
+                "field": "type",
+                "equals": "Microsoft.Cdn/profiles"
+            },
+            "then": {
+                "effect": "[parameters('effect')]",
+                "details": {
+                    "type": "Microsoft.Insights/diagnosticSettings",
+                    "name": "auditLogStream",
+                    "evaluationDelay": "AfterProvisioningSuccess",
+                    "existenceCondition": {
+                        "count": {
+                            "value": [
+                                {
+                                    "category": "FrontDoorAccessLog",
+                                    "enabled": "[parameters('FrontDoorAccessLog')]"
+                                },
+                                {
+                                    "category": "FrontDoorHealthProbeLog",
+                                    "enabled": "[parameters('FrontDoorHealthProbeLog')]"
+                                },
+                                {
+                                    "category": "FrontDoorWebApplicationFirewallLog",
+                                    "enabled": "[parameters('FrontDoorWebApplicationFirewallLog')]"
+                                }
+                            ],
+                            "name": "logCategories",
+                            "where": {
+                                "count": {
+                                    "field": "Microsoft.Insights/diagnosticSettings/logs[*]",
+                                    "where": {
+                                        "allOf": [
+                                            {
+                                                "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+                                                "equals": "[current('logCategories').enabled]"
+                                            },
+                                            {
+                                                "field": "Microsoft.Insights/diagnosticSettings/logs[*].category",
+                                                "equals": "[current('logCategories').category]"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "greater": 0
+                            }
+                        },
+                        "equals": 2
+                    },
+                    "roleDefinitionIds": [
+                        "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                    ],
+                    "deployment": {
+                        "properties": {
+                            "mode": "incremental",
+                            "template": {
+                                "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                                "contentVersion": "1.0.0.0",
+                                "parameters": {
+                                    "vaultName": {
+                                        "type": "string"
+                                    },
+                                    "location": {
+                                        "type": "string"
+                                    },
+                                    "eventHubRuleId": {
+                                        "type": "string"
+                                    },
+                                    "eventHubName": {
+                                        "type": "string"
+                                    },
+                                    "FrontDoorAccessLog": {
+                                        "type": "string"
+                                    },
+                                    "FrontDoorHealthProbeLog": {
+                                        "type": "string"
+                                    },
+                                    "FrontDoorWebApplicationFirewallLog": {
+                                        "type": "string"
+                                    }
+                                },
+                                "resources": [
+                                    {
+                                        "type": "Microsoft.Cdn/profiles/providers/diagnosticSettings",
+                                        "apiVersion": "2017-05-01-preview",
+                                        "name": "[concat(parameters('vaultName'), '/', 'Microsoft.Insights/auditLogStream')]",
+                                        "location": "[parameters('location')]",
+                                        "dependsOn": [],
+                                        "properties": {
+                                            "eventHubAuthorizationRuleId": "[parameters('eventHubRuleId')]",
+                                            "eventHubName": "[parameters('eventHubName')]",
+                                            "metrics": [
+                                                {
+                                                    "category": "AllMetrics",
+                                                    "enabled": false,
+                                                    "retentionPolicy": {
+                                                        "enabled": false,
+                                                        "days": 0
+                                                    }
+                                                }
+                                            ],
+                                            "logs": [
+                                                {
+                                                    "category": "FrontDoorAccessLog",
+                                                    "enabled": "[parameters('FrontDoorAccessLog')]"
+                                                },
+                                                {
+                                                    "category": "FrontDoorHealthProbeLog",
+                                                    "enabled": "[parameters('FrontDoorHealthProbeLog')]"
+                                                },
+                                                {
+                                                    "category": "FrontDoorWebApplicationFirewallLog",
+                                                    "enabled": "[parameters('FrontDoorWebApplicationFirewallLog')]"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ],
+                                "outputs": {
+                                    "policy": {
+                                        "type": "string",
+                                        "value": "[concat('Enabled diagnostic settings for ', parameters('vaultName'))]"
+                                    }
+                                }
+                            },
+                            "parameters": {
+                                "location": {
+                                    "value": "[field('location')]"
+                                },
+                                "vaultName": {
+                                    "value": "[field('name')]"
+                                },
+                                "eventHubRuleId": {
+                                    "value": "[parameters('eventHubRuleId')]"
+                                },
+                                "eventHubName": {
+                                    "value": "[parameters('eventHubName')]"
+                                },
+                                "FrontDoorAccessLog": {
+                                    "value": "[parameters('FrontDoorAccessLog')]"
+                                },
+                                "FrontDoorHealthProbeLog": {
+                                    "value": "[parameters('FrontDoorHealthProbeLog')]"
+                                },
+                                "FrontDoorWebApplicationFirewallLog": {
+                                    "value": "[parameters('FrontDoorWebApplicationFirewallLog')]"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
