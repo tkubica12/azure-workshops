@@ -125,7 +125,7 @@
                                 "greater": 0
                             }
                         },
-                        "equals": 2
+                        "equals": 3
                     },
                     "roleDefinitionIds": [
                         "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
@@ -137,7 +137,7 @@
                                 "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
                                 "contentVersion": "1.0.0.0",
                                 "parameters": {
-                                    "vaultName": {
+                                    "name": {
                                         "type": "string"
                                     },
                                     "location": {
@@ -163,7 +163,7 @@
                                     {
                                         "type": "Microsoft.Cdn/profiles/providers/diagnosticSettings",
                                         "apiVersion": "2017-05-01-preview",
-                                        "name": "[concat(parameters('vaultName'), '/', 'Microsoft.Insights/auditLogStream')]",
+                                        "name": "[concat(parameters('name'), '/', 'Microsoft.Insights/auditLogStream')]",
                                         "location": "[parameters('location')]",
                                         "dependsOn": [],
                                         "properties": {
@@ -196,18 +196,13 @@
                                         }
                                     }
                                 ],
-                                "outputs": {
-                                    "policy": {
-                                        "type": "string",
-                                        "value": "[concat('Enabled diagnostic settings for ', parameters('vaultName'))]"
-                                    }
-                                }
+                                "outputs": {}
                             },
                             "parameters": {
                                 "location": {
                                     "value": "[field('location')]"
                                 },
-                                "vaultName": {
+                                "name": {
                                     "value": "[field('name')]"
                                 },
                                 "eventHubRuleId": {

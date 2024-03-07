@@ -1,0 +1,368 @@
+{
+    "properties": {
+        "displayName": "Activity Logs from Subscription to Event Hub",
+        "policyType": "Custom",
+        "mode": "All",
+        "description": "Deploys the diagnostic settings for Subscription to stream to a Event Hub.",
+        "metadata": {
+            "version": "1.0.0",
+            "category": "AuditLogs"
+        },
+        "parameters": {
+            "effect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "Enable or disable the execution of the policy",
+                    "portalReview": true
+                },
+                "allowedValues": [
+                    "DeployIfNotExists",
+                    "Disabled"
+                ],
+                "defaultValue": "DeployIfNotExists"
+            },
+            "eventHubRuleId": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Event Hub Authorization Rule Id",
+                    "description": "The Event Hub authorization rule Id for Azure Diagnostics. The authorization rule needs to be at Event Hub namespace level. e.g. /subscriptions/{subscription Id}/resourceGroups/{resource group}/providers/Microsoft.EventHub/namespaces/{Event Hub namespace}/authorizationrules/{authorization rule}",
+                    "strongType": "Microsoft.EventHub/Namespaces/AuthorizationRules",
+                    "assignPermissions": true
+                }
+            },
+            "eventHubName": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Event Hub Name",
+                    "description": "Event Hub Name"
+                }
+            },
+            "Administrative": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Administrative",
+                    "description": "Whether to enable logs stream to the Event Hub for this Log type - True or False",
+                    "portalReview": true
+                },
+                "allowedValues": [
+                    "True",
+                    "False"
+                ],
+                "defaultValue": "True"
+            },
+            "Security": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Security",
+                    "description": "Whether to enable logs stream to the Event Hub for this Log type - True or False",
+                    "portalReview": true
+                },
+                "allowedValues": [
+                    "True",
+                    "False"
+                ],
+                "defaultValue": "True"
+            },
+            "ServiceHealth": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "ServiceHealth",
+                    "description": "Whether to enable logs stream to the Event Hub for this Log type - True or False",
+                    "portalReview": true
+                },
+                "allowedValues": [
+                    "True",
+                    "False"
+                ],
+                "defaultValue": "True"
+            },
+            "Alert": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Alert",
+                    "description": "Whether to enable logs stream to the Event Hub for this Log type - True or False",
+                    "portalReview": true
+                },
+                "allowedValues": [
+                    "True",
+                    "False"
+                ],
+                "defaultValue": "False"
+            },
+            "Recommendation": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Recommendation",
+                    "description": "Whether to enable logs stream to the Event Hub for this Log type - True or False",
+                    "portalReview": true
+                },
+                "allowedValues": [
+                    "True",
+                    "False"
+                ],
+                "defaultValue": "False"
+            },
+            "Policy": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Policy",
+                    "description": "Whether to enable logs stream to the Event Hub for this Log type - True or False",
+                    "portalReview": true
+                },
+                "allowedValues": [
+                    "True",
+                    "False"
+                ],
+                "defaultValue": "True"
+            },
+            "Autoscale": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Autoscale",
+                    "description": "Whether to enable logs stream to the Event Hub for this Log type - True or False",
+                    "portalReview": true
+                },
+                "allowedValues": [
+                    "True",
+                    "False"
+                ],
+                "defaultValue": "False"
+            },
+            "ResourceHealth": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "ResourceHealth",
+                    "description": "Whether to enable logs stream to the Event Hub for this Log type - True or False",
+                    "portalReview": true
+                },
+                "allowedValues": [
+                    "True",
+                    "False"
+                ],
+                "defaultValue": "True"
+            }
+        },
+        "policyRule": {
+            "if": {
+                "field": "type",
+                "equals": "Microsoft.Resources/subscriptions"
+            },
+            "then": {
+                "effect": "[parameters('effect')]",
+                "details": {
+                    "type": "Microsoft.Insights/diagnosticSettings",
+                    "name": "auditLogStream",
+                    "deploymentScope": "Subscription",
+                    "existenceScope": "Subscription",
+                    "existenceCondition": {
+                        "count": {
+                            "value": [
+                                {
+                                    "category": "Administrative",
+                                    "enabled": "[parameters('Administrative')]"
+                                },
+                                {
+                                    "category": "Security",
+                                    "enabled": "[parameters('Security')]"
+                                },
+                                {
+                                    "category": "ServiceHealth",
+                                    "enabled": "[parameters('ServiceHealth')]"
+                                },
+                                {
+                                    "category": "Alert",
+                                    "enabled": "[parameters('Alert')]"
+                                },
+                                {
+                                    "category": "Recommendation",
+                                    "enabled": "[parameters('Recommendation')]"
+                                },
+                                {
+                                    "category": "Policy",
+                                    "enabled": "[parameters('Policy')]"
+                                },
+                                {
+                                    "category": "Autoscale",
+                                    "enabled": "[parameters('Autoscale')]"
+                                },
+                                {
+                                    "category": "ResourceHealth",
+                                    "enabled": "[parameters('ResourceHealth')]"
+                                }
+                            ],
+                            "name": "logCategories",
+                            "where": {
+                                "count": {
+                                    "field": "Microsoft.Insights/diagnosticSettings/logs[*]",
+                                    "where": {
+                                        "allOf": [
+                                            {
+                                                "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+                                                "equals": "[current('logCategories').enabled]"
+                                            },
+                                            {
+                                                "field": "Microsoft.Insights/diagnosticSettings/logs[*].category",
+                                                "equals": "[current('logCategories').category]"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "greater": 0
+                            }
+                        },
+                        "equals": 8
+                    },
+                    "roleDefinitionIds": [
+                        "/providers/microsoft.authorization/roleDefinitions/f526a384-b230-433a-b45c-95f59c4a2dec",
+                        "/providers/microsoft.authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293"
+                    ],
+                    "deployment": {
+                        "location": "northeurope",
+                        "properties": {
+                            "mode": "incremental",
+                            "template": {
+                                "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                                "contentVersion": "1.0.0.0",
+                                "parameters": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "location": {
+                                        "type": "string"
+                                    },
+                                    "eventHubRuleId": {
+                                        "type": "string"
+                                    },
+                                    "eventHubName": {
+                                        "type": "string"
+                                    },
+                                    "Administrative": {
+                                        "type": "string"
+                                    },
+                                    "Security": {
+                                        "type": "string"
+                                    },
+                                    "ServiceHealth": {
+                                        "type": "string"
+                                    },
+                                    "Alert": {
+                                        "type": "string"
+                                    },
+                                    "Recommendation": {
+                                        "type": "string"
+                                    },
+                                    "Policy": {
+                                        "type": "string"
+                                    },
+                                    "Autoscale": {
+                                        "type": "string"
+                                    },
+                                    "ResourceHealth": {
+                                        "type": "string"
+                                    }
+                                },
+                                "resources": [
+                                    {
+                                        "type": "Microsoft.Insights/diagnosticSettings",
+                                        "apiVersion": "2021-05-01-preview",
+                                        "location": "Global",
+                                        "name": "activityLogStream",
+                                        "dependsOn": [],
+                                        "properties": {
+                                            "eventHubAuthorizationRuleId": "[parameters('eventHubRuleId')]",
+                                            "eventHubName": "[parameters('eventHubName')]",
+                                            "metrics": [
+                                                {
+                                                    "category": "AllMetrics",
+                                                    "enabled": false,
+                                                    "retentionPolicy": {
+                                                        "enabled": false,
+                                                        "days": 0
+                                                    }
+                                                }
+                                            ],
+                                            "logs": [
+                                                {
+                                                    "category": "Administrative",
+                                                    "enabled": "[parameters('Administrative')]"
+                                                },
+                                                {
+                                                    "category": "Security",
+                                                    "enabled": "[parameters('Security')]"
+                                                },
+                                                {
+                                                    "category": "ServiceHealth",
+                                                    "enabled": "[parameters('ServiceHealth')]"
+                                                },
+                                                {
+                                                    "category": "Alert",
+                                                    "enabled": "[parameters('Alert')]"
+                                                },
+                                                {
+                                                    "category": "Recommendation",
+                                                    "enabled": "[parameters('Recommendation')]"
+                                                },
+                                                {
+                                                    "category": "Policy",
+                                                    "enabled": "[parameters('Policy')]"
+                                                },
+                                                {
+                                                    "category": "Autoscale",
+                                                    "enabled": "[parameters('Autoscale')]"
+                                                },
+                                                {
+                                                    "category": "ResourceHealth",
+                                                    "enabled": "[parameters('ResourceHealth')]"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ],
+                                "outputs": {}
+                            },
+                            "parameters": {
+                                "location": {
+                                    "value": "[field('location')]"
+                                },
+                                "name": {
+                                    "value": "[field('name')]"
+                                },
+                                "eventHubRuleId": {
+                                    "value": "[parameters('eventHubRuleId')]"
+                                },
+                                "eventHubName": {
+                                    "value": "[parameters('eventHubName')]"
+                                },
+                                "Administrative": {
+                                    "value": "[parameters('Administrative')]"
+                                },
+                                "Security": {
+                                    "value": "[parameters('Security')]"
+                                },
+                                "ServiceHealth": {
+                                    "value": "[parameters('ServiceHealth')]"
+                                },
+                                "Alert": {
+                                    "value": "[parameters('Alert')]"
+                                },
+                                "Recommendation": {
+                                    "value": "[parameters('Recommendation')]"
+                                },
+                                "Policy": {
+                                    "value": "[parameters('Policy')]"
+                                },
+                                "Autoscale": {
+                                    "value": "[parameters('Autoscale')]"
+                                },
+                                "ResourceHealth": {
+                                    "value": "[parameters('ResourceHealth')]"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

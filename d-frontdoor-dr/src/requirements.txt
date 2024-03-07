@@ -1,0 +1,2 @@
+flask
+azure-monitor-opentelemetry

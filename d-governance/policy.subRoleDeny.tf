@@ -28,3 +28,4 @@ resource "azapi_resource" "assignmentSubRoleDeny" {
     }
   })
 }
+
