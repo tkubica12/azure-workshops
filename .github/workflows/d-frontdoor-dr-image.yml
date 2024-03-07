@@ -1,0 +1,26 @@
+name: Build webtester app for FrontDoor DR testing
+
+on:
+  workflow_dispatch:
+    
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: 'Login to GitHub Container Registry'
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{github.actor}}
+        password: ${{secrets.GITHUB_TOKEN}}
+
+    - name: Build and push the Docker image
+      run: |
+        cd d-frontdoor-sr/src
+        docker build . --tag ghcr.io/tkubica12/webtester:latest
+        docker push ghcr.io/tkubica12/webtester:latest
