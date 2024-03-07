@@ -21,6 +21,6 @@ jobs:
 
     - name: Build and push the Docker image
       run: |
-        cd d-frontdoor-sr/src
+        cd d-frontdoor-dr/src
         docker build . --tag ghcr.io/tkubica12/webtester:latest
         docker push ghcr.io/tkubica12/webtester:latest
