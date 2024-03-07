@@ -1,0 +1,22 @@
+{
+    "properties": {
+        "mode": "All",
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Network/privateDnsZones"
+                    },
+                    {
+                        "field": "name",
+                        "contains": "privatelink."
+                    }
+                ]
+            },
+            "then": {
+                "effect": "Deny"
+            }
+        }
+    }
+}
