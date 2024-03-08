@@ -22,6 +22,11 @@ resource "azurerm_container_app" "webtester" {
         value = azurerm_application_insights.main.connection_string
       }
 
+      env {
+        name = "OTEL_RESOURCE_ATTRIBUTES"
+        value = "service.name=webtester"
+      }
+
       liveness_probe {
         path             = "/health"
         port             = 80
@@ -48,6 +53,7 @@ resource "azurerm_container_app" "webtester" {
     allow_insecure_connections = false
     target_port                = 80
     external_enabled           = true
+    
 
     traffic_weight {
       percentage      = 100

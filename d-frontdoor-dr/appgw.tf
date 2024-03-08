@@ -90,6 +90,9 @@ resource "azurerm_application_gateway" "appgw" {
 
   backend_address_pool {
     name = "web"
+    fqdns = [
+      azurerm_container_app.webtester.ingress[0].fqdn
+    ]
   }
 
   backend_http_settings {
@@ -99,6 +102,7 @@ resource "azurerm_application_gateway" "appgw" {
     port                  = 443
     protocol              = "Https"
     request_timeout       = 60
+    host_name             = azurerm_container_app.webtester.ingress[0].fqdn
   }
 
   http_listener {
