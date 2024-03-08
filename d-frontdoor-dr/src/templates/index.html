@@ -18,10 +18,19 @@
 
         // Function to fetch data from the backend and update the page
         function printHeadersAndLatency() {
+            // Record the start time
+            var startTime = Date.now();
+
             // Fetch data from the backend
             fetch('/backend')
                 .then(response => response.json())
                 .then(data => {
+                    // Record the end time
+                    var endTime = Date.now();
+
+                    // Calculate the latency
+                    var latency = endTime - startTime;
+
                     // Get the headers div
                     var headersDiv = document.getElementById('headers');
 
@@ -39,7 +48,7 @@
                     var latencyDiv = document.getElementById('latency');
 
                     // Update the latency div with the latency
-                    latencyDiv.innerHTML = '<h2>Latency:</h2>' + (data.latency * 1000).toFixed(2) + ' ms';
+                    latencyDiv.innerHTML = '<h2>Latency:</h2>' + latency + ' ms';
                 });
         }
 

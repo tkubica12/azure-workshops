@@ -6,23 +6,27 @@ resource "azurerm_container_app_environment" "main" {
 }
 
 resource "azurerm_container_app" "httpbin" {
-  name                         = "httpbin"
+  name                         = "webtester"
   container_app_environment_id = azurerm_container_app_environment.main.id
   resource_group_name          = azurerm_resource_group.main.name
   revision_mode                = "Single"
 
   template {
     container {
-      name   = "httpbin"
-      image  = "kennethreitz/httpbin:latest"
+      name   = "webtester"
+      image  = "ghcr.io/tkubica12/webtester:latest"
       cpu    = 0.25
       memory = "0.5Gi"
+      env {
+        name  = "APP_INSIGHTS_CONNECTION_STRING"
+        value = azurerm_application_insights.main.connection_string
+      }
     }
   }
 
   ingress {
     allow_insecure_connections = false
-    target_port                = 80
+    target_port                = 5000
     external_enabled           = true
 
     traffic_weight {
