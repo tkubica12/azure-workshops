@@ -5,7 +5,7 @@ resource "azurerm_container_app_environment" "main" {
   log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
 }
 
-resource "azurerm_container_app" "httpbin" {
+resource "azurerm_container_app" "webtester" {
   name                         = "webtester"
   container_app_environment_id = azurerm_container_app_environment.main.id
   resource_group_name          = azurerm_resource_group.main.name
@@ -21,12 +21,33 @@ resource "azurerm_container_app" "httpbin" {
         name  = "APP_INSIGHTS_CONNECTION_STRING"
         value = azurerm_application_insights.main.connection_string
       }
+
+      liveness_probe {
+        path             = "/health"
+        port             = 80
+        transport        = "HTTP"
+        interval_seconds = 10
+      }
+
+      readiness_probe {
+        path             = "/health"
+        port             = 80
+        transport        = "HTTP"
+        interval_seconds = 10
+      }
+
+      startup_probe {
+        path             = "/health"
+        port             = 80
+        transport        = "HTTP"
+        interval_seconds = 10
+      }
     }
   }
 
   ingress {
     allow_insecure_connections = false
-    target_port                = 5000
+    target_port                = 80
     external_enabled           = true
 
     traffic_weight {

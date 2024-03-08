@@ -29,10 +29,10 @@ resource "azurerm_cdn_frontdoor_origin" "main" {
   cdn_frontdoor_origin_group_id  = azurerm_cdn_frontdoor_origin_group.main.id
   enabled                        = true
   certificate_name_check_enabled = false
-  host_name                      = azurerm_container_app.httpbin.ingress[0].fqdn
+  host_name                      = azurerm_container_app.webtester.ingress[0].fqdn
   http_port                      = 80
   https_port                     = 443
-  origin_host_header             = azurerm_container_app.httpbin.ingress[0].fqdn
+  origin_host_header             = azurerm_container_app.webtester.ingress[0].fqdn
   priority                       = 1
   weight                         = 1
 }
