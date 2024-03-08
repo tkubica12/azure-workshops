@@ -44,7 +44,6 @@ resource "azurerm_container_app" "webtester" {
       }
     }
   }
-
   ingress {
     allow_insecure_connections = false
     target_port                = 80
