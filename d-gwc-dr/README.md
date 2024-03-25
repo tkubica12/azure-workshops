@@ -56,7 +56,7 @@ For pair region we can leverage GRS or RZRS or RA versions of it (those are prov
 
 To initiate failover go to storage account and select failover.
 
-![](./images/101.png)
+![](./images/img101.png)
 
 ### DR from GWC to SC
 GWC and SC and not paired regions so GRS/GZRS cannot be used. For queues, tables or File Shares you will have to use some other techniques to synchronize data between regions. Two obvious approaches are:
@@ -67,7 +67,7 @@ For Blob Storage you can leverage Object Replication features. Terraform has con
 
 Note that secondary account is fully active for both reads and writes so you can achieve 0 RTO, but be aware of potential consistency issues and conflicts if you switch over writes. Prefer append-only architectures as modifications might get lost due to replication lag.
 
-![](./images/101.png)
+![](./images/img101.png)
 
 ## Azure SQL DB
 Azure SQL supports standard backup solution that is primary targeting preventing data loss do to errors, corruptions or ransomware attacks. Nevertheless due to cross-region restore capability together with underlying  GRS storage it can be used as cheap DR solution where longer RTOs and no capacity guarantees are acceptable.
@@ -77,12 +77,12 @@ Active replication can be used to replicate data on database level so very low R
 ### DR from GWC to GN or SC
 In order to restore in you need to wait for geo-backup to be taken and transferred to secondary region. This can take up to 12 hours so RTO can be quite high. Got to Create Azure SQL DB and select you geo backup.
 
-![](./images/204.png)
+![](./images/img204.png)
 
 ### Active replication from GWC to SC
 To initiate failover to replica go to Azure SQL and select replicas and than failover (or forced failover if you are willing to loose some data - eg. in case of disaster).
 
-![](./images/201.png)
+![](./images/img201.png)
 
 ## Azure DB for PostgreSQL
 Unlike with Azure SQL DB, Azure DB for PostgreSQL does not support cross-region restore to non-pair region so you need to use active replication for DR scenarios to unpaired region. This is more expensive, but provides better RPO and RTO and also capacity guarantee in target region. Replica can be used for reads so primary system can be offloaded and potentially smaller.
@@ -90,12 +90,12 @@ Unlike with Azure SQL DB, Azure DB for PostgreSQL does not support cross-region 
 ### DR from GWC to GN
 You can restore to paired region, but be aware of potential capacity issues in case of disaster in main region and also smaller DR regions like Germany North might not have all services available.
 
-![](./images/203.png)
+![](./images/img203.png)
 
 ### Active replication from GWC to SC
 To initiate failover to replica go to Azure DB for PostgreSQL and select replicas and promote.
 
-![](./images/202.png)
+![](./images/img202.png)
 
 ## Virtual Machines
 After deployment wait up to 16 hours so your first backup is taken and transferred to secondary region. 
@@ -109,19 +109,19 @@ If you have access to Germany North you can recover your VMs there. You need quo
 
 Start restore.
 
-![](./images/001.png)
+![](./images/img001.png)
 
 Restore to secondary region.
 
-![](./images/002.png)
+![](./images/img002.png)
 
 Select backup in Germany North. Note there are no snapshots here (fast RTO from snapshot is available only in primary region) and there might be up to 12 hours delay for backups be visible here.
 
-![](./images/003.png)
+![](./images/img003.png)
 
 Select option to restore as new VM.
 
-![](./images/005.png)
+![](./images/img005.png)
 
 
 ### Backup and restore to target region (Sweden Central)
@@ -129,27 +129,27 @@ In this scenario we need to recover storage to German North first and then copy 
 
 Start restore.
 
-![](./images/001.png)
+![](./images/img001.png)
 
 Restore to secondary region.
 
-![](./images/002.png)
+![](./images/img002.png)
 
 Select backup in Germany North. Note there are no snapshots here (fast RTO from snapshot is available only in primary region) and there might be up to 12 hours delay for backups be visible here.
 
-![](./images/003.png)
+![](./images/img003.png)
 
 Now restore only disks.
 
-![](./images/004.png)
+![](./images/img004.png)
 
 Job get's started.
 
-![](./images/006.png)
+![](./images/img006.png)
 
 Now we have disk in Germany North.
 
-![](./images/007.png)
+![](./images/img007.png)
 
 To copy disk to Sweden Central we cannot currently use Azure Portal, but for graphical experience install [Azure Storage Explorer](https://azure.microsoft.com/en-us/features/storage-explorer/) or use CLI:
 
@@ -174,9 +174,9 @@ az disk revoke-access -n $targetDiskName -g $targetRG
 
 No we have disk in target region and can create VM from it.
 
-![](./images/008.png)
+![](./images/img008.png)
 
-![](./images/009.png)
+![](./images/img009.png)
 
 ### VM storage replication from GWC to SC
 Source VM with Azure Site Recovery replication is deployed as part of Infrastructure as Code. While RTO and RPO is significantly lower compared to Azure Backup, capacity is also not guaranteed. Nevertheless as this is not paired region it is likely not all users from GWC will try to deploy to SC so there is good chance of getting enough resources. But for mission critical workloads you might want to purchase and lock capacity with On-demand Capacity Reservations anyway.
