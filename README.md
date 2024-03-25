@@ -49,3 +49,4 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 - [Azure Disk shared with SCSI PR](./d-storage-disk-shared/README.md) 
 - [Azure Blob storage demo](./d-azure-blob-storage/README.md)
 - [Azure Container Apps](./d-aca/README.md)
+- [DR solution for regions with small paired regions such as Germany West Central](./d-gwc-dr/README.md)
