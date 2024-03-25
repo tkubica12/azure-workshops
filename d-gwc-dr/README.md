@@ -180,3 +180,5 @@ No we have disk in target region and can create VM from it.
 
 ### VM storage replication from GWC to SC
 Source VM with Azure Site Recovery replication is deployed as part of Infrastructure as Code. While RTO and RPO is significantly lower compared to Azure Backup, capacity is also not guaranteed. Nevertheless as this is not paired region it is likely not all users from GWC will try to deploy to SC so there is good chance of getting enough resources. But for mission critical workloads you might want to purchase and lock capacity with On-demand Capacity Reservations anyway.
+
+![](./images/img301.png)
