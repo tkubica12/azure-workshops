@@ -135,7 +135,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "dns_target" {
   name                  = module.naming_target.virtual_network.name_unique
   private_dns_zone_name = azurerm_private_dns_zone.dns[0].name
   virtual_network_id    = azurerm_virtual_network.vnet_target.id
-  resource_group_name   = azurerm_resource_group.target.name
+  resource_group_name   = azurerm_resource_group.main.name
 
   depends_on = [
     azurerm_subnet.psql_subnet_main,
