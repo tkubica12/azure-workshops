@@ -17,10 +17,10 @@ az aks create -g d-aks-retina \
     -n d-aks-retina \
     -c 2 \
     -x \
-    -s Standard_B2s \
+    -s Standard_B4ms \
     --enable-azure-monitor-metrics \
-    --enable-network-observability \
     --grafana-resource-id  $(az resource show -n tomaskubicagrafana -g d-aks-retina --resource-type "microsoft.dashboard/grafana" --query id -o tsv) \
+    --enable-network-observability \
     --azure-monitor-workspace-resource-id $(az resource show -n tomaskubicamonitorworkspace -g d-aks-retina --resource-type "Microsoft.Monitor/accounts" --query id -o tsv)
 
 # Get AKS credentials
@@ -29,22 +29,46 @@ az aks get-credentials -g d-aks-retina -n d-aks-retina --overwrite-existing --ad
 
 ## Install Retina project on Linux PC
 ```bash
-# Install Go
-rm -rf /usr/local/go
-wget https://go.dev/dl/go1.22.1.linux-amd64.tar.gz
-sudo tar -C /usr/local -xzf go1.22.1.linux-amd64.tar.gz
-export PATH=$PATH:/usr/local/go/bin
-
-# Install helm
-wget https://get.helm.sh/helm-v3.14.3-linux-amd64.tar.gz
-tar -zxvf helm-v3.14.3-linux-amd64.tar.gz
-sudo mv linux-amd64/helm /usr/sbin/helm
-rm -rf linux-amd64
-
-# Clone repository
-git clone https://github.com/microsoft/retina.git
-
-# Build remote context version
-cd retina
-make helm-install-advanced-remote-context
+# Set the version to a specific version here or get latest version from GitHub API.
+VERSION=$( curl -sL https://api.github.com/repos/microsoft/retina/releases/latest | jq -r .name)
+helm upgrade --install retina oci://ghcr.io/microsoft/retina/charts/retina \
+    --version $VERSION \
+    --set image.tag=$VERSION \
+    --set operator.tag=$VERSION \
+    --set operator.enabled=true \
+    --set operator.enableRetinaEndpoint=true \
+    --set logLevel=info \
+    --set enabledPlugin_linux="\[dropreason\,packetforward\,linuxutil\,dns\,packetparser\]" \
+    --set enablePodLevel=true \
+    --set enableAnnotations=true
 ```
+
+## Test packet capture
+```bash
+# Install demo app
+kubectl apply -f ./kubernetes/demo_apps.yaml
+
+# Create storage account and container
+az storage account create -n daksretinastorage123 -g d-aks-retina -l swedencentral --sku Standard_LRS
+az storage container create -n retina-pcap --account-name daksretinastorage123
+
+# Generate read/write container SAS token
+end=`date -u -d "120 minutes" '+%Y-%m-%dT%H:%MZ'`
+sas=`az storage container generate-sas --account-name daksretinastorage123 -n retina-pcap --https-only --permissions dlrw --expiry $end -o tsv`
+container_url="https://daksretinastorage123.blob.core.windows.net/retina-pcap?$sas"
+
+# Store blob URL with SAS as Secret
+kubectl create secret generic blob-sas-url --from-literal=blob-upload-url=$container_url
+
+# Start packet capture
+kubectl apply -f ./kubernetes/packet_capture_pod.yaml
+kubectl apply -f ./kubernetes/packet_capture_allmypods.yaml
+```
+
+![](./images/img03.png)
+
+## Check Pod network metrics in Grafana
+![](./images/img01.png)
+![](./images/img02.png)
+
+

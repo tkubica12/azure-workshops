@@ -1,0 +1,15 @@
+apiVersion: retina.sh/v1alpha1
+kind: Capture
+metadata:
+  name: capture-test
+spec:
+  captureConfiguration:
+    captureOption:
+      duration: 1m
+    captureTarget:
+      podSelector:
+        matchLabels:
+          app: myapp2
+  outputConfiguration:
+    hostPath: "/tmp/retina"
+    blobUpload: blob-sas-url
