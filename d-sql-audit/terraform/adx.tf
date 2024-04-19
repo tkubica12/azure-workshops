@@ -26,7 +26,7 @@ resource "azurerm_kusto_eventhub_data_connection" "main" {
   database_name       = azurerm_kusto_database.main.name
   eventhub_id         = azurerm_eventhub.main.id
   consumer_group      = azurerm_eventhub_consumer_group.main.name
-  table_name          = "sqlaudit" #(Optional)
+  # table_name          = "sqlaudit" #(Optional)
   # mapping_rule_name = "my-table-mapping" #(Optional)
   data_format = "AVRO" #(Optional)
 }
