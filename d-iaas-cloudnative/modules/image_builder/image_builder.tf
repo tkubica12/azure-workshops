@@ -1,8 +1,8 @@
 resource "azapi_resource" "image_template" {
   type      = "Microsoft.VirtualMachineImages/imageTemplates@2022-02-14"
   name      = "nginx-image-template"
-  location  = azurerm_resource_group.images.location
-  parent_id = azurerm_resource_group.images.id
+  location  = var.location
+  parent_id = data.azurerm_resource_group.images.id
 
   identity {
     type = "UserAssigned"
@@ -19,7 +19,7 @@ resource "azapi_resource" "image_template" {
           name = "install-nginx"
           type = "Shell"
           inline = [
-            "echo \"### Installing services\"\napt update\napt install -y nginx\necho \"### Configuring services\""
+            file("${path.module}/scripts/install_nginx.sh")
           ]
         }
       ]
