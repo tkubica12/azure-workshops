@@ -34,14 +34,28 @@ module "vm_landing_zone" {
   prefix              = var.main_prefix
 }
 
-// Demo NGINX
+// Demo NGINX from older image
 module "demo_nginx" {
   source              = "./modules/vm_nginx"
   location            = var.location
   resource_group_name = azurerm_resource_group.vms.name
-  prefix              = var.main_prefix
-  vm_size             = "Standard_B1s"
+  prefixes            = [var.main_prefix, "nginx", "app1"]
+  vm_size             = "Standard_D2ads_v5"
   image_id            = module.image_builder.nginx_image_id
+  subnet_id           = module.vm_landing_zone.subnet_id
+
+  depends_on = [
+    module.vm_landing_zone
+  ]
+}
+
+// Demo NGINX from default image
+module "demo_nginx_app2" {
+  source              = "./modules/vm_nginx"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.vms.name
+  prefixes            = [var.main_prefix, "nginx", "app2"]
+  vm_size             = "Standard_D2ads_v5"
   subnet_id           = module.vm_landing_zone.subnet_id
 
   depends_on = [

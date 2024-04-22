@@ -9,14 +9,19 @@ variable "resource_group_name" {
   type        = string
 }
 
-variable "prefix" {
-  description = "The prefix to be used for all resources."
-  type        = string
+variable "prefixes" {
+  description = "List of prefixes to be used for all resources."
+  type        = list(string)
 }
 
 variable "image_id" {
-  description = "The ID of the image to use for the Virtual Machine Scale Set."
+  description = <<EOF
+The ID of the image to use for the Virtual Machine Scale Set.
+If custom image is provider, VMSS will be deployed with it, do not attempt to do pre-installations and turn off automatic guest patching which is not supported.
+If not set, modul will deploy plain Ubuntu 22.04 image, automate installation of packages on VM creation time and enable automatic guest patching.
+EOF
   type        = string
+  default     = null
 }
 
 variable "vm_size" {

@@ -39,4 +39,8 @@ resource "azurerm_linux_virtual_machine" "jump" {
   }
 
   boot_diagnostics {}
+
+  identity {
+    type = "SystemAssigned"
+  }
 }
