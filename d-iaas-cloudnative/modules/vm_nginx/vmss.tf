@@ -1,11 +1,13 @@
 locals {
-  configuration = <<EOF
+  configuration     = <<EOF
 export keyvaultname=${azurerm_key_vault.main.name}
 export storagename=${azurerm_storage_account.main.name}
+export identityid=${azurerm_user_assigned_identity.main.id}
 EOF
-  scriptprepare = file("${path.module}/scripts/prepare.sh")
-  scriptinstall = fileexists("${path.module}/scripts/install_nginx.sh") ? file("${path.module}/scripts/install_nginx.sh") : ""
-  script        = base64encode(join("\n", [local.scriptinstall, local.configuration, local.scriptprepare]))
+  script_prepare    = file("${path.module}/scripts/prepare.sh")
+  script_install    = fileexists("${path.module}/scripts/install_nginx.sh") ? file("${path.module}/scripts/install_nginx.sh") : ""
+  script_from_base  = base64encode(join("\n", [local.script_install, local.configuration, local.script_prepare]))
+  script_from_image = base64encode(join("\n", [local.configuration, local.script_prepare]))
 }
 
 resource "azurerm_orchestrated_virtual_machine_scale_set" "main" {
@@ -18,6 +20,11 @@ resource "azurerm_orchestrated_virtual_machine_scale_set" "main" {
   zone_balance                = true
   instances                   = 2
   source_image_id             = var.image_id
+
+  termination_notification {
+    enabled = true
+    timeout = "PT10M"
+  }
 
   dynamic "source_image_reference" {
     for_each = var.image_id == null ? [1] : []
@@ -38,6 +45,7 @@ resource "azurerm_orchestrated_virtual_machine_scale_set" "main" {
   automatic_instance_repair {
     enabled      = true
     grace_period = "PT30M"
+    # Not supported in AzureRM provider yet is repair type: Restart (just reboot VM, everything preserved), Reimage (OS disk gets replaced, but everything else preserve), Replace (VM gets replaced so private IP, ID, temp and data disk changes)
   }
   os_profile {
     linux_configuration {
@@ -87,6 +95,27 @@ SETTINGS
   }
 
   extension {
+    name                               = "AzureMonitorLinuxAgent"
+    publisher                          = "Microsoft.Azure.Monitor"
+    type                               = "AzureMonitorLinuxAgent"
+    type_handler_version               = "1.0"
+    auto_upgrade_minor_version_enabled = true
+  }
+
+  extension {
+    name                               = "DependencyAgentLinux"
+    publisher                          = "Microsoft.Azure.Monitoring.DependencyAgent"
+    type                               = "DependencyAgentLinux"
+    type_handler_version               = "9.10"
+    auto_upgrade_minor_version_enabled = true
+    settings                           = <<SETTINGS
+{
+    "enableAMA": "true"
+}
+SETTINGS
+  }
+
+  extension {
     name                               = "CustomScript"
     publisher                          = "Microsoft.Azure.Extensions"
     type                               = "CustomScript"
@@ -95,12 +124,20 @@ SETTINGS
 
     protected_settings = <<SETTINGS
 {
-  "script": "${local.script}"
+  "script": "${var.image_id != null ? local.script_from_image : local.script_from_base}"
 }
 SETTINGS
   }
 
   depends_on = [
-    azurerm_role_assignment.kv_umi
+    azurerm_role_assignment.kv_umi,
+    azurerm_role_assignment.kv_umi_reader
   ]
+}
+
+resource "azurerm_monitor_data_collection_rule_association" "main" {
+  data_collection_rule_id = var.dcr_id
+  name                    = "${module.naming.linux_virtual_machine_scale_set.name}-dcr-association"
+  # data_collection_endpoint_id = var.dce_id
+  target_resource_id = azurerm_orchestrated_virtual_machine_scale_set.main.id
 }

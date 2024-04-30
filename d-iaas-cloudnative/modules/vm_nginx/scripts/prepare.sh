@@ -34,13 +34,14 @@ EOF
 if [ ! -d "/etc/default_site" ]; then
 mkdir /default_site
 fi
-
-echo Hello from $HOSTNAME >> /default_site/index.html
+echo VM built on $(date) >> /default_site/index.html
+echo METADATA: >> /default_site/index.html
+curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance?api-version=2021-02-01" | jq . >> /default_site/index.html
 
 systemctl restart nginx
 
 echo ### Get secrets from Key Vault
-az login --identity --allow-no-subscriptions
+az login --identity --allow-no-subscriptions --username $identityid
 password=$(az keyvault secret show --vault-name $keyvaultname --name storage-key --query value -o tsv)
 
 echo ### Mounting Azure File Share

@@ -43,6 +43,9 @@ module "demo_nginx" {
   vm_size             = "Standard_D2ads_v5"
   image_id            = module.image_builder.nginx_image_id
   subnet_id           = module.vm_landing_zone.subnet_id
+  dce_id              = module.vm_landing_zone.dce_id
+  dcr_id              = module.vm_landing_zone.dcr_id
+
 
   depends_on = [
     module.vm_landing_zone
@@ -57,6 +60,8 @@ module "demo_nginx_app2" {
   prefixes            = [var.main_prefix, "nginx", "app2"]
   vm_size             = "Standard_D2ads_v5"
   subnet_id           = module.vm_landing_zone.subnet_id
+  dce_id              = module.vm_landing_zone.dce_id
+  dcr_id              = module.vm_landing_zone.dcr_id
 
   depends_on = [
     module.vm_landing_zone

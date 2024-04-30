@@ -34,3 +34,13 @@ variable "subnet_id" {
   description = "The ID of the subnet in which the Virtual Machine will be placed."
   type        = string
 }
+
+variable "dce_id" {
+  description = "The ID of the Data Collection Endpoint to use for monitoring."
+  type        = string
+}
+
+variable "dcr_id" {
+  description = "The ID of the Data Collection Rule to use for monitoring."
+  type        = string
+}

@@ -15,3 +15,9 @@ resource "azurerm_role_assignment" "kv_umi" {
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_user_assigned_identity.main.principal_id
 }
+
+resource "azurerm_role_assignment" "kv_umi_reader" {
+  scope                = azurerm_key_vault.main.id
+  role_definition_name = "Reader"
+  principal_id         = azurerm_user_assigned_identity.main.principal_id
+}
