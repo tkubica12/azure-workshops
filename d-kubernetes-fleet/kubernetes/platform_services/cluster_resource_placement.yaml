@@ -1,4 +1,4 @@
-apiVersion: fleet.azure.com/v1alpha1
+apiVersion: placement.kubernetes-fleet.io/v1beta1
 kind: ClusterResourcePlacement
 metadata:
   name: platformservices
