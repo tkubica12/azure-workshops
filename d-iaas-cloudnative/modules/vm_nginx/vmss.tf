@@ -102,18 +102,18 @@ SETTINGS
     auto_upgrade_minor_version_enabled = true
   }
 
-  extension {
-    name                               = "DependencyAgentLinux"
-    publisher                          = "Microsoft.Azure.Monitoring.DependencyAgent"
-    type                               = "DependencyAgentLinux"
-    type_handler_version               = "9.10"
-    auto_upgrade_minor_version_enabled = true
-    settings                           = <<SETTINGS
-{
-    "enableAMA": "true"
-}
-SETTINGS
-  }
+#   extension {
+#     name                               = "DependencyAgentLinux"
+#     publisher                          = "Microsoft.Azure.Monitoring.DependencyAgent"
+#     type                               = "DependencyAgentLinux"
+#     type_handler_version               = "9.10"
+#     auto_upgrade_minor_version_enabled = true
+#     settings                           = <<SETTINGS
+# {
+#     "enableAMA": "true"
+# }
+# SETTINGS
+#   }
 
   extension {
     name                               = "CustomScript"
