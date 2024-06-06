@@ -18,7 +18,7 @@ resource "azurerm_private_endpoint" "kv" {
 
   private_dns_zone_group {
     name                 = "kv-dns"
-    private_dns_zone_ids = [azurerm_private_dns_zone.kv.id]
+    private_dns_zone_ids = [var.privatedns_id]
   }
 
   private_service_connection {
