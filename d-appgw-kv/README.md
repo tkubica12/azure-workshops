@@ -1,5 +1,5 @@
 # Application Gateway in private network with certificate from Key Vault
-First deploy environment with jump server. Then use SSH to connect to it and continue from there.
+First deploy environment with jump server. Then use serial console to connect to it and continue from there.
 
 ```bash
 # Connect to jump server
