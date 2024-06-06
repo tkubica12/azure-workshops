@@ -1,0 +1,5 @@
+resource_group_name     = "rg-appgw-kv-cert"
+location                = "swedencentral"
+subnet_id_kv            = "/subscriptions/d3b7888f-c26e-4961-a976-ff9d5b31dfd3/resourceGroups/rg-appgw-kv-cert/providers/Microsoft.Network/virtualNetworks/vnet-appgw-kv-cert/subnets/kv"
+subnet_id_appgw         = "/subscriptions/d3b7888f-c26e-4961-a976-ff9d5b31dfd3/resourceGroups/rg-appgw-kv-cert/providers/Microsoft.Network/virtualNetworks/vnet-appgw-kv-cert/subnets/appgw"
+privatedns_id           = "/subscriptions/d3b7888f-c26e-4961-a976-ff9d5b31dfd3/resourceGroups/rg-appgw-kv-cert/providers/Microsoft.Network/privateDnsZones/privatelink.vaultcore.azure.net"
