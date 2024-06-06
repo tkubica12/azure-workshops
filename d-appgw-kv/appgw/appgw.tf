@@ -35,8 +35,8 @@ resource "azurerm_application_gateway" "main" {
   }
 
   frontend_ip_configuration {
-    name      = "front"
-    subnet_id = var.privatedns_id
+    name                 = "front"
+    public_ip_address_id = azurerm_public_ip.appgw_pip.id
   }
 
   backend_address_pool {
