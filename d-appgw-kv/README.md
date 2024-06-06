@@ -27,7 +27,6 @@ sudo apt-get install terraform
 # Download code
 git clone https://github.com/tkubica12/azure-workshops.git
 cd azure-workshops
-git checkout d-appgw-kv
 cd d-appgw-kv
 
 # Deploy appgw
