@@ -1,3 +1,4 @@
+
 resource "azurerm_public_ip" "appgw_pip" {
   name                = "appgw-pip"
   resource_group_name = var.resource_group_name

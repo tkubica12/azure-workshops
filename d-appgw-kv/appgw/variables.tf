@@ -14,13 +14,17 @@ variable "keyvault_id" {
 }
 
 variable "subnet_id_kv" {
-  type        = string
+  type = string
 }
 
 variable "subnet_id_appgw" {
-  type        = string
+  type = string
 }
 
 variable "privatedns_id" {
+  type = string
+}
+
+variable "jump_identity_principal" {
   type = string
 }
