@@ -36,7 +36,13 @@ resource "azurerm_linux_virtual_machine" "main" {
   boot_diagnostics {}
 
   identity {
-    type = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.main.id]
+    type = "SystemAssigned"
   }
 }
+
+resource "azurerm_role_assignment" "rg" {
+  scope                = azurerm_resource_group.main.id
+  role_definition_name = "Owner"
+  principal_id         = azurerm_linux_virtual_machine.main.identity[0].principal_id
+}
+

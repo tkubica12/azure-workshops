@@ -1,7 +1,7 @@
 resource "azurerm_public_ip" "appgw_pip" {
   name                = "appgw-pip"
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
   allocation_method   = "Static"
   sku                 = "Standard"
 }
@@ -9,8 +9,8 @@ resource "azurerm_public_ip" "appgw_pip" {
 
 resource "azurerm_application_gateway" "main" {
   name                = "appgw"
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
 
   identity {
     type         = "UserAssigned"
@@ -25,7 +25,7 @@ resource "azurerm_application_gateway" "main" {
 
   gateway_ip_configuration {
     name      = "ipconfig"
-    subnet_id = azurerm_subnet.appgw.id
+    subnet_id = var.subnet_id_kv
   }
 
   frontend_port {

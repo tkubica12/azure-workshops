@@ -1,7 +1,7 @@
 resource "azurerm_key_vault" "main" {
   name                          = "kv${random_string.main.result}"
-  resource_group_name           = azurerm_resource_group.main.name
-  location                      = azurerm_resource_group.main.location
+  resource_group_name           = var.resource_group_name
+  location                      = var.location
   tenant_id                     = data.azurerm_client_config.current.tenant_id
   sku_name                      = "standard"
   purge_protection_enabled      = false
@@ -12,9 +12,9 @@ resource "azurerm_key_vault" "main" {
 
 resource "azurerm_private_endpoint" "kv" {
   name                = "kv-endpoint"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-  subnet_id           = azurerm_subnet.kv.id
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  subnet_id           = var.subnet_id_kv
 
   private_dns_zone_group {
     name                 = "kv-dns"
@@ -41,10 +41,14 @@ resource "azurerm_key_vault_certificate" "main" {
   key_vault_id = var.keyvault_id
 
   certificate {
-    contents = filebase64("${path.module}/certs/server.pfx")
+    contents = filebase64("${path.module}/../certs/server.pfx")
     password = "Azure12345678"
   }
 
-  depends_on = [azurerm_role_assignment.kv_self]
+  depends_on = [
+    azurerm_role_assignment.kv_self,
+    azurerm_role_assignment.kv_appgw,
+    azurerm_private_endpoint.kv
+  ]
 }
 

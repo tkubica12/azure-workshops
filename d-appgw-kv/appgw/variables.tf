@@ -12,3 +12,15 @@ variable "keyvault_id" {
   type        = string
   description = "The ID of the Key Vault to which the App Gateway will be granted access"
 }
+
+variable "subnet_id_kv" {
+  type        = string
+}
+
+variable "subnet_id_appgw" {
+  type        = string
+}
+
+variable "privatedns_id" {
+  type = string
+}
