@@ -38,7 +38,7 @@ resource "azurerm_role_assignment" "kv_self" {
 resource "azurerm_role_assignment" "jump" {
   scope                = azurerm_key_vault.main.id
   role_definition_name = "Key Vault Administrator"
-  principal_id         = data.azurerm_client_config.current.object_id
+  principal_id         = var.jump_identity_principal
 }
 
 
