@@ -8,6 +8,11 @@ resource "azurerm_key_vault" "main" {
   enable_rbac_authorization     = true
   soft_delete_retention_days    = 7
   public_network_access_enabled = false
+
+  network_acls {
+    bypass         = "AzureServices"
+    default_action = "Deny"
+  }
 }
 
 resource "azurerm_private_endpoint" "kv" {
