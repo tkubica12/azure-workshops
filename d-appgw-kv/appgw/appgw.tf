@@ -26,7 +26,7 @@ resource "azurerm_application_gateway" "main" {
 
   gateway_ip_configuration {
     name      = "ipconfig"
-    subnet_id = var.subnet_id_kv
+    subnet_id = var.subnet_id_appgw
   }
 
   frontend_port {
@@ -35,8 +35,8 @@ resource "azurerm_application_gateway" "main" {
   }
 
   frontend_ip_configuration {
-    name                 = "front"
-    public_ip_address_id = azurerm_public_ip.appgw_pip.id
+    name      = "front"
+    subnet_id = var.privatedns_id
   }
 
   backend_address_pool {
