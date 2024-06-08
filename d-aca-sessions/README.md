@@ -1,4 +1,9 @@
 # Demo of Dynamic Sessions in Azure Container Apps
+## Demo in portal
+You can use portal to see quick example of running code in ACA sessions.
+
+## Demo using API from Bash
+In this demo we will explore API of ACA sessions using bash and curl.
 
 ```bash
 # Install CLI extension
@@ -61,4 +66,28 @@ curl "$sapi/files?api-version=2024-02-02-preview&identifier=$sessionId" \
 curl "$sapi/files/content/hello.txt?api-version=2024-02-02-preview&identifier=$sessionId" \
     -H "Authorization: Bearer $token" \
     -H "Content-Type: application/json"
+```
+
+## Demo using API from Python using integrated framework such as LangChain
+In this demo we will explore API of ACA sessions using Python and LangChain.
+
+First create conda environment and install packages.
+
+```bash
+conda create -n aca-sessions python=3.11
+conda activate aca-sessions
+pip install -r requirements.txt
+```
+
+Run the code simple.py and see output:
+
+```json
+{
+  "$id": "2",
+  "status": "Success",
+  "stdout": "Answer is 40\n",
+  "stderr": "",
+  "result": 40,
+  "executionTimeInMilliseconds": 10
+}
 ```
