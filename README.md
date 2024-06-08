@@ -51,3 +51,4 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 - [Azure Container Apps](./d-aca/README.md)
 - [DR solution for regions with small paired regions such as Germany West Central](./d-gwc-dr/README.md)
 - [Application Gateway with cert in Key Vault](./d-appgw-kv/README.md)
+- [Azure Container Apps sessions with LLM and LangChain](./d-aca-sessions/README.md)
