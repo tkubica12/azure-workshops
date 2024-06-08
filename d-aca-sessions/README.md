@@ -79,7 +79,7 @@ conda activate aca-sessions
 pip install -r requirements.txt
 ```
 
-Run the code simple.py and see output:
+Run the code simple.py that demonstrate simple execution and see output:
 
 ```json
 {
@@ -90,4 +90,56 @@ Run the code simple.py and see output:
   "result": 40,
   "executionTimeInMilliseconds": 10
 }
+```
+
+Run the code input_files.py that demonstrate uploading files to session and see output:
+
+```json
+{
+  "$id": "2",
+  "status": "Success",
+  "stdout": "",
+  "stderr": "",
+  "result": 36.017857142857146,
+  "executionTimeInMilliseconds": 27
+}
+```
+
+Run the code plot.py that demonstrate plotting and file output.png.
+
+Now let's try with Azure OpenAI to create code that will be executed in ACA session. Note you can use any model including open source orunning locally.
+
+Export connection details - see .env.sample file
+
+Run script in agent.py and see steps and results. LLM will understand the question, create Python code that gets executed in ACA session and return the result.
+
+```
+> Entering new AgentExecutor chain...
+
+Invoking: `Python_REPL` with `import math
+result = math.sin(math.pi)
+result`
+
+
+{
+  "result": 1.2246467991473532e-16,
+  "stdout": "",
+  "stderr": ""
+}
+Invoking: `Python_REPL` with `import random
+random_number = random.uniform(5, 10)
+random_number`
+responded: The sine of \(\pi\) is approximately \(1.2246467991473532 \times 10^{-16}\), which is a very small positive number.
+
+Since it is positive, I will generate a random number between 5 and 10.
+
+{
+  "result": 6.443740307405746,
+  "stdout": "",
+  "stderr": ""
+}
+
+The random number generated between 5 and 10 is approximately \(6.44\).
+
+> Finished chain.
 ```
