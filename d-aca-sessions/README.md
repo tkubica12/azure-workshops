@@ -107,7 +107,7 @@ Run the code input_files.py that demonstrate uploading files to session and see 
 
 Run the code plot.py that demonstrate plotting and file output.png.
 
-Now let's try with Azure OpenAI to create code that will be executed in ACA session. Note you can use any model including open source orunning locally.
+Now let's try with Azure OpenAI to create code that will be executed in ACA session. Note you can use any model including open source running locally.
 
 Export connection details - see .env.sample file
 
