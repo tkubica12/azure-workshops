@@ -7,6 +7,9 @@ RUN wget -O terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_V
 RUN unzip terraform.zip && rm terraform.zip
 RUN mv terraform /usr/bin/terraform
 
+# Install Git
+RUN apt-get update && apt-get install -y git
+
 # Grab all .sh files from scripts, copy to
 # root scripts, replace line-endings and make them all executable
 COPY scripts/* /scripts/
