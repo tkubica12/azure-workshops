@@ -4,3 +4,11 @@ summary: Storage Account
 description: Example of Terraform based environment
 runner: ghcr.io/tkubica12/azure-workshops/terraform:latest
 templatePath: main.tf
+
+parameters:
+  - id: account_replication_type
+    name: Account Replication Type such as LRS or GRS
+    type: string
+    allowed: 
+      - LRS
+      - GRS

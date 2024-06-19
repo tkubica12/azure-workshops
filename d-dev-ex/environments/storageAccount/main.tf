@@ -12,11 +12,11 @@ locals {
 }
 
 resource "azurerm_storage_account" "main" {
-  name                     = "stc${random_string.main.result}"
+  name                     = local.storage_account_name
   resource_group_name      = var.resource_group_name
   location                 = var.ade_location
   account_tier             = "Standard"
-  account_replication_type = "LRS"
+  account_replication_type = var.account_replication_type
 }
 
 
