@@ -18,3 +18,7 @@ variable "resource_group_name" {
 variable "ade_env_name" {
   type        = string
 }
+
+variable "ade_location" {
+  type        = string
+}
