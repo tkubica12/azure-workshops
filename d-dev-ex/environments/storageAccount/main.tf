@@ -8,7 +8,7 @@ resource "random_string" "main" {
 
 locals {
   env_name_cleaned     = replace(lower(var.ade_env_name), "[^a-z]", "")
-  storage_account_name = "stc${env_name_cleaned}${random_string.main.result}"
+  storage_account_name = "stc${local.env_name_cleaned}${random_string.main.result}"
 }
 
 resource "azurerm_storage_account" "main" {
