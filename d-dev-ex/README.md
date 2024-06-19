@@ -1,0 +1,2 @@
+# Azure Developer Experience demo
+This demo is focused on Azure features that helps developers operate Azure (so not on services to deploy applications etc.) such as Azure Dev Box, Deployment Environments for Infrastructure as Code or developer CLI.
