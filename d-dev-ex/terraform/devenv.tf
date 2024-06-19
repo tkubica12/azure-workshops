@@ -20,7 +20,7 @@ resource "azapi_resource" "tfcatalog" {
   body = jsonencode({
     properties = {
       gitHub = {
-        branch = "d-dev-ex"
+        branch = "main"
         path   = "d-dev-ex/environments"
         uri    = "https://github.com/tkubica12/azure-workshops.git"
       }
