@@ -50,4 +50,9 @@ resource "azurerm_monitor_diagnostic_setting" "main" {
   enabled_log {
     category_group = "allLogs"
   }
+
+  metric {
+    category = "AllMetrics"
+    enabled  = "false"
+  }
 }
