@@ -1,0 +1,15 @@
+name: tf-storage-account
+version: 1.0.0
+summary: Storage Account
+description: Example of Terraform based environment
+runner: ghcr.io/tkubica12/azure-workshops/terraform:latest
+templatePath: main.tf
+
+parameters:
+  - id: account_replication_type
+    name: Account Replication Type such as LRS or GRS
+    type: string
+    required: true
+    allowed: 
+      - LRS
+      - GRS

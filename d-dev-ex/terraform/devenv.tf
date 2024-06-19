@@ -13,6 +13,21 @@ resource "azapi_resource" "main" {
   })
 }
 
+resource "azapi_resource" "tfcatalog" {
+  type      = "Microsoft.DevCenter/devcenters/catalogs@2023-04-01"
+  name      = "mytfcatalog"
+  parent_id = azapi_resource.dev_center.id
+  body = jsonencode({
+    properties = {
+      gitHub = {
+        branch = "main"
+        path   = "d-dev-ex/environments"
+        uri    = "https://github.com/tkubica12/azure-workshops.git"
+      }
+    }
+  })
+}
+
 resource "azapi_resource" "env_type" {
   type      = "Microsoft.DevCenter/devcenters/environmentTypes@2023-04-01"
   name      = "CompanyEnvironmentType"
