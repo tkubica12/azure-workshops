@@ -1,10 +1,18 @@
+resource "random_string" "main" {
+  length  = 6
+  special = false
+  upper   = false
+  lower   = true
+  numeric = false
+}
+
 resource "azurerm_resource_group" "main" {
-  name     = module.naming.resource_group.name_unique
+  name     = "rg-${random_string.main.result}"
   location = "swedencentral"
 }
 
 resource "azurerm_storage_account" "main" {
-  name                     = module.naming.storage_account.name_unique
+  name                     = "stc${random_string.main.result}"
   resource_group_name      = azurerm_resource_group.main.name
   location                 = azurerm_resource_group.main.location
   account_tier             = "Standard"
