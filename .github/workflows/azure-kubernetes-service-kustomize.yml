@@ -1,4 +1,4 @@
-name: Build and deploy an app to AKS with Kustomize
+name: d-aks-devexperience Build and deploy an app to AKS with Kustomize
 "on":
     push:
         branches:
