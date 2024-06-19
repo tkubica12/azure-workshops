@@ -1,4 +1,4 @@
-name: Build webtester app for FrontDoor DR testing
+name: d-frontdoor-dr-image Build webtester app for FrontDoor DR testing
 
 on:
   workflow_dispatch:
