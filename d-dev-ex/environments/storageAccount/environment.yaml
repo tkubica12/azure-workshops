@@ -9,6 +9,7 @@ parameters:
   - id: account_replication_type
     name: Account Replication Type such as LRS or GRS
     type: string
+    required: true
     allowed: 
       - LRS
       - GRS
