@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: d-dev-ex build terraform runner
 
 on:
   workflow_dispatch: 
