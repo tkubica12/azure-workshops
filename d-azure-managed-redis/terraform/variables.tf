@@ -4,6 +4,12 @@ variable "location" {
   default     = "swedencentral"
 }
 
+variable "secondary_location" {
+  description = "Secondary location for geo cluster"
+  type        = string
+  default     = "germanywestcentral"
+}
+
 variable "prefix" {
   description = "Prefix for all resources"
   type        = string
