@@ -34,6 +34,7 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 - [Azure Container Storage](./d-aks-azurecontainerstorage/README.md)
 
 ## Other demos
+- [Azure Managed Redis](./d-azure-managed-redis/README.md)
 - [Azure API Management in AKS](./d-apim-in-aks/README.md)
 - [Azure private DNS resolver](./d-dns-resolver/README.md)
 - [Azure Chaos Studio demo](./d-chaos-studio/README.md)
