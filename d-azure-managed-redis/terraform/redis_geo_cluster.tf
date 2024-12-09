@@ -28,6 +28,10 @@ resource "azapi_resource" "redis_geo2" {
       highAvailability = "Enabled"
     }
   }
+
+  depends_on = [ 
+    azapi_resource.redis_geo1,
+    ]
 }
 
 resource "azapi_resource" "redis_geo1_database" {
