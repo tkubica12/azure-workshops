@@ -1,0 +1,33 @@
+name: BUILD d-azure-managed-redis
+
+on:
+  push:
+    paths:
+      - 'd-azure-managed-redis/src/**'
+  workflow_dispatch: 
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Login to GitHub Packages Docker registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: d-azure-managed-redis/src
+        push: true
+        tags: ghcr.io/${{ github.repository }}/d-azure-managed-redis-test:latest

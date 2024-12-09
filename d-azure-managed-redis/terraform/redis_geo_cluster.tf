@@ -2,7 +2,7 @@ resource "azapi_resource" "redis_geo1" {
   type                      = "Microsoft.Cache/redisEnterprise@2024-09-01-preview"
   name                      = "redis-geo1-${local.base_name}"
   parent_id                 = azurerm_resource_group.main.id
-  location                  = var.secondary_location
+  location                  = azurerm_resource_group.main.location
   schema_validation_enabled = false
   body = {
     sku = {
@@ -18,7 +18,7 @@ resource "azapi_resource" "redis_geo2" {
   type                      = "Microsoft.Cache/redisEnterprise@2024-09-01-preview"
   name                      = "redis-geo2-${local.base_name}"
   parent_id                 = azurerm_resource_group.main.id
-  location                  = azurerm_resource_group.main.location
+  location                  = var.secondary_locationazurerm_resource_group.main.location
   schema_validation_enabled = false
   body = {
     sku = {
