@@ -75,16 +75,33 @@ for shard in range(1, number_of_shards + 1):
         all_keys[key] = value
         all_key_names.append(key)
 
-# Performing MGET across shards
-print("Performing MGET across shards")
-values = r.mget(all_key_names)
-print(f"MGET returned: {values}")
 
-# Attempting MSET across shards
-print("Attempting MSET across shards")
 try:
-    r.mset(all_keys)
-    updated_values = r.mget(all_key_names)
-    print(f"MSET succeeded, MGET returned: {updated_values}")
-except redis.RedisError as e:
-    print(f"MSET failed: {e}")
+    # Performing MGET across shards
+    print("Performing MGET across shards")
+    mget_status = "ok"
+    try:
+        values = r.mget(all_key_names)
+        print(f"MGET returned: {values}")
+    except Exception as e:
+        print(f"An error occurred during MGET: {e}")
+        mget_status = "failed"
+
+    # Attempting MSET across shards
+    print("Attempting MSET across shards")
+    mset_status = "ok"
+    try:
+        r.mset(all_keys)
+        updated_values = r.mget(all_key_names)
+        print(f"MSET succeeded, MGET returned: {updated_values}")
+    except Exception as e:
+        print(f"MSET failed: {e}")
+        mset_status = "failed"
+finally:
+    # Display cluster mode and operation statuses
+    print("\n\n****** Summary ******")
+    print(f"Cluster mode: {cluster_mode}")
+    print(f"MGET status: {mget_status}")
+    print(f"MSET status: {mset_status}")
+    print("**********************\n\n")
+
