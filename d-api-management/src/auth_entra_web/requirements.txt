@@ -1,0 +1,5 @@
+flask
+pyjwt
+identity[flask]
+python-dotenv
+msal

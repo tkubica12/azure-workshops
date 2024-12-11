@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ page_name }}: Index</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <h1>{{ page_name }}</h1>
+  <h2>Welcome {{ token.get("name") }}!</h2>
+
+  <ul>
+    <li><a href='/call_entra_graph'>Call Entra Graph API</a></li>
+    <li><a href='/custom_api'>Call Custom API without any authorization</a></li>
+    <li><a href='/custom_api_user'>Call Custom API on behalf of user</a></li>
+    <li><a href='/custom_api_service'>Call Custom API as background service</a></li>
+    <li><a href='/custom_api_apim_passthrough'>Call Custom API on behalf of user via APIM passthrough</a></li>
+    <li><a href='/custom_api_apim_removeauth'>Call Custom API as background service via APIM removeauth that removes auth towards backend</a></li>
+    <li><a href='/custom_api_apim_onbehalf'>Call Custom API via APIM with no client authentication and APIM to authenticate to backend on behalf of client</a></li>
+
+  {% if config.get("B2C_PROFILE_AUTHORITY") %}
+    <li><a href='{{Auth(session={}, authority=config["B2C_PROFILE_AUTHORITY"], client_id=config["CLIENT_ID"]).log_in(redirect_uri=url_for("auth_response", _external=True))["auth_uri"]}}'>Edit Profile</a></li>
+  {% endif %}
+
+    <li><a href="/logout">Logout</a></li>
+  </ul>
+  <hr>
+  <p>
+    <h3>Login token:</h3>
+    <pre>{{ token | tojson(indent=4) | safe }}</pre>
+  </p>
+</body>
+</html>

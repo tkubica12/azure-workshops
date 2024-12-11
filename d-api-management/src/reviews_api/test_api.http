@@ -1,0 +1,34 @@
+@baseUrl = http://localhost:8002
+
+### Create a new review
+# @name createNew
+POST {{baseUrl}}/reviews/
+Content-Type: application/json
+
+{
+  "book_id": "book_id_1",
+  "review_text": "An excellent read!",
+  "rating": 5
+}
+
+@id = {{createNew.response.body.$.id}}
+### Get all reviews
+GET {{baseUrl}}/reviews/
+
+### Get a specific review by ID
+GET {{baseUrl}}/reviews/{{id}}
+
+### Update a review
+@id = {{createNew.response.body.$.id}}
+PUT {{baseUrl}}/reviews/{{id}}
+Content-Type: application/json
+
+{
+  "book_id": "book_id_1",
+  "review_text": "An updated review text.",
+  "rating": 4
+}
+
+### Delete a review
+@id = {{createNew.response.body.$.id}}
+DELETE {{baseUrl}}/reviews/{{id}}

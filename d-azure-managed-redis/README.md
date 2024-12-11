@@ -17,3 +17,4 @@ It also deploy demo scripts in Azure Container apps for each scenario. Python co
 | latency_test | Tests latency of read and write operations | ✅ | ✅ | ✅ |
 
 Note Enterprise cluster is transparent to client, no need to change code (unlike when using OSS clustering). Yet it might make sense to use proper sharding (hash tags) to influence how load is spread across processes when using larger SKUs.
+

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ page_name }}: API</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>{{ page_name }}</h1>
+    <a href="javascript:window.history.go(-1)">Back</a>
+    <h2>Token used to access API</h2>
+    <pre>{{ token | tojson(indent=4) }}</pre>
+    <h2>Result of the downstream API Call</h2>
+    <pre>{{ result | tojson(indent=4) }}</pre>
+</body>
+</html>

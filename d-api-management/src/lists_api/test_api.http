@@ -1,0 +1,35 @@
+@baseUrl = http://localhost:8001
+
+### Create a new list
+# @name createNew
+POST {{baseUrl}}/lists/
+Content-Type: application/json
+
+{
+  "name": "Favorite Books",
+  "description": "A list of my favorite books.",
+  "books": ["book_id_1", "book_id_2"]
+}
+
+@id = {{createNew.response.body.$.id}}
+### Get all lists
+GET {{baseUrl}}/lists/
+
+### Get a specific list by ID
+@id = {{createNew.response.body.$.id}}
+GET {{baseUrl}}/lists/{{id}}
+
+### Update a list
+@id = {{createNew.response.body.$.id}}
+PUT {{baseUrl}}/lists/{{id}}
+Content-Type: application/json
+
+{
+  "name": "Updated Favorite Books",
+  "description": "An updated list of my favorite books.",
+  "books": ["book_id_1", "book_id_3"]
+}
+
+### Delete a list
+@id = {{createNew.response.body.$.id}}
+DELETE {{baseUrl}}/lists/{{id}}

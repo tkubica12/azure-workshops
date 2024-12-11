@@ -1,0 +1,35 @@
+
+@baseUrl = http://localhost:8000
+
+### Create a new book
+# @name createNew
+POST {{baseUrl}}/books/
+Content-Type: application/json
+
+{
+  "title": "Sample Book",
+  "author": "Author Name",
+  "description": "A sample description."
+}
+
+### Get all books
+GET {{baseUrl}}/books/
+
+### Get a specific book by ID
+@id = {{createNew.response.body.$.id}}
+GET {{baseUrl}}/books/{{id}}
+
+### Update a book
+@id = {{createNew.response.body.$.id}}
+PUT {{baseUrl}}/books/{{id}}
+Content-Type: application/json
+
+{
+  "title": "Updated Sample Book",
+  "author": "Author Name",
+  "description": "An updated description."
+}
+
+### Delete a book
+@id = {{createNew.response.body.$.id}}
+DELETE {{baseUrl}}/books/{{id}}
