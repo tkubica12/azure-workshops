@@ -23,24 +23,6 @@ variable "REDIRECT_PATH" {
   default     = "/auth_response"
 }
 
-variable "AUTHORITY" {
-  type        = string
-  description = "Authority URL"
-  default     = "https://login.microsoftonline.com/tkubica.net"
-}
-
-variable "ENTRA_SCOPES" {
-  type        = list(string)
-  description = "Entra scopes"
-  default     = ["User.Read"]
-}
-
-variable "GRAPH_API_ENDPOINT" {
-  type        = string
-  description = "Graph API endpoint"
-  default     = "https://graph.microsoft.com/v1.0/me"
-}
-
 variable "CUSTOM_API_ENDPOINT" {
   type        = string
   description = "Custom API endpoint"

@@ -24,4 +24,5 @@ locals {
   api_scopes                  = ["${local.api_app_uri}/Stuff.Read"]
   api_scopes_client_cred_flow = ["${local.api_app_uri}/.default"]
   graph_api_endpoint          = "https://graph.microsoft.com/v1.0/me"
+  authority                   = "https://login.microsoftonline.com/${var.TENANT_ID}"
 }

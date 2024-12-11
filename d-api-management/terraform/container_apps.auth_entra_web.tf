@@ -31,7 +31,7 @@ resource "azurerm_container_app" "auth_entra_web" {
 
       env {
         name  = "AUTHORITY"
-        value = var.AUTHORITY
+        value = local.authority
       }
 
       env {
@@ -71,7 +71,7 @@ resource "azurerm_container_app" "auth_entra_web" {
 
       env {
         name  = "GRAPH_API_ENDPOINT"
-        value = var.GRAPH_API_ENDPOINT
+        value = local.graph_api_endpoint
       }
 
       env {

@@ -26,7 +26,7 @@ resource "azurerm_container_app" "auth_entra_api" {
 
       env {
         name  = "AUTHORITY"
-        value = var.AUTHORITY
+        value = local.authority
       }
 
       env {
