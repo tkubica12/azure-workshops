@@ -21,6 +21,20 @@ resource "azuread_application" "web" {
     start_date   = time_rotating.entra[0].id
     end_date     = timeadd(time_rotating.entra[0].id, "4320h")
   }
+
+  lifecycle {
+    ignore_changes = [ web ]
+  }
+}
+
+resource "azuread_application_redirect_uris" "web" {
+  count          = var.byo_app_registrations ? 0 : 1
+  application_id = azuread_application.web[0].id
+  type           = "Web"
+
+  redirect_uris = [
+    "https://${azurerm_container_app.auth_entra_web.ingress[0].fqdn}${var.REDIRECT_PATH}"
+  ]
 }
 
 resource "azuread_application" "api" {
