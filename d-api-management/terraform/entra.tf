@@ -23,7 +23,7 @@ resource "azuread_application" "web" {
   }
 
   lifecycle {
-    ignore_changes = [ web ]
+    ignore_changes = [web]
   }
 }
 
@@ -75,6 +75,12 @@ resource "azuread_application" "api" {
     start_date   = time_rotating.entra[0].id
     end_date     = timeadd(time_rotating.entra[0].id, "4320h")
   }
+}
+
+resource "azuread_service_principal" "api" {
+  client_id                    = azuread_application.api[0].client_id
+  app_role_assignment_required = false
+  owners                       = [data.azuread_client_config.current.object_id]
 }
 
 resource "azuread_application" "apim" {
