@@ -33,7 +33,7 @@ const Reviews = () => {
 
   const handleAddReview = async () => {
     try {
-      await axios.post('/reviews/', newReview);
+      await axios.post('/api/reviews/', newReview);
       fetchReviews();
       setNewReview({ book_id: '', review_text: '', rating: 0 });
     } catch (error) {
