@@ -118,5 +118,3 @@ resource "azurerm_api_management_api_schema" "reviews_http_validation_error" {
 }
 JSON
 }
-
-# ...existing code...

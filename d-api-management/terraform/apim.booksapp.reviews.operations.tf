@@ -77,6 +77,14 @@ EOF
   }
 }
 
+resource "azurerm_api_management_api_operation_policy" "create_review" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.create_review.operation_id
+  xml_content         = local.policy_reviews
+}
+
 resource "azurerm_api_management_api_operation" "read_reviews" {
   operation_id        = "read-reviews"
   api_name            = azurerm_api_management_api.booksapp.name
@@ -155,6 +163,14 @@ EOF
   }
 }
 
+resource "azurerm_api_management_api_operation_policy" "read_reviews" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.read_reviews.operation_id
+  xml_content         = local.policy_reviews
+}
+
 resource "azurerm_api_management_api_operation" "read_review" {
   operation_id        = "read-review"
   api_name            = azurerm_api_management_api.booksapp.name
@@ -220,6 +236,14 @@ EOF
       type_name    = "HTTPValidationError"
     }
   }
+}
+
+resource "azurerm_api_management_api_operation_policy" "read_review" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.read_review.operation_id
+  xml_content         = local.policy_reviews
 }
 
 resource "azurerm_api_management_api_operation" "update_review" {
@@ -317,6 +341,14 @@ EOF
   }
 }
 
+resource "azurerm_api_management_api_operation_policy" "update_review" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.update_review.operation_id
+  xml_content         = local.policy_reviews
+}
+
 resource "azurerm_api_management_api_operation" "delete_review" {
   operation_id        = "delete-review"
   api_name            = azurerm_api_management_api.booksapp.name
@@ -382,6 +414,14 @@ EOF
       type_name    = "HTTPValidationError"
     }
   }
+}
+
+resource "azurerm_api_management_api_operation_policy" "delete_review" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.delete_review.operation_id
+  xml_content         = local.policy_reviews
 }
 
 # ...existing code...

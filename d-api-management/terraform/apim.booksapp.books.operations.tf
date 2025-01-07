@@ -101,6 +101,14 @@ EOF
   }
 }
 
+resource "azurerm_api_management_api_operation_policy" "read_books" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.read_books.operation_id
+  xml_content         = local.policy_books
+}
+
 
 resource "azurerm_api_management_api_operation" "read_book" {
   operation_id        = "read-book"
@@ -197,6 +205,14 @@ EOF
       }
     }
   }
+}
+
+resource "azurerm_api_management_api_operation_policy" "read_book" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.read_book.operation_id
+  xml_content         = local.policy_books
 }
 
 resource "azurerm_api_management_api_operation" "update_book" {
@@ -321,6 +337,14 @@ EOF
   }
 }
 
+resource "azurerm_api_management_api_operation_policy" "update_book" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.update_book.operation_id
+  xml_content         = local.policy_books
+}
+
 resource "azurerm_api_management_api_operation" "create_book" {
   operation_id        = "create-book"
   api_name            = azurerm_api_management_api.booksapp.name
@@ -418,6 +442,14 @@ EOF
   }
 }
 
+resource "azurerm_api_management_api_operation_policy" "create_book" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.create_book.operation_id
+  xml_content         = local.policy_books
+}
+
 resource "azurerm_api_management_api_operation" "delete_book" {
   operation_id        = "delete-book"
   api_name            = azurerm_api_management_api.booksapp.name
@@ -506,5 +538,13 @@ EOF
       type_name = "HTTPValidationError"
     }
   }
+}
+
+resource "azurerm_api_management_api_operation_policy" "delete_book" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.delete_book.operation_id
+  xml_content         = local.policy_books
 }
 

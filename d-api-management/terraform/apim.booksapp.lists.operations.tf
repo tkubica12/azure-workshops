@@ -92,6 +92,14 @@ EOF
   }
 }
 
+resource "azurerm_api_management_api_operation_policy" "create_list" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.create_list.operation_id
+  xml_content         = local.policy_lists
+}
+
 resource "azurerm_api_management_api_operation" "read_lists" {
   operation_id        = "read-lists"
   api_name            = azurerm_api_management_api.booksapp.name
@@ -185,6 +193,14 @@ EOF
   }
 }
 
+resource "azurerm_api_management_api_operation_policy" "read_lists" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.read_lists.operation_id
+  xml_content         = local.policy_lists
+}
+
 resource "azurerm_api_management_api_operation" "read_list" {
   operation_id        = "read-list"
   api_name            = azurerm_api_management_api.booksapp.name
@@ -265,6 +281,14 @@ EOF
       }
     }
   }
+}
+
+resource "azurerm_api_management_api_operation_policy" "read_list" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.read_list.operation_id
+  xml_content         = local.policy_lists
 }
 
 resource "azurerm_api_management_api_operation" "update_list" {
@@ -377,6 +401,14 @@ EOF
   }
 }
 
+resource "azurerm_api_management_api_operation_policy" "update_list" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.update_list.operation_id
+  xml_content         = local.policy_lists
+}
+
 resource "azurerm_api_management_api_operation" "delete_list" {
   operation_id        = "delete-list"
   api_name            = azurerm_api_management_api.booksapp.name
@@ -457,5 +489,13 @@ EOF
       }
     }
   }
+}
+
+resource "azurerm_api_management_api_operation_policy" "delete_list" {
+  api_name            = azurerm_api_management_api.booksapp.name
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  operation_id        = azurerm_api_management_api_operation.delete_list.operation_id
+  xml_content         = local.policy_lists
 }
 
