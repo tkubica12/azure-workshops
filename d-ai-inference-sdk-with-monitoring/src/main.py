@@ -1,4 +1,5 @@
 import os
+import time
 from azure.ai.inference import ChatCompletionsClient
 from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
@@ -33,12 +34,12 @@ def chat_interface(message, history):
       "presence_penalty": 0,
       "frequency_penalty": 0
     }
-    response = client.complete(payload)
-    assistant_message = {
-        "role": "assistant",
-        "content": response.choices[0].message.content
-    }
-    return history + [assistant_message]
+    response = client.complete(stream=True, **payload)
+    assistant_message = {"role": "assistant", "content": ""}
+    
+    for update in response:
+        assistant_message["content"] += update.choices[0].delta.content or ""
+        yield history + [assistant_message]
 
 iface = gr.ChatInterface(fn=chat_interface, type="messages")
-iface.launch()
+iface.launch()  # ssr_mode=True
