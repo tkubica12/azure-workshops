@@ -63,3 +63,4 @@ d-azureml/local_dev/scaler.save
 __pycache__
 .venv
 local.settings.json
+d-ai-inference-sdk-with-monitoring/src/.env
