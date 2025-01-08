@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pydantic
+azure-cosmos
+azure-identity
+python-dotenv
+opentelemetry-instrumentation-fastapi
+opentelemetry-api
+opentelemetry-sdk 
+azure-core-tracing-opentelemetry
+azure-monitor-opentelemetry

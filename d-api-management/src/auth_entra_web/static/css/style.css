@@ -1,0 +1,36 @@
+/* style.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+    background-color: #f0f0f0;
+    color: #333;
+}
+h1, h2 {
+    color: #017acd;
+}
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+li {
+    margin: 10px 0;
+}
+a {
+    text-decoration: none;
+    color: #017acd;
+}
+a:hover {
+    text-decoration: underline;
+}
+pre {
+    background-color: #eaeaea;
+    padding: 20px;
+    overflow: auto;
+    border-radius: 5px;
+    border: 1px solid #dcdcdc;
+}
+footer {
+    margin-top: 40px;
+    font-size: 0.8em;
+    color: #777;
+}
