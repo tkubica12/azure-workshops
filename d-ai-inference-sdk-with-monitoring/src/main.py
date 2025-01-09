@@ -22,7 +22,14 @@ client = ChatCompletionsClient(
 )
 
 def chat_interface(message, history):
-    messages = [SystemMessage(content="You are a helpful assistant.")] + history + [UserMessage(content=message)]
+    messages = [SystemMessage(content="You are a helpful assistant.")]
+    for msg in history:
+        if msg["role"] == "user":
+            messages.append(UserMessage(content=msg["content"]))
+        elif msg["role"] == "assistant":
+            messages.append(AssistantMessage(content=msg["content"]))
+    messages.append(UserMessage(content=message))
+    
     payload = {
       "messages": messages,
       "max_tokens": 2048,
@@ -36,7 +43,7 @@ def chat_interface(message, history):
     
     for update in response:
         assistant_message["content"] += update.choices[0].delta.content or ""
-        yield history + [assistant_message]
+        yield [assistant_message]
 
 iface = gr.ChatInterface(fn=chat_interface, type="messages")
-iface.launch()  # ssr_mode=True
+iface.launch(server_name='0.0.0.0', ssr_mode=True)
