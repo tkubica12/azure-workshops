@@ -11,7 +11,7 @@ resource "azapi_resource" "ai_service" {
   body = {
     name = "aidemo-${local.base_name}"
     properties = {
-      restore             = true
+      #   restore             = true
       customSubDomainName = local.base_name
       apiProperties = {
         statisticsEnabled = false

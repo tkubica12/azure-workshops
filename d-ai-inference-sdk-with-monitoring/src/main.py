@@ -5,8 +5,15 @@ from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
 import gradio as gr
 from azure.ai.inference.models import AssistantMessage, UserMessage, SystemMessage
+from azure.monitor.opentelemetry import configure_azure_monitor
 
 load_dotenv()
+
+application_insights_connection_string = os.getenv("APPLICATION_INSIGHTS_CONNECTION_STRING", '')
+if not application_insights_connection_string:
+    raise Exception("An Application Insights connection string should be provided to enable monitoring")
+
+configure_azure_monitor(connection_string=application_insights_connection_string)
 
 api_key = os.getenv("AZURE_INFERENCE_CREDENTIAL", '')
 if not api_key:
