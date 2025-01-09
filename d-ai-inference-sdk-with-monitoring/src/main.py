@@ -4,6 +4,7 @@ from azure.ai.inference import ChatCompletionsClient
 from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
 import gradio as gr
+from azure.ai.inference.models import AssistantMessage, UserMessage, SystemMessage
 
 load_dotenv()
 
@@ -21,13 +22,9 @@ client = ChatCompletionsClient(
 )
 
 def chat_interface(message, history):
+    messages = [SystemMessage(content="You are a helpful assistant.")] + history + [UserMessage(content=message)]
     payload = {
-      "messages": history + [
-        {
-          "role": "user",
-          "content": message
-        }
-      ],
+      "messages": messages,
       "max_tokens": 2048,
       "temperature": 0.8,
       "top_p": 0.1,
