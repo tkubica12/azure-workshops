@@ -44,7 +44,11 @@ resource "azapi_resource" "ai_hub" {
       applicationInsights = azurerm_application_insights.main.id
       # containerRegistry = azurerm_container_registry.default.id
     }
-    kind = "hub"
+    kind = "Hub"
+  }
+
+  lifecycle {
+    ignore_changes = [ tags ]
   }
 }
 
@@ -64,7 +68,7 @@ resource "azapi_resource" "ai_project" {
       friendlyName  = "AI demo Project"
       hubResourceId = azapi_resource.ai_hub.id
     }
-    kind = "project"
+    kind = "Project"
   }
 }
 
@@ -88,24 +92,24 @@ resource "azapi_resource" "ai_services_connection" {
   }
 }
 
-# resource "azapi_resource" "model_phi35" {
-#   type      = "Microsoft.MachineLearningServices/workspaces/serverlessEndpoints@2024-04-01"
-#   name      = "phi35-${local.base_name}"
-#   parent_id = azapi_resource.ai_project.id
-#   location  = azurerm_resource_group.main.location
+resource "azapi_resource" "model_phi35" {
+  type      = "Microsoft.MachineLearningServices/workspaces/serverlessEndpoints@2024-04-01"
+  name      = "phi35-${local.base_name}"
+  parent_id = azapi_resource.ai_project.id
+  location  = azurerm_resource_group.main.location
 
-#   body = {
-#     sku = {
-#       name = "Consumption"
-#     }
-#     properties = {
-#         authMode = "Key"
-#         contentSafety = {
-#             contentSafetyStatus = "Enabled"
-#         }
-#       modelSettings = {
-#         modelId = "azureml://registries/azureml-phi/models/Phi-3.5-MoE-instruct
-#       }
-#     }
-#   }
-# }
+  body = {
+    sku = {
+      name = "Consumption"
+    }
+    properties = {
+        authMode = "Key"
+        contentSafety = {
+            contentSafetyStatus = "Enabled"
+        }
+      modelSettings = {
+        modelId = "azureml://registries/azureml/models/Phi-3.5-MoE-instruct"
+      }
+    }
+  }
+}
