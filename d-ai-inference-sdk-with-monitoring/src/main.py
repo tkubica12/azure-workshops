@@ -9,7 +9,7 @@ from azure.monitor.opentelemetry import configure_azure_monitor
 
 load_dotenv()
 
-application_insights_connection_string = os.getenv("APPLICATION_INSIGHTS_CONNECTION_STRING", '')
+application_insights_connection_string = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING", '')
 if not application_insights_connection_string:
     raise Exception("An Application Insights connection string should be provided to enable monitoring")
 
