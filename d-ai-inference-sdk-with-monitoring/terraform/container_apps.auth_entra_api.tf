@@ -1,12 +1,12 @@
-resource "azurerm_container_app" "auth_entra_api" {
-  name                         = "ca-auth-entra-api"
+resource "azurerm_container_app" "gradio" {
+  name                         = "ca-gradio-${local.base_name}"
   container_app_environment_id = azurerm_container_app_environment.main.id
   resource_group_name          = azurerm_resource_group.main.name
   revision_mode                = "Single"
 
   ingress {
     external_enabled = true
-    target_port      = 5001
+    target_port      = 7860
 
     traffic_weight {
       percentage      = 100
