@@ -1,43 +1,48 @@
-# resource "azurerm_container_app" "auth_entra_api" {
-#   name                         = "ca-auth-entra-api"
-#   container_app_environment_id = azurerm_container_app_environment.main.id
-#   resource_group_name          = azurerm_resource_group.main.name
-#   revision_mode                = "Single"
+resource "azurerm_container_app" "auth_entra_api" {
+  name                         = "ca-auth-entra-api"
+  container_app_environment_id = azurerm_container_app_environment.main.id
+  resource_group_name          = azurerm_resource_group.main.name
+  revision_mode                = "Single"
 
-#   ingress {
-#     external_enabled = true
-#     target_port      = 5001
+  ingress {
+    external_enabled = true
+    target_port      = 5001
 
-#     traffic_weight {
-#       percentage      = 100
-#       latest_revision = true
-#     }
-#   }
+    traffic_weight {
+      percentage      = 100
+      latest_revision = true
+    }
+  }
 
-#   template {
-#     min_replicas = 0
-#     max_replicas = 1
+  template {
+    min_replicas = 0
+    max_replicas = 1
 
-#     container {
-#       name   = "myapp"
-#       image  = "ghcr.io/tkubica12/jnt-apim-hackathon/auth_entra_api:latest"
-#       cpu    = 0.25
-#       memory = "0.5Gi"
+    container {
+      name   = "myapp"
+      image  = "ghcr.io/tkubica12/azure-workshops/d-ai-inference-sdk-with-monitoring:latest"
+      cpu    = 0.25
+      memory = "0.5Gi"
 
-#       env {
-#         name  = "AUTHORITY"
-#         value = local.authority
-#       }
+      env {
+        name  = "AZURE_INFERENCE_CREDENTIAL"
+        value = ""
+      }
 
-#       env {
-#         name  = "API_CLIENT_ID"
-#         value = local.api_app.client_id
-#       }
+      env {
+        name  = "AZURE_INFERENCE_ENDPOINT"
+        value = ""
+      }
 
-#       env {
-#         name  = "API_CLIENT_SECRET"
-#         value = local.api_app.client_secret
-#       }
-#     }
-#   }
-# }
+      env {
+        name  = "AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED"
+        value = "true"
+      }
+
+      env {
+        name  = "APPLICATIONINSIGHTS_CONNECTION_STRING"
+        value = azurerm_application_insights.main.connection_string
+      }
+    }
+  }
+}
