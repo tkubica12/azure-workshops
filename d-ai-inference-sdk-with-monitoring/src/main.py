@@ -1,5 +1,6 @@
 import os
-import time
+import json
+import base64
 from azure.ai.inference import ChatCompletionsClient
 from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
@@ -15,42 +16,75 @@ if not application_insights_connection_string:
 
 configure_azure_monitor(connection_string=application_insights_connection_string)
 
-api_key = os.getenv("AZURE_INFERENCE_CREDENTIAL", '')
-if not api_key:
-    raise Exception("A key should be provided to invoke the endpoint")
+# Load the model configuration from .models.json or MODELS_CONFIG environment variable
+config = None
+if os.path.exists('.models.json'):
+    with open('.models.json', 'r') as file:
+        config = json.load(file)
+else:
+    config_base64 = os.getenv("MODELS_CONFIG", '')
+    if not config_base64:
+        raise Exception("Provide either .models.json file or base64-encoded JSON config")
+    config_json = base64.b64decode(config_base64).decode('utf-8')
+    config = json.loads(config_json)
 
-api_endpoint = os.getenv("AZURE_INFERENCE_ENDPOINT", '')
-if not api_endpoint:
-    raise Exception("An endpoint should be provided to invoke the endpoint")
+# Create clients from the config
+clients = {}
+for model_name, model_attrs in config.get("models", {}).items():
+    api_endpoint = model_attrs.get("endpoint")
+    api_key = model_attrs.get("key")
+    if api_endpoint and api_key:
+        clients[model_name] = ChatCompletionsClient(
+            endpoint=api_endpoint,
+            credential=AzureKeyCredential(api_key)
+        )
 
-client = ChatCompletionsClient(
-    endpoint=api_endpoint,
-    credential=AzureKeyCredential(api_key)
-)
+if not clients:
+    raise Exception("At least one set of credentials and endpoints should be provided")
 
-def chat_interface(message, history):
-    messages = [SystemMessage(content="You are a helpful assistant.")]
-    for msg in history:
-        if msg["role"] == "user":
-            messages.append(UserMessage(content=msg["content"]))
-        elif msg["role"] == "assistant":
-            messages.append(AssistantMessage(content=msg["content"]))
-    messages.append(UserMessage(content=message))
-    
-    payload = {
-      "messages": messages,
-      "max_tokens": 2048,
-      "temperature": 0.8,
-      "top_p": 0.1,
-      "presence_penalty": 0,
-      "frequency_penalty": 0
-    }
-    response = client.complete(stream=True, **payload)
-    assistant_message = {"role": "assistant", "content": ""}
-    
-    for update in response:
-        assistant_message["content"] += update.choices[0].delta.content or ""
-        yield [assistant_message]
+model_names = list(clients.keys())
+history = []
 
-iface = gr.ChatInterface(fn=chat_interface, type="messages")
-iface.launch(server_name='0.0.0.0', ssr_mode=True)
+with gr.Blocks() as demo:
+    chatbot = gr.Chatbot(type="messages")
+    msg = gr.Textbox()
+    clear = gr.ClearButton([msg, chatbot])
+    model_selector = gr.Dropdown(choices=model_names, label="Select Model")
+
+    def user(user_message, history):
+        return "", history + [{"role": "user", "content": user_message}]
+
+    def bot(history):
+        print(f"Model: {model_selector.value}, History: {history}")
+        messages = [SystemMessage(content="You are a helpful assistant.")]
+        for msg in history:
+            if msg["role"] == "user":
+                messages.append(UserMessage(content=msg["content"]))
+            elif msg["role"] == "assistant":
+                messages.append(AssistantMessage(content=msg["content"]))
+        
+        payload = {
+            "messages": messages,
+            "max_tokens": 2048,
+            "temperature": 0.8,
+            "top_p": 0.1,
+            "presence_penalty": 0,
+            "frequency_penalty": 0
+        }
+        
+        client = clients.get(model_name)
+        if not client:
+            raise Exception(f"Client for model {model_name} not found")
+        
+        response = client.complete(stream=True, **payload)
+        assistant_message = {"role": "assistant", "content": ""}
+        for update in response:
+            assistant_message["content"] += update.choices[0].delta.content or ""
+            yield history + [assistant_message]
+
+    msg.submit(user, [msg, chatbot], [msg, chatbot], queue=False).then(
+        bot, chatbot, chatbot
+    )
+    clear.click(lambda: None, None, chatbot, queue=False)
+
+demo.launch(server_name='0.0.0.0', ssr_mode=False)

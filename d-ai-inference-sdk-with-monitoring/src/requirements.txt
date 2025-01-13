@@ -2,3 +2,4 @@ python-dotenv
 gradio
 azure-ai-inference
 azure-monitor-opentelemetry
+azure-identity

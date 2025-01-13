@@ -48,7 +48,7 @@ resource "azapi_resource" "ai_hub" {
   }
 
   lifecycle {
-    ignore_changes = [ tags ]
+    ignore_changes = [tags]
   }
 }
 
@@ -103,13 +103,23 @@ resource "azapi_resource" "model_phi35" {
       name = "Consumption"
     }
     properties = {
-        authMode = "Key"
-        contentSafety = {
-            contentSafetyStatus = "Enabled"
-        }
+      authMode = "Key"
+      contentSafety = {
+        contentSafetyStatus = "Enabled"
+      }
       modelSettings = {
         modelId = "azureml://registries/azureml/models/Phi-3.5-MoE-instruct"
       }
     }
   }
+
+  response_export_values = ["*"]
 }
+
+data "azapi_resource_action" "model_phi35_keys" {
+  type                   = "Microsoft.MachineLearningServices/workspaces/serverlessEndpoints@2024-04-01"
+  resource_id            = azapi_resource.model_phi35.id
+  action                 = "listKeys"
+  response_export_values = ["*"]
+}
+
