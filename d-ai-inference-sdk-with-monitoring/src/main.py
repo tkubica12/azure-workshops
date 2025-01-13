@@ -132,4 +132,4 @@ with gr.Blocks() as demo:
     )
     clear.click(lambda: [None, None], None, [chatbot_l, chatbot_r], queue=False)
 
-demo.launch(server_name='0.0.0.0', ssr_mode=False)
+demo.launch(server_name='0.0.0.0', ssr_mode=True)
