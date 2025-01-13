@@ -43,7 +43,7 @@ if not clients:
     raise Exception("At least one set of credentials and endpoints should be provided")
 
 model_names = list(clients.keys())
-history = []
+system_message = SystemMessage(content="You are a helpful assistant.")
 
 with gr.Blocks() as demo:
     with gr.Row():
@@ -62,9 +62,37 @@ with gr.Blocks() as demo:
     def user(user_message, history):
         return "", history + [{"role": "user", "content": user_message}]
 
-    def bot(history, model_name):
+    def bot_l(history, model_name):
         print(f"Model: {model_name}, History: {history}")
-        messages = [SystemMessage(content="You are a helpful assistant.")]
+        messages = [system_message]
+        for msg in history:
+            if msg["role"] == "user":
+                messages.append(UserMessage(content=msg["content"]))
+            elif msg["role"] == "assistant":
+                messages.append(AssistantMessage(content=msg["content"]))
+        
+        payload = {
+            "messages": messages,
+            "max_tokens": 2048,
+            "temperature": 0.8,
+            "top_p": 0.1,
+            "presence_penalty": 0,
+            "frequency_penalty": 0
+        }
+        
+        client = clients.get(model_name)
+        if not client:
+            raise Exception(f"Client for model {model_name} not found")
+        
+        response = client.complete(stream=True, **payload)
+        assistant_message = {"role": "assistant", "content": ""}
+        for update in response:
+            assistant_message["content"] += update.choices[0].delta.content or ""
+            yield history + [assistant_message]
+
+    def bot_r(history, model_name):
+        print(f"Model: {model_name}, History: {history}")
+        messages = [system_message]
         for msg in history:
             if msg["role"] == "user":
                 messages.append(UserMessage(content=msg["content"]))
@@ -91,15 +119,17 @@ with gr.Blocks() as demo:
             yield history + [assistant_message]
 
     msg.submit(user, [msg, chatbot_l], [msg, chatbot_l], queue=False).then(
-        bot, [chatbot_l, model_selector_l], [chatbot_l]
+        bot_l, [chatbot_l, model_selector_l], [chatbot_l]
     )
     msg.submit(user, [msg, chatbot_r], [msg, chatbot_r], queue=False).then(
-        bot, [chatbot_r, model_selector_r], [chatbot_r]
+        bot_r, [chatbot_r, model_selector_r], [chatbot_r]
     )
-    send.click(user, [msg, chatbot_l, chatbot_r], [msg, chatbot_l, chatbot_r], queue=False).then(
-        bot, [chatbot_l, model_selector_l], [chatbot_l]
-    ).then(
-        bot, [chatbot_r, model_selector_r], [chatbot_r]
+    send.click(user, [msg, chatbot_l, chatbot_r], [msg, chatbot_l, chatbot_r], queue=False)
+    send.click(None, None, None, queue=False).then(
+        bot_l, [chatbot_l, model_selector_l], [chatbot_l]
+    )
+    send.click(None, None, None, queue=False).then(
+        bot_r, [chatbot_r, model_selector_r], [chatbot_r]
     )
     clear.click(lambda: None, None, [chatbot_l, chatbot_r], queue=False)
 
