@@ -81,7 +81,6 @@ resource "azapi_resource" "ai_services_connection" {
     properties = {
       category = "AIServices"
       target   = azapi_resource.ai_service.output.properties.endpoint
-      #   target        = jsondecode(azapi_resource.AIServicesResource.output).properties.endpoint,
       authType      = "AAD"
       isSharedToAll = true
       metadata = {
@@ -92,34 +91,5 @@ resource "azapi_resource" "ai_services_connection" {
   }
 }
 
-resource "azapi_resource" "model_phi35" {
-  type      = "Microsoft.MachineLearningServices/workspaces/serverlessEndpoints@2024-04-01"
-  name      = "phi35-${local.base_name}"
-  parent_id = azapi_resource.ai_project.id
-  location  = azurerm_resource_group.main.location
 
-  body = {
-    sku = {
-      name = "Consumption"
-    }
-    properties = {
-      authMode = "Key"
-      contentSafety = {
-        contentSafetyStatus = "Enabled"
-      }
-      modelSettings = {
-        modelId = "azureml://registries/azureml/models/Phi-3.5-MoE-instruct"
-      }
-    }
-  }
-
-  response_export_values = ["*"]
-}
-
-data "azapi_resource_action" "model_phi35_keys" {
-  type                   = "Microsoft.MachineLearningServices/workspaces/serverlessEndpoints@2024-04-01"
-  resource_id            = azapi_resource.model_phi35.id
-  action                 = "listKeys"
-  response_export_values = ["*"]
-}
 

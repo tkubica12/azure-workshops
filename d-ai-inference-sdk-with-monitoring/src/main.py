@@ -48,14 +48,15 @@ history = []
 with gr.Blocks() as demo:
     chatbot = gr.Chatbot(type="messages")
     msg = gr.Textbox()
+    send = gr.Button("Send")
     clear = gr.ClearButton([msg, chatbot])
     model_selector = gr.Dropdown(choices=model_names, label="Select Model")
 
     def user(user_message, history):
         return "", history + [{"role": "user", "content": user_message}]
 
-    def bot(history):
-        print(f"Model: {model_selector.value}, History: {history}")
+    def bot(history, model_name):
+        print(f"Model: {model_name}, History: {history}")
         messages = [SystemMessage(content="You are a helpful assistant.")]
         for msg in history:
             if msg["role"] == "user":
@@ -83,7 +84,10 @@ with gr.Blocks() as demo:
             yield history + [assistant_message]
 
     msg.submit(user, [msg, chatbot], [msg, chatbot], queue=False).then(
-        bot, chatbot, chatbot
+        bot, [chatbot, model_selector], chatbot
+    )
+    send.click(user, [msg, chatbot], [msg, chatbot], queue=False).then(
+        bot, [chatbot, model_selector], chatbot
     )
     clear.click(lambda: None, None, chatbot, queue=False)
 

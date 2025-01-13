@@ -26,12 +26,12 @@ resource "azurerm_container_app" "gradio" {
 
       env {
         name  = "AZURE_INFERENCE_CREDENTIAL"
-        value = data.azapi_resource_action.model_phi35_keys.output.primaryKey
+        value = data.azapi_resource_action.serverless_model_key["phi35-MoE"].output.primaryKey
       }
 
       env {
         name  = "AZURE_INFERENCE_ENDPOINT"
-        value = azapi_resource.model_phi35.output.properties.inferenceEndpoint.uri
+        value = azapi_resource.serverless_model["phi35-MoE"].output.properties.inferenceEndpoint.uri
       }
 
       env {
