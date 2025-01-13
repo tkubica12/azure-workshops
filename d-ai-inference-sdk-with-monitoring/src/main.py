@@ -8,8 +8,10 @@ import gradio as gr
 from azure.ai.inference.models import AssistantMessage, UserMessage, SystemMessage
 from azure.monitor.opentelemetry import configure_azure_monitor
 
+# Load the environment variables from .env file if exists
 load_dotenv()
 
+# Configure Azure Monitor for monitoring using OpenTelemetry
 application_insights_connection_string = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING", '')
 if not application_insights_connection_string:
     raise Exception("An Application Insights connection string should be provided to enable monitoring")
@@ -44,8 +46,10 @@ if not clients:
 
 model_names = list(clients.keys())
 system_message = SystemMessage(content="You are a helpful assistant.")
+# Provides a default system prompt to the model.
 
 with gr.Blocks() as demo:
+    # Main layout with two columns for left and right chat windows.
     with gr.Row():
         with gr.Column():
             chatbot_l = gr.Chatbot(type="messages")
@@ -55,13 +59,19 @@ with gr.Blocks() as demo:
             model_selector_r = gr.Dropdown(choices=model_names, label="Select Model")
                 
     msg = gr.Textbox()
+    # The textbox where users type their message.
+
     with gr.Row():
         send = gr.Button("Send")
         clear = gr.ClearButton([msg, chatbot_l, chatbot_r])
+        # Clicking Clear resets all chat windows and the message box.
 
+    # 'user' function appends the user's message to the chat history.
     def user(user_message, history):
+        # Return the new empty message box and updated history containing the user message.
         return "", history + [{"role": "user", "content": user_message}]
 
+    # 'bot_l' function streams responses for the left chat interface.
     def bot_l(history, model_name):
         print(f"Model: {model_name}, History: {history}")
         messages = [system_message]
@@ -90,6 +100,7 @@ with gr.Blocks() as demo:
             assistant_message["content"] += update.choices[0].delta.content or ""
             yield history + [assistant_message]
 
+    # 'bot_r' function streams responses for the right chat interface.
     def bot_r(history, model_name):
         print(f"Model: {model_name}, History: {history}")
         messages = [system_message]
@@ -118,6 +129,9 @@ with gr.Blocks() as demo:
             assistant_message["content"] += update.choices[0].delta.content or ""
             yield history + [assistant_message]
 
+    # The Gradio workflow:
+    # 1. User enters message -> triggers 'user' -> updates chat history
+    # 2. Then calls 'bot_l' or 'bot_r' to generate model responses
     msg.submit(user, [msg, chatbot_l], [msg, chatbot_l], queue=False).then(
         bot_l, [chatbot_l, model_selector_l], [chatbot_l]
     )
@@ -132,4 +146,4 @@ with gr.Blocks() as demo:
     )
     clear.click(lambda: [None, None], None, [chatbot_l, chatbot_r], queue=False)
 
-demo.launch(server_name='0.0.0.0', ssr_mode=True)
+demo.launch(server_name='0.0.0.0', ssr_mode=True)   # ssr accelerates page load time, but requires Node to be installed on server - you can disable for local development
