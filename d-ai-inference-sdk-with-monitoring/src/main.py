@@ -124,13 +124,12 @@ with gr.Blocks() as demo:
     msg.submit(user, [msg, chatbot_r], [msg, chatbot_r], queue=False).then(
         bot_r, [chatbot_r, model_selector_r], [chatbot_r]
     )
-    send.click(user, [msg, chatbot_l, chatbot_r], [msg, chatbot_l, chatbot_r], queue=False)
-    send.click(None, None, None, queue=False).then(
+    send.click(user, [msg, chatbot_l], [msg, chatbot_l], queue=False).then(
         bot_l, [chatbot_l, model_selector_l], [chatbot_l]
     )
-    send.click(None, None, None, queue=False).then(
+    send.click(user, [msg, chatbot_r], [msg, chatbot_r], queue=False).then(
         bot_r, [chatbot_r, model_selector_r], [chatbot_r]
     )
-    clear.click(lambda: None, None, [chatbot_l, chatbot_r], queue=False)
+    clear.click(lambda: [None, None], None, [chatbot_l, chatbot_r], queue=False)
 
 demo.launch(server_name='0.0.0.0', ssr_mode=False)
