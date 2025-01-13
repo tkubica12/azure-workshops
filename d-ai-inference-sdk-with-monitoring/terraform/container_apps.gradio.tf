@@ -25,13 +25,8 @@ resource "azurerm_container_app" "gradio" {
       memory = "0.5Gi"
 
       env {
-        name  = "AZURE_INFERENCE_CREDENTIAL"
-        value = data.azapi_resource_action.serverless_model_key["phi35-MoE"].output.primaryKey
-      }
-
-      env {
-        name  = "AZURE_INFERENCE_ENDPOINT"
-        value = azapi_resource.serverless_model["phi35-MoE"].output.properties.inferenceEndpoint.uri
+        name  = "MODELS_CONFIG"
+        value = base64encode(jsonencode(local.model_configurations))
       }
 
       env {
