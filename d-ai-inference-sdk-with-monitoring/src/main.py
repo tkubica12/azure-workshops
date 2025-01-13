@@ -46,11 +46,18 @@ model_names = list(clients.keys())
 history = []
 
 with gr.Blocks() as demo:
-    chatbot = gr.Chatbot(type="messages")
+    with gr.Row():
+        with gr.Column():
+            chatbot_l = gr.Chatbot(type="messages")
+            model_selector_l = gr.Dropdown(choices=model_names, label="Select Model")
+        with gr.Column():
+            chatbot_r = gr.Chatbot(type="messages")
+            model_selector_r = gr.Dropdown(choices=model_names, label="Select Model")
+                
     msg = gr.Textbox()
-    send = gr.Button("Send")
-    clear = gr.ClearButton([msg, chatbot])
-    model_selector = gr.Dropdown(choices=model_names, label="Select Model")
+    with gr.Row():
+        send = gr.Button("Send")
+        clear = gr.ClearButton([msg, chatbot_l, chatbot_r])
 
     def user(user_message, history):
         return "", history + [{"role": "user", "content": user_message}]
@@ -83,12 +90,17 @@ with gr.Blocks() as demo:
             assistant_message["content"] += update.choices[0].delta.content or ""
             yield history + [assistant_message]
 
-    msg.submit(user, [msg, chatbot], [msg, chatbot], queue=False).then(
-        bot, [chatbot, model_selector], chatbot
+    msg.submit(user, [msg, chatbot_l], [msg, chatbot_l], queue=False).then(
+        bot, [chatbot_l, model_selector_l], [chatbot_l]
     )
-    send.click(user, [msg, chatbot], [msg, chatbot], queue=False).then(
-        bot, [chatbot, model_selector], chatbot
+    msg.submit(user, [msg, chatbot_r], [msg, chatbot_r], queue=False).then(
+        bot, [chatbot_r, model_selector_r], [chatbot_r]
     )
-    clear.click(lambda: None, None, chatbot, queue=False)
+    send.click(user, [msg, chatbot_l, chatbot_r], [msg, chatbot_l, chatbot_r], queue=False).then(
+        bot, [chatbot_l, model_selector_l], [chatbot_l]
+    ).then(
+        bot, [chatbot_r, model_selector_r], [chatbot_r]
+    )
+    clear.click(lambda: None, None, [chatbot_l, chatbot_r], queue=False)
 
 demo.launch(server_name='0.0.0.0', ssr_mode=False)
