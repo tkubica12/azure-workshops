@@ -1,0 +1,24 @@
+{
+    "models": {
+        "gpt-35-turbo": {
+            "endpoint": "https://ai-jdre.services.ai.azure.com/openai/deployments/gpt-35-turbo",
+            "key": "oaikey"
+        },
+        "gpt-4o": {
+            "endpoint": "https://ai-jdre.services.ai.azure.com/openai/deployments/gpt-4o",
+            "key": "oaikey"
+        },
+        "gpt-4o-mini": {
+            "endpoint": "https://ai-jdre.services.ai.azure.com/openai/deployments/gpt-4o-mini",
+            "key": "oaikey"
+        },
+        "phi35-MoE": {
+            "endpoint": "https://phi35-MoE-ai-jdre.swedencentral.models.ai.azure.com",
+            "key": "key2"
+        },
+        "phi35-mini": {
+            "endpoint": "https://phi35-mini-ai-jdre.swedencentral.models.ai.azure.com",
+            "key": "key3"
+        }
+    }
+}
