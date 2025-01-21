@@ -20,6 +20,7 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 - [Azure Container Storage](./d-aks-azurecontainerstorage/README.md)
 - [AKS Advanced Container Networking Services](./d-aks-acns/README.md)
 - [AKS Static Egress Gateway](./d-aks-static-egress-gw/README.md)
+- [AKS Isolated](./d-aks-network-isolated/README.md)
 
 ## Other demos
 - [Azure Managed Redis](./d-azure-managed-redis/README.md)
