@@ -64,3 +64,4 @@ __pycache__
 .venv
 local.settings.json
 d-ai-inference-sdk-with-monitoring/src/.env
+.codetocloud/azure.json

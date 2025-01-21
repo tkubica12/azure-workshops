@@ -1,0 +1,254 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: red
+  labels:
+    app: red
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: red
+  template:
+    metadata:
+      labels:
+        app: red
+    spec:
+      containers:
+      - name: red-container
+        image: nginx
+        ports:
+        - containerPort: 80
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Hello from red" > /usr/share/nginx/html/index.html
+            nginx -g 'daemon off;' &
+            while true; do
+              curl -s http://blue.default.svc.cluster.local
+              curl -s http://green.default.svc.cluster.local
+              curl -s http://yellow.default.svc.cluster.local
+              curl -s http://purple.default.svc.cluster.local
+              sleep 5
+            done
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: red
+spec:
+  selector:
+    app: red
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blue
+  labels:
+    app: blue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blue
+  template:
+    metadata:
+      labels:
+        app: blue
+    spec:
+      containers:
+      - name: blue-container
+        image: nginx
+        ports:
+        - containerPort: 80
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Hello from blue" > /usr/share/nginx/html/index.html
+            nginx -g 'daemon off;' &
+            while true; do
+              curl -s http://red.default.svc.cluster.local
+              curl -s http://green.default.svc.cluster.local
+              curl -s http://yellow.default.svc.cluster.local
+              curl -s http://purple.default.svc.cluster.local
+              sleep 5
+            done
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blue
+spec:
+  selector:
+    app: blue
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: green
+  labels:
+    app: green
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: green
+  template:
+    metadata:
+      labels:
+        app: green
+    spec:
+      containers:
+      - name: green-container
+        image: nginx
+        ports:
+        - containerPort: 80
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Hello from green" > /usr/share/nginx/html/index.html
+            nginx -g 'daemon off;' &
+            while true; do
+              curl -s http://red.default.svc.cluster.local
+              curl -s http://blue.default.svc.cluster.local
+              curl -s http://yellow.default.svc.cluster.local
+              curl -s http://purple.default.svc.cluster.local
+              sleep 5
+            done
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: green
+spec:
+  selector:
+    app: green
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yellow
+  labels:
+    app: yellow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yellow
+  template:
+    metadata:
+      labels:
+        app: yellow
+    spec:
+      containers:
+      - name: yellow-container
+        image: nginx
+        ports:
+        - containerPort: 80
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Hello from yellow" > /usr/share/nginx/html/index.html
+            nginx -g 'daemon off;' &
+            while true; do
+              curl -s http://red.default.svc.cluster.local
+              curl -s http://blue.default.svc.cluster.local
+              curl -s http://green.default.svc.cluster.local
+              curl -s http://purple.default.svc.cluster.local
+              sleep 5
+            done
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yellow
+spec:
+  selector:
+    app: yellow
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: purple
+  labels:
+    app: purple
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: purple
+  template:
+    metadata:
+      labels:
+        app: purple
+    spec:
+      containers:
+      - name: purple-container
+        image: nginx
+        ports:
+        - containerPort: 80
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Hello from purple" > /usr/share/nginx/html/index.html
+            nginx -g 'daemon off;' &
+            while true; do
+              curl -s http://red.default.svc.cluster.local
+              curl -s http://blue.default.svc.cluster.local
+              curl -s http://green.default.svc.cluster.local
+              curl -s http://yellow.default.svc.cluster.local
+              sleep 5
+            done
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: purple
+spec:
+  selector:
+    app: purple
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: "allow-microsoft-fqdn-from-red"
+spec:
+  endpointSelector:
+    matchLabels:
+      app: red
+  egress:
+    - toEndpoints:
+      - matchLabels:
+          "k8s:io.kubernetes.pod.namespace": kube-system
+          "k8s:k8s-app": kube-dns
+      toPorts:
+        - ports:
+           - port: "53"
+             protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*.microsoft.com"
+              - matchPattern: "microsoft.com"
+    - toFQDNs:
+      - matchPattern: "*.microsoft.com"
+      - matchPattern: "microsoft.com"
