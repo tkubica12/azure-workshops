@@ -1,0 +1,107 @@
+apiVersion: egressgateway.kubernetes.azure.com/v1alpha1
+kind: StaticGatewayConfiguration
+metadata:
+  name: segw1
+  namespace: default
+spec:
+  gatewayNodepoolName: gatewaypool
+  provisionPublicIps: false
+  excludeCidrs: 
+  - 10.0.0.0/8
+  - 172.16.0.0/12
+  - 169.254.169.254/32
+---
+apiVersion: egressgateway.kubernetes.azure.com/v1alpha1
+kind: StaticGatewayConfiguration
+metadata:
+  name: segw2
+  namespace: default
+spec:
+  gatewayNodepoolName: gatewaypool
+  provisionPublicIps: false
+  excludeCidrs: 
+  - 10.0.0.0/8
+  - 172.16.0.0/12
+  - 169.254.169.254/32
+---
+apiVersion: egressgateway.kubernetes.azure.com/v1alpha1
+kind: StaticGatewayConfiguration
+metadata:
+  name: segw3
+  namespace: default
+spec:
+  gatewayNodepoolName: gatewaypool
+  provisionPublicIps: false
+  excludeCidrs: 
+  - 10.0.0.0/8
+  - 172.16.0.0/12
+  - 169.254.169.254/32
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app1
+  namespace: default
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: app1
+  template:
+    metadata:
+      labels:
+        app: app1
+      annotations:
+        kubernetes.azure.com/static-gateway-configuration: segw1
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app2
+  namespace: default
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: app2
+  template:
+    metadata:
+      labels:
+        app: app2
+      annotations:
+        kubernetes.azure.com/static-gateway-configuration: segw2
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app3
+  namespace: default
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: app3
+  template:
+    metadata:
+      labels:
+        app: app3
+      annotations:
+        kubernetes.azure.com/static-gateway-configuration: segw3
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80

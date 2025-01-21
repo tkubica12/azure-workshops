@@ -19,6 +19,7 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 - [Istio addon with Prometheus and Grafana](./d-aks-istio/README.md)
 - [Azure Container Storage](./d-aks-azurecontainerstorage/README.md)
 - [AKS Advanced Container Networking Services](./d-aks-acns/README.md)
+- [AKS Static Egress Gateway](./d-aks-static-egress-gw/README.md)
 
 ## Other demos
 - [Azure Managed Redis](./d-azure-managed-redis/README.md)
