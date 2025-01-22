@@ -12,8 +12,13 @@ from azure.servicebus import ServiceBusClient, ServiceBusMessage
 # from opentelemetry.sdk.trace.export import BatchSpanProcessor
 # from opentelemetry.exporter.azuremonitor import AzureMonitorTraceExporter
 
-dotenv.load_dotenv()
 app = FastAPI(title="AI processing", description="API to process pictures")
+
+# Load environment variables
+dotenv.load_dotenv()
+storage_account_url = os.environ.get("STORAGE_ACCOUNT_URL")
+if not storage_account_url:
+    raise EnvironmentError("STORAGE_ACCOUNT_URL environment variable is not set")
 
 # CORS
 origins = [os.environ.get("CORS_ORIGIN", "*")]
@@ -35,13 +40,11 @@ app.add_middleware(
 @app.post("/api/process")
 async def process_image(file: UploadFile = File(...)):
     guid = str(uuid.uuid4())
-    # credential = DefaultAzureCredential()
-    # blob_service_client = BlobServiceClient(
-    #     account_url=os.environ["BLOB_URL"], credential=credential
-    # )
-    # container_client = blob_service_client.get_container_client(os.environ["BLOB_CONTAINER"])
-    # blob_name = f"{guid}.jpg"
-    # container_client.upload_blob(name=blob_name, data=file.file, overwrite=True)
+    credential = DefaultAzureCredential()
+    storage_account_client = BlobServiceClient(account_url=storage_account_url, credential=credential)
+    container_client = storage_account_client.get_container_client(os.environ["STORAGE_CONTAINER"])
+    blob_name = f"{guid}.jpg"
+    container_client.upload_blob(name=blob_name, data=file.file, overwrite=True)
     # blob_url = f"{os.environ['BLOB_URL']}/{os.environ['BLOB_CONTAINER']}/{blob_name}"
 
     # servicebus_client = ServiceBusClient(os.environ["SERVICEBUS_FQDN"], credential=credential)
