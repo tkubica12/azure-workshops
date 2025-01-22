@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: high-cpu-deployment
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: high-cpu
+  template:
+    metadata:
+      labels:
+        app: high-cpu
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        resources:
+          requests:
+            cpu: "2000m"
+            memory: "32Mi"

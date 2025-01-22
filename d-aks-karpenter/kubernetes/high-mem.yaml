@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: high-memory-deployment
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: high-memory
+  template:
+    metadata:
+      labels:
+        app: high-memory
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "8Gi"

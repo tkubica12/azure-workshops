@@ -1,0 +1,103 @@
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: 1-4-pool
+spec:
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    expireAfter: Never
+  template:
+    spec:
+      nodeClassRef:
+        name: 1-4-pool
+      requirements:
+      - key: kubernetes.io/arch
+        operator: In
+        values:
+        - amd64
+      - key: kubernetes.io/os
+        operator: In
+        values:
+        - linux
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values:
+        - on-demand
+      - key: karpenter.azure.com/sku-family
+        operator: In
+        values:
+        - D
+      - key: karpenter.azure.com/sku-version
+        operator: In
+        values:
+        - "2"
+---
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: 1-2-pool
+spec:
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    expireAfter: Never
+  template:
+    spec:
+      nodeClassRef:
+        name: 1-2-pool
+      requirements:
+      - key: kubernetes.io/arch
+        operator: In
+        values:
+        - amd64
+      - key: kubernetes.io/os
+        operator: In
+        values:
+        - linux
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values:
+        - on-demand
+      - key: karpenter.azure.com/sku-family
+        operator: In
+        values:
+        - D
+      - key: karpenter.azure.com/sku-version
+        operator: In
+        values:
+        - "4"
+        - "5"
+---
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: 1-8-pool
+spec:
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    expireAfter: Never
+  template:
+    spec:
+      nodeClassRef:
+        name: 1-8-pool
+      requirements:
+      - key: kubernetes.io/arch
+        operator: In
+        values:
+        - amd64
+      - key: kubernetes.io/os
+        operator: In
+        values:
+        - linux
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values:
+        - on-demand
+      - key: karpenter.azure.com/sku-family
+        operator: In
+        values:
+        - E
+      - key: karpenter.azure.com/sku-version
+        operator: In
+        values:
+        - "4"
+        - "5"
