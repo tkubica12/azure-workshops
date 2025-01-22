@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
 from azure.servicebus import ServiceBusClient, ServiceBusMessage
+import json
 # from opentelemetry import trace
 # from opentelemetry.sdk.trace import TracerProvider
 # from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -16,9 +17,18 @@ app = FastAPI(title="AI processing", description="API to process pictures")
 
 # Load environment variables
 dotenv.load_dotenv()
-storage_account_url = os.environ.get("STORAGE_ACCOUNT_URL")
-if not storage_account_url:
-    raise EnvironmentError("STORAGE_ACCOUNT_URL environment variable is not set")
+
+def get_env_var(var_name):
+    value = os.environ.get(var_name)
+    if not value:
+        raise EnvironmentError(f"{var_name} environment variable is not set")
+    return value
+
+storage_account_url = get_env_var("STORAGE_ACCOUNT_URL")
+storage_container = get_env_var("STORAGE_CONTAINER")
+processed_base_url = get_env_var("PROCESSED_BASE_URL")
+servicebus_fqdn = get_env_var("SERVICEBUS_FQDN")
+servicebus_queue = get_env_var("SERVICEBUS_QUEUE")
 
 # CORS
 origins = [os.environ.get("CORS_ORIGIN", "*")]
@@ -30,6 +40,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+credential = DefaultAzureCredential()
+storage_account_client = BlobServiceClient(account_url=storage_account_url, credential=credential)
+container_client = storage_account_client.get_container_client(storage_container)
+servicebus_client = ServiceBusClient(servicebus_fqdn, credential=credential)
+servicebus_queue = servicebus_client.get_queue_sender(servicebus_queue)
+
 # # OpenTelemetry
 # trace.set_tracer_provider(TracerProvider())
 # exporter = AzureMonitorTraceExporter(
@@ -39,18 +55,17 @@ app.add_middleware(
 
 @app.post("/api/process")
 async def process_image(file: UploadFile = File(...)):
+    # Generate GUID
     guid = str(uuid.uuid4())
-    credential = DefaultAzureCredential()
-    storage_account_client = BlobServiceClient(account_url=storage_account_url, credential=credential)
-    container_client = storage_account_client.get_container_client(os.environ["STORAGE_CONTAINER"])
+
+    # Upload image to storage
     blob_name = f"{guid}.jpg"
-    container_client.upload_blob(name=blob_name, data=file.file, overwrite=True)
-    # blob_url = f"{os.environ['BLOB_URL']}/{os.environ['BLOB_CONTAINER']}/{blob_name}"
+    container_client.upload_blob(name=blob_name, data=file.file, overwrite=False)
 
-    # servicebus_client = ServiceBusClient(os.environ["SERVICEBUS_FQDN"], credential=credential)
-    # queue_sender = servicebus_client.get_queue_sender(os.environ["SERVICEBUS_QUEUE"])
-    # message = ServiceBusMessage(f"New image: GUID={guid}, URL={blob_url}")
-    # async with servicebus_client, queue_sender:
-    #     await queue_sender.send_messages(message)
+    # Send message to Service Bus
+    blob_url = f"{storage_account_url}/{storage_container}/{blob_name}"
+    message = ServiceBusMessage(json.dumps({"blob_url": blob_url}))
+    servicebus_queue.send_messages(message)
 
-    return JSONResponse(status_code=202, content={"guid": guid})
+
+    return JSONResponse(status_code=202, content={"id": guid, "results_url": f"{processed_base_url}/{guid}"})
