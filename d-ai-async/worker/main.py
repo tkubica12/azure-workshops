@@ -1,13 +1,14 @@
 import os
 import dotenv
-from azure.servicebus import ServiceBusClient
-from azure.identity import DefaultAzureCredential
+import asyncio
+from azure.servicebus.aio import ServiceBusClient
+from azure.identity.aio import DefaultAzureCredential
+from azure.storage.blob.aio import BlobServiceClient
 from concurrent.futures import ThreadPoolExecutor
 import json
-from azure.storage.blob import BlobClient, BlobServiceClient
 import requests
 import base64
-from openai import AzureOpenAI
+from openai import AsyncAzureOpenAI
 # import logging
 
 # logging.basicConfig(level=logging.INFO)
@@ -35,13 +36,13 @@ credential = DefaultAzureCredential()
 servicebus_client = ServiceBusClient(servicebus_fqdn, credential=credential)
 storage_account_client = BlobServiceClient(account_url=storage_account_url, credential=credential)
 
-client = AzureOpenAI(
+client = AsyncAzureOpenAI(
     api_key=azure_openai_api_key,  
     api_version=azure_openai_api_version,
     base_url=f"{azure_openai_endpoint}/openai/deployments/{azure_openai_deployment_name}"
 )
 
-def process_message(msg, receiver):
+async def process_message(msg, receiver):
     """
     Process a single message and then complete it.
     """
@@ -50,10 +51,11 @@ def process_message(msg, receiver):
     blob_name = message_body.get("blob_name", "")
     blob_client = storage_account_client.get_blob_client(storage_container, blob_name)
     print(f"Downloading image data from {blob_name}")
-    image_data = blob_client.download_blob().readall()
+    download_stream = await blob_client.download_blob()
+    image_data = await download_stream.readall()
     encoded_image = base64.b64encode(image_data).decode("utf-8")
     print(f"Sending image {blob_name} to OpenAI...")
-    response = client.chat.completions.create(
+    response = await client.chat.completions.create(
         model=azure_openai_deployment_name,
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
@@ -64,27 +66,22 @@ def process_message(msg, receiver):
         ]
     )
     print("OpenAI response:", f"{response.choices[0].message.content[:50]}...")
-    receiver.complete_message(msg)
+    await receiver.complete_message(msg)
 
-def main():
-    """
-    Main entry point. Continuously receives messages in batches,
-    prints them, and completes them after processing.
-    """
-    with servicebus_client:
-        receiver = servicebus_client.get_queue_receiver(
+async def main():
+    async with ServiceBusClient(servicebus_fqdn, credential=credential) as sb_client:
+        receiver = sb_client.get_queue_receiver(
             queue_name=servicebus_queue,
-            max_lock_renewal_duration=120 
+            max_lock_renewal_duration=120
         )
-        messages = receiver.receive_messages(max_message_count=5, max_wait_time=2)
-        for message in messages:
-            process_message(message, receiver)
-
-        # with ThreadPoolExecutor(max_workers=5) as executor:
-        #     while True:
-        #         messages = receiver.receive_messages(max_message_count=5, max_wait_time=2)
-        #         for message in messages:
-        #             executor.submit(process_message, message, receiver)
+        async with receiver:
+            while True:
+                messages = await receiver.receive_messages(max_message_count=5, max_wait_time=2)
+                tasks = []
+                for message in messages:
+                    tasks.append(asyncio.create_task(process_message(message, receiver)))
+                if tasks:
+                    await asyncio.gather(*tasks)
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
