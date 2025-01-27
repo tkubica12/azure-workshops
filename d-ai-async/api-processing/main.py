@@ -99,7 +99,7 @@ async def process_image(file: UploadFile = File(...)):
     container_client.upload_blob(name=blob_name, data=file.file, overwrite=False)
 
     # Send message to Service Bus
-    message = ServiceBusMessage(json.dumps({"blob_name": blob_name}))
+    message = ServiceBusMessage(json.dumps({"blob_name": blob_name, "id": guid}))
     servicebus_queue.send_messages(message)
 
     return JSONResponse(status_code=202, content={"id": guid, "results_url": f"{processed_base_url}/{guid}"})

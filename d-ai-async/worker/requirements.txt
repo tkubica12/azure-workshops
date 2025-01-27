@@ -9,3 +9,4 @@ azure-core-tracing-opentelemetry
 opentelemetry-instrumentation-fastapi
 opentelemetry-instrumentation-requests
 openai
+azure-cosmos

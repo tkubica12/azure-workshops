@@ -4,14 +4,12 @@ import asyncio
 from azure.servicebus.aio import ServiceBusClient
 from azure.identity.aio import DefaultAzureCredential
 from azure.storage.blob.aio import BlobServiceClient
+from azure.cosmos.aio import CosmosClient
 from concurrent.futures import ThreadPoolExecutor
 import json
 import requests
 import base64
 from openai import AsyncAzureOpenAI
-# import logging
-
-# logging.basicConfig(level=logging.INFO)
 
 # Load environment variables
 def get_env_var(var_name):
@@ -32,11 +30,17 @@ storage_account_url = get_env_var("STORAGE_ACCOUNT_URL")
 storage_container = get_env_var("STORAGE_CONTAINER")
 batch_size = int(get_env_var("BATCH_SIZE"))
 max_wait_time = float(get_env_var("BATCH_MAX_WAIT_TIME"))
+COSMOS_ACCOUNT_URL = get_env_var("COSMOS_ACCOUNT_URL")
+COSMOS_DB_NAME = get_env_var("COSMOS_DB_NAME")
+COSMOS_CONTAINER_NAME = get_env_var("COSMOS_CONTAINER_NAME")
 
 # Create clients
 credential = DefaultAzureCredential()
 servicebus_client = ServiceBusClient(servicebus_fqdn, credential=credential)
 storage_account_client = BlobServiceClient(account_url=storage_account_url, credential=credential)
+cosmos_client = CosmosClient(COSMOS_ACCOUNT_URL, credential=credential)
+cosmos_database = cosmos_client.get_database_client(COSMOS_DB_NAME)
+cosmos_container = cosmos_database.get_container_client(COSMOS_CONTAINER_NAME)
 
 client = AsyncAzureOpenAI(
     api_key=azure_openai_api_key,  
@@ -51,6 +55,7 @@ async def process_message(msg, receiver):
     print(f"Processing message: {msg}")
     message_body = json.loads(str(msg))
     blob_name = message_body.get("blob_name", "")
+    id = message_body.get("id", "")
     blob_client = storage_account_client.get_blob_client(storage_container, blob_name)
     print(f"Downloading image data from {blob_name}")
     download_stream = await blob_client.download_blob()
@@ -68,6 +73,12 @@ async def process_message(msg, receiver):
         ]
     )
     print("OpenAI response:", f"{response.choices[0].message.content[:50]}...")
+    print(f"Saving response to Cosmos DB to document with id {id}")
+    doc = {
+        "id": id,
+        "ai_response": response.choices[0].message.content
+    }
+    await cosmos_container.upsert_item(doc)
     await receiver.complete_message(msg)
 
 async def main():

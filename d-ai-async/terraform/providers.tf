@@ -50,6 +50,9 @@ provider "azurerm" {
       purge_soft_delete_on_destroy = true
       recover_soft_deleted         = true
     }
+    storage {
+      data_plane_available = true
+    }
   }
 }
 
