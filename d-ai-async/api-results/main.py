@@ -3,8 +3,9 @@ import dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from azure.identity import DefaultAzureCredential
-from azure.cosmos import CosmosClient, exceptions
+from azure.identity.aio import DefaultAzureCredential
+from azure.cosmos.aio import CosmosClient
+from azure.cosmos.exceptions import CosmosResourceNotFoundError
 from azure.monitor.opentelemetry import configure_azure_monitor
 from azure.core.settings import settings
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
@@ -21,7 +22,7 @@ def get_env_var(var_name):
     return value
 
 cosmos_account_url = get_env_var("COSMOS_ACCOUNT_URL")
-cosmos_database_name = get_env_var("COSMOS_DATABASE_NAME")
+cosmos_db_name = get_env_var("COSMOS_DB_NAME")
 cosmos_container_name = get_env_var("COSMOS_CONTAINER_NAME")
 appinsights_connection_string = get_env_var("APPLICATIONINSIGHTS_CONNECTION_STRING")
 
@@ -42,8 +43,8 @@ app.add_middleware(
 
 # Get CosmosDB client
 credential = DefaultAzureCredential()
-cosmos_client = CosmosClient(cosmos_account_url, credential)
-database = cosmos_client.get_database_client(cosmos_database_name)
+cosmos_client = CosmosClient(cosmos_account_url, credential=credential)
+database = cosmos_client.get_database_client(cosmos_db_name)
 container = database.get_container_client(cosmos_container_name)
 
 @app.get("/", include_in_schema=False)
@@ -51,7 +52,7 @@ def get_openapi_spec():
     return app.openapi()
 
 @app.get(
-    "/api/results/{guid}",
+    "/api/processed/{guid}",
     response_class=JSONResponse,
     responses={
         200: {
@@ -92,9 +93,16 @@ def get_openapi_spec():
 )
 async def get_results(guid: str):
     try:
-        item = container.read_item(item=guid, partition_key=guid)
-        return JSONResponse(status_code=200, content=item)
-    except exceptions.CosmosResourceNotFoundError:
+        item = await container.read_item(item=guid, partition_key=guid)
+        response = {
+            "id": item["id"],
+            "status": "completed",
+            "data": {
+                "result": item["ai_response"]
+            }
+        }
+        return JSONResponse(status_code=200, content=response)
+    except CosmosResourceNotFoundError:
         return JSONResponse(status_code=202, headers={"Retry-After": "10"}, content={"message": "Processing, please retry after some time."})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

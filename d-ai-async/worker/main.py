@@ -30,17 +30,17 @@ storage_account_url = get_env_var("STORAGE_ACCOUNT_URL")
 storage_container = get_env_var("STORAGE_CONTAINER")
 batch_size = int(get_env_var("BATCH_SIZE"))
 max_wait_time = float(get_env_var("BATCH_MAX_WAIT_TIME"))
-COSMOS_ACCOUNT_URL = get_env_var("COSMOS_ACCOUNT_URL")
-COSMOS_DB_NAME = get_env_var("COSMOS_DB_NAME")
-COSMOS_CONTAINER_NAME = get_env_var("COSMOS_CONTAINER_NAME")
+cosmos_account_url = get_env_var("COSMOS_ACCOUNT_URL")
+cosmos_db_name = get_env_var("COSMOS_DB_NAME")
+cosmos_container_name = get_env_var("COSMOS_CONTAINER_NAME")
 
 # Create clients
 credential = DefaultAzureCredential()
 servicebus_client = ServiceBusClient(servicebus_fqdn, credential=credential)
 storage_account_client = BlobServiceClient(account_url=storage_account_url, credential=credential)
-cosmos_client = CosmosClient(COSMOS_ACCOUNT_URL, credential=credential)
-cosmos_database = cosmos_client.get_database_client(COSMOS_DB_NAME)
-cosmos_container = cosmos_database.get_container_client(COSMOS_CONTAINER_NAME)
+cosmos_client = CosmosClient(cosmos_account_url, credential=credential)
+cosmos_database = cosmos_client.get_database_client(cosmos_db_name)
+cosmos_container = cosmos_database.get_container_client(cosmos_container_name)
 
 client = AsyncAzureOpenAI(
     api_key=azure_openai_api_key,  
