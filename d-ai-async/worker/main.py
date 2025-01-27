@@ -30,6 +30,8 @@ servicebus_fqdn = get_env_var("SERVICEBUS_FQDN")
 servicebus_queue = get_env_var("SERVICEBUS_QUEUE")
 storage_account_url = get_env_var("STORAGE_ACCOUNT_URL")
 storage_container = get_env_var("STORAGE_CONTAINER")
+batch_size = int(get_env_var("BATCH_SIZE"))
+max_wait_time = float(get_env_var("BATCH_MAX_WAIT_TIME"))
 
 # Create clients
 credential = DefaultAzureCredential()
@@ -76,7 +78,7 @@ async def main():
         )
         async with receiver:
             while True:
-                messages = await receiver.receive_messages(max_message_count=5, max_wait_time=2)
+                messages = await receiver.receive_messages(max_message_count=batch_size, max_wait_time=max_wait_time)
                 tasks = []
                 for message in messages:
                     tasks.append(asyncio.create_task(process_message(message, receiver)))
