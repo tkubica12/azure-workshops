@@ -53,7 +53,7 @@ def get_openapi_spec():
     return app.openapi()
 
 @app.get(
-    "/api/processed/{guid}",
+    "/api/status/{guid}",
     response_class=JSONResponse,
     responses={
         200: {
