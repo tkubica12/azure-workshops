@@ -8,10 +8,9 @@ from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
 from azure.servicebus import ServiceBusClient, ServiceBusMessage
 import json
-# from opentelemetry import trace
-# from opentelemetry.sdk.trace import TracerProvider
-# from opentelemetry.sdk.trace.export import BatchSpanProcessor
-# from opentelemetry.exporter.azuremonitor import AzureMonitorTraceExporter
+from azure.monitor.opentelemetry import configure_azure_monitor
+from azure.core.settings import settings
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 app = FastAPI(title="AI processing", description="API to process pictures")
 
@@ -29,6 +28,12 @@ storage_container = get_env_var("STORAGE_CONTAINER")
 processed_base_url = get_env_var("PROCESSED_BASE_URL")
 servicebus_fqdn = get_env_var("SERVICEBUS_FQDN")
 servicebus_queue = get_env_var("SERVICEBUS_QUEUE")
+appinsights_connection_string = get_env_var("APPLICATIONINSIGHTS_CONNECTION_STRING")
+
+# Configure Azure Monitor
+configure_azure_monitor(connection_string=appinsights_connection_string)
+settings.tracing_implementation = "opentelemetry"
+FastAPIInstrumentor.instrument_app(app)
 
 # CORS
 origins = [os.environ.get("CORS_ORIGIN", "*")]
@@ -40,20 +45,51 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Get clients to storage and Service Bus
 credential = DefaultAzureCredential()
 storage_account_client = BlobServiceClient(account_url=storage_account_url, credential=credential)
 container_client = storage_account_client.get_container_client(storage_container)
 servicebus_client = ServiceBusClient(servicebus_fqdn, credential=credential)
 servicebus_queue = servicebus_client.get_queue_sender(servicebus_queue)
 
-# # OpenTelemetry
-# trace.set_tracer_provider(TracerProvider())
-# exporter = AzureMonitorTraceExporter(
-#     connection_string=os.environ.get("APPLICATIONINSIGHTS_CONNECTION_STRING", "")
-# )
-# trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(exporter))
+@app.get("/", include_in_schema=False)
+def get_openapi_spec():
+    return app.openapi()
 
-@app.post("/api/process")
+@app.post(
+    "/api/process",
+    response_class=JSONResponse,
+    status_code=202,
+    responses={
+        202: {
+            "description": "Accepted and processing",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "id": "123e4567-e89b-12d3-a456-426614174000",
+                        "results_url": "https://example.com/processed/123e4567-e89b-12d3-a456-426614174000"
+                    }
+                }
+            }
+        },
+        422: {
+            "description": "Validation Error",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": [
+                            {
+                                "loc": ["string", 0],
+                                "msg": "string",
+                                "type": "string"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+)
 async def process_image(file: UploadFile = File(...)):
     # Generate GUID
     guid = str(uuid.uuid4())
@@ -63,9 +99,7 @@ async def process_image(file: UploadFile = File(...)):
     container_client.upload_blob(name=blob_name, data=file.file, overwrite=False)
 
     # Send message to Service Bus
-    blob_url = f"{storage_account_url}/{storage_container}/{blob_name}"
-    message = ServiceBusMessage(json.dumps({"blob_url": blob_url}))
+    message = ServiceBusMessage(json.dumps({"blob_name": blob_name}))
     servicebus_queue.send_messages(message)
-
 
     return JSONResponse(status_code=202, content={"id": guid, "results_url": f"{processed_base_url}/{guid}"})

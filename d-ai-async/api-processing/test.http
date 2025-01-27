@@ -9,5 +9,5 @@ Content-Type: multipart/form-data; boundary=boundary
 Content-Disposition: form-data; name="file"; filename="example.jpg"
 Content-Type: image/jpeg
 
-@file=example.jpg
+< ./example.jpg
 --boundary--
