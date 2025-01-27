@@ -25,6 +25,7 @@ cosmos_account_url = get_env_var("COSMOS_ACCOUNT_URL")
 cosmos_db_name = get_env_var("COSMOS_DB_NAME")
 cosmos_container_name = get_env_var("COSMOS_CONTAINER_NAME")
 appinsights_connection_string = get_env_var("APPLICATIONINSIGHTS_CONNECTION_STRING")
+retry_after = get_env_var("RETRY_AFTER")
 
 # Configure Azure Monitor
 configure_azure_monitor(connection_string=appinsights_connection_string)
@@ -103,6 +104,6 @@ async def get_results(guid: str):
         }
         return JSONResponse(status_code=200, content=response)
     except CosmosResourceNotFoundError:
-        return JSONResponse(status_code=202, headers={"Retry-After": "10"}, content={"message": "Processing, please retry after some time."})
+        return JSONResponse(status_code=202, headers={"Retry-After": retry_after}, content={"message": "Processing, please retry after some time."})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
