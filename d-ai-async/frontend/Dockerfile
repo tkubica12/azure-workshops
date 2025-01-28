@@ -18,6 +18,9 @@ RUN npm run build
 # Stage 2: Serve the app with Nginx
 FROM nginx:alpine
 
+# Install gettext
+RUN apk add --no-cache gettext
+
 # Copy the build output to Nginx's default public directory
 COPY --from=build /app/build /usr/share/nginx/html
 
