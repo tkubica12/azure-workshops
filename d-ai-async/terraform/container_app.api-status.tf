@@ -37,7 +37,7 @@ resource "azurerm_container_app" "api_status" {
       }
       env {
         name  = "CORS_ORIGIN"
-        value = "http://localhost:3000"
+        value = "*.azurecontainerapps.io"
       }
       env {
         name  = "AZURE_CLIENT_ID"

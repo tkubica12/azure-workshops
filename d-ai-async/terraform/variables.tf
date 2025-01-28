@@ -16,3 +16,14 @@ Azure region for resources.
 Examples: swedencentral, westeurope, northeurope, germanywestcentral.
 EOF
 }
+
+variable "azure_openai_api_key" {
+  type        = string
+  description = "API key for Azure OpenAI"
+  sensitive   = true
+}
+
+variable "azure_openai_endpoint" {
+  type        = string
+  description = "Endpoint for Azure OpenAI"
+}

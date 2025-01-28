@@ -1,9 +1,10 @@
 resource "azurerm_cosmosdb_account" "main" {
-  name                = "cosmos-${local.base_name}"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-  kind                = "GlobalDocumentDB"
-  offer_type          = "Standard"
+  name                          = "cosmos-${local.base_name}"
+  location                      = azurerm_resource_group.main.location
+  resource_group_name           = azurerm_resource_group.main.name
+  kind                          = "GlobalDocumentDB"
+  offer_type                    = "Standard"
+  local_authentication_disabled = true
 
   capabilities {
     name = "EnableServerless"
