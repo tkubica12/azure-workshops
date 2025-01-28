@@ -20,7 +20,7 @@ function App() {
     formData.append('file', file);
 
     try {
-      const response = await axios.post(process.env.REACT_APP_PROCESS_API_URL, formData, {
+      const response = await axios.post(window.env.REACT_APP_PROCESS_API_URL, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setStatus('processing'); // Change status to 'processing' after upload
