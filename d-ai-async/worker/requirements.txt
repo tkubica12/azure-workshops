@@ -10,3 +10,4 @@ opentelemetry-instrumentation-fastapi
 opentelemetry-instrumentation-requests
 openai
 azure-cosmos
+aiohttp
