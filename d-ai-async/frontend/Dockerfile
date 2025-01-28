@@ -1,4 +1,3 @@
-
 # Stage 1: Build the React app
 FROM node:18-alpine AS build
 
@@ -22,8 +21,15 @@ FROM nginx:alpine
 # Copy the build output to Nginx's default public directory
 COPY --from=build /app/build /usr/share/nginx/html
 
+# Copy entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Expose port 80
 EXPOSE 80
+
+# Set entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
 
 # Start Nginx server
 CMD ["nginx", "-g", "daemon off;"]
