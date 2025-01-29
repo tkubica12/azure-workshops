@@ -1,0 +1,13 @@
+python-dotenv
+azure-identity
+azure-storage-blob
+azure-servicebus
+opentelemetry-api
+opentelemetry-sdk
+azure-monitor-opentelemetry
+azure-core-tracing-opentelemetry
+opentelemetry-instrumentation-fastapi
+opentelemetry-instrumentation-requests
+openai
+azure-cosmos
+aiohttp

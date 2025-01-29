@@ -1,0 +1,33 @@
+name: BUILD d-ai-async-api-processing
+
+on:
+  push:
+    paths:
+      - 'd-ai-async/api-processing/**'
+  workflow_dispatch: 
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Login to GitHub Packages Docker registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: d-ai-async/api-processing
+        push: true
+        tags: ghcr.io/${{ github.repository }}/d-ai-async-api-processing:latest
