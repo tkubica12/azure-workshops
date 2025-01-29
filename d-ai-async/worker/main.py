@@ -12,6 +12,7 @@ import base64
 from openai import AsyncAzureOpenAI
 from azure.monitor.opentelemetry import configure_azure_monitor
 from azure.core.settings import settings
+from opentelemetry.sdk.resources import Resource, SERVICE_NAME
 
 # Load environment variables
 def get_env_var(var_name):
@@ -24,7 +25,8 @@ dotenv.load_dotenv()
 
 # Configure Azure Monitor
 appinsights_connection_string = get_env_var("APPLICATIONINSIGHTS_CONNECTION_STRING")
-configure_azure_monitor(connection_string=appinsights_connection_string)
+resource = Resource.create({SERVICE_NAME: "AI Worker Service"})
+configure_azure_monitor(connection_string=appinsights_connection_string, resource=resource)
 settings.tracing_implementation = "opentelemetry"
 
 azure_openai_api_key = get_env_var("AZURE_OPENAI_API_KEY")

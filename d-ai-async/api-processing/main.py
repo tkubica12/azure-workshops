@@ -11,6 +11,7 @@ import json
 from azure.monitor.opentelemetry import configure_azure_monitor
 from azure.core.settings import settings
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.sdk.resources import Resource, SERVICE_NAME
 
 app = FastAPI(title="AI processing", description="API to process pictures")
 
@@ -31,7 +32,9 @@ servicebus_queue = get_env_var("SERVICEBUS_QUEUE")
 appinsights_connection_string = get_env_var("APPLICATIONINSIGHTS_CONNECTION_STRING")
 
 # Configure Azure Monitor
-configure_azure_monitor(connection_string=appinsights_connection_string)
+appinsights_connection_string = get_env_var("APPLICATIONINSIGHTS_CONNECTION_STRING")
+resource = Resource.create({SERVICE_NAME: "Processing API Service"})
+configure_azure_monitor(connection_string=appinsights_connection_string, resource=resource)
 settings.tracing_implementation = "opentelemetry"
 FastAPIInstrumentor.instrument_app(app)
 
