@@ -23,6 +23,10 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 - [AKS Isolated](./d-aks-network-isolated/README.md)
 - [AKS Node Autoprovisioning](./d-aks-karpenter/README.md)
 
+## AI demos
+- [Async pattern in AI apps](./d-ai-async/README.md)
+- [AI Inference SDK with monitoring](./d-ai-inference-sdk-with-monitoring/README.md)
+  
 ## Other demos
 - [Azure Managed Redis](./d-azure-managed-redis/README.md)
 - [Azure API Management](./d-api-management/README.md)
