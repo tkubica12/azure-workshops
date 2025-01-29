@@ -10,6 +10,8 @@ import json
 import requests
 import base64
 from openai import AsyncAzureOpenAI
+from azure.monitor.opentelemetry import configure_azure_monitor
+from azure.core.settings import settings
 
 # Load environment variables
 def get_env_var(var_name):
@@ -19,6 +21,11 @@ def get_env_var(var_name):
     return value
 
 dotenv.load_dotenv()
+
+# Configure Azure Monitor
+appinsights_connection_string = get_env_var("APPLICATIONINSIGHTS_CONNECTION_STRING")
+configure_azure_monitor(connection_string=appinsights_connection_string)
+settings.tracing_implementation = "opentelemetry"
 
 azure_openai_api_key = get_env_var("AZURE_OPENAI_API_KEY")
 azure_openai_endpoint = get_env_var("AZURE_OPENAI_ENDPOINT")
