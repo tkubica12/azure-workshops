@@ -12,8 +12,8 @@ resource "azurerm_container_app" "api_worker" {
   }
 
   template {
-    min_replicas = 0
-    max_replicas = 2
+    min_replicas = 1
+    max_replicas = 5
 
     container {
       name   = "myapp"
@@ -35,7 +35,7 @@ resource "azurerm_container_app" "api_worker" {
       }
       env {
         name  = "SERVICEBUS_FQDN"
-        value = azurerm_servicebus_namespace.main.endpoint
+        value = replace(replace(azurerm_servicebus_namespace.main.endpoint, "https://", ""), ":443/", "")
       }
       env {
         name  = "SERVICEBUS_QUEUE"

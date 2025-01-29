@@ -22,8 +22,8 @@ resource "azurerm_container_app" "api_status" {
   }
 
   template {
-    min_replicas = 0
-    max_replicas = 2
+    min_replicas = 1
+    max_replicas = 5
 
     container {
       name   = "myapp"

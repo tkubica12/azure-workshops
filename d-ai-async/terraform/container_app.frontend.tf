@@ -22,8 +22,8 @@ resource "azurerm_container_app" "api_frontend" {
   }
 
   template {
-    min_replicas = 0
-    max_replicas = 2
+    min_replicas = 1
+    max_replicas = 5
 
     container {
       name   = "myapp"
@@ -37,7 +37,7 @@ resource "azurerm_container_app" "api_frontend" {
       }
       env {
         name  = "REACT_APP_PROCESS_API_URL"
-        value = "https://${azurerm_container_app.api_processing.ingress[0].fqdn}/api/status"
+        value = "https://${azurerm_container_app.api_processing.ingress[0].fqdn}/api/process"
       }
     }
   }
