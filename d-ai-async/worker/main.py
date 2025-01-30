@@ -13,6 +13,7 @@ from openai import AsyncAzureOpenAI
 from azure.monitor.opentelemetry import configure_azure_monitor
 from azure.core.settings import settings
 from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+from opentelemetry.instrumentation.openai_v2 import OpenAIInstrumentor
 
 # Load environment variables
 def get_env_var(var_name):
@@ -28,6 +29,7 @@ appinsights_connection_string = get_env_var("APPLICATIONINSIGHTS_CONNECTION_STRI
 resource = Resource.create({SERVICE_NAME: "AI Worker Service"})
 configure_azure_monitor(connection_string=appinsights_connection_string, resource=resource)
 settings.tracing_implementation = "opentelemetry"
+OpenAIInstrumentor().instrument()
 
 azure_openai_api_key = get_env_var("AZURE_OPENAI_API_KEY")
 azure_openai_endpoint = get_env_var("AZURE_OPENAI_ENDPOINT")

@@ -77,6 +77,10 @@ resource "azurerm_container_app" "api_worker" {
         name  = "COSMOS_CONTAINER_NAME"
         value = azurerm_cosmosdb_sql_container.main.name
       }
+      env {
+        name  = "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT"
+        value = "true"
+      }
     }
   }
 }

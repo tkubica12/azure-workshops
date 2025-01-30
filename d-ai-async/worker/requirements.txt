@@ -8,6 +8,7 @@ azure-monitor-opentelemetry
 azure-core-tracing-opentelemetry
 opentelemetry-instrumentation-fastapi
 opentelemetry-instrumentation-requests
+opentelemetry-instrumentation-openai-v2
 openai
 azure-cosmos
 aiohttp
