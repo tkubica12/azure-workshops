@@ -63,7 +63,7 @@ resource "azurerm_container_app" "api_worker" {
       }
       env {
         name  = "AZURE_OPENAI_DEPLOYMENT_NAME"
-        value = "gpt-4o"
+        value = "gpt-4o-mini"
       }
       env {
         name  = "COSMOS_ACCOUNT_URL"
