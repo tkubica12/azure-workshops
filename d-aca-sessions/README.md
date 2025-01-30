@@ -26,7 +26,7 @@ az containerapp sessionpool create \
 export sapi=$(az containerapp sessionpool show \
     --name mypool \
     --resource-group d-aca-sessions \
-    --query 'properties.poolManagementEndpoint' -o tsv)
+    --query 'properties.poolManagementEndpoint' -o tsv | tr -d '\r\n')
 
 # Get Entra token
 export token=$(az account get-access-token --resource https://dynamicsessions.io --query accessToken -o tsv)
@@ -37,6 +37,7 @@ export sessionId="mysession123"
 curl -X POST "$sapi/code/execute?api-version=2024-02-02-preview&identifier=$sessionId" \
     -H "Authorization: Bearer $token" \
     -H "Content-Type: application/json" \
+    --http1.1 \
     -d '{
     "properties": {
         "codeInputType": "inline",
@@ -49,6 +50,7 @@ curl -X POST "$sapi/code/execute?api-version=2024-02-02-preview&identifier=$sess
 curl -X POST "$sapi/code/execute?api-version=2024-02-02-preview&identifier=$sessionId" \
     -H "Authorization: Bearer $token" \
     -H "Content-Type: application/json" \
+    --http1.1 \
     -d '{
     "properties": {
         "codeInputType": "inline",
@@ -60,12 +62,14 @@ curl -X POST "$sapi/code/execute?api-version=2024-02-02-preview&identifier=$sess
 # Check session files
 curl "$sapi/files?api-version=2024-02-02-preview&identifier=$sessionId" \
     -H "Authorization: Bearer $token" \
-    -H "Content-Type: application/json"
+    -H "Content-Type: application/json" \
+    --http1.1
 
 # Download file from session
 curl "$sapi/files/content/hello.txt?api-version=2024-02-02-preview&identifier=$sessionId" \
     -H "Authorization: Bearer $token" \
-    -H "Content-Type: application/json"
+    -H "Content-Type: application/json" \
+    --http1.1
 ```
 
 ## Demo using API from Python using integrated framework such as LangChain
