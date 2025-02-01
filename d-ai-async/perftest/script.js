@@ -3,7 +3,8 @@ import { sleep, check } from 'k6';
 import { FormData } from 'https://jslib.k6.io/formdata/0.0.2/index.js';
 
 // Get the URL from an environment variable or use a default value
-const processBaseUrl = __ENV.TEST_URL || 'https://ca-api-processing-aiasync-anez.gentlebeach-eb1f833e.germanywestcentral.azurecontainerapps.io';
+const processBaseUrl = __ENV.TEST_URL || 'https://ca-api-processing-aiasync-gchk.yellowmoss-adbbb4fb.germanywestcentral.azurecontainerapps.io';
+console.log(`Using processBaseUrl: ${processBaseUrl}`);
 
 // Read the file content in the init stage
 const fileContent = open('./example.jpg', 'b');

@@ -101,6 +101,9 @@ async def main():
         async with receiver:
             while True:
                 messages = await receiver.receive_messages(max_message_count=batch_size, max_wait_time=max_wait_time)
+                if not messages:
+                    await asyncio.sleep(1)
+                    continue
                 tasks = []
                 for message in messages:
                     tasks.append(asyncio.create_task(process_message(message, receiver)))
