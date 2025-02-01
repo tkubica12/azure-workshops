@@ -95,8 +95,10 @@ resource "azapi_resource" "api_worker" {
           }
         ]
         scale = {
-          minReplicas = 1
-          maxReplicas = 5
+          minReplicas     = 1
+          maxReplicas     = 5
+          pollingInterval = 5
+          cooldownPeriod  = 60
           rules = [
             {
               name = "queue-scaling"
