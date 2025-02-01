@@ -1,68 +1,84 @@
-resource "azurerm_container_app" "api_processing" {
-  name                         = "ca-api-processing-${local.base_name}"
-  container_app_environment_id = azurerm_container_app_environment.main.id
-  resource_group_name          = azurerm_resource_group.main.name
-  revision_mode                = "Single"
+resource "azapi_resource" "api_processing" {
+  type      = "Microsoft.App/containerApps@2024-10-02-preview"
+  name      = "ca-api-processing-${local.base_name}"
+  parent_id = azurerm_resource_group.main.id
+  location  = azurerm_resource_group.main.location
 
   identity {
-    type = "UserAssigned"
-    identity_ids = [
-      azurerm_user_assigned_identity.main.id
-    ]
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.main.id]
   }
 
-  ingress {
-    external_enabled = true
-    target_port      = 80
-
-    traffic_weight {
-      percentage      = 100
-      latest_revision = true
+  body = {
+    properties = {
+      managedEnvironmentId = azurerm_container_app_environment.main.id
+      configuration = {
+        activeRevisionsMode = "Single"
+        ingress = {
+          external   = true
+          targetPort = 80
+          traffic = [
+            {
+              latestRevision = true
+              weight         = 100
+            }
+          ]
+          corsPolicy = {
+            allowedOrigins = ["*"]
+          }
+        }
+      }
+      template = {
+        containers = [
+          {
+            name  = "myapp"
+            image = "ghcr.io/tkubica12/azure-workshops/d-ai-async-api-processing:latest"
+            resources = {
+              cpu    = 0.25
+              memory = "0.5Gi"
+            }
+            env = [
+              {
+                name  = "APPLICATIONINSIGHTS_CONNECTION_STRING"
+                value = azurerm_application_insights.main.connection_string
+              },
+              {
+                name  = "CORS_ORIGIN"
+                value = "*"
+              },
+              {
+                name  = "STORAGE_ACCOUNT_URL"
+                value = azurerm_storage_account.main.primary_blob_endpoint
+              },
+              {
+                name  = "STORAGE_CONTAINER"
+                value = azurerm_storage_container.main.name
+              },
+              {
+                name  = "PROCESSED_BASE_URL"
+                value = "https://${azapi_resource.api_status.output.properties.configuration.ingress.fqdn}/api/status"
+              },
+              {
+                name  = "SERVICEBUS_FQDN"
+                value = replace(replace(azurerm_servicebus_namespace.main.endpoint, "https://", ""), ":443/", "")
+              },
+              {
+                name  = "SERVICEBUS_QUEUE"
+                value = azurerm_servicebus_queue.main.name
+              },
+              {
+                name  = "AZURE_CLIENT_ID"
+                value = azurerm_user_assigned_identity.main.client_id
+              }
+            ]
+          }
+        ]
+        scale = {
+          minReplicas = 1
+          maxReplicas = 5
+        }
+      }
     }
   }
-
-  template {
-    min_replicas = 1
-    max_replicas = 5
-
-    container {
-      name   = "myapp"
-      image  = "ghcr.io/tkubica12/azure-workshops/d-ai-async-api-processing:latest"
-      cpu    = 0.25
-      memory = "0.5Gi"
-
-      env {
-        name  = "APPLICATIONINSIGHTS_CONNECTION_STRING"
-        value = azurerm_application_insights.main.connection_string
-      }
-      env {
-        name  = "CORS_ORIGIN"
-        value = "*.azurecontainerapps.io"
-      }
-      env {
-        name  = "STORAGE_ACCOUNT_URL"
-        value = azurerm_storage_account.main.primary_blob_endpoint
-      }
-      env {
-        name  = "STORAGE_CONTAINER"
-        value = azurerm_storage_container.main.name
-      }
-      env {
-        name  = "PROCESSED_BASE_URL"
-        value = "https://${azurerm_container_app.api_status.ingress[0].fqdn}/api/status"
-      }
-      env {
-        name  = "SERVICEBUS_FQDN"
-        value = replace(replace(azurerm_servicebus_namespace.main.endpoint, "https://", ""), ":443/", "")
-      }
-      env {
-        name  = "SERVICEBUS_QUEUE"
-        value = azurerm_servicebus_queue.main.name
-      }
-      env {
-        name  = "AZURE_CLIENT_ID"
-        value = azurerm_user_assigned_identity.main.client_id
-      }
-    }
-  }
+  response_export_values = ["*"]
 }

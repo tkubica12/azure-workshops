@@ -1,86 +1,119 @@
-resource "azurerm_container_app" "api_worker" {
-  name                         = "ca-worker-${local.base_name}"
-  container_app_environment_id = azurerm_container_app_environment.main.id
-  resource_group_name          = azurerm_resource_group.main.name
-  revision_mode                = "Single"
+resource "azapi_resource" "api_worker" {
+  type      = "Microsoft.App/containerApps@2024-10-02-preview"
+  name      = "ca-worker-${local.base_name}"
+  parent_id = azurerm_resource_group.main.id
+  location  = azurerm_resource_group.main.location
 
   identity {
-    type = "UserAssigned"
-    identity_ids = [
-      azurerm_user_assigned_identity.main.id
-    ]
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.main.id]
   }
 
-  template {
-    min_replicas = 1
-    max_replicas = 5
-
-    container {
-      name   = "myapp"
-      image  = "ghcr.io/tkubica12/azure-workshops/d-ai-async-worker:latest"
-      cpu    = 0.25
-      memory = "0.5Gi"
-
-      env {
-        name  = "APPLICATIONINSIGHTS_CONNECTION_STRING"
-        value = azurerm_application_insights.main.connection_string
+  body = {
+    properties = {
+      managedEnvironmentId = azurerm_container_app_environment.main.id
+      configuration = {
+        activeRevisionsMode = "Single"
+        identitySettings = [
+          {
+            identity  = azurerm_user_assigned_identity.main.id
+            lifecycle = "All"
+          }
+        ]
       }
-      env {
-        name  = "STORAGE_ACCOUNT_URL"
-        value = azurerm_storage_account.main.primary_blob_endpoint
-      }
-      env {
-        name  = "STORAGE_CONTAINER"
-        value = azurerm_storage_container.main.name
-      }
-      env {
-        name  = "SERVICEBUS_FQDN"
-        value = replace(replace(azurerm_servicebus_namespace.main.endpoint, "https://", ""), ":443/", "")
-      }
-      env {
-        name  = "SERVICEBUS_QUEUE"
-        value = azurerm_servicebus_queue.main.name
-      }
-      env {
-        name  = "AZURE_CLIENT_ID"
-        value = azurerm_user_assigned_identity.main.client_id
-      }
-      env {
-        name  = "BATCH_SIZE"
-        value = "10"
-      }
-      env {
-        name  = "BATCH_MAX_WAIT_TIME"
-        value = "1"
-      }
-      env {
-        name  = "AZURE_OPENAI_API_KEY"
-        value = var.azure_openai_api_key
-      }
-      env {
-        name  = "AZURE_OPENAI_ENDPOINT"
-        value = var.azure_openai_endpoint
-      }
-      env {
-        name  = "AZURE_OPENAI_DEPLOYMENT_NAME"
-        value = "gpt-4o-mini"
-      }
-      env {
-        name  = "COSMOS_ACCOUNT_URL"
-        value = azurerm_cosmosdb_account.main.endpoint
-      }
-      env {
-        name  = "COSMOS_DB_NAME"
-        value = azurerm_cosmosdb_sql_database.main.name
-      }
-      env {
-        name  = "COSMOS_CONTAINER_NAME"
-        value = azurerm_cosmosdb_sql_container.main.name
-      }
-      env {
-        name  = "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT"
-        value = "true"
+      template = {
+        containers = [
+          {
+            name  = "myapp"
+            image = "ghcr.io/tkubica12/azure-workshops/d-ai-async-worker:latest"
+            resources = {
+              cpu    = 0.25
+              memory = "0.5Gi"
+            }
+            env = [
+              {
+                name  = "APPLICATIONINSIGHTS_CONNECTION_STRING"
+                value = azurerm_application_insights.main.connection_string
+              },
+              {
+                name  = "STORAGE_ACCOUNT_URL"
+                value = azurerm_storage_account.main.primary_blob_endpoint
+              },
+              {
+                name  = "STORAGE_CONTAINER"
+                value = azurerm_storage_container.main.name
+              },
+              {
+                name  = "SERVICEBUS_FQDN"
+                value = replace(replace(azurerm_servicebus_namespace.main.endpoint, "https://", ""), ":443/", "")
+              },
+              {
+                name  = "SERVICEBUS_QUEUE"
+                value = azurerm_servicebus_queue.main.name
+              },
+              {
+                name  = "AZURE_CLIENT_ID"
+                value = azurerm_user_assigned_identity.main.client_id
+              },
+              {
+                name  = "BATCH_SIZE"
+                value = "10"
+              },
+              {
+                name  = "BATCH_MAX_WAIT_TIME"
+                value = "1"
+              },
+              {
+                name  = "AZURE_OPENAI_API_KEY"
+                value = var.azure_openai_api_key
+              },
+              {
+                name  = "AZURE_OPENAI_ENDPOINT"
+                value = var.azure_openai_endpoint
+              },
+              {
+                name  = "AZURE_OPENAI_DEPLOYMENT_NAME"
+                value = "gpt-4o-mini"
+              },
+              {
+                name  = "COSMOS_ACCOUNT_URL"
+                value = azurerm_cosmosdb_account.main.endpoint
+              },
+              {
+                name  = "COSMOS_DB_NAME"
+                value = azurerm_cosmosdb_sql_database.main.name
+              },
+              {
+                name  = "COSMOS_CONTAINER_NAME"
+                value = azurerm_cosmosdb_sql_container.main.name
+              },
+              {
+                name  = "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT"
+                value = "true"
+              }
+            ]
+          }
+        ]
+        scale = {
+          minReplicas = 1
+          maxReplicas = 5
+          rules = [
+            {
+              name = "queue-scaling"
+              custom = {
+                type = "azure-servicebus"
+                metadata = {
+                  queue_name           = azurerm_servicebus_queue.main.name
+                  servicebus_namespace = azurerm_servicebus_namespace.main.name
+                  messageCount         = "5"
+                }
+                identity = azurerm_user_assigned_identity.main.id
+              }
+            }
+          ]
+        }
       }
     }
   }
+  response_export_values = ["*"]
 }
