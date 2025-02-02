@@ -14,7 +14,6 @@ from azure.monitor.opentelemetry import configure_azure_monitor
 from azure.core.settings import settings
 from opentelemetry.sdk.resources import Resource, SERVICE_NAME
 from opentelemetry.instrumentation.openai_v2 import OpenAIInstrumentor
-from openai.error import RateLimitError  # new import
 
 # Load environment variables
 def get_env_var(var_name):
