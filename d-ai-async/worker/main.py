@@ -14,6 +14,7 @@ from azure.monitor.opentelemetry import configure_azure_monitor
 from azure.core.settings import settings
 from opentelemetry.sdk.resources import Resource, SERVICE_NAME
 from opentelemetry.instrumentation.openai_v2 import OpenAIInstrumentor
+from openai.error import RateLimitError  # new import
 
 # Load environment variables
 def get_env_var(var_name):
@@ -63,34 +64,41 @@ async def process_message(msg, receiver):
     """
     Process a single message and then complete it.
     """
-    print(f"Processing message: {msg}")
-    message_body = json.loads(str(msg))
-    blob_name = message_body.get("blob_name", "")
-    id = message_body.get("id", "")
-    blob_client = storage_account_client.get_blob_client(storage_container, blob_name)
-    print(f"Downloading image data from {blob_name}")
-    download_stream = await blob_client.download_blob()
-    image_data = await download_stream.readall()
-    encoded_image = base64.b64encode(image_data).decode("utf-8")
-    print(f"Sending image {blob_name} to OpenAI...")
-    response = await client.chat.completions.create(
-        model=azure_openai_deployment_name,
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": [
-                {"type": "text", "text": "Describe this picture:"},
-                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"}}
-            ]}
-        ]
-    )
-    print("OpenAI response:", f"{response.choices[0].message.content[:50]}...")
-    print(f"Saving response to Cosmos DB to document with id {id}")
-    doc = {
-        "id": id,
-        "ai_response": response.choices[0].message.content
-    }
-    await cosmos_container.upsert_item(doc)
-    await receiver.complete_message(msg)
+    try:
+        print(f"Processing message: {msg}")
+        message_body = json.loads(str(msg))
+        blob_name = message_body.get("blob_name", "")
+        id = message_body.get("id", "")
+        blob_client = storage_account_client.get_blob_client(storage_container, blob_name)
+        print(f"Downloading image data from {blob_name}")
+        download_stream = await blob_client.download_blob()
+        image_data = await download_stream.readall()
+        encoded_image = base64.b64encode(image_data).decode("utf-8")
+        print(f"Sending image {blob_name} to OpenAI...")
+        
+        response = await client.chat.completions.create(
+            model=azure_openai_deployment_name,
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": [
+                    {"type": "text", "text": "Describe this picture:"},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"}}
+                ]}
+            ]
+        )
+        
+        print("OpenAI response:", f"{response.choices[0].message.content[:50]}...")
+        print(f"Saving response to Cosmos DB to document with id {id}")
+        doc = {
+            "id": id,
+            "ai_response": response.choices[0].message.content
+        }
+        await cosmos_container.upsert_item(doc)
+        await receiver.complete_message(msg)
+    except Exception as e:
+        print(f"Error encountered: {e}. Abandoning message for retry.")
+        await receiver.abandon_message(msg)
+        return
 
 async def main():
     async with ServiceBusClient(servicebus_fqdn, credential=credential) as sb_client:
