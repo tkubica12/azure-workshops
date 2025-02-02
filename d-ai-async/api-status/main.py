@@ -97,16 +97,20 @@ def get_openapi_spec():
 )
 async def get_results(guid: str):
     try:
-        item = await container.read_item(item=guid, partition_key=guid)
-        response = {
-            "id": item["id"],
-            "status": "completed",
-            "data": {
-                "result": item["ai_response"]
+        query = "SELECT * FROM c WHERE c.id = @id"
+        parameters = [{"name": "@id", "value": guid}]
+        items = [item async for item in container.query_items(query=query, parameters=parameters, partition_key=guid)]
+        if items:
+            item = items[0]
+            response = {
+                "id": item["id"],
+                "status": "completed",
+                "data": {
+                    "result": item["ai_response"]
+                }
             }
-        }
-        return JSONResponse(status_code=200, content=response)
-    except CosmosResourceNotFoundError:
-        return JSONResponse(status_code=202, headers={"Retry-After": retry_after}, content={"message": "Processing, please retry after some time."})
+            return JSONResponse(status_code=200, content=response)
+        else:
+            return JSONResponse(status_code=202, headers={"Retry-After": retry_after}, content={"message": "Processing, please retry after some time."})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
