@@ -105,9 +105,9 @@ resource "azapi_resource" "api_worker" {
               custom = {
                 type = "azure-servicebus"
                 metadata = {
-                  queue_name           = azurerm_servicebus_queue.main.name
-                  servicebus_namespace = azurerm_servicebus_namespace.main.name
-                  messageCount         = "5"
+                  queueName    = azurerm_servicebus_queue.main.name
+                  namespace    = azurerm_servicebus_namespace.main.name
+                  messageCount = "5"
                 }
                 identity = azurerm_user_assigned_identity.main.id
               }

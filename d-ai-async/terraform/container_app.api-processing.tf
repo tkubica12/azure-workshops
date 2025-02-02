@@ -74,8 +74,10 @@ resource "azapi_resource" "api_processing" {
           }
         ]
         scale = {
-          minReplicas = 1
-          maxReplicas = 5
+          minReplicas     = 1
+          maxReplicas     = 5
+          pollingInterval = 5
+          cooldownPeriod  = 60
         }
       }
     }
