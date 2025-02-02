@@ -11,6 +11,7 @@ In order to provide scalable and highly reliable solution that incorporates AI i
 - Azure Storage for storing images
 - Azure Service Bus for processing queue
 - Azure CosmosDB for storing results
+- k6 perftest running as Azure Container Apps Job
 
 ### Benefits
 - Azure Container Apps provides autoscaling and load balancing based on user requests and length of processing queue
@@ -22,8 +23,5 @@ In order to provide scalable and highly reliable solution that incorporates AI i
 - Enhanced flexibility in technology stack, allowing different microservices to use the most suitable tools and languages
 
 ### TODO
-- Fix missing CORS in Terraform (not yet supported by azurerm provider)
 - Add authentication and authorization
-- Add monitoring and tracing
-- Add autoscaling rules
-- Add performance testing
+- Better OTEL correlations (processing id, chat requests correlations)
