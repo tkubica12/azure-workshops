@@ -1,6 +1,6 @@
 resource "azurerm_cognitive_deployment" "openai_model_p1" {
-  name                 = "gpt-4o-mini-p1"
-  cognitive_account_id = azapi_resource.ai_service.id
+  name                 = "gpt-4o-mini"
+  cognitive_account_id = azapi_resource.ai_service_p1.id
   model {
     format  = "OpenAI"
     name    = "gpt-4o-mini"
@@ -12,12 +12,12 @@ resource "azurerm_cognitive_deployment" "openai_model_p1" {
     name     = "GlobalStandard"
   }
 
-  depends_on = [data.azapi_resource_action.openai_model_key]
+  depends_on = [data.azapi_resource_action.openai_model_key_p1]
 }
 
 resource "azurerm_cognitive_deployment" "openai_model_p2" {
-  name                 = "gpt-4o-mini-p2"
-  cognitive_account_id = azapi_resource.ai_service.id
+  name                 = "gpt-4o-mini"
+  cognitive_account_id = azapi_resource.ai_service_p2.id
   model {
     format  = "OpenAI"
     name    = "gpt-4o-mini"
@@ -29,12 +29,19 @@ resource "azurerm_cognitive_deployment" "openai_model_p2" {
     name     = "GlobalStandard"
   }
 
-  depends_on = [data.azapi_resource_action.openai_model_key]
+  depends_on = [data.azapi_resource_action.openai_model_key_p2]
 }
 
-data "azapi_resource_action" "openai_model_key" {
+data "azapi_resource_action" "openai_model_key_p1" {
   type                   = "Microsoft.CognitiveServices/accounts@2023-05-01"
-  resource_id            = azapi_resource.ai_service.id
+  resource_id            = azapi_resource.ai_service_p1.id
+  action                 = "listKeys"
+  response_export_values = ["*"]
+}
+
+data "azapi_resource_action" "openai_model_key_p2" {
+  type                   = "Microsoft.CognitiveServices/accounts@2023-05-01"
+  resource_id            = azapi_resource.ai_service_p2.id
   action                 = "listKeys"
   response_export_values = ["*"]
 }

@@ -22,7 +22,7 @@ locals {
                     JArray backends = new JArray();
                     backends.Add(new JObject()
                     {
-                        { "url", "https://andre-openai-eastus.openai.azure.com/" },
+                        { "url", "${azapi_resource.ai_service_p1.output.properties.endpoints["OpenAI Language Model Instance API"]}" },
                         { "priority", 1},
                         { "isThrottling", false }, 
                         { "retryAfter", DateTime.MinValue } 
@@ -30,58 +30,10 @@ locals {
 
                     backends.Add(new JObject()
                     {
-                        { "url", "https://andre-openai-eastus-2.openai.azure.com/" },
-                        { "priority", 1},
-                        { "isThrottling", false },
-                        { "retryAfter", DateTime.MinValue }
-                    });
-
-                    backends.Add(new JObject()
-                    {
-                        { "url", "https://andre-openai-northcentralus.openai.azure.com/" },
-                        { "priority", 1},
-                        { "isThrottling", false },
-                        { "retryAfter", DateTime.MinValue }
-                    });
-
-                    backends.Add(new JObject()
-                    {
-                        { "url", "https://andre-openai-canadaeast.openai.azure.com/" },
+                        { "url", "${azapi_resource.ai_service_p2.output.properties.endpoints["OpenAI Language Model Instance API"]}" },
                         { "priority", 2},
-                        { "isThrottling", false },
-                        { "retryAfter", DateTime.MinValue }
-                    });
-
-                    backends.Add(new JObject()
-                    {
-                        { "url", "https://andre-openai-francecentral.openai.azure.com/" },
-                        { "priority", 3},
-                        { "isThrottling", false },
-                        { "retryAfter", DateTime.MinValue }
-                    });
-
-                    backends.Add(new JObject()
-                    {
-                        { "url", "https://andre-openai-uksouth.openai.azure.com/" },
-                        { "priority", 3},
-                        { "isThrottling", false },
-                        { "retryAfter", DateTime.MinValue }
-                    });
-
-                    backends.Add(new JObject()
-                    {
-                        { "url", "https://andre-openai-westeurope.openai.azure.com/" },
-                        { "priority", 3},
-                        { "isThrottling", false },
-                        { "retryAfter", DateTime.MinValue }
-                    });
-
-                    backends.Add(new JObject()
-                    {
-                        { "url", "https://andre-openai-australia.openai.azure.com/" },
-                        { "priority", 4},
-                        { "isThrottling", false },
-                        { "retryAfter", DateTime.MinValue }
+                        { "isThrottling", false }, 
+                        { "retryAfter", DateTime.MinValue } 
                     });
 
                     return backends;   
@@ -90,7 +42,7 @@ locals {
                 <cache-store-value key="@("listBackends-" + context.Api.Id)" value="@((JArray)context.Variables["listBackends"])" duration="60" />
             </when>
         </choose>
-        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="msi-access-token" ignore-error="false" />
+        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="msi-access-token" ignore-error="false" client-id="${azurerm_user_assigned_identity.main.client_id}" />
         <set-header name="Authorization" exists-action="override">
             <value>@("Bearer " + (string)context.Variables["msi-access-token"])</value>
         </set-header>
@@ -161,7 +113,7 @@ locals {
                     return 0;    
                 }
                 }" />
-            <set-variable name="backendUrl" value="@(((JObject)((JArray)context.Variables["listBackends"])[(Int32)context.Variables["backendIndex"]]).Value<string>("url") + "/openai")" />
+            <set-variable name="backendUrl" value="@(((JObject)((JArray)context.Variables["listBackends"])[(Int32)context.Variables["backendIndex"]]).Value<string>("url") + "openai")" />
             <set-backend-service base-url="@((string)context.Variables["backendUrl"])" />
             <forward-request buffer-request-body="true" />
             <choose>
@@ -223,4 +175,11 @@ locals {
     </on-error>
 </policies>
 POLICY
+}
+
+resource "azurerm_api_management_api_policy" "genai_policy" {
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  api_name            = azurerm_api_management_api.openai.name
+  xml_content         = local.genai_policy
 }

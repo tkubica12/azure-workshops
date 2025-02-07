@@ -1,6 +1,6 @@
-resource "azapi_resource" "ai_service" {
+resource "azapi_resource" "ai_service_p1" {
   type      = "Microsoft.CognitiveServices/accounts@2023-10-01-preview"
-  name      = "aidemo-${local.base_name}"
+  name      = "aidemo-p1-${local.base_name}"
   location  = azurerm_resource_group.main.location
   parent_id = azurerm_resource_group.main.id
 
@@ -9,10 +9,37 @@ resource "azapi_resource" "ai_service" {
   }
 
   body = {
-    name = "aidemo-${local.base_name}"
+    name = "aidemo-p1-${local.base_name}"
     properties = {
       #   restore             = true
-      customSubDomainName = local.base_name
+      customSubDomainName = "p1-${local.base_name}"
+      apiProperties = {
+        statisticsEnabled = false
+      }
+    }
+    kind = "AIServices"
+    sku = {
+      name = "S0"
+    }
+  }
+  response_export_values = ["*"]
+}
+
+resource "azapi_resource" "ai_service_p2" {
+  type      = "Microsoft.CognitiveServices/accounts@2023-10-01-preview"
+  name      = "aidemo-p2-${local.base_name}"
+  location  = azurerm_resource_group.main.location
+  parent_id = azurerm_resource_group.main.id
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  body = {
+    name = "aidemo-p2-${local.base_name}"
+    properties = {
+      #   restore             = true
+      customSubDomainName = "p2-${local.base_name}"
       apiProperties = {
         statisticsEnabled = false
       }
@@ -72,20 +99,39 @@ resource "azapi_resource" "ai_project" {
   }
 }
 
-resource "azapi_resource" "ai_services_connection" {
+resource "azapi_resource" "ai_services_connection_p1" {
   type      = "Microsoft.MachineLearningServices/workspaces/connections@2024-04-01-preview"
-  name      = "default-${local.base_name}"
+  name      = "p1-${local.base_name}"
   parent_id = azapi_resource.ai_hub.id
 
   body = {
     properties = {
-      category = "AIServices"
-      target   = azapi_resource.ai_service.output.properties.endpoint
+      category      = "AIServices"
+      target        = azapi_resource.ai_service_p1.output.properties.endpoint
       authType      = "AAD"
       isSharedToAll = true
       metadata = {
         ApiType    = "Azure"
-        ResourceId = azapi_resource.ai_service.id
+        ResourceId = azapi_resource.ai_service_p1.id
+      }
+    }
+  }
+}
+
+resource "azapi_resource" "ai_services_connection_p2" {
+  type      = "Microsoft.MachineLearningServices/workspaces/connections@2024-04-01-preview"
+  name      = "p2-${local.base_name}"
+  parent_id = azapi_resource.ai_hub.id
+
+  body = {
+    properties = {
+      category      = "AIServices"
+      target        = azapi_resource.ai_service_p2.output.properties.endpoint
+      authType      = "AAD"
+      isSharedToAll = true
+      metadata = {
+        ApiType    = "Azure"
+        ResourceId = azapi_resource.ai_service_p2.id
       }
     }
   }

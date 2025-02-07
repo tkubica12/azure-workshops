@@ -5,6 +5,11 @@ resource "azurerm_api_management" "main" {
   publisher_name      = "My Company"
   publisher_email     = "company@company.local"
   sku_name            = "Developer_1"
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.main.id]
+  }
 }
 
 resource "azurerm_api_management_logger" "main" {
