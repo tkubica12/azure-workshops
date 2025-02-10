@@ -1,0 +1,3 @@
+openai
+azure-identity
+python-dotenv
