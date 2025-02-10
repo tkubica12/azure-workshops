@@ -175,6 +175,22 @@ locals {
     </on-error>
 </policies>
 POLICY
+
+  silver_policy = <<POLICY
+<policies>
+    <inbound>
+        <base />
+        <azure-openai-token-limit
+            counter-key="@(context.Subscription.Id)"
+            tokens-per-minute="1000" 
+            estimate-prompt-tokens="true" 
+            remaining-tokens-variable-name="remainingTokens" />
+    </inbound>
+    <outbound>
+        <base />
+    </outbound>
+</policies>
+POLICY
 }
 
 resource "azurerm_api_management_api_policy" "genai_policy" {
@@ -183,3 +199,11 @@ resource "azurerm_api_management_api_policy" "genai_policy" {
   api_name            = azurerm_api_management_api.openai.name
   xml_content         = local.genai_policy
 }
+
+resource "azurerm_api_management_product_policy" "silver_policy" {
+  product_id          = azurerm_api_management_product.silver.product_id
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  xml_content         = local.silver_policy
+}
+
