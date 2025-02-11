@@ -191,6 +191,28 @@ POLICY
     </outbound>
 </policies>
 POLICY
+
+  caching_policy = <<POLICY
+<policies>
+    <inbound>
+        <base />
+        <set-backend-service backend-id="${azapi_resource.embeddings_backend.name}" />
+        <authentication-managed-identity resource="https://cognitiveservices.azure.com/" />
+        <azure-openai-semantic-cache-lookup
+            score-threshold="0.8"
+            embeddings-backend-id="${azapi_resource.embeddings_backend.name}"
+            embeddings-backend-auth="system-assigned"
+            ignore-system-messages="false"
+            max-message-count="2">
+            <vary-by>@(context.Subscription.Id)</vary-by>
+        </azure-openai-semantic-cache-lookup>
+    </inbound>
+    <outbound>
+        <azure-openai-semantic-cache-store duration="120" />
+        <base />
+    </outbound>
+</policies>
+POLICY
 }
 
 resource "azurerm_api_management_api_policy" "genai_policy" {
@@ -205,5 +227,12 @@ resource "azurerm_api_management_product_policy" "silver_policy" {
   api_management_name = azurerm_api_management.main.name
   resource_group_name = azurerm_resource_group.main.name
   xml_content         = local.silver_policy
+}
+
+resource "azurerm_api_management_product_policy" "caching_policy" {
+  product_id          = azurerm_api_management_product.caching.product_id
+  api_management_name = azurerm_api_management.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  xml_content         = local.caching_policy
 }
 

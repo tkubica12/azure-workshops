@@ -49,10 +49,6 @@ provider "azurerm" {
     cognitive_account {
       purge_soft_delete_on_destroy = true
     }
-
-    # storage {
-    #   data_plane_available = false
-    # }
   }
 }
 
