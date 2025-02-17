@@ -505,6 +505,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
+                            "example": "gpt-4o-mini",
                             "description": "Deployment id of the model which was deployed."
                         }
                     },
@@ -514,7 +515,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "example": "2023-05-15",
+                            "example": "2024-05-01-preview",
                             "description": "api version"
                         }
                     }

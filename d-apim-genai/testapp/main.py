@@ -32,12 +32,14 @@ backend_tokens = {}
 start_time = time.time()  # added start time
 
 # Function to print running statistics
-def print_running_stats(total_token_usage, backend_tokens, start_time):
+def print_running_stats(total_token_usage, backend_tokens, start_time, request_start_time):
     elapsed_seconds_running = time.time() - start_time
     elapsed_minutes_running = math.ceil(elapsed_seconds_running / 60) 
+    request_elapsed_seconds = time.time() - request_start_time
     tokens_per_minute_running = total_token_usage / elapsed_minutes_running
     print(f"Running total tokens: {total_token_usage}")
     print(f"Running tokens per minute: {int(tokens_per_minute_running)}")
+    print(f"Request time: {request_elapsed_seconds:.2f} seconds")
     print("Tokens per backend so far:")
     for url, tokens in backend_tokens.items():
         print(f"  {url}: {tokens}")
@@ -50,9 +52,9 @@ test_messages = [
     "What are reasons for using data quality management?",
     "Write long text about life, universe and everything.",
     "Write long text about life, universe and everything.",
-    "Write long text about life, universe and everything.",
-    "Write long text about life, universe and everything.",
-    "Write long text about life, universe and everything.",
+    "Write long text about life, universe and everything, please.",
+    "Write text about life, universe and everything.",
+    "Write long text about life, universe, and everything.",
 ]
 
 for message in test_messages:
@@ -67,6 +69,7 @@ for message in test_messages:
         }  
     ]
 
+    request_start_time = time.time()
     response = client.chat.completions.with_raw_response.create(  
         model=deployment,  
         messages=messages,
@@ -92,10 +95,10 @@ for message in test_messages:
     response_text_shortened = response_parsed.choices[0].message.content[:80].replace("\n", " ") + "..." 
     print(f"\nResponse {current_tokens} tokens: {response_text_shortened}")
     print(f"x-openai-backendurl: {backend_url}")
-    print_running_stats(total_token_usage, backend_tokens, start_time)
+    print_running_stats(total_token_usage, backend_tokens, start_time, request_start_time)
 
 # Print final statistics
 print("\n-----------------------------------")
 print("Final stats:")
-print_running_stats(total_token_usage, backend_tokens, start_time)
+print_running_stats(total_token_usage, backend_tokens, start_time, start_time)
 

@@ -7,8 +7,7 @@ resource "azurerm_api_management" "main" {
   sku_name            = "Developer_1"
 
   identity {
-    type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.main.id]
+    type         = "SystemAssigned"
   }
 }
 
@@ -21,4 +20,10 @@ resource "azurerm_api_management_logger" "main" {
   application_insights {
     instrumentation_key = azurerm_application_insights.main.instrumentation_key
   }
+}
+
+resource "azurerm_api_management_redis_cache" "main" {
+  name              = "default"
+  api_management_id = azurerm_api_management.main.id
+  connection_string = local.redis_connection_string
 }

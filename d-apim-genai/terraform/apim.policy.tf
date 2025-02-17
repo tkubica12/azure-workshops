@@ -42,7 +42,7 @@ locals {
                 <cache-store-value key="@("listBackends-" + context.Api.Id)" value="@((JArray)context.Variables["listBackends"])" duration="60" />
             </when>
         </choose>
-        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="msi-access-token" ignore-error="false" client-id="${azurerm_user_assigned_identity.main.client_id}" />
+        <authentication-managed-identity resource="https://cognitiveservices.azure.com" output-token-variable-name="msi-access-token" ignore-error="false" />
         <set-header name="Authorization" exists-action="override">
             <value>@("Bearer " + (string)context.Variables["msi-access-token"])</value>
         </set-header>
@@ -196,10 +196,10 @@ POLICY
 <policies>
     <inbound>
         <base />
-        <set-backend-service backend-id="${azapi_resource.embeddings_backend.name}" />
+        <!-- <set-backend-service backend-id="${azapi_resource.embeddings_backend.name}" /> -->
         <authentication-managed-identity resource="https://cognitiveservices.azure.com/" />
         <azure-openai-semantic-cache-lookup
-            score-threshold="0.8"
+            score-threshold="0.05"
             embeddings-backend-id="${azapi_resource.embeddings_backend.name}"
             embeddings-backend-auth="system-assigned"
             ignore-system-messages="false"
