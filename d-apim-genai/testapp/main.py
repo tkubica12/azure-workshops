@@ -4,12 +4,23 @@ import math  # added import
 from openai import AzureOpenAI  
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider  
 from dotenv import load_dotenv
+from azure.monitor.opentelemetry import configure_azure_monitor
+from azure.core.settings import settings
+from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+from opentelemetry.instrumentation.openai_v2 import OpenAIInstrumentor
 
 # Load environment variables
 load_dotenv()
 endpoint = os.getenv("ENDPOINT_URL")  
 deployment = os.getenv("DEPLOYMENT_NAME")  
 subscription_key = os.getenv("SUBSCRIPTION_KEY")
+# appinsights_connection_string = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")
+
+# # Configure Azure Monitor - does not currently work as OpenAI SDK implements this only in newer version, not legacy one. But legacy is used in this demo to access to raw headers which is not yet available in newer version of OpenAI SDK.
+# resource = Resource.create({SERVICE_NAME: "AI Worker Service"})
+# configure_azure_monitor(connection_string=appinsights_connection_string, resource=resource)
+# settings.tracing_implementation = "opentelemetry"
+# OpenAIInstrumentor().instrument()
       
 # Initialize Azure OpenAI Service client with Entra ID authentication
 token_provider = get_bearer_token_provider(  

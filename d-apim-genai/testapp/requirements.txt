@@ -1,3 +1,10 @@
 openai
 azure-identity
 python-dotenv
+opentelemetry-api
+opentelemetry-sdk
+azure-monitor-opentelemetry
+azure-core-tracing-opentelemetry
+opentelemetry-instrumentation-fastapi
+opentelemetry-instrumentation-requests
+opentelemetry-instrumentation-openai-v2

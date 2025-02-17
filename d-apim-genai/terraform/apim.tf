@@ -27,3 +27,19 @@ resource "azurerm_api_management_redis_cache" "main" {
   api_management_id = azurerm_api_management.main.id
   connection_string = local.redis_connection_string
 }
+
+
+resource "azurerm_monitor_diagnostic_setting" "main" {
+  name               = "main"
+  target_resource_id = azurerm_api_management.main.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
+
+  # enabled_log {
+  #   category = "AuditEvent"
+  # }
+
+  metric {
+    category = "AllMetrics"
+  }
+}
+

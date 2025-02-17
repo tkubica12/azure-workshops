@@ -48,6 +48,14 @@ locals {
         </set-header>
         <set-variable name="backendIndex" value="-1" />
         <set-variable name="remainingBackends" value="1" />
+
+        <azure-openai-emit-token-metric namespace="openai">
+            <dimension name="Client IP" value="@(context.Request.IpAddress)" />
+            <dimension name="API ID" value="@(context.Api.Id)" />
+            <dimension name="Subscription ID" value="@(context.Subscription.Id)" />
+            <dimension name="Backend URL" value="@(context.Variables.GetValueOrDefault<string>("backendUrl", "none"))" />
+            <dimension name="User ID" value="@(context.Request.Headers.GetValueOrDefault("x-user-id", "N/A"))" />
+        </azure-openai-emit-token-metric>
     </inbound>
     <backend>
         <retry condition="@(context.Response != null && (context.Response.StatusCode == 401 || context.Response.StatusCode == 429 || context.Response.StatusCode >= 500) && (int.Parse((string)context.Variables["remainingBackends"])) > 0)" count="50" interval="0">
