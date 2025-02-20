@@ -118,7 +118,7 @@ locals {
       {
         for model_name, model in local.openai_models :
         model_name => {
-          endpoint = "${azapi_resource.ai_service.output.properties.endpoints["Azure AI Model Inference API"]}/openai/deployments/${model_name}"
+          endpoint = "${azapi_resource.ai_service.output.properties.endpoints["OpenAI Language Model Instance API"]}"
           key      = data.azapi_resource_action.openai_model_key.output.key1
         }
       }

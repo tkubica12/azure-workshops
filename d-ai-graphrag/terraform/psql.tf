@@ -12,7 +12,7 @@ resource "azurerm_postgresql_flexible_server" "main" {
   public_network_access_enabled = true
   storage_mb                    = 32768
   storage_tier                  = "P4"
-  sku_name                      = "B_Standard_B1ms"
+  sku_name                      = "B_Standard_B2ms"
   administrator_login           = "psqladmin"
   administrator_password        = random_password.psql.result
 
