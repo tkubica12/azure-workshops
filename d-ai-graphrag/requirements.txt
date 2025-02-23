@@ -1,4 +1,4 @@
 pandas
 ipykernel
 psycopg2
-azure-identity
+openai
