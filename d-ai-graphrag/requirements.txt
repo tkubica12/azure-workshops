@@ -2,3 +2,4 @@ pandas
 ipykernel
 psycopg2
 openai
+flashrank
