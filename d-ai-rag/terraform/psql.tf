@@ -52,7 +52,7 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_all" {
 resource "azurerm_postgresql_flexible_server_configuration" "main" {
   name      = "azure.extensions"
   server_id = azurerm_postgresql_flexible_server.main.id
-  value     = "vector,pg_diskann,azure_ai"
+  value     = "vector,pg_diskann,azure_ai,age"
 }
 
 // Outputs

@@ -3,3 +3,4 @@ ipykernel
 psycopg2
 openai
 flashrank
+jinja2
