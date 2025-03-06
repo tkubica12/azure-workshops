@@ -22,6 +22,10 @@ resource "azurerm_windows_virtual_machine" "client_vm" {
 
   admin_username = "adminuser"
   admin_password = "Azure12345678"
+
+  identity {
+    type = "SystemAssigned"
+  }
 }
 
 resource "azurerm_network_interface" "client_vm" {

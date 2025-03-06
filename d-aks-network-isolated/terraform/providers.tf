@@ -21,14 +21,6 @@ terraform {
       version = "~>0"
     }
   }
-  backend "azurerm" { # Change this to "local" for local backend
-    resource_group_name  = "rg-base"
-    storage_account_name = "tomaskubicatf"
-    container_name       = "tfstate"
-    key                  = "d-aks-network-isolated.tfstate"
-    use_azuread_auth     = true
-    subscription_id      = "673af34d-6b28-41dc-bc7b-f507418045e6"
-  }
 }
 
 provider "azurerm" {

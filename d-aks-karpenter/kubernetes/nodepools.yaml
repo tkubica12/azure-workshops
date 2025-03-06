@@ -1,7 +1,7 @@
 apiVersion: karpenter.sh/v1beta1
 kind: NodePool
 metadata:
-  name: 1-4-pool
+  name: 1-2-pool
 spec:
   disruption:
     consolidationPolicy: WhenUnderutilized
@@ -9,7 +9,7 @@ spec:
   template:
     spec:
       nodeClassRef:
-        name: 1-4-pool
+        name: 1-2-pool
       requirements:
       - key: kubernetes.io/arch
         operator: In
@@ -26,7 +26,7 @@ spec:
       - key: karpenter.azure.com/sku-family
         operator: In
         values:
-        - D
+        - F
       - key: karpenter.azure.com/sku-version
         operator: In
         values:
@@ -35,7 +35,7 @@ spec:
 apiVersion: karpenter.sh/v1beta1
 kind: NodePool
 metadata:
-  name: 1-2-pool
+  name: 1-4-pool
 spec:
   disruption:
     consolidationPolicy: WhenUnderutilized
@@ -43,7 +43,7 @@ spec:
   template:
     spec:
       nodeClassRef:
-        name: 1-2-pool
+        name: 1-4-pool
       requirements:
       - key: kubernetes.io/arch
         operator: In
