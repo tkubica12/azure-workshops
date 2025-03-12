@@ -3,3 +3,6 @@ ipykernel
 psycopg2
 openai
 flashrank
+jinja2
+apache-age-python
+tiktoken
