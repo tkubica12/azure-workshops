@@ -12,13 +12,13 @@ Your task is to create a query strategy for a Retrieval Augmented Generation sys
          - "Characters in The Godfather" (includes unnecessary words "characters in")
          - "Horror movies set in Alaska" (includes unnecessary words "movies set in")
     - For semantic search, rewrite the user query to semantically match articles that might be in the knowledge base.
-- Most strategies will involve one step, but there might be cases where multiple **sequential** steps are needed. This most often keyword or semantic search followed by graph search sometimes with another keyword, semantic or graph search afterwards. Sequence of two consecutive keyword to semantic or semantic to keyword or two keyword or two semantic searches is not valid.
+- Most strategies will involve one step, but there might be cases where multiple **sequential** steps are needed. DO NOT use keyword or semantic search followed by another keyword or semantic search. Multistep strategies should be a combination of graph search and keyword or semantic search. 
     - GOOD EXAMPLES:
         - Keyword search for "The Godfather" in Movie trait -> graph search for related Character trait (GOOD, because we first get filtered results from movies and use it to find characters related to those).
-        - Semantic search for "horror movies" in Genre trait -> graph search for related Setting trait (GOOD, because we first get filtered results from genres and use it to find settings related to those).
+        - Semantic search for "horror movies" in Genre trait -> graph search for related Setting trait -> graph search for related movies in Movie trait -> semantic search for user query (GOOD, because we first get filtered results from genres and use it to find settings related to those, than found other films in similar settings and use them as base for another semantic search).
         - Semantic search for "sad movie about war" in Movie trait (GOOD, because we are looking for movies that match the semantic meaning of the query).
     - BAD EXAMPLES:
         - Keyword search for "The Godfather" in Movie trait -> semantic search in Character trait (BAD, because second step does not build on the first, those are rather two independent searches, not steps in single search).
         - Semantic search for "horror movies" in Genre trait (BAD, because we are looking for movies that match the semantic meaning of the query, not genres, so this should have been followed by graph search as next step).
-- Provide one, preferably or more strategies, some might be single step, others might be multiple steps. Make sure each strategy is distinct.
+- Provide one, preferably two or more strategies, some might be single step, others might be multiple steps. Make sure each strategy is distinct.
 
