@@ -16,7 +16,7 @@ resource "azurerm_mssql_database" "main" {
   name                        = "demo"
   server_id                   = azurerm_mssql_server.main.id
   max_size_gb                 = 32
-  sku_name                    = "GP_S_Gen5_2"
+  sku_name                    = "GP_S_Gen5_6"
   auto_pause_delay_in_minutes = 60
   geo_backup_enabled          = false
   min_capacity                = 1
