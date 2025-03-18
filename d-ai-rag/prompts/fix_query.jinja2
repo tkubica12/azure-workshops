@@ -1,0 +1,156 @@
+Your task is to fix a Microsoft SQL query that is failing with syntax errors.
+
+# Instructions
+- Analyze the query and errors
+- All SQL searches must return **no more than 20 results**. Use various techniques to select best ones if query matches more, eg. reorder results using semantic search (vector similarity).
+- For graph search, use the `MATCH` clause to find related nodes and edges. Use `WITH` clause to create temporary tables for intermediate results.
+- Use `TOP 20` in the final result to limit the number of results returned.
+
+# Original query
+```sql
+{{query}}
+```
+
+# Error
+{{error}}
+
+## SQL schema of used tables
+```sql
+-- Node Creation: Creating node tables
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Movie]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Movie]
+    (
+        [Id] INT PRIMARY KEY,
+        [Name] VARCHAR(200) NOT NULL,
+        [Content] VARCHAR(MAX) NULL,
+        [Embedding] VECTOR(1998) NULL
+    ) AS NODE;
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Character]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Character]
+    (
+        [Id] INT PRIMARY KEY,
+        [Name] VARCHAR(200) NOT NULL,
+        [Content] VARCHAR(MAX) NULL,
+        [Embedding] VECTOR(1998) NULL
+    ) AS NODE;
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Theme]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Theme]
+    (
+        [Id] INT PRIMARY KEY,
+        [Name] VARCHAR(200) NOT NULL,
+        [Content] VARCHAR(MAX) NULL,
+        [Embedding] VECTOR(1998) NULL
+    ) AS NODE;
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Setting]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Setting]
+    (
+        [Id] INT PRIMARY KEY,
+        [Name] VARCHAR(200) NOT NULL,
+        [Content] VARCHAR(MAX) NULL,
+        [Embedding] VECTOR(1998) NULL
+    ) AS NODE;
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Series]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Series]
+    (
+        [Id] INT PRIMARY KEY,
+        [Name] VARCHAR(200) NOT NULL,
+        [Content] VARCHAR(MAX) NULL,
+        [Embedding] VECTOR(1998) NULL
+    ) AS NODE;
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Genre]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[Genre]
+    (
+        [Id] INT PRIMARY KEY,
+        [Name] VARCHAR(200) NOT NULL,
+        [Content] VARCHAR(MAX) NULL,
+        [Embedding] VECTOR(1998) NULL
+    ) AS NODE;
+END
+
+-- Edge Creation: Creating edge tables
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[IN_GENRE]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[IN_GENRE] AS EDGE;
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[FEATURES_CHARACTER]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[FEATURES_CHARACTER] AS EDGE;
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[INCLUDES_THEME]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[INCLUDES_THEME] AS EDGE;
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SET_IN]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[SET_IN] AS EDGE;
+END
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[PART_OF_SERIES]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE [dbo].[PART_OF_SERIES] AS EDGE;
+END
+```
+
+# Example queries:
+- Similarity search on Movie:
+```sql
+SELECT TOP 10 Id, Content, vector_distance('cosine', Embedding, @q) AS Similarity
+FROM [dbo].[Movie]
+WHERE Embedding IS NOT NULL AND Content IS NOT NULL
+ORDER BY Similarity ASC
+```
+
+- Fulltext search on Movie together with semantic search on results to get top 10 results:
+```sql
+SELECT TOP 10 Id, Content, vector_distance('cosine', Embedding, @q) AS Similarity
+FROM [dbo].[Movie]
+WHERE CONTAINS (Content, '"Indiana Jones" AND "Temple"')
+ORDER BY Similarity ASC
+```
+
+- Semantic search on Character, graph search to find Movie related to that Character ans lastly get top 10 results ordered by amount of shared relations (edges) with the first one:
+```sql
+WITH topcharacters AS (
+    SELECT TOP 50 Id, vector_distance('cosine', Embedding, @q) AS Similarity
+    FROM [dbo].[Character]
+    WHERE Embedding IS NOT NULL AND Content IS NOT NULL
+    ORDER BY Similarity ASC
+),
+MovieMatches AS (
+    SELECT TOP 10 m.Content as Content, COUNT(c.Id) AS MatchedCharacterCount
+    FROM [dbo].[Movie] m, [dbo].[FEATURES_CHARACTER] fc, [dbo].[Character] c
+    WHERE MATCH (m-(fc)->c)
+    AND c.Id IN (SELECT Id FROM topcharacters)
+    GROUP BY m.Content
+)
+SELECT TOP 10 Content
+FROM MovieMatches
+ORDER BY MatchedCharacterCount DESC;
+```
+
+- Similarity search on Genre to give more global context:
+```sql
+SELECT TOP 10 Id, Content, vector_distance('cosine', Embedding, @q) AS Similarity
+FROM [dbo].[Genre]
+WHERE Embedding IS NOT NULL AND Content IS NOT NULL
+ORDER BY Similarity ASC
+```
