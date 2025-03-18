@@ -1,32 +1,18 @@
-Your task is to create a query strategy for a Retrieval Augmented Generation system. The strategy should:
+Your task is to fix a Microsoft SQL query that is failing with syntax errors.
 
 # Instructions
-- Analyze the user query and decide whether to use semantic search, full_text search or graph search.
-- Identify one or more traits (e.g., Movie, Genre, Character, Setting, Theme, Series) to target.
-- Rewrite the user query: 
-    - For keyword search, extract ONLY the essential identifying terms (names, entities, specific descriptors) from the user's question. DO NOT include any additional words or reformulate the query. Extract only the raw keywords themselves.
-      - GOOD EXAMPLES:
-         - For "Who directed Inception?" → "Inception" (just the movie title)
-         - For "Tell me about characters in The Godfather" → "The Godfather" (just the film title)
-         - For "Are there any horror movies set in Alaska?" → "Alaska horror" (just location and genre)
-      - BAD EXAMPLES:
-         - "Director of Inception" (contains unnecessary word "Director")
-         - "Characters in The Godfather" (includes unnecessary words "characters in")
-         - "Horror movies set in Alaska" (includes unnecessary words "movies set in")
-    - For semantic search, rewrite the user query to semantically match articles that might be in the knowledge base.
-- Provide one, preferably two or more strategies. Make sure each strategy is distinct.
+- Analyze the query and errors
 - All SQL searches must return **no more than 20 results**. Use various techniques to select best ones if query matches more, eg. reorder results using semantic search (vector similarity).
 - For graph search, use the `MATCH` clause to find related nodes and edges. Use `WITH` clause to create temporary tables for intermediate results.
-- For keyword search, use `CONTAINS` clause to find related nodes and edges. 
 - Use `TOP 20` in the final result to limit the number of results returned.
 
-# Data model
-- There are multiple node tables: `Movie`, `Character`, `Setting`, `Theme`, `Series`, and `Genre`. with following columns with names defined exactly the same in all tables:
-    - `Id`: unique identifier for each node. 
-    - `Name`: name of the node (e.g., movie title, character name, etc.).
-    - `Content`: text content of the node. This must be included in all outputs.
-    - `Embedding`: vector representation of the node for semantic search.
-- There are multiple edge tables: `IN_GENRE`, `SET_IN`, `INCLUDES_THEME`, `FEATURES_CHARACTER`, `PART_OF_SERIES`.
+# Original query
+```sql
+{{query}}
+```
+
+# Error
+{{error}}
 
 ## SQL schema of used tables
 ```sql
@@ -124,14 +110,6 @@ BEGIN
 END
 ```
 
-# Example strategies
-- Rewrite user query for better semantic search and use similarity search on `Movie`
-- Rewrite user query for keywords and use fulltext search on `Movie`
-- Use semantic search to find `Setting` or `Theme` or `Series` to add its content into results for more context.
-- Use keywords with fulltext search on other node tables, eg. to find `Character`, than use graph search to find `Movie` related to that `Character` and lastly get top 10 results by doing semantic search on results.
-- Use semantic search on other node tables, eg. to find `Character`, than use graph search to find `Movie` related to that `Character` and lastly get top 10 results by doing semantic search on results.
-- Find specific `Movie` and then use graph search to find related Movies ordered by number of shared relations (edges) with the first one.
-
 # Example queries:
 - Similarity search on Movie:
 ```sql
@@ -169,10 +147,10 @@ FROM MovieMatches
 ORDER BY MatchedCharacterCount DESC;
 ```
 
-- Similarity search on Theme to give more global context:
+- Similarity search on Genre to give more global context:
 ```sql
 SELECT TOP 10 Id, Content, vector_distance('cosine', Embedding, @q) AS Similarity
-FROM [dbo].[Theme]
+FROM [dbo].[Genre]
 WHERE Embedding IS NOT NULL AND Content IS NOT NULL
 ORDER BY Similarity ASC
 ```
