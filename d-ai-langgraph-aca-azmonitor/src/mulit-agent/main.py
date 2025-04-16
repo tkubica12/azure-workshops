@@ -11,9 +11,17 @@ from langgraph.prebuilt import create_react_agent
 from dotenv import load_dotenv
 import datetime
 from colorama import init, Fore, Style
+import sys
 
 from agents import agents, system_prompt
-from config import log_file_path, itinerary_file_path, current_document_path, user_message
+from config import log_file_path, itinerary_file_path, current_document_path
+
+# Accept user_message from command line if provided
+if len(sys.argv) > 1:
+    user_message = sys.argv[1]
+else:
+    from config import user_message
+
 from utils import clear_file, append_log, append_iteration, print_agent_message, print_supervisor_message
 
 # --- Initialization ---

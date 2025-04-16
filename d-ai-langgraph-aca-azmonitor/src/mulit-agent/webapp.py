@@ -125,7 +125,7 @@ with st.form("user_input_form"):
             proc = st.session_state[BACKEND_PROCESS_KEY]
             if proc.poll() is None:
                 proc.terminate()
-        proc = subprocess.Popen([sys.executable, "main.py"])
+        proc = subprocess.Popen([sys.executable, "main.py", user_question])
         st.session_state[BACKEND_PROCESS_KEY] = proc
         st.success("Conversation started! Agent responses will appear below.")
 
