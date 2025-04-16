@@ -4,6 +4,10 @@ from typing_extensions import TypedDict
 from langgraph.graph import MessagesState, END
 from langgraph.types import Command
 from langchain_openai import AzureChatOpenAI
+from langchain_core.messages import HumanMessage
+from langgraph.graph import StateGraph, START, END
+from langgraph.prebuilt import create_react_agent
+
 from dotenv import load_dotenv
 import datetime
 from colorama import init, Fore, Style
@@ -79,9 +83,6 @@ def supervisor_node(state: State) -> Command[Literal[*agents.keys(), "__end__"]]
         }
     )
 
-from langchain_core.messages import HumanMessage
-from langgraph.graph import StateGraph, START, END
-from langgraph.prebuilt import create_react_agent
 
 def create_agent_node(agent_name: str):
     # Enhance system prompt to make sure worker understands messages from supervisor
