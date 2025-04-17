@@ -40,7 +40,7 @@ def configure_otel(
     )
 
     # Configure Logging
-    logger_provider = LoggerProvider()
+    logger_provider = LoggerProvider(resource=resource)
     set_logger_provider(logger_provider)
 
     exporter = OTLPLogExporter(endpoint=endpoint)

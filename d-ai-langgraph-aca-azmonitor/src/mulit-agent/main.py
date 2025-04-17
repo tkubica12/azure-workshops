@@ -10,7 +10,7 @@ from langgraph.types import Command
 from langgraph.prebuilt import create_react_agent
 from langchain_openai import AzureChatOpenAI
 from langchain_core.messages import HumanMessage
-from opentelemetry.instrumentation.openai import OpenAIInstrumentor
+# from opentelemetry.instrumentation.openai import OpenAIInstrumentor
 from opentelemetry.instrumentation.langchain import LangchainInstrumentor
 from typing import Literal
 from typing_extensions import TypedDict
@@ -25,8 +25,7 @@ from utils import clear_file, append_log, append_iteration, print_agent_message,
 # Setup OpenTelemetry
 logging.basicConfig(level=logging.INFO)
 tracer = configure_otel()
-# Instrument OpenAI and Langchain for tracing
-OpenAIInstrumentor().instrument()
+# OpenAIInstrumentor().instrument()
 LangchainInstrumentor().instrument()
 
 message_count_counter = get_message_count_counter()
