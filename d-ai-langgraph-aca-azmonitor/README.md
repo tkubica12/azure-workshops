@@ -2,7 +2,7 @@
 
 ## Monitoring
 ### Local Aspire dashboard
-In ```.env``` file set OTEL_EXPORTER_OTLP_ENDPOINT to ```https://localhost:18889/v1/traces```, access dashboard at ```https://localhost:18888``` and run the app.
+In ```.env``` file set OTEL_EXPORTER_OTLP_ENDPOINT to ```http://localhost:4317```. To access dashboard see logs from Aspire container start with URL with key.
 
 ```powershell
 docker run --rm -it `
@@ -11,3 +11,8 @@ docker run --rm -it `
 --name aspire-dashboard `
 mcr.microsoft.com/dotnet/aspire-dashboard:latest
 ```
+
+Run application and see it collecting:
+- Logs from appp
+- Traces that include LLM calls with input and output texts
+- Metrics including autoinstrumented token counts and also custom "agent message count" metric

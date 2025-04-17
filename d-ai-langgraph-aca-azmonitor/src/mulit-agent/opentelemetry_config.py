@@ -1,4 +1,5 @@
 import logging
+import os
 from opentelemetry import metrics, trace
 
 from opentelemetry._logs import set_logger_provider
@@ -14,12 +15,16 @@ from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+from dotenv import load_dotenv
 
 def configure_otel(
     endpoint: str = None
 ) -> trace.Tracer:
+    load_dotenv()
+    
     # Configure Tracing
-    resource = Resource.create({SERVICE_NAME: "multi-agent"})
+    service_name = os.getenv("OTEL_SERVICE_NAME", "multi-agent")
+    resource = Resource.create({SERVICE_NAME: service_name})
     traceProvider = TracerProvider(resource=resource)
     processor = BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint))
     traceProvider.add_span_processor(processor)
@@ -34,7 +39,7 @@ def configure_otel(
     # Define metrics
     global message_count_counter
     message_count_counter = meter.create_counter(
-        name="message_count",
+        name="agent_message_count",
         description="Number of agent messages processed",
         unit="1"
     )
@@ -53,10 +58,6 @@ def configure_otel(
 
     tracer = trace.get_tracer(__name__)
     return tracer
-
-# Provide accessors for metrics counters
-
-# tokens_used_counter is removed since Langchain exports it by default
 
 def get_message_count_counter():
     global message_count_counter
