@@ -14,8 +14,5 @@ COPY . .
 # Expose Streamlit default port
 EXPOSE 8501
 
-# Set environment variables (optional, uncomment if needed)
-# ENV PYTHONUNBUFFERED=1
-
 # Run Streamlit app
 CMD ["streamlit", "run", "webapp.py", "--server.port=8501", "--server.address=0.0.0.0"]
