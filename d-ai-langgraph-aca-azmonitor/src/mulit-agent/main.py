@@ -12,17 +12,10 @@ from langchain_openai import AzureChatOpenAI
 from langchain_core.messages import HumanMessage
 from opentelemetry.instrumentation.openai import OpenAIInstrumentor
 from opentelemetry.instrumentation.langchain import LangchainInstrumentor
-# from opentelemetry import trace
-# from opentelemetry.sdk.trace import TracerProvider
-# from opentelemetry.sdk.trace.export import BatchSpanProcessor
-# from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
-# from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
-# from opentelemetry._logs import set_logger_provider
-# from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from typing import Literal
 from typing_extensions import TypedDict
 import logging
-from opentelemetry_config import configure_otel
+from opentelemetry_config import configure_otel, get_message_count_counter
 
 # Local application imports
 from agents import agents, system_prompt
@@ -32,10 +25,12 @@ from utils import clear_file, append_log, append_iteration, print_agent_message,
 # Setup OpenTelemetry
 logging.basicConfig(level=logging.INFO)
 tracer = configure_otel()
-logging.getLogger("httpx").setLevel(logging.WARNING)
-
+# Instrument OpenAI and Langchain for tracing
 OpenAIInstrumentor().instrument()
 LangchainInstrumentor().instrument()
+
+message_count_counter = get_message_count_counter()
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 # Accept user_message from command line if provided
 if len(sys.argv) > 1:
@@ -193,6 +188,8 @@ def main():
                         if agent_name != "supervisor":
                             print_agent_message(agent_name, short_message, timestamp)
                             append_log(log_file_path, agent_name, message, timestamp)
+                            # Increment message_count metric
+                            message_count_counter.add(1, {"agent": agent_name})
                 elif "next" in content:
                     next_agent = content["next"]
                     supervisor_message = content.get("supervisor_message", "")
@@ -200,6 +197,7 @@ def main():
                         supervisor_message = content["messages"][-1].content
                     print_supervisor_message(next_agent, supervisor_message, timestamp)
                     append_log(log_file_path, f"SUPERVISOR asks {next_agent.upper()}", supervisor_message, timestamp)
+                    message_count_counter.add(1, {"agent": "supervisor"})
                     with open(itinerary_file_path, "r", encoding="utf-8") as doc_file:
                         current_doc = doc_file.read()
                     append_iteration(current_document_path, current_doc, timestamp)
