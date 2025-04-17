@@ -1,4 +1,14 @@
-from colorama import Fore, Style
+import logging
+
+logger = logging.getLogger("multiagent")
+
+# Ensure logger prints to console as well as OpenTelemetry
+if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+    logger.addHandler(console_handler)
+logger.setLevel(logging.INFO)
+
 
 def clear_file(path: str, initial_content: str = ""):
     with open(path, "w", encoding="utf-8") as f:
@@ -13,14 +23,7 @@ def append_iteration(path: str, document: str, timestamp: str):
         iter_file.write(f"[{timestamp}] Current Document:\n{document}\n\n")
 
 def print_agent_message(agent_name: str, message: str, timestamp: str):
-    if agent_name == "writer":
-        agent_display = Fore.GREEN + agent_name.upper() + Style.RESET_ALL
-    elif agent_name == "finish":
-        agent_display = Fore.MAGENTA + agent_name.upper() + Style.RESET_ALL
-    else:
-        agent_display = Fore.BLUE + agent_name.upper() + Style.RESET_ALL
-    print(f"[{timestamp}] {agent_display}: {message}")
+    logger.info(f"[{timestamp}] {agent_name.upper()}: {message}")
 
 def print_supervisor_message(next_agent: str, supervisor_message: str, timestamp: str):
-    supervisor_display = Fore.RED + "SUPERVISOR" + Style.RESET_ALL
-    print(f"[{timestamp}] {supervisor_display} asks {next_agent.upper()}: {supervisor_message}")
+    logger.info(f"[{timestamp}] SUPERVISOR asks {next_agent.upper()}: {supervisor_message}")

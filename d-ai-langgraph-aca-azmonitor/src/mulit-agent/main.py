@@ -1,20 +1,41 @@
-from typing import Literal
-from typing_extensions import TypedDict
+# Standard library imports
+import sys
+import datetime
 
-from langgraph.graph import MessagesState, END
+# Third-party imports
+from dotenv import load_dotenv
+from colorama import init, Fore, Style
+from langgraph.graph import MessagesState, END, StateGraph, START
 from langgraph.types import Command
+from langgraph.prebuilt import create_react_agent
 from langchain_openai import AzureChatOpenAI
 from langchain_core.messages import HumanMessage
-from langgraph.graph import StateGraph, START, END
-from langgraph.prebuilt import create_react_agent
+from opentelemetry.instrumentation.openai import OpenAIInstrumentor
+from opentelemetry.instrumentation.langchain import LangchainInstrumentor
+# from opentelemetry import trace
+# from opentelemetry.sdk.trace import TracerProvider
+# from opentelemetry.sdk.trace.export import BatchSpanProcessor
+# from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+# from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
+# from opentelemetry._logs import set_logger_provider
+# from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from typing import Literal
+from typing_extensions import TypedDict
+import logging
+from opentelemetry_config import configure_otel
 
-from dotenv import load_dotenv
-import datetime
-from colorama import init, Fore, Style
-import sys
-
+# Local application imports
 from agents import agents, system_prompt
 from config import log_file_path, itinerary_file_path, current_document_path
+from utils import clear_file, append_log, append_iteration, print_agent_message, print_supervisor_message, logger
+
+# Setup OpenTelemetry
+logging.basicConfig(level=logging.INFO)
+tracer = configure_otel()
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
+OpenAIInstrumentor().instrument()
+LangchainInstrumentor().instrument()
 
 # Accept user_message from command line if provided
 if len(sys.argv) > 1:
@@ -22,9 +43,6 @@ if len(sys.argv) > 1:
 else:
     from config import user_message
 
-from utils import clear_file, append_log, append_iteration, print_agent_message, print_supervisor_message
-
-# --- Initialization ---
 load_dotenv()
 init(autoreset=True)
 
@@ -36,7 +54,7 @@ class Router(TypedDict):
     supervisor_message: str  # Message from supervisor to the worker
 
 llm = AzureChatOpenAI(
-    azure_deployment="gpt-4o",
+    azure_deployment="gpt-4.1",
     api_version="2024-08-01-preview",
     temperature=0.5,
     max_tokens=None,
