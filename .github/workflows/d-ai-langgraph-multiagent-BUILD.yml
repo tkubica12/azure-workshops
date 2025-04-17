@@ -3,7 +3,7 @@ name: BUILD d-ai-langgraph-multiagent
 on:
   push:
     paths:
-      - 'd-ai-langgraph-multiagent/src/multi-agent/**'
+      - 'd-ai-langgraph-aca-azmonitor/src/multi-agent/**'
   workflow_dispatch: 
 
 permissions:
