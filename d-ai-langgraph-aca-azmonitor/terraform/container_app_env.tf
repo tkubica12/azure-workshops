@@ -1,4 +1,4 @@
-resource "azapi_resource" "main" {
+resource "azapi_resource" "capp_env" {
   type      = "Microsoft.App/managedEnvironments@2023-11-02-preview"
   name      = "cae-${local.base_name}"
   location  = azurerm_resource_group.main.location

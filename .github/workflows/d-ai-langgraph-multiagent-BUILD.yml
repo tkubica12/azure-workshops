@@ -28,6 +28,6 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
-        context: d-ai-async/worker
+        context: d-ai-langgraph-aca-azmonitor/src/multi-agent
         push: true
         tags: ghcr.io/${{ github.repository }}/d-ai-langgraph-multiagent:latest
