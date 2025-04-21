@@ -28,6 +28,7 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 - [AI Inference SDK with monitoring](./d-ai-inference-sdk-with-monitoring/)
 - [Advanced RAG patterns](./d-ai-rag/)
 - [Browser Use Agent](./d-ai-browser-use/)
+- [Lang Graph multi-agent system with UI, OpenTelemetry, Azure Monitor and Container Apps](./d-ai-langgraph-aca-azmonitor/)
   
 ## Other demos
 - [Azure Managed Redis](./d-azure-managed-redis/)
