@@ -4,7 +4,6 @@ import datetime
 
 # Third-party imports
 from dotenv import load_dotenv
-from colorama import init, Fore, Style
 from langgraph.graph import MessagesState, END, StateGraph, START
 from langgraph.types import Command
 from langgraph.prebuilt import create_react_agent
@@ -36,7 +35,6 @@ else:
     from config import user_message
 
 load_dotenv()
-init(autoreset=True)
 
 options = list(agents.keys())
 
