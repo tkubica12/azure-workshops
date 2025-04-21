@@ -25,7 +25,7 @@ locals {
       sku_capacity = 100
     }
     "gpt-4.1" = {
-      model_id     = "gpt-4.1-mini"
+      model_id     = "gpt-4.1"
       version      = "2025-04-14"
       sku_name     = "GlobalStandard"
       sku_capacity = 100
@@ -106,7 +106,7 @@ locals {
       {
         for model_name, model in local.openai_models :
         model_name => {
-          endpoint = "${azapi_resource.ai_service.output.properties.endpoints["Azure AI Model Inference API"]}/openai/deployments/${model_name}"
+          endpoint = "${azapi_resource.ai_service.output.properties.endpoints["Azure AI Model Inference API"]}"
           key      = data.azapi_resource_action.openai_model_key.output.key1
         }
       }
