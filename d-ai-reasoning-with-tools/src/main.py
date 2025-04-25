@@ -21,7 +21,7 @@ token_provider = get_bearer_token_provider(
 client = AzureOpenAI(
   azure_endpoint = AZURE_OPENAI_ENDPOINT, 
   azure_ad_token_provider=token_provider,
-  api_version="2025-03-01-preview"
+  api_version="2025-04-01-preview"
 )
 
 # Tool that model can use, it is static for demo purposes
@@ -73,7 +73,12 @@ while True:
         model=MODEL_NAME,
         input=input_messages,
         tools=tools,
-        stream=True
+        stream=True,
+        store=True,
+        reasoning={
+            "effort":  "medium",        # optional: low | medium | high
+            "summary": "detailed",      # auto | concise | detailed
+        },
     )
 
     # Collect tool outputs to send back after this streaming pass
@@ -91,7 +96,7 @@ while True:
             if event.item.type == 'function_call':
                 print(f"\n### Calling {event.item.name}, arguments: ", end='', flush=True)
             elif event.item.type == 'reasoning':
-                print(f"\n$$$ Reasoning $$$")
+                print(f"\n🧠 Reasoning")
             elif event.item.type == 'message':
                 print("*** Responding ***")
             else:
@@ -111,7 +116,9 @@ while True:
                     "output": next_item
                 })
             elif event.item.type == 'reasoning':
-                print("$$$ Finished reasoning. $$$")
+                for seg in event.item.summary:
+                    print("🧠", seg.text)
+                print("🧠 Finished reasoning")
                 input_messages.append(event.item)    # keep reasoning in history
             elif event.item.type == 'message':
                 print("\n\n*** Finished responding. ***")
