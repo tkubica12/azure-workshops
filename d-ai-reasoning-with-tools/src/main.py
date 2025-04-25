@@ -18,6 +18,25 @@ client = AzureOpenAI(
   api_version="2025-03-01-preview"
 )
 
+def get_next_item(current_item):
+    """
+    Returns the next item in the static chain of cities to visit.
+    Special items:
+      - '<START>': returns the first item in the chain.
+      - '<END>': returned if there is no next item.
+    """
+    chain = ["Prague", "Vienna", "Tokyo", "Bangkok", "Paris"]
+    if current_item == "<START>":
+        return chain[0]
+    try:
+        idx = chain.index(current_item)
+        if idx + 1 < len(chain):
+            return chain[idx + 1]
+        else:
+            return "<END>"
+    except ValueError:
+        return "<END>"
+
 response = None
 response_id = None
 try:
