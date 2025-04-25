@@ -5,15 +5,19 @@ import os
 import json
 import itertools
 
+# Load environment variables from .env file
 load_dotenv()
 
+# Get Azure OpenAI endpoint and model name from environment variables
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
 MODEL_NAME = os.getenv("MODEL_NAME")
 
+# Set up Azure AD token provider for authentication
 token_provider = get_bearer_token_provider(
     DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
 )
 
+# Initialize Azure OpenAI client
 client = AzureOpenAI(
   azure_endpoint = AZURE_OPENAI_ENDPOINT, 
   azure_ad_token_provider=token_provider,
@@ -39,6 +43,7 @@ def get_next_item(current_item):
     except ValueError:
         return "<END>"
 
+# Define available tools for the model
 tools = [{
     "type": "function",
     "name": "get_next_item",
@@ -56,9 +61,13 @@ tools = [{
     }
 }]
 
+# Initialize response tracking variables
+response_id = None
 input_messages = [{"role": "user", "content": "Gather full chain of cities to visit."}]
 
-while True:                             # loop until the model stops calling tools
+# Loop until the model stops calling tools
+while True: 
+    # Create a streaming response from the model
     response = client.responses.create(
         model=MODEL_NAME,
         input=input_messages,
@@ -69,6 +78,7 @@ while True:                             # loop until the model stops calling too
     # Collect tool outputs to send back after this streaming pass
     pending_outputs = []
 
+    # Process streaming events from the model
     for event in response:
         if hasattr(event, "response_id"):
             response_id = event.response_id
@@ -78,9 +88,11 @@ while True:                             # loop until the model stops calling too
             print(event.delta, end='', flush=True)
         elif event.type == 'response.output_item.added':
             if event.item.type == 'function_call':
-                print(f"[DEBUG] Calling {event.item.name}, arguments: ", end='', flush=True)
+                print(f"\n### Calling {event.item.name}, arguments: ", end='', flush=True)
             elif event.item.type == 'reasoning':
-                print(f"[DEBUG] Start reasoning")
+                print(f"\n$$$ Reasoning $$$")
+            elif event.item.type == 'message':
+                print("*** Responding ***")
             else:
                 print(f"[DEBUG] Added item: {event.item}")
         elif event.type == 'response.output_item.done':
@@ -88,7 +100,7 @@ while True:                             # loop until the model stops calling too
                 # 1. Execute tool
                 current_item = json.loads(event.item.arguments)['current_item']
                 next_item = get_next_item(current_item)
-                print(f"\n[DEBUG] Function call result: {next_item}")
+                print(f"\n### Function call result: {next_item}")
 
                 # 2. Remember messages to send back in next request
                 input_messages.append(event.item)                  # the call itself
@@ -98,8 +110,10 @@ while True:                             # loop until the model stops calling too
                     "output": next_item
                 })
             elif event.item.type == 'reasoning':
-                print(f"\n[DEBUG] Done reasoning")
-                input_messages.append(event.item)    # <-- keep reasoning in history
+                print("$$$ Finished reasoning. $$$")
+                input_messages.append(event.item)    # keep reasoning in history
+            elif event.item.type == 'message':
+                print("\n\n*** Finished responding. ***")
             else:
                 print(f"\n[DEBUG] Done item: {event.item}")        
     # After stream ends, append all outputs (if any) and decide whether to loop again
@@ -107,6 +121,6 @@ while True:                             # loop until the model stops calling too
         break                                   # no more tool calls → finished
     input_messages.extend(pending_outputs)      # add results, then loop
 
-# Cleanup
+# Cleanup: delete the response if it exists
 if response_id is not None:
     client.responses.delete(response_id)
