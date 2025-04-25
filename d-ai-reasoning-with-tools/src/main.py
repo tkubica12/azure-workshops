@@ -64,7 +64,7 @@ tools = [{
 
 # Initialize response tracking variables
 response_id = None
-input_messages = [{"role": "user", "content": "Gather full chain of cities to visit."}]
+input_messages = [{"role": "user", "content": "Gather full chain of cities to visit. When using the tool you must make sure that it works by going back in opposite direction once you reach the end of the chain and this way verify results. Make sure to provide details about your reasoning on each step."}]
 
 # Loop until the model stops calling tools
 while True: 
@@ -76,7 +76,7 @@ while True:
         stream=True,
         store=True,
         reasoning={
-            "effort":  "medium",        # optional: low | medium | high
+            "effort":  "high",          # optional: low | medium | high
             "summary": "detailed",      # auto | concise | detailed
         },
     )
@@ -94,11 +94,11 @@ while True:
             print(event.delta, end='', flush=True)
         elif event.type == 'response.output_item.added':
             if event.item.type == 'function_call':
-                print(f"\n### Calling {event.item.name}, arguments: ", end='', flush=True)
+                print(f"\n🔧 Calling {event.item.name}, arguments: ", end='', flush=True)
             elif event.item.type == 'reasoning':
                 print(f"\n🧠 Reasoning")
             elif event.item.type == 'message':
-                print("*** Responding ***")
+                print("\n💬 Responding")
             else:
                 print(f"[DEBUG] Added item: {event.item}")
         elif event.type == 'response.output_item.done':
@@ -106,7 +106,7 @@ while True:
                 # 1. Execute tool
                 current_item = json.loads(event.item.arguments)['current_item']
                 next_item = get_next_item(current_item)
-                print(f"\n### Function call result: {next_item}")
+                print(f"\n🔧 Function call result: {next_item}")
 
                 # 2. Remember messages to send back in next request
                 input_messages.append(event.item)                  # the call itself
@@ -121,7 +121,7 @@ while True:
                 print("🧠 Finished reasoning")
                 input_messages.append(event.item)    # keep reasoning in history
             elif event.item.type == 'message':
-                print("\n\n*** Finished responding. ***")
+                print("\n\n💬 Finished responding.")
             else:
                 print(f"\n[DEBUG] Done item: {event.item}")        
     # After stream ends, append all outputs (if any) and decide whether to loop again
