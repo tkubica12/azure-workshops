@@ -29,6 +29,7 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 - [Advanced RAG patterns](./d-ai-rag/)
 - [Browser Use Agent](./d-ai-browser-use/)
 - [Lang Graph multi-agent system with UI, OpenTelemetry, Azure Monitor and Container Apps](./d-ai-langgraph-aca-azmonitor/)
+- [AI reasoning with tools](./d-ai-reasoning-with-tools/)
   
 ## Other demos
 - [Azure Managed Redis](./d-azure-managed-redis/)
