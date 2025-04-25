@@ -24,6 +24,7 @@ client = AzureOpenAI(
   api_version="2025-03-01-preview"
 )
 
+# Tool that model can use, it is static for demo purposes
 def get_next_item(current_item):
     """
     Returns the next item in the static chain of cities to visit.
