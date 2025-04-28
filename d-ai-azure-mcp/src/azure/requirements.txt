@@ -1,0 +1,4 @@
+semantic-kernel
+python-dotenv
+azure-identity
+mcp

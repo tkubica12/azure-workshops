@@ -1,0 +1,73 @@
+INFO:azure.identity._credentials.environment:No environment configuration found.
+INFO:azure.identity._credentials.managed_identity:ManagedIdentityCredential will use IMDS
+INFO:azure.core.pipeline.policies.http_logging_policy:Request URL: 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=REDACTED&resource=REDACTED'
+Request method: 'GET'
+Request headers:
+    'User-Agent': 'azsdk-python-identity/1.21.0 Python/3.12.9 (Windows-11-10.0.26100-SP0)'
+No body was attached to the request
+INFO:azure.identity._credentials.chained:DefaultAzureCredential acquired a token from AzureCliCredential
+
+🧑 User: Načti mé repozitáře. Měl by tam být jeden s copilot demo a v něm najdi Issue týkající se PDF
+INFO:httpx:HTTP Request: POST https://ai-swhub246012521506.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-04-01-preview "HTTP/1.1 200 OK"
+INFO:semantic_kernel.connectors.ai.open_ai.services.open_ai_handler:OpenAI usage: CompletionUsage(completion_tokens=13, prompt_tokens=3517, total_tokens=3530, completion_tokens_details=CompletionTokensDetails(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0), prompt_tokens_details=PromptTokensDetails(audio_tokens=0, cached_tokens=3456))
+INFO:semantic_kernel.connectors.ai.chat_completion_client_base:processing 1 tool calls in parallel.
+INFO:semantic_kernel.kernel:Calling Github-get_me function with args: {}
+INFO:semantic_kernel.functions.kernel_function:Function Github-get_me invoking.
+INFO:semantic_kernel.functions.kernel_function:Function Github-get_me succeeded.
+INFO:semantic_kernel.functions.kernel_function:Function completed. Duration: 0.363785s
+INFO:httpx:HTTP Request: POST https://ai-swhub246012521506.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-04-01-preview "HTTP/1.1 200 OK"
+INFO:semantic_kernel.connectors.ai.open_ai.services.open_ai_handler:OpenAI usage: CompletionUsage(completion_tokens=26, prompt_tokens=4238, total_tokens=4264, completion_tokens_details=CompletionTokensDetails(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0), prompt_tokens_details=PromptTokensDetails(audio_tokens=0, cached_tokens=3456))
+INFO:semantic_kernel.connectors.ai.chat_completion_client_base:processing 1 tool calls in parallel.
+INFO:semantic_kernel.kernel:Calling Github-search_repositories function with args: {"query":"copilot demo user:tkubica12"}
+INFO:semantic_kernel.functions.kernel_function:Function Github-search_repositories invoking.
+INFO:semantic_kernel.functions.kernel_function:Function Github-search_repositories succeeded.
+INFO:semantic_kernel.functions.kernel_function:Function completed. Duration: 1.277416s
+INFO:httpx:HTTP Request: POST https://ai-swhub246012521506.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-04-01-preview "HTTP/1.1 200 OK"
+INFO:semantic_kernel.connectors.ai.open_ai.services.open_ai_handler:OpenAI usage: CompletionUsage(completion_tokens=33, prompt_tokens=7375, total_tokens=7408, completion_tokens_details=CompletionTokensDetails(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0), prompt_tokens_details=PromptTokensDetails(audio_tokens=0, cached_tokens=0))
+INFO:semantic_kernel.connectors.ai.chat_completion_client_base:processing 1 tool calls in parallel.
+INFO:semantic_kernel.kernel:Calling Github-list_issues function with args: {"owner":"tkubica12","repo":"gh-copilot-demo","state":"open"}
+INFO:semantic_kernel.functions.kernel_function:Function Github-list_issues invoking.
+INFO:semantic_kernel.functions.kernel_function:Function Github-list_issues succeeded.
+INFO:semantic_kernel.functions.kernel_function:Function completed. Duration: 0.380543s
+INFO:httpx:HTTP Request: POST https://ai-swhub246012521506.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-04-01-preview "HTTP/1.1 500 model_error"
+INFO:openai._base_client:Retrying request to /chat/completions in 0.461600 seconds
+INFO:httpx:HTTP Request: POST https://ai-swhub246012521506.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-04-01-preview "HTTP/1.1 200 OK"
+INFO:semantic_kernel.connectors.ai.open_ai.services.open_ai_handler:OpenAI usage: CompletionUsage(completion_tokens=166, prompt_tokens=148861, total_tokens=149027, completion_tokens_details=CompletionTokensDetails(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0), prompt_tokens_details=PromptTokensDetails(audio_tokens=0, cached_tokens=128384))
+
+🤖 Assistant: Ve vašem repozitáři **tkubica12/gh-copilot-demo** je otevřený Issue týkající se PDF:
+
+### Issue #7: Implement support for PDF processing
+- **Popis:** AI řešení by mělo přijímat PDF jako vstupní formát, sumarizovat jeho obsah a uložit jej do databáze.
+- **Vytvořil:** tkubica12
+- **Datum vytvoření:** 19. 2. 2025
+- **URL:** [https://github.com/tkubica12/gh-copilot-demo/issues/7](https://github.com/tkubica12/gh-copilot-demo/issues/7)
+
+Pokud potřebujete další informace o tomto Issue, dejte vědět!
+
+🧑 User: Bude potřeba vytvořit další issue, které se bude týkat podpory exportu do Microsoft Word formátu. Připrav to v angličtině a založ ho.
+INFO:httpx:HTTP Request: POST https://ai-swhub246012521506.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-04-01-preview "HTTP/1.1 500 model_error"
+INFO:openai._base_client:Retrying request to /chat/completions in 0.441835 seconds
+INFO:httpx:HTTP Request: POST https://ai-swhub246012521506.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-04-01-preview "HTTP/1.1 200 OK"
+INFO:semantic_kernel.connectors.ai.open_ai.services.open_ai_handler:OpenAI usage: CompletionUsage(completion_tokens=115, prompt_tokens=149087, total_tokens=149202, completion_tokens_details=CompletionTokensDetails(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0), prompt_tokens_details=PromptTokensDetails(audio_tokens=0, cached_tokens=107904))
+INFO:semantic_kernel.connectors.ai.chat_completion_client_base:processing 1 tool calls in parallel.
+INFO:semantic_kernel.kernel:Calling Github-create_issue function with args: {"owner":"tkubica12","repo":"gh-copilot-demo","title":"Implement support for exporting to Microsoft Word format","body":"The solution should support exporting summarized or processed content into a Microsoft Word (.docx) file. The generated Word files should maintain basic formatting such as headings, bold, and lists. Export functionality should be available through the API and stored documents should be accessible for download. Consider security and compatibility best practices for handling Word documents.","assignees":["tkubica12"]}
+INFO:semantic_kernel.functions.kernel_function:Function Github-create_issue invoking.
+INFO:semantic_kernel.functions.kernel_function:Function Github-create_issue succeeded.
+INFO:semantic_kernel.functions.kernel_function:Function completed. Duration: 1.006577s
+INFO:httpx:HTTP Request: POST https://ai-swhub246012521506.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-04-01-preview "HTTP/1.1 200 OK"
+INFO:semantic_kernel.connectors.ai.open_ai.services.open_ai_handler:OpenAI usage: CompletionUsage(completion_tokens=165, prompt_tokens=151506, total_tokens=151671, completion_tokens_details=CompletionTokensDetails(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0), prompt_tokens_details=PromptTokensDetails(audio_tokens=0, cached_tokens=120704))
+
+🤖 Assistant: Nové issue bylo úspěšně vytvořeno:
+
+---
+
+### Implement support for exporting to Microsoft Word format
+
+**Popis:**
+The solution should support exporting summarized or processed content into a Microsoft Word (.docx) file. The generated Word files should maintain basic formatting such as headings, bold, and lists. Export functionality should be available through the API and stored documents should be accessible for download. Consider security and compatibility best practices for handling Word documents.
+
+Assigned to: tkubica12
+
+Odkaz: [https://github.com/tkubica12/gh-copilot-demo/issues/12](https://github.com/tkubica12/gh-copilot-demo/issues/12)
+
+Pokud chceš issue upravit nebo upřesnit specifikaci, dej mi vědět!
