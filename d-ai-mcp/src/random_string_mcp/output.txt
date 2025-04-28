@@ -1,0 +1,43 @@
+
+🧑 User: Ahoj, vegeneruj 5 náhodných řetězců o délce 12 znaků obsahujících jen velká písmena a
+ číslice
+INFO:httpx:HTTP Request: POST https://ai-swhub246012521506.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-04-01-preview "HTTP/1.1 200 OK"
+INFO:semantic_kernel.connectors.ai.open_ai.services.open_ai_handler:OpenAI usage: CompletionUsage(completion_tokens=182, prompt_tokens=242, total_tokens=424, completion_tokens_details=CompletionTokensDetails(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0), prompt_tokens_details=PromptTokensDetails(audio_tokens=0, cached_tokens=0))
+INFO:semantic_kernel.connectors.ai.chat_completion_client_base:processing 5 tool calls in parallel.
+INFO:semantic_kernel.kernel:Calling random_string-random_string function with args: {"length": 12, "lower": false, "upper": true, "numeric": true, "special": false}
+INFO:semantic_kernel.functions.kernel_function:Function random_string-random_string invoking.
+INFO:semantic_kernel.kernel:Calling random_string-random_string function with args: {"length": 12, "lower": false, "upper": true, "numeric": true, "special": false}
+INFO:semantic_kernel.functions.kernel_function:Function random_string-random_string invoking. 
+INFO:semantic_kernel.kernel:Calling random_string-random_string function with args: {"length": 12, "lower": false, "upper": true, "numeric": true, "special": false}
+INFO:semantic_kernel.functions.kernel_function:Function random_string-random_string invoking.
+INFO:semantic_kernel.kernel:Calling random_string-random_string function with args: {"length": 12, "lower": false, "upper": true, "numeric": true, "special": false}
+INFO:semantic_kernel.functions.kernel_function:Function random_string-random_string invoking. 
+INFO:semantic_kernel.kernel:Calling random_string-random_string function with args: {"length": 12, "lower": false, "upper": true, "numeric": true, "special": false}
+INFO:semantic_kernel.functions.kernel_function:Function random_string-random_string invoking. 
+INFO:httpx:HTTP Request: POST http://localhost:8000/messages/?session_id=572b74bf967f471aa654d9835f2c8f61 "HTTP/1.1 202 Accepted"
+INFO:semantic_kernel.functions.kernel_function:Function random_string-random_string succeeded.
+INFO:semantic_kernel.functions.kernel_function:Function completed. Duration: 0.292554s        
+INFO:httpx:HTTP Request: POST http://localhost:8000/messages/?session_id=572b74bf967f471aa654d9835f2c8f61 "HTTP/1.1 202 Accepted"
+INFO:semantic_kernel.functions.kernel_function:Function random_string-random_string succeeded.
+INFO:semantic_kernel.functions.kernel_function:Function completed. Duration: 0.297521s        
+INFO:httpx:HTTP Request: POST http://localhost:8000/messages/?session_id=572b74bf967f471aa654d9835f2c8f61 "HTTP/1.1 202 Accepted"
+INFO:semantic_kernel.functions.kernel_function:Function random_string-random_string succeeded.
+INFO:semantic_kernel.functions.kernel_function:Function completed. Duration: 0.297285s        
+INFO:httpx:HTTP Request: POST http://localhost:8000/messages/?session_id=572b74bf967f471aa654d9835f2c8f61 "HTTP/1.1 202 Accepted"
+INFO:semantic_kernel.functions.kernel_function:Function random_string-random_string succeeded.
+INFO:semantic_kernel.functions.kernel_function:Function completed. Duration: 0.300305s        
+INFO:httpx:HTTP Request: POST http://localhost:8000/messages/?session_id=572b74bf967f471aa654d9835f2c8f61 "HTTP/1.1 202 Accepted"
+INFO:semantic_kernel.functions.kernel_function:Function random_string-random_string succeeded.
+INFO:semantic_kernel.functions.kernel_function:Function completed. Duration: 0.303334s        
+INFO:httpx:HTTP Request: POST https://ai-swhub246012521506.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-04-01-preview "HTTP/1.1 200 OK"
+INFO:semantic_kernel.connectors.ai.open_ai.services.open_ai_handler:OpenAI usage: CompletionUsage(completion_tokens=103, prompt_tokens=697, total_tokens=800, completion_tokens_details=CompletionTokensDetails(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0), prompt_tokens_details=PromptTokensDetails(audio_tokens=0, cached_tokens=0))
+
+🤖 Assistant: Zde je 5 náhodných řetězců o délce 12 znaků, které obsahují pouze velká písmena a číslice:
+
+1. KEWI4Q2TIS2L
+2. GCI0VQD26BF1
+3. T3XZ025PLZQF
+4. ANKO29REQVNF
+5. S45W4XYQLCVB
+
+Pokud budeš potřebovat další, dej vědět!
