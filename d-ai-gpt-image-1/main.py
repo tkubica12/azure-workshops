@@ -7,13 +7,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Define the prompt and other parameters
-prompt = "Photorealistic picture of wooden robot writing code alone that is stressed, panics, and is about to explode as code is not working."
-size = "1024x1024"         # Options: "1536x1024", "1024x1536", "1024x1024"
+prompt = "Photorealistic detailed double portrait of wooden boxed-head robot in black hoodie with thin woman coder with thick glasses with yellow hoodie. Picture taken futuristic office, very cinematic and hyper-realistic, 2.0f."
+size = "1024x1536"         # Options: "1536x1024", "1024x1536", "1024x1024"
 quality = "high"           # Options: "high", "medium", "low"
-background = "transparent" # Options: "transparent", "opaque", "auto"
-batch_size = 4             # Number of images to generate per variant
-variants = 10              # Number of prompt variants
-prefix = "roboalone"       # Prefix for output filenames
+background = "opaque"      # Options: "transparent", "opaque", "auto"
+batch_size = 2             # Number of images to generate per variant
+variants = 10               # Number of prompt variants
+prefix = "medal"           # Prefix for output filenames
 folder = "images"          # Folder to save images
 max_retries = 15           # max attempts for image generation
 backoff_factor = 3         # base seconds for exponential backoff
@@ -34,13 +34,13 @@ llm_headers = {
 }
 
 def get_prompt_variant(base_prompt, variant_num):
-    """Ask the LLM to produce a slightly modified version of the prompt."""
     payload = {
         "messages": [
-            {"role": "system", "content": "You are a helpful assistant that revises image-generation prompts."},
-            {"role": "user", "content": f"Original prompt: \"{base_prompt}\". Produce a modestly altered version for variant {variant_num}."}
+            {"role": "system", "content": "You are a helpful assistant that revises image-generation prompts by enhancing it, be more descriptive, try various modifications and versions."},
+            {"role": "user", "content": f"Original prompt: \"{base_prompt}\". Produce a significantly altered version for variant {variant_num}."}
         ],
-        "n": 1
+        "n": 1,
+        "temperature": 1.0
     }
     resp = requests.post(llm_url, headers=llm_headers, json=payload)
     if resp.status_code == 200:
@@ -55,10 +55,9 @@ variant_prompts = [
     for i in range(1, variants + 1)
 ]
 
-
-
 # Generate images for each variant
 for v_num, var_prompt in enumerate(variant_prompts, start=1):
+    print(f"\nVariant v{v_num} prompt:\n{var_prompt}\n")
     data = {
         "prompt": var_prompt,
         "size": size,
