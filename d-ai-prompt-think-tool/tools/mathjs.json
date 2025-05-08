@@ -1,0 +1,159 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+      "title": "math.js Web Service API",
+      "description": "RESTful API for evaluating mathematical expressions using math.js. Evaluations are limited to 10 seconds per request and 10,000 requests per day.",
+      "version": "1.0.0",
+      "contact": {
+        "name": "math.js",
+        "url": "https://mathjs.org/"
+      }
+    },
+    "servers": [
+      {
+        "url": "http://api.mathjs.org/v4/"
+      }
+    ],
+    "paths": {
+      "/": {
+        "post": {
+          "operationId": "evaluateMathExpressions",
+          "summary": "Evaluate mathematical expressions",
+          "description": "Evaluate one or more mathematical expressions using math.js. The request body must be JSON.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "expr": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      ],
+                      "description": "A string or array of strings containing the expressions to evaluate."
+                    },
+                    "precision": {
+                      "type": "number",
+                      "description": "Number of significant digits in formatted output."
+                    }
+                  },
+                  "required": [
+                    "expr"
+                  ]
+                },
+                "examples": {
+                  "SingleExpression": {
+                    "summary": "Single expression",
+                    "value": {
+                      "expr": "2+3*sqrt(4)"
+                    }
+                  },
+                  "MultipleExpressions": {
+                    "summary": "Multiple expressions",
+                    "value": {
+                      "expr": [
+                        "a = 1.2 * (2 + 4.5)",
+                        "a / 2",
+                        "5.08 cm in inch"
+                      ],
+                      "precision": 14
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful evaluation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "result": {
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "description": "Result(s) of the evaluated expression(s)."
+                      },
+                      "error": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Error message, or null if successful."
+                      }
+                    }
+                  },
+                  "examples": {
+                    "SuccessSingle": {
+                      "summary": "Single expression result",
+                      "value": {
+                        "result": "14",
+                        "error": null
+                      }
+                    },
+                    "SuccessMultiple": {
+                      "summary": "Multiple expressions result",
+                      "value": {
+                        "result": [
+                          "8.4",
+                          "4.2",
+                          "2"
+                        ],
+                        "error": null
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid request or evaluation error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "result": {
+                        "type": "null"
+                      },
+                      "error": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "example": {
+                    "result": null,
+                    "error": "Undefined symbol x"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {}
+    }
+  }
