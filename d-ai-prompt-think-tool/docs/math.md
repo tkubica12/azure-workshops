@@ -11,7 +11,7 @@
 
 User Prompt:
 
-> Calculate 7952 * 9823
+``` Calculate 7952 * 9823 ```
 
 Correct answer is 78,112,496
 
@@ -71,6 +71,8 @@ You are math professor.
 Do it step by step and explain your thinking at each step. Only then print the final answer.
 ```
 
+See [example output](../outputs/math_phi_prompt1.md)
+
 Heavy system prompt with guidance, thinking process and examples (**correct** answer):
 ```
 # ROLE
@@ -124,6 +126,8 @@ Finally, add this result to 10,344,110,000:
 295546 × 35569 = 10,512,275,674
 ```
 
+See [example output](../outputs/math_phi_prompt2.md)
+
 How I got this prompt? Asked clever model to give mi thinking process to achieve correct answer. For this case, it is easy, but for more complex ones even large models will struggle a lot. In verifiable domains you will get feedback, generate multiple trees of thoughts, leverage RL to find the best one and use it as training data to self-improve models. This is how reasoning models are trained and we will see how much better they are in math tasks.
 
 
@@ -153,12 +157,7 @@ If the tests fail, analyze previous calculation steps to identify the issue.
 Re-run calculation, do it correctly, and output final answer.
 ```
 
-
-```
-Run series of different self-tests to check the correctness of the calculation.
-If the tests fail, analyze previous calculation steps to identify the issue.
-Re-run calculation, do it correctly, and output final answer.
-```
+See [example output](../outputs/math_reflection.md)
 
 ## 4. Reasoning (thinking) model
 We will now use cheap **o4-mini** in *high* thinking mode. But first try more expensive non-thinking **gpt-4.1**.
@@ -178,6 +177,8 @@ You are math professor.
 Do it step by step and explain your thinking at each step. Only than print the final answer.
 ```
 
+See [example output](../outputs/math_gpt41.md)
+
 Switch to **o4-mini** with high thinking mode. Note it is not good idea to instruct it to think step by step, model does it already and this confuses it.
 
 System prompt (**correct** answer):
@@ -185,6 +186,8 @@ System prompt (**correct** answer):
 # ROLE:
 You are math professor.
 ```
+
+See [example output](../outputs/math_o4mini.md)
 
 ## 5. Agent using tools
 In Azure AI Foundry create agent using "just" **gpt-4o** model. We will try adding two tools:
