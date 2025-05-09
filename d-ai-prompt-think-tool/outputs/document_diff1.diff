@@ -1,0 +1,41 @@
+@@ -1,7 +1,11 @@  
+ # Understanding Sharding: The Online Game Example  
++  
++## Introduction  
++*Subtitle: What is sharding and why does it matter?*  
+   
+-    ## Introduction  
+     **Sharding** is a technique used in computer science, especially in databases and large-scale applications, to split data or workload into smaller, more manageable pieces called **shards**. This helps systems handle more users, data, or requests efficiently.  
+     Let’s explore sharding using the example of an **online multiplayer game** with players from all over the world.  
+     ---  
+-    ## What is Sharding?  
++## What is Sharding?  
++*Subtitle: Breaking big systems into smaller parts*  
+@@ -9,7 +13,11 @@  
+-    ## The Online Game Scenario  
++## The Online Game Scenario  
++*Subtitle: Why do games need sharding?*  
+@@ -27,7 +35,11 @@  
+-    ## How Sharding Works in the Game  
++## How Sharding Works in the Game  
++*Subtitle: Different ways to split the game world*  
+@@ -54,7 +66,11 @@  
+-    ## Visualizing Sharding  
++## Visualizing Sharding  
++*Subtitle: How sharding looks in practice*  
+@@ -65,7 +81,11 @@  
+-    ## End-to-End Example  
++## End-to-End Example  
++*Subtitle: Sharding in action for a player*  
+@@ -74,7 +94,11 @@  
+-    ## Real-World Applications  
++## Real-World Applications  
++*Subtitle: Where is sharding used?*  
+@@ -81,7 +105,11 @@  
+-    ## Summary  
++## Summary  
++*Subtitle: Key takeaways about sharding*  
+@@ -91,6 +119,7 @@  
+     **Remember:**  
+     Whenever you see a massive online service running smoothly, sharding is probably working behind the scenes!  
++
