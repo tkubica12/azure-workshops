@@ -57,9 +57,21 @@ See [example output](../outputs/analyze_summary_social.md)
 User Prompt:
 
 ```
-Here is table with LLMs, prices and score in various benchmarks. 
+Here is table with animals and their features.
+
+<table>
+
+</table>
+
+Always answer only based on data from the table, never add any additional information or context.
+
+What animals are big yet run very fast?
+
+```
 
 
+User Prompt:
 
-
+```
+Are there any faster than those while being very small? Birds and sea animals do not count.
 ```

@@ -22,3 +22,7 @@ See [full guide](./docs/creating_documents.md) for more details.
 ## Story of analyzing data
 TBD: prompting and using tools fo data extraction, analysis, summarization and visualization.
 
+## Resources
+- [ShumerPrompt](https://shumerprompt.com/)
+- [How to prompt reasoning models effectively](https://platform.openai.com/docs/guides/reasoning-best-practices#how-to-prompt-reasoning-models-effectively)
+- [GPT-4.1 Prompting Guide](https://cookbook.openai.com/examples/gpt4-1_prompting_guide)
