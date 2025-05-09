@@ -60,38 +60,49 @@ You are computer scientist teacher with 10 years of experience and ability to ex
 See [example output](../outputs/document_explicit_prompt.md)
 
 # 2. Iterations over document
-Newer models from OpenAI (4.1) have been trained to better understand diff formats which makes iterative process of document creation easier.
+Current LLMs are "better" at reading than writing (see input vs. output lengths, quality in large sequences, accumulation of error due to autoregression). You might want to work on your document iteratively. But how?
 
 System prompt:
 
 ```
-You are a computer scientist.  
-When given a document, apply the requested edits and output only a structure similar to unified diff format.  
-Always remove any trailing whitespace.
+# Role
+You are computer scientist.
 
-Strictly follow this format:
+# Instructions
+You will be given a document with user instructions what to change or enhance. Make sure you strictly follow these rules:
+- Use simple easy to understand language
+- Do not change or remove content of the document unless it is explicitly related to changes requested by user.
+- Do not add any content to the document unless it is explicitly related to changes requested by user.
+- Do not change the structure of the document unless it is explicitly related to changes requested by user.
+- Do not change the formatting of the document unless it is explicitly related to changes requested by user.
 
-  1. Do not emit any file headers, so no "---" or "+++" lines
-  2. Every change should have hulk like: @@ -1,99999 +1,99999 @@
-  3. Be explicit about new line character by using %0A
-  4. For each edit, emit following lines:
-    - Include 3 lines of unchanged context before and after each change (or fewer at file boundaries, but no more).
-    - Prefix unchanged lines with a space, removed lines with '-', added lines with '+'.
-
-Do not output anything except the diff.
+Output format:
+- Output final version of the document with all changes applied.
+- Do not add any additional comments or explanations.
 ```
 
 User Prompt:
 
 ```
-Add subtitle to each ## level chapter
+Add an italic subtitle to every '## ' level heading.
+Insert blank line before and after that subtitle.
 
 <document>
 
 </document>
-
-
 ```
 
 Put content of [example output](../outputs/document_explicit_prompt.md) into <document> tag.
 
+See [example output](../outputs/document_iteration.md)
+
+There are few issues with this approach:
+- It is not very efficient - LLM need to output full document costing money
+- You may reach output limit of LLM quickly
+- Output quality may degrade due to accumulation of errors during autoregression
+- LLMs might introduce changes to section of documents that you have not intended to change
+- To get diff of changes you need to use diff tool yourself
+
+Another approach is to ask LLM to output only changes. Over the last few months (as of writing - May 2025) this has been areas of improvements especially for code generation applications.
+
+See [code](../utils/diff/main.py), [changes](../utils/diff/patch.json), and [example output](../utils/diff/output.md) for more details.
