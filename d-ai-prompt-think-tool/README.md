@@ -13,4 +13,12 @@ See [full guide](./docs/math.md) for more details.
 ## Story of writing insightful documents
 See [full guide](./docs/creating_documents.md) for more details.
 
+1. How being very **explicit** in prompt will help you get what you want?
+2. **Iterations** over document - from copy paste or "print it all" to using diffs.
+3. Adding **context** always helps and why your site should have llms.txt file.
+4. Using **tools** to retrieve context automatically.
+5. Iterate over tools either orchestrated, multi-agent or preferably while thinking - this is how **deep research** works and goes WAY beyond just reasoning models.
+
 ## Story of analyzing data
+TBD: prompting and using tools fo data extraction, analysis, summarization and visualization.
+

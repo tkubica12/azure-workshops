@@ -3,7 +3,7 @@
 2. **Iterations** over document - from copy paste or "print it all" to using diffs.
 3. Adding **context** always helps and why your site should have llms.txt file.
 4. Using **tools** to retrieve context automatically.
-5. Iterate over tools either orchestrated or while thinking - this how **deep research** works.
+5. Iterate over tools either orchestrated, multi-agent or preferably while thinking - this is how **deep research** works and goes WAY beyond just reasoning models.
 ---
 
 # 1. Being explicit about what you want
@@ -192,3 +192,16 @@ As context is 400k tokens we cannot use playground, but see [example code](../ut
 
 See [example output](../outputs/document_with_context.md)
 Citations, precise information, less hallucinations, and more.
+
+## 4. Using tools to retrieve context automatically
+We will now go to Azure AI Foundry agents playground and test two tools:
+
+- **Document retrieval** - retrieve information from a documents by creating vector stored (semantically indexed knowledge base)
+- **Web search** - search the web for information
+
+## 5. Iterate over tools either orchestrated or while thinking - this how deep research works
+Showcasing this is beyond this introduction, but few words here:
+- Latest OpenAI thinking models such as **o3** or **o4-mini** are capable of **calling tools while thinking** basically enabling **iterative research** without exiting thinking loop.
+- You can also **orchestrate** multiple LLM calls with tools (outside of thinking loop)
+- You might instruct and orchestrate **planning and feedback with multiple LLM calls** -> create a strategy, create a plan, execute the plan, evaluate outcomes of each step, revise the plan and repeat until answer is satisfactory.
+- You can also do this with separate AI agents (eg. via A2A standard) to achieve cross-functional or even cross-organizational **collaboration of AI agents in self-organizing way** (do not confuse multi-agent systems with just orchestration of LLM calls in predictable flow).
