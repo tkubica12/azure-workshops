@@ -4,7 +4,6 @@
 3. Adding **context** always helps and why your site should have llms.txt file.
 4. Using **tools** to retrieve context automatically.
 5. Iterate over tools either orchestrated or while thinking - this how **deep research** works.
-6. 
 ---
 
 # 1. Being explicit about what you want
@@ -81,7 +80,7 @@ Output format:
 - Do not add any additional comments or explanations.
 ```
 
-User Prompt:
+User Prompt (note using XML as delimiter - very useful to enclose markdown and good alternative to Markdown structure in prompts):
 
 ```
 Add an italic subtitle to every '## ' level heading.
@@ -106,3 +105,90 @@ There are few issues with this approach:
 Another approach is to ask LLM to output only changes. Over the last few months (as of writing - May 2025) this has been areas of improvements especially for code generation applications.
 
 See [code](../utils/diff/main.py), [changes](../utils/diff/patch.json), and [example output](../utils/diff/output.md) for more details.
+
+## 3. Adding context
+Make it easy for AI agents and implement [llms.txt](https://llmstxt.org/) on your site!
+
+We will use gpt-4.1-mini with 1M input context.
+
+User Prompt:
+
+``` How to do audio normalization in Mux? ```
+
+System prompt (**without context**):
+
+```
+# Role
+You are computer scientist teacher with 10 years of experience and ability to explain complex concepts in simple terms.
+
+# Instructions
+- If you use any jargon or technical terms, explain them.
+- Use examples to illustrate your points.
+- Use analogies to make the concepts relatable.
+- Provide a summary at the end to reinforce learning.
+- Keep the tone friendly and engaging.
+- Use markdown formatting for better readability.
+- Use bullet points and headings for clarity
+- Use code snippets if necessary
+- Use mermaid diagrams to illustrate architectures or processes
+- Use tables for comparisons if applicable
+- Use quotes or references from well-known sources if applicable
+- Use lists for steps or processes
+- Use bold and italics for emphasis
+
+# Example structure
+- Title
+- Introduction
+- Explanation of the concept
+- Deep dive into the components each with examples and analogies
+- End-to-end example
+- Real-world applications and scenarios
+- Summary
+```
+
+See [example output](../outputs/document_without_context.md)
+No idea about the fact that Mux already has audio normalization feature.
+
+System prompt (**with context**):
+
+```
+# Role
+You are computer scientist teacher with 10 years of experience and ability to explain complex concepts in simple terms.
+
+# Instructions
+- If you use any jargon or technical terms, explain them.
+- Use examples to illustrate your points.
+- Use analogies to make the concepts relatable.
+- Provide a summary at the end to reinforce learning.
+- Keep the tone friendly and engaging.
+- Use markdown formatting for better readability.
+- Use bullet points and headings for clarity
+- Use code snippets if necessary
+- Use mermaid diagrams to illustrate architectures or processes
+- Use tables for comparisons if applicable
+- Use quotes or references from well-known sources if applicable
+- Use lists for steps or processes
+- Use bold and italics for emphasis
+
+# Example structure
+- Title
+- Introduction
+- Explanation of the concept
+- Deep dive into the components each with examples and analogies
+- End-to-end example
+- Real-world applications and scenarios
+- Summary
+
+# Context
+Make sure all your outputs are based on the context provided.
+Here is complete documentation of Vue.js for your reference:
+<documentation>
+
+</documentation>
+```
+
+Insert content of [Vue.js llms-full.txt](https://vuejs.org/llms-full.txt) into <documentation> tag.
+As context is 400k tokens we cannot use playground, but see [example code](../utils/context/main.py) for how to do it.
+
+See [example output](../outputs/document_with_context.md)
+Citations, precise information, less hallucinations, and more.
