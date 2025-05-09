@@ -4,13 +4,20 @@ from diff_match_patch import diff_match_patch
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from openai import AzureOpenAI
 from pydantic import BaseModel
+from enum import Enum
 from dotenv import load_dotenv
+from typing import List
 
 # Define structured output model for LLM
+class ChangeType(Enum):
+    ADD = "add"
+    REMOVE = "remove"
+    REPLACE = "replace"
+
 class Change(BaseModel):
-    StartPositionMatch: str
-    EndPositionMatch: str
-    ChangedText: str
+    LineNum: int  # changed from str to int
+    NewLine: str
+    ChangeType: ChangeType
 
 class Changes(BaseModel):
     changes: list[Change]
@@ -19,14 +26,19 @@ class Changes(BaseModel):
 # Load environment variables from .env file
 load_dotenv()
 
-input_file = "./input.md"
+input_file = "../../outputs/document_explicit_prompt.md"
+# input_file = "./input.md"
 result_file = "./output.md"
 patch_file = "./patch.json"
 
 dmp = diff_match_patch()
 
+# ---------- 1. Load input (keep raw + numbered variants) ----------
 with open(input_file, "r", encoding="utf-8") as f:
-    input_text = "\n".join(line.rstrip() for line in f)
+    original_lines: List[str] = [line.rstrip("\n") for line in f]           # raw text to be patched
+
+numbered_lines = [f"{i+1:04d}: {l}" for i, l in enumerate(original_lines)]  # view for LLM
+numbered_text = "\n".join(numbered_lines)
 
 # Retrieve patch text from Azure OpenAI with EntraAD authentication
 endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
@@ -41,22 +53,30 @@ client = AzureOpenAI(
     api_version="2025-01-01-preview",
 )
 
-# Prepare system prompt and chat_prompt per AzureOpenAI example
+# ---------- 2. Build system & user prompts ----------
 system_prompt = """
 You are a computer scientist.
-When given a document, apply the requested edits and output only differences in following format.
+When given a line-numbered document, output JSON describing edits.
 
-Strictly follow format of JSON structure which is array of objects (changes) with following fields:
-- StartPositionMatch: Value containing exact match of 100 characters preceding the change
-- EndPositionMatch: Value containing exact match of 100 characters following the change
-- ChangedText: Value containing the change itself
+Each JSON element MUST have:
+- "LineNum": 4-digit string reflecting the line to operate on
+- "NewLine": resulting line (omit or leave empty for removals)
+- "ChangeType": one of "add", "remove", "replace"
+
+Do NOT include the line numbers in NewLine.
 """
 
 user_prompt = f"""
-Add subtitle to each ## level chapter. Make sure it is in italics and put two \n before and after it.
+The document lines are prefixed with "####: " numbers – do not change these prefixes.
+
+Task:
+Add an italic subtitle to every '## ' level heading.
+Insert blank line before and after that subtitle.
+
+Return only the JSON array described above.
 
 <document>
-{input_text}
+{numbered_text}
 </document>
 """
 
@@ -86,25 +106,23 @@ with open(patch_file, "w", encoding="utf-8") as pf:
 # Print the number of changes
 print(f"Total changes to apply: {len(changes.changes)}")
 
-# Apply structured changes to the input_text as one giant string
-text = input_text
-# Apply changes in reverse order based on their position to avoid shifting indices
-for idx, change in enumerate(changes.changes, 1):
-    start_match = change.StartPositionMatch
-    end_match = change.EndPositionMatch
-    # find start and end indices
-    start_index = text.find(start_match)
-    if start_index == -1:
-        raise ValueError(f"StartPositionMatch not found: {start_match}")
-    start_index += len(start_match)
-    end_index = text.find(end_match, start_index)
-    if end_index == -1:
-        raise ValueError(f"EndPositionMatch not found: {end_match}")
-    # print truncated info about this change
-    print(f"*** Applying change {idx}/{len(changes.changes)}: {change.ChangedText[:20]}...")
-    # replace content between matches with ChangedText
-    text = text[:start_index] + change.ChangedText + text[end_index:]
+# ---------- 3. Apply patch bottom-up ----------
+patched_lines = original_lines.copy()
 
-# Write the patched document
+# sort by line number descending so indexes stay valid while mutating
+for ch in sorted(changes.changes, key=lambda c: c.LineNum, reverse=True):
+    idx = ch.LineNum - 1
+    if ch.ChangeType == ChangeType.ADD:
+        patched_lines.insert(idx + 1, ch.NewLine)
+    elif ch.ChangeType == ChangeType.REMOVE:
+        if 0 <= idx < len(patched_lines):
+            patched_lines.pop(idx)
+    elif ch.ChangeType == ChangeType.REPLACE:
+        if 0 <= idx < len(patched_lines):
+            patched_lines[idx] = ch.NewLine
+
+patched_text = "\n".join(patched_lines) + "\n"
+
+# ---------- 4. Persist patched document ----------
 with open(result_file, "w", encoding="utf-8") as f:
-    f.write(text)
+    f.write(patched_text)
