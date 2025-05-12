@@ -1,9 +1,9 @@
 # Story of getting better at math
-1. How relatively **simple prompt** can improve the performance of pretty small LLMs in math tasks.
-2. How **heavy prompt with guidance**, thinking process and examples can improve performance of very small LLMs in math tasks.
-3. What if we orchestrate calling LLM multiple times so it can **reflect** on its own errors and improve the answer?
-4. What if we automate process of AI trying various thinking strategies using Reinforcement Learning in verifiable domains and that capture successful ones and use it as training data to self-improve models? This is how **reasoning models** are trained and we will see how much better they are at math tasks.
-5. But why let LLM calculate where it can use calculator or write some code? Let's go solving our math challenge with **agent using tools**.
+1. [How relatively **simple prompt** can improve the performance of pretty small LLMs in math tasks.](#1-simple-prompt)
+2. [How **heavy prompt with guidance**, thinking process and examples can improve performance of very small LLMs in math tasks.](#2-heavy-prompt)
+3. [What if we orchestrate calling LLM multiple times so it can **reflect** on its own errors and improve the answer?](#3-reflection)
+4. [What if we automate process of AI trying various thinking strategies using Reinforcement Learning in verifiable domains and that capture successful ones and use it as training data to self-improve models? This is how **reasoning models** are trained and we will see how much better they are at math tasks.](#4-reasoning-thinking-model)
+5. [But why let LLM calculate where it can use calculator or write some code? Let's go solving our math challenge with **agent using tools**.](#5-agent-using-tools)
 
 ---
 

@@ -1,9 +1,9 @@
 # Story of analyzing data
-1. Extracting textual data
-2. Processing visual data
-3. Using Code Interpreter tool for data analysis
-4. Using Code Interpreter tool for data visualization
-5. Using HTMX to generate interactive UI
+1. [Extracting textual data](#1-extracting-textual-data)
+2. [Processing visual data](#2-processing-visual-data)
+3. [Using Code Interpreter tool for data analysis](#3-using-code-interpreter-tool-for-data-analysis)
+4. [Using Code Interpreter tool for data visualization](#4-using-code-interpreter-tool-for-data-visualization)
+5. [Using HTMX to generate interactive UI](#5-using-htmx-to-generate-interactive-ui)
 
 # 1. Extracting textual data
 
@@ -69,9 +69,204 @@ What animals are big yet run very fast?
 
 ```
 
-
 User Prompt:
 
 ```
 Are there any faster than those while being very small? Birds and sea animals do not count.
 ```
+
+# 2. Processing visual data
+Multi-modal LLMs are very good at processing visual information from semantic perspective such as describing scene, objects on image, reasoning about them, or even do very good and flexible OCR. However they are not perfect at exact extraction of data from tables or charts.
+
+We will start with **easy** example.
+
+![](../images/hockey1.png)
+    
+![](../images/hockey2.png)
+
+System prompt:
+
+```
+You will be presented with visual inputs and your task is to carefully analyze the image and extract data from it in order to answer user's questions.
+```
+
+User prompt (attach both images):
+
+```
+Here are results from world championship in hockey 2024. 
+Extract information about performance of Czech team and comment on it's progress throughout the tournament.
+Use only data from images, do not add any additional information or context.
+```
+
+See [example output](../outputs/analyze_hockey.md)
+
+Here is **difficult example** that current LLMs struggle with.
+
+![](../images/joy-report-card.jpg)
+
+Even with very specific guidance and description of columns model makes a lot of mistake (see Language row).
+
+System prompt:
+
+```
+Extract data from a scanned handwritten table provided as an image, and accurately convert it into a well-structured Markdown table. Ensure each item is precise and formatted correctly, paying close attention to the accuracy of every single detail in the table.
+
+# Important Details
+
+- The input will be a scanned image of a handwritten table.
+- Carefully interpret all handwritten text, avoiding inaccuracies or omissions.
+- Ensure column and row headers, as well as all cell values, are faithfully transcribed into the Markdown table.
+
+# Steps
+
+1. **Analyze the Image**:
+   - Interpret the structure of the handwritten table, including the number of columns and rows.
+   - Identify headers, labels, and individual data points.
+
+2. **Extract Data**:
+   - Carefully transcribe the content within each cell of the handwritten table, ensuring complete accuracy.
+   - Handle any potential ambiguities in handwriting by being cautious and approximating only when absolutely necessary. In unclear cases, add a placeholder like `[unclear]` with a note for verification.
+
+3. **Convert to Markdown**:
+   - Format the extracted data into a proper Markdown table, ensuring alignment and proper syntax (e.g., `|` for cells, `---` for separation of headers).
+   - Double-check alignment to ensure the table appears correctly in Markdown when rendered.
+
+4. **Verify**:
+   - Cross-check the final Markdown output with the original image to confirm all values are accurate and properly transcribed.
+   - Highlight any potential uncertainties for the user to address.
+
+# Output Format
+
+The output should be a Markdown table formatted as follows:
+
+```
+| Header 1       | Header 2       | Header 3       |
+|-----------------|----------------|----------------|
+| Row 1, Column 1 | Row 1, Column 2 | Row 1, Column 3 |
+| Row 2, Column 1 | [unclear]       | Row 2, Column 3 |
+```
+
+- Each table header and cell value should match the handwritten table, except for ambiguities where `[unclear]` is used.
+- If no data is unclear, no placeholder is needed.
+
+# Example
+
+**Input**: 
+An image contains a handwritten table with the following details:
+```
+| Name       | Age | City       |
+|------------|-----|------------|
+| Alice      | 24  | New York   |
+| Bob        | 30  | [unclear]  |
+```
+
+**Output**:
+```
+| Name        | Age | City       |
+|-------------|-----|------------|
+| Alice       | 24  | New York   |
+| Bob         | 30  | [unclear]  |
+```
+
+# Notes
+
+- For ambiguous or illegible handwriting, always flag uncertainties with `[unclear]` to avoid errors.
+- The model must strictly follow Markdown syntax to ensure compatibility with rendering tools.
+- The task prioritizes accuracy and completeness over speed.
+
+# Columns description:
+{
+	"scenario": "document",
+	"fieldSchema": {
+		"fields": {
+			"subjects": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"method": "extract",
+					"properties": {
+						"Subjects": {
+							"type": "string",
+							"method": "extract",
+							"description": "Name of the subject"
+						},
+						"Oct": {
+							"type": "number",
+							"method": "extract",
+							"description": "October grade"
+						},
+						"Nov": {
+							"type": "number",
+							"method": "extract",
+							"description": "November grade"
+						},
+						"DecMax": {
+							"type": "number",
+							"method": "extract",
+							"description": "December exam maximum score possible"
+						},
+						"Dec": {
+							"type": "number",
+							"method": "extract",
+							"description": "Dec 1st term exam grade"
+						},
+						"Jan": {
+							"type": "number",
+							"method": "extract",
+							"description": "January exam grade"
+						},
+						"Feb": {
+							"type": "number",
+							"method": "extract",
+							"description": "February exam grade"
+						},
+						"MarchMax": {
+							"type": "number",
+							"method": "extract",
+							"description": "March exam maximum score possible"
+						},
+						"March": {
+							"type": "number",
+							"method": "extract",
+							"description": "March 2nd term exam grade"
+						},
+						"May": {
+							"type": "number",
+							"method": "extract",
+							"description": "May exam grade"
+						},
+						"June": {
+							"type": "number",
+							"method": "extract",
+							"description": "June exam grade"
+						},
+						"JulyMax": {
+							"type": "number",
+							"method": "extract",
+							"description": "July exam maximum score possible"
+						},
+						"July": {
+							"type": "number",
+							"method": "extract",
+							"description": "July 3rd term exam grade"
+						}
+					}
+				},
+				"method": "generate",
+				"description": "Table of subjects and grades"
+			}
+		},
+		"definitions": {}
+	}
+}
+```
+
+See [example output](../outputs/analyze_table_llm.md)
+
+This task requires combination of LLM multi-modal capability to understand semantic meaning of visual inputs combined with computer vision models to detect structures, tables, fields, objects and classic Optical Character Recognition (OCR) to extract text from images.Here is example from Content Understanding service in Azure AI Foundry.
+
+![](../images/content_understanding1.png)
+
+![](../images/content_understanding2.png)
+
+![](../images/content_understanding3.png)
