@@ -314,3 +314,5 @@ User prompt:
 ```
 Based on following data draw chart comparing electricity prices in Czechia and Germany over last 10 years using 1 month averages.
 ```
+
+See [example output](../outputs/analyze_tabular_visualization.md)
