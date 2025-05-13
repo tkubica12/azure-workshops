@@ -4,6 +4,15 @@ This repo contains materials I am using with customers to help them learn Azure,
 # Demos
 Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 
+## AI demos
+- [Async pattern in AI apps](./d-ai-async/)
+- [AI Inference SDK with monitoring](./d-ai-inference-sdk-with-monitoring/)
+- [Advanced RAG patterns](./d-ai-rag/)
+- [Browser Use Agent](./d-ai-browser-use/)
+- [Lang Graph multi-agent system with UI, OpenTelemetry, Azure Monitor and Container Apps](./d-ai-langgraph-aca-azmonitor/)
+- [AI reasoning with tools](./d-ai-reasoning-with-tools/)
+- [From prompt to thinking to tool use](./d-ai-prompt-think-tool/)
+
 ## Azure Kubernetes Service demos
 - [Operators](./d-aks-operators/)
 - [Private Link Service eg. in SaaS provider scenario](./d-aks-privatelinkservice/)
@@ -22,14 +31,6 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 - [AKS Static Egress Gateway](./d-aks-static-egress-gw/)
 - [AKS Isolated](./d-aks-network-isolated/)
 - [AKS Node Autoprovisioning](./d-aks-karpenter/)
-
-## AI demos
-- [Async pattern in AI apps](./d-ai-async/)
-- [AI Inference SDK with monitoring](./d-ai-inference-sdk-with-monitoring/)
-- [Advanced RAG patterns](./d-ai-rag/)
-- [Browser Use Agent](./d-ai-browser-use/)
-- [Lang Graph multi-agent system with UI, OpenTelemetry, Azure Monitor and Container Apps](./d-ai-langgraph-aca-azmonitor/)
-- [AI reasoning with tools](./d-ai-reasoning-with-tools/)
   
 ## Other demos
 - [Azure Managed Redis](./d-azure-managed-redis/)
