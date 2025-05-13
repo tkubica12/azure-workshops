@@ -1,0 +1,60 @@
+{  
+  "people": [],  
+  "organizations": [  
+    "OpenAI",  
+    "Hebbia",  
+    "Endex",  
+    "Blue J",  
+    "BlueFlame AI",  
+    "Argon AI",  
+    "Lindy.AI",  
+    "SafetyKit",  
+    "CodeRabbit",  
+    "Windsurf",  
+    "Codeium",  
+    "Braintrust"  
+  ],  
+  "locations": [],  
+  "dates": [  
+    "2024-12-17",  
+    "2024-05-08"  
+  ],  
+  "products_models": [  
+    "o3",  
+    "o4-mini",  
+    "o3-mini",  
+    "o1",  
+    "o1-mini",  
+    "o1-preview",  
+    "GPT-4.1",  
+    "GPT-4o",  
+    "GPT-4o mini"  
+  ],  
+  "APIs": [  
+    "Responses API",  
+    "Chat Completions API"  
+  ],  
+  "platforms": [  
+    "Matrix",  
+    "GitHub",  
+    "GitLab"  
+  ],  
+  "websites": [  
+    "https://www.hebbia.com/",  
+    "https://endex.ai/",  
+    "https://www.bluej.com/",  
+    "https://www.blueflame.ai/",  
+    "https://argon-ai.com/",  
+    "http://Lindy.AI",  
+    "https://www.safetykit.com/",  
+    "https://www.coderabbit.ai/",  
+    "https://codeium.com/",  
+    "https://www.braintrust.dev/",  
+    "https://cookbook.openai.com/",  
+    "https://www.deeplearning.ai/short-courses/reasoning-with-o1/",  
+    "https://cdn.openai.com/spec/model-spec-2024-05-08.html"  
+  ],  
+  "courses_publications": [  
+    "Video course: Reasoning with o1"  
+  ]  
+}

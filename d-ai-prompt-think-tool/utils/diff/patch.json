@@ -1,0 +1,44 @@
+{
+  "changes": [
+    {
+      "LineNum": 3,
+      "NewLine": "*A brief overview of sharding concepts*",
+      "ChangeType": "add"
+    },
+    {
+      "LineNum": 11,
+      "NewLine": "*Defining sharding in simple terms*",
+      "ChangeType": "add"
+    },
+    {
+      "LineNum": 19,
+      "NewLine": "*Applying sharding to online games*",
+      "ChangeType": "add"
+    },
+    {
+      "LineNum": 35,
+      "NewLine": "*How sharding is implemented in games*",
+      "ChangeType": "add"
+    },
+    {
+      "LineNum": 60,
+      "NewLine": "*Diagram of sharding in action*",
+      "ChangeType": "add"
+    },
+    {
+      "LineNum": 74,
+      "NewLine": "*A step-by-step sharding scenario*",
+      "ChangeType": "add"
+    },
+    {
+      "LineNum": 83,
+      "NewLine": "*Where sharding is used in the real world*",
+      "ChangeType": "add"
+    },
+    {
+      "LineNum": 91,
+      "NewLine": "*Key takeaways about sharding*",
+      "ChangeType": "add"
+    }
+  ]
+}
