@@ -12,6 +12,7 @@ Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 - [Lang Graph multi-agent system with UI, OpenTelemetry, Azure Monitor and Container Apps](./d-ai-langgraph-aca-azmonitor/)
 - [AI reasoning with tools](./d-ai-reasoning-with-tools/)
 - [From prompt to thinking to tool use](./d-ai-prompt-think-tool/)
+- [Dynamic AI-generated UI](./d-ai-dynamic-ui/)
 
 ## Azure Kubernetes Service demos
 - [Operators](./d-aks-operators/)
