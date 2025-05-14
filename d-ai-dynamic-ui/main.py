@@ -77,7 +77,7 @@ def post(user_query: str):
         model=MODEL_NAME,
         input=messages,
         reasoning={
-            "effort":  "high",         # optional: low | medium | high
+            "effort":  "low",         # optional: low | medium | high
             "summary": "detailed",      # auto | concise | detailed
         },
     )
