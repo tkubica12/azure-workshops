@@ -33,4 +33,4 @@ See [full guide](./docs/analyzing_data.md) for more details.
 - [GPT-4.1 Prompting Guide](https://cookbook.openai.com/examples/gpt4-1_prompting_guide)
 - [Best practices for prompt engineering with the OpenAI API](https://help.openai.com/en/articles/6654000-best-practices-for-prompt-engineering-with-the-openai-api)
 - [Anthropic system prompt for API](https://docs.anthropic.com/en/release-notes/system-prompts)
-- [Leaked system prompts - unverified, unofficial, speculative](hhttps://github.com/asgeirtj/system_prompts_leaks/tree/main)
+- [Leaked system prompts - unverified, unofficial, speculative](https://github.com/asgeirtj/system_prompts_leaks/tree/main)
