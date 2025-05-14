@@ -31,3 +31,6 @@ See [full guide](./docs/analyzing_data.md) for more details.
 - [ShumerPrompt](https://shumerprompt.com/)
 - [How to prompt reasoning models effectively](https://platform.openai.com/docs/guides/reasoning-best-practices#how-to-prompt-reasoning-models-effectively)
 - [GPT-4.1 Prompting Guide](https://cookbook.openai.com/examples/gpt4-1_prompting_guide)
+- [Best practices for prompt engineering with the OpenAI API](https://help.openai.com/en/articles/6654000-best-practices-for-prompt-engineering-with-the-openai-api)
+- [Anthropic system prompt high-level intent](https://docs.anthropic.com/en/release-notes/system-prompts)
+- [Leaked system prompts - unverified, unofficial, speculative](hhttps://github.com/asgeirtj/system_prompts_leaks/tree/main)
