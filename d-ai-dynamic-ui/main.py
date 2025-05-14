@@ -14,6 +14,11 @@ logger.setLevel(logging.INFO)
 # Define the FastHTML app
 app, rt = fast_app()
 
+# --- Globals for session storage (simplified) ---
+latest_user_question = None
+latest_ai_snippet = None
+# --- End Globals ---
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -89,11 +94,15 @@ def get():
 
 @rt('/userMessage')
 def post(user_query: str):
+    global latest_user_question, latest_ai_snippet  # Allow modification of globals
     logger.info('POST /userMessage started')
     # Load system_message template from file
     with open('prompts/system.jinja2', encoding='utf-8') as f:
         template = Template(f.read())
-    system_message = template.render()
+    # For a new user message, there's no previously generated snippet in this direct interaction
+    system_message = template.render(previously_generated_snippet=None)
+
+    latest_user_question = user_query # Store the user question
 
     messages = [
         {"role": "system", "content": system_message},
@@ -125,8 +134,83 @@ def post(user_query: str):
     if not content_text:
         logger.error('No message output found in LLM response')
         return 'Error: No message output found in LLM response.'
+    
+    latest_ai_snippet = content_text # Store the AI snippet
     logger.debug(f'LLM response: {content_text}')
     return content_text
+
+@rt('/process')
+def post(interaction_details: str | None = None): # Make interaction_details optional
+    global latest_user_question, latest_ai_snippet # Allow access and modification of globals
+    
+    actual_interaction_details_for_prompt: str
+    if interaction_details is None:
+        # This case will be hit if the HTMX snippet doesn't send `interaction_details`
+        logger.warning("POST /process: 'interaction_details' was not provided by the client. Ensure HTMX snippets use hx-vals correctly.")
+        # Provide a default value for the prompt to avoid breaking the flow
+        actual_interaction_details_for_prompt = "User clicked an interactive element, but specific details were not captured."
+        logger.info(f'POST /process proceeding with placeholder interaction details: "{actual_interaction_details_for_prompt}"')
+    else:
+        logger.info(f'POST /process started with interaction: {interaction_details}')
+        actual_interaction_details_for_prompt = interaction_details
+
+    if not latest_user_question:
+        logger.error('Original user question not found in session.')
+        return '<div id="ai-output" class="border p-4 min-h-[200px] bg-red-100 rounded text-red-700">Error: Original question context lost. Please start a new conversation.</div>'
+    if not latest_ai_snippet:
+        logger.error('Previously generated AI snippet not found in session.')
+        # Potentially less critical, could try to recover or ask user to clarify
+        return '<div id="ai-output" class="border p-4 min-h-[200px] bg-yellow-100 rounded text-yellow-700">Warning: Previous AI response context lost. The AI might not fully understand the interaction.</div>'
+
+    # Load system_message template
+    with open('prompts/system.jinja2', encoding='utf-8') as f:
+        system_template = Template(f.read())
+    system_message = system_template.render(previously_generated_snippet=latest_ai_snippet)
+
+    # Load user_interaction_prompt template
+    with open('prompts/user_interaction_prompt.jinja2', encoding='utf-8') as f:
+        user_interaction_template = Template(f.read())
+    
+    user_prompt_content = user_interaction_template.render(
+        original_user_question=latest_user_question,
+        interaction_details=actual_interaction_details_for_prompt # Use the potentially defaulted value
+    )
+
+    messages = [
+        {"role": "system", "content": system_message},
+        {"role": "user", "content": user_prompt_content}
+    ]
+
+    logger.info('Sending data to LLM for /process')
+    try:
+        response = client.responses.create(
+            model=MODEL_NAME,
+            input=messages,
+            reasoning={
+                "effort": "low",
+                "summary": "detailed",
+            },
+        )
+        logger.info('Received response from LLM for /process')
+        logger.debug(f'LLM full response: {response}')
+
+        content_text = None
+        for item in response.output:
+            if getattr(item, 'type', None) == 'message' and hasattr(item, 'content'):
+                content_text = item.content[0].text
+                break
+        
+        if not content_text:
+            logger.error('No message output found in LLM response for /process')
+            return '<div id="ai-output" class="border p-4 min-h-[200px] bg-red-100 rounded text-red-700">Error: No message output found in LLM response.</div>'
+
+        latest_ai_snippet = content_text # Update the latest AI snippet
+        logger.debug(f'LLM response for /process: {content_text}')
+        return content_text
+
+    except Exception as e:
+        logger.error(f'Error during LLM call in /process: {e}')
+        return f'<div id="ai-output" class="border p-4 min-h-[200px] bg-red-100 rounded text-red-700">Error processing your request: {str(e)}</div>'
 
 logger.info('Starting FastHTML app')
 serve()
