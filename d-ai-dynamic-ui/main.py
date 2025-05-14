@@ -1,4 +1,4 @@
-from fasthtml.common import Form, Input, Button, Div, P, Title, Head, Meta, Link, Body, fast_app, serve, Style
+from fasthtml.common import Form, Input, Button, Div, P, Title, Head, Meta, Link, Body, fast_app, serve, Style, Span
 from openai import AzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from dotenv import load_dotenv
@@ -39,16 +39,20 @@ def get():
     chat_container = Div(
         # Large element for AI output
         Div(id='ai-output', cls='border p-4 min-h-[200px] bg-gray-100 rounded', innerHTML=P('AI responses will appear here.')),
-        # Loading indicator - now a spinner
-        Div(id='loading-indicator', cls='htmx-indicator spinner-container'),
         # Form for user input
         Form(
             Input(id='user_query', name='user_query', type='text', placeholder='Enter your question here...', cls='border p-2 flex-grow rounded'),
-            Button('Send', type='submit', cls='bg-blue-500 text-white p-2 rounded ml-2'),
+            Button(
+                Span('Send', cls='btn-text-label'),
+                Span(cls='spinner-graphic'), 
+                id='send-button',
+                type='submit', 
+                cls='bg-blue-500 text-white p-2 rounded ml-2 flex items-center justify-center relative w-[100px] h-[40px]' 
+            ),
             hx_post='/userMessage',
             hx_target='#ai-output',
             hx_swap='innerHTML',  # Replace the content of ai-output
-            hx_indicator='#loading-indicator', # Show loading indicator during request
+            hx_indicator='#send-button', # Indicator is now the button itself
             cls='flex mt-4'
         ),
         cls='container mx-auto p-4'
@@ -56,30 +60,28 @@ def get():
     # Basic styling using Tailwind CSS CDN
     return Title('FastHTML LLM Chat'), \
            Head(
-               Meta(charset='UTF-8'), # Corrected charset from UTF-S to UTF-8
+               Meta(charset='UTF-8'),
                Link(rel='stylesheet', href='https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css'),
                Style('''
-                 .htmx-indicator {
-                   display: none;
-                 }
-                 .htmx-indicator.htmx-request {
-                   display: flex; /* Changed to flex for centering spinner */
-                   justify-content: center;
-                   align-items: center;
-                   padding: 10px; /* Add some padding around the spinner */
-                 }
-                 .spinner-container::after {
-                   content: "";
-                   display: block;
-                   width: 40px; /* Spinner size */
-                   height: 40px; /* Spinner size */
-                   border-radius: 50%;
-                   border: 4px solid #f3f3f3; /* Light grey border */
-                   border-top-color: #3498db; /* Blue color for spinner */
-                   animation: spin 1s linear infinite;
-                 }
                  @keyframes spin {
                    to { transform: rotate(360deg); }
+                 }
+                 /* Styles for the spinner graphic itself */
+                 .spinner-graphic {
+                   display: none; /* Initially hidden */
+                   width: 20px;   /* Spinner size for button */
+                   height: 20px;
+                   border: 3px solid rgba(255, 255, 255, 0.3); /* Lighter border for on-button */
+                   border-top-color: #ffffff; /* White spinner on blue button */
+                   border-radius: 50%;
+                   animation: spin 0.8s linear infinite;
+                 }
+                 /* When the button (acting as indicator) is in htmx-request state */
+                 #send-button.htmx-request .btn-text-label {
+                   display: none; /* Hide text when request is active */
+                 }
+                 #send-button.htmx-request .spinner-graphic {
+                   display: inline-block; /* Show spinner */
                  }
                ''')
            ), \
