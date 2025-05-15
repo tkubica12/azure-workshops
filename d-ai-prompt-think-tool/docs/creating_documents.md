@@ -1,9 +1,10 @@
 # Creating rich documents
-1. [How being very **explicit** in prompt will help you get what you want?](#1-being-explicit-about-what-you-want)
-2. [**Iterations** over document - from copy paste or "print it all" to using diffs.](#2-iterations-over-document)
-3. [Adding **context** always helps and why your site should have llms.txt file.](#3-adding-context)
-4. [Using **tools** to retrieve context automatically.](#4-using-tools-to-retrieve-context-automatically)
-5. [Iterate over tools either orchestrated, multi-agent or preferably while thinking - this is how **deep research** works and goes WAY beyond just reasoning models.](#5-iterate-over-tools-either-orchestrated-or-while-thinking---this-how-deep-research-works)
+- [Creating rich documents](#creating-rich-documents)
+- [1. Being explicit about what you want](#1-being-explicit-about-what-you-want)
+- [2. Iterations over document](#2-iterations-over-document)
+  - [3. Adding context](#3-adding-context)
+  - [4. Using tools to retrieve context automatically](#4-using-tools-to-retrieve-context-automatically)
+  - [5. Iterate over tools either orchestrated or while thinking - this how deep research works](#5-iterate-over-tools-either-orchestrated-or-while-thinking---this-how-deep-research-works)
 ---
 
 # 1. Being explicit about what you want
@@ -147,6 +148,7 @@ You are computer scientist teacher with 10 years of experience and ability to ex
 ```
 
 See [example output](../outputs/document_without_context.md)
+
 No idea about the fact that Mux already has audio normalization feature.
 
 System prompt (**with context**):
@@ -187,10 +189,11 @@ Here is complete documentation of Vue.js for your reference:
 </documentation>
 ```
 
-Insert content of [Vue.js llms-full.txt](https://vuejs.org/llms-full.txt) into <documentation> tag.
+Insert content of [Mux llms-full.txt](https://www.mux.com/llms-full.txt) into <documentation> tag.
 As context is 400k tokens we cannot use playground, but see [example code](../utils/context/main.py) for how to do it.
 
 See [example output](../outputs/document_with_context.md)
+
 Citations, precise information, less hallucinations, and more.
 
 ## 4. Using tools to retrieve context automatically
