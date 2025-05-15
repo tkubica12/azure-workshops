@@ -4,6 +4,7 @@ import logging
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from azure.identity.aio import DefaultAzureCredential
 from azure.servicebus.aio import ServiceBusClient
@@ -49,6 +50,17 @@ app = FastAPI(
     version="0.1.0",
     description="Front-end for scalable chat using SSE and Azure Service Bus",
     lifespan=lifespan,
+)
+
+# Configure CORS
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*")
+allowed_origins = [origin.strip() for origin in CORS_ORIGINS.split(",") if origin.strip()]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=True,
 )
 
 class ChatRequest(BaseModel):
