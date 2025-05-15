@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
@@ -10,7 +11,6 @@ from azure.servicebus import ServiceBusMessage
 from contextlib import asynccontextmanager
 import uvicorn
 
-
 # Load local .env when in development
 load_dotenv()
 
@@ -19,10 +19,15 @@ SERVICEBUS_FULLY_QUALIFIED_NAMESPACE = os.getenv("SERVICEBUS_FULLY_QUALIFIED_NAM
 SERVICEBUS_USER_MESSAGES_TOPIC = os.getenv("SERVICEBUS_USER_MESSAGES_TOPIC")
 SERVICEBUS_TOKEN_STREAMS_TOPIC = os.getenv("SERVICEBUS_TOKEN_STREAMS_TOPIC")
 SERVICEBUS_TOKEN_STREAMS_SUBSCRIPTION = os.getenv("SERVICEBUS_TOKEN_STREAMS_SUBSCRIPTION")
-OS_ENV = os.getenv("OS_ENV", "local")
 
 if not SERVICEBUS_FULLY_QUALIFIED_NAMESPACE or not SERVICEBUS_USER_MESSAGES_TOPIC or not SERVICEBUS_TOKEN_STREAMS_TOPIC or not SERVICEBUS_TOKEN_STREAMS_SUBSCRIPTION:
     raise RuntimeError("Missing Service Bus configuration in environment variables")
+
+# Logging configuration
+LOG_LEVEL = os.getenv('LOG_LEVEL', 'WARNING').upper()
+logging.basicConfig(level=logging.WARNING)
+logger = logging.getLogger(__name__)
+logger.setLevel(LOG_LEVEL)
 
 # Initialize Azure credentials and Service Bus client
 credential = DefaultAzureCredential()
@@ -57,6 +62,7 @@ class ChatRequest(BaseModel):
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
+    logger.info(f"Received user request: session_id={request.session_id}, question={request.question}")
     """
     Start a new SSE stream for the given session.
     Enqueues user question to Service Bus and streams back response tokens.
@@ -69,6 +75,7 @@ async def chat(request: ChatRequest):
             json.dumps(payload), session_id=request.session_id
         )
         await sender.send_messages(message)
+        logger.info(f"Enqueued user message to Service Bus: {payload}")
 
     async def event_generator():
         """
@@ -88,10 +95,13 @@ async def chat(request: ChatRequest):
                 for msg in messages:
                     body = msg.body.decode() if hasattr(msg.body, 'decode') else str(msg)
                     await receiver.complete_message(msg)
+                    logger.info(f"Received Service Bus message: {body}")
+                    logger.info(f"Sending SSE chunk: {body}")
                     # Format as SSE data field
                     yield f"data: {body}\n\n"
                     # End on sentinel
                     if body == "__END__":
+                        logger.info(f"End of SSE stream for session {request.session_id}")
                         return
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
