@@ -24,3 +24,10 @@ resource "azurerm_servicebus_subscription" "front_service" {
   max_delivery_count = 10
   requires_session   = true
 }
+
+resource "azurerm_servicebus_subscription" "worker_service" {
+  name               = "worker-service"
+  topic_id           = azurerm_servicebus_topic.user_messages.id
+  max_delivery_count = 10
+  requires_session   = false
+}
