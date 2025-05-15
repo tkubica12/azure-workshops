@@ -1,14 +1,21 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, afterUpdate } from 'svelte';
   let question = '';
   let messages = [];
   let sessionId;
-  // Determine base API URL: Vite dev or injected env.js
+  let messagesContainer;
   const API_URL = import.meta.env.VITE_API_URL || window._env_?.API_URL;
 
   onMount(() => {
     sessionId = localStorage.getItem('session_id') || crypto.randomUUID();
     localStorage.setItem('session_id', sessionId);
+  });
+
+  afterUpdate(() => {
+    // Auto-scroll to bottom on new messages
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
   });
 
   async function send() {
@@ -60,12 +67,24 @@
 </script>
 
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
   .chat-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
     max-width: 600px;
     margin: 0 auto;
+    background-color: #e5ddd5;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+  }
+  .chat-header {
+    padding: 1rem;
+    background-color: #008cff;
+    color: white;
+    text-align: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
   }
   .messages {
     flex: 1;
@@ -73,47 +92,76 @@
     padding: 1rem;
   }
   .message {
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
-    border-radius: 4px;
+    display: flex;
+    align-items: flex-end;
+    max-width: 70%;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    word-wrap: break-word;
+    font-size: 1.1rem;
   }
   .message.user {
-    background-color: #daf1ff;
+    background-color: #dcf8c6;
     align-self: flex-end;
+    margin-left: auto;
+    margin-right: 0.5rem;
+    flex-direction: row-reverse;
+    border-radius: 16px 16px 16px 0;
   }
   .message.assistant {
-    background-color: #f1f0f0;
+    background-color: #ffffff;
     align-self: flex-start;
+    margin-right: auto;
+    margin-left: 0.5rem;
+    flex-direction: row;
+    border-radius: 16px 16px 0 16px;
   }
-  form {
+  .icon {
+    font-size: 1.2rem;
+    margin: 0 0.5rem;
+  }
+  .content {
+    flex: 1;
+  }
+  .chat-input {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid #ccc;
     display: flex;
-    padding: 1rem;
-    border-top: 1px solid #ddd;
+    flex-shrink: 0;
   }
   input {
     flex: 1;
-    padding: 0.5rem;
+    padding: 0.75rem;
+    font-size: 1rem;
     border: 1px solid #ccc;
     border-radius: 4px;
   }
   button {
     margin-left: 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 1.5rem;
     background-color: #008cff;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    font-size: 1rem;
   }
 </style>
 
 <div class="chat-container">
-  <div class="messages">
+  <div class="chat-header">Scalable Chat</div>
+  <div bind:this={messagesContainer} class="messages">
     {#each messages as msg}
-      <div class="message {msg.sender}">{msg.content}</div>
+      <div class="message {msg.sender}">
+        <span class="icon">{msg.sender === 'user' ? '👤' : '🤖'}</span>
+        <div class="content">{msg.content}</div>
+      </div>
     {/each}
   </div>
-  <form on:submit|preventDefault={send}>
+  <form on:submit|preventDefault={send} class="chat-input">
     <input bind:value={question} placeholder="Type your message..." autocomplete="off" />
     <button type="submit">Send</button>
   </form>
