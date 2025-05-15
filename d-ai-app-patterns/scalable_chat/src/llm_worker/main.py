@@ -21,11 +21,14 @@ if not SERVICEBUS_FULLY_QUALIFIED_NAMESPACE or not SERVICEBUS_USER_MESSAGES_TOPI
 
 # Logging configuration
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'WARNING').upper()
-logging.basicConfig(level=LOG_LEVEL)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 logger.setLevel(LOG_LEVEL)
 
 async def main():
+    logger.info("Starting LLM worker...")
+    logger.info(f"Service Bus Namespace: {SERVICEBUS_FULLY_QUALIFIED_NAMESPACE}")
+    
     # Initialize Azure credentials and Service Bus client
     credential = DefaultAzureCredential()
     sb_client = ServiceBusClient(
