@@ -57,9 +57,11 @@ sequenceDiagram
 6.  **Worker → LLM API:** The worker calls the LLM API, sending the user’s question and relevant context. The request is made in a **streaming mode**.
 7.  **LLM API → Worker (Streaming):** The LLM processes the prompt and streams back the generated answer token by token.
 8.  **Worker → Queue (Response stream):** As the worker receives tokens from the LLM, it places them onto the `token-streams` topic in the Message Queue. Each message contains the `token` (or an `end_of_stream` signal), the original `sessionId`, and `chatMessageId`.
-9.  **Queue → Front (Response):** The Front Service, listening to its subscription on the `token-streams` topic (session-aware, using `sessionId` to receive messages for active client sessions), dequeues the response tokens.
+9.  **Queue → Front (Response):** The Front Service, listening to its subscription on the `token-streams` topic (session-aware, using `sessionId` to receive messages for active client sessions), dequeues the response tokens. Only messages for the specified `sessionId` are delivered to the receiver, ensuring efficient routing and isolation between sessions.
 10. **Front → Client (SSE Stream):** The Front Service streams the tokens to the correct client via the SSE connection previously established for the `sessionId`. It uses the `chatMessageId` from the token message to ensure tokens are routed to the correct message response stream on the client side, sending `data: {"token": "..."}` for each token and `data: __END__` upon receiving the `end_of_stream` signal for that specific `chatMessageId`.
 11. **Worker → DB (Save Q&A):** (Optional) The worker saves the question and answer to the Conversation Store for persistence.
+
+*Note: We use `sessionId` as the Service Bus session key for all chat-related messages. This allows the front service to open a session receiver for a specific session and only receive messages for that session, without filtering or processing unrelated messages. This approach enables stateless, horizontally scalable front-end instances, as any instance can handle any session. The `chatMessageId` is used to correlate individual questions and responses within a session, especially when a user sends multiple questions in the same session. There is no need for per-message subscriptions or filters, and no risk of subscription explosion. This design achieves both scalability and simplicity.*
 
 ## Scalability and Performance
 
