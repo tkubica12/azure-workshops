@@ -28,28 +28,28 @@ logger.setLevel(LOG_LEVEL)
 async def process_message(sb_client: ServiceBusClient, service_bus_message):
     """
     Processes a single message from the user messages topic.
-    Extracts text, sessionId, and messageId.
+    Extracts text, sessionId, and chatMessageId.
     Sends response tokens (currently static) back to the token streams topic,
-    including sessionId and messageId for routing by the front service.
+    including sessionId and chatMessageId for routing by the front service.
     """
     try:
         message_body_str = str(service_bus_message)
         logger.info(f"Received message: {message_body_str}")
         
         # The message body from the front service is expected to be a JSON string
-        # like: {"text": "...", "sessionId": "...", "messageId": "..."}
+        # like: {"text": "...", "sessionId": "...", "chatMessageId": "..."}
         message_data = json.loads(message_body_str)
         
         user_text = message_data.get("text")
         session_id = message_data.get("sessionId")
-        message_id = message_data.get("messageId")
+        chat_message_id = message_data.get("chatMessageId")
 
-        if not all([user_text, session_id, message_id]):
-            logger.error(f"Message missing required fields (text, sessionId, messageId): {message_data}")
+        if not all([user_text, session_id, chat_message_id]):
+            logger.error(f"Message missing required fields (text, sessionId, chatMessageId): {message_data}")
             # Depending on requirements, might dead-letter this message
             return
 
-        logger.info(f"Processing messageId: {message_id} for sessionId: {session_id} - Text: '{user_text}'")
+        logger.info(f"Processing chatMessageId: {chat_message_id} for sessionId: {session_id} - Text: '{user_text}'")
 
         # Simulate LLM processing and token streaming
         response_content = "Hello from assistant!"
@@ -59,7 +59,7 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
             for char_token in response_content:
                 token_payload = {
                     "sessionId": session_id,
-                    "messageId": message_id,
+                    "chatMessageId": chat_message_id,
                     "token": char_token
                 }
                 token_message = ServiceBusMessage(
@@ -67,13 +67,13 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
                     session_id=session_id  # Ensure session_id is set for session-aware routing
                 )
                 await sender.send_messages(token_message)
-                logger.debug(f"Sent token for messageId {json.dumps(token_payload)}")
+                logger.debug(f"Sent token for chatMessageId {json.dumps(token_payload)}")
                 await asyncio.sleep(1)  # Simulate delay between tokens
 
-            # Send end-of-stream sentinel for this specific messageId
+            # Send end-of-stream sentinel for this specific chatMessageId
             eos_payload = {
                 "sessionId": session_id,
-                "messageId": message_id,
+                "chatMessageId": chat_message_id,
                 "end_of_stream": True
             }
             eos_message = ServiceBusMessage(
@@ -81,7 +81,7 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
                 session_id=session_id  # Ensure session_id is set for session-aware routing
             )
             await sender.send_messages(eos_message)
-            logger.info(f"Sent __END__ for messageId {message_id}, sessionId {session_id}")
+            logger.info(f"Sent __END__ for chatMessageId {chat_message_id}, sessionId {session_id}")
 
     except json.JSONDecodeError as e:
         logger.error(f"Failed to decode JSON from user message: {message_body_str}, error: {e}")

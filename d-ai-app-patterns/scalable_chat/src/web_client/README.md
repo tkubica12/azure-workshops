@@ -33,13 +33,13 @@ On load, the client makes a `POST` request to `/api/session/start` on the front 
 
 ### Message Structure
 
-When sending a message, the client generates a unique `messageId` (a random UUID). The request body to `/api/chat` is a JSON object:
+When sending a message, the client generates a unique `chatMessageId` (a random UUID). The request body to `/api/chat` is a JSON object:
 
 ```json
 {
   "message": "User's typed message",
   "sessionId": "the-current-session-id",
-  "messageId": "a-unique-message-id"
+  "chatMessageId": "a-unique-message-id"
 }
 ```
 

@@ -70,7 +70,7 @@ app.add_middleware(
 class ChatMessage(BaseModel):
     message: str
     sessionId: str
-    messageId: str
+    chatMessageId: str
 
 class SessionStartResponse(BaseModel):
     sessionId: str
@@ -81,7 +81,7 @@ async def start_session():
     logger.info(f"New session started: {sessionId}")
     return SessionStartResponse(sessionId=sessionId)
 
-async def token_stream_generator(sessionId: str, initial_messageId: str):
+async def token_stream_generator(sessionId: str, initial_chatMessageId: str):
     logger.info(f"Opening sessionful receiver for token streams for session: {sessionId}")
     async with sb_client.get_subscription_receiver(
         SERVICEBUS_TOKEN_STREAMS_TOPIC,
@@ -92,8 +92,8 @@ async def token_stream_generator(sessionId: str, initial_messageId: str):
         async for sb_msg in receiver:
             logger.debug(f"Received message: {sb_msg}")
             data = json.loads(str(sb_msg))
-            # Only process tokens for the matching messageId
-            if data.get("messageId") != initial_messageId:
+            # Only process tokens for the matching chatMessageId
+            if data.get("chatMessageId") != initial_chatMessageId:
                 await receiver.complete_message(sb_msg)
                 continue
             # End-of-stream signal
@@ -106,7 +106,7 @@ async def token_stream_generator(sessionId: str, initial_messageId: str):
             if token is not None:
                 yield f"data: {{\"token\": \"{token}\"}}\n\n"
                 await receiver.complete_message(sb_msg)
-    logger.info(f"SSE stream generator finished for session: {sessionId}, message: {initial_messageId}")
+    logger.info(f"SSE stream generator finished for session: {sessionId}, message: {initial_chatMessageId}")
 
 @app.post("/api/chat")
 async def chat_endpoint(chat_message: ChatMessage, request: Request):
@@ -114,7 +114,7 @@ async def chat_endpoint(chat_message: ChatMessage, request: Request):
     if not sb_client:
         raise HTTPException(status_code=503, detail="Service Bus client not initialized.")
 
-    logger.info(f"Received message: '{chat_message.message}' for session: {chat_message.sessionId}, messageId: {chat_message.messageId}")
+    logger.info(f"Received message: '{chat_message.message}' for session: {chat_message.sessionId}, chatMessageId: {chat_message.chatMessageId}")
 
     try:
         async with sb_client.get_topic_sender(SERVICEBUS_USER_MESSAGES_TOPIC) as sender:
@@ -122,18 +122,18 @@ async def chat_endpoint(chat_message: ChatMessage, request: Request):
                 body=json.dumps({
                     "text": chat_message.message,
                     "sessionId": chat_message.sessionId,
-                    "messageId": chat_message.messageId
+                    "chatMessageId": chat_message.chatMessageId
                 }),
-                message_id=chat_message.messageId,
+                message_id=chat_message.chatMessageId,
                 session_id=chat_message.sessionId
             )
             await sender.send_messages(message_to_send)
-        logger.info(f"Message {chat_message.messageId} for session {chat_message.sessionId} sent to topic '{SERVICEBUS_USER_MESSAGES_TOPIC}'")
+        logger.info(f"Message {chat_message.chatMessageId} for session {chat_message.sessionId} sent to topic '{SERVICEBUS_USER_MESSAGES_TOPIC}'")
     except Exception as e:
-        logger.error(f"Failed to send message to Service Bus for session {chat_message.sessionId}, messageId {chat_message.messageId}: {e}")
+        logger.error(f"Failed to send message to Service Bus for session {chat_message.sessionId}, chatMessageId {chat_message.chatMessageId}: {e}")
         raise HTTPException(status_code=500, detail="Failed to process message.")
 
-    return StreamingResponse(token_stream_generator(chat_message.sessionId, chat_message.messageId), media_type="text/event-stream")
+    return StreamingResponse(token_stream_generator(chat_message.sessionId, chat_message.chatMessageId), media_type="text/event-stream")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

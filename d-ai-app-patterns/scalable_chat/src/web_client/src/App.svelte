@@ -32,8 +32,8 @@
 
   async function send() {
     if (!question.trim() || !sessionId) return;
-    const messageId = crypto.randomUUID();
-    const userMessage = { sender: 'user', content: question, id: messageId };
+    const chatMessageId = crypto.randomUUID();
+    const userMessage = { sender: 'user', content: question, id: chatMessageId };
     messages = [...messages, userMessage];
 
     // Prepare placeholder for assistant response
@@ -49,7 +49,7 @@
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: currentQuestion, sessionId, messageId }),
+        body: JSON.stringify({ message: currentQuestion, sessionId, chatMessageId }),
       });
 
       if (!response.ok) {
