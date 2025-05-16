@@ -28,35 +28,38 @@ flowchart LR
 ```mermaid
 sequenceDiagram
     participant C as Client
-    participant F as Front
-    participant Q as Queue
-    participant W as Worker
-    participant D as DB
+    participant F as Front Service
+    participant Q as Message Queue
+    participant W as Worker Service
+    participant D as Conversation DB
     participant L as LLM API
 
-    C->>F: 1 HTTP request (question + sessionId)
-    F->>Q: 2 Enqueue request
-    W-->>Q: 3 Dequeue request
-    W->>D: 4 Fetch history
-    W->>L: 5 LLM (stream)
-    L-->>W: 6 Stream tokens
-    W->>Q: 7 Enqueue tokens
-    F-->>Q: 8 Dequeue tokens
-    F-->>C: 9 SSE push tokens
-    W->>D: 10 Save Q&A
+    C->>F: 1. HTTP POST /api/session/start
+    F-->>C: Returns sessionId
+    C->>F: 2. HTTP POST /api/chat (question, sessionId, chatMessageId)
+    F->>Q: 3. Enqueue user message (text, sessionId, chatMessageId)
+    Q-->>W: 4. Worker dequeues message
+    W->>D: 5. Fetch history for sessionId (optional)
+    W->>L: 6. Call LLM API with question & history (streaming)
+    L-->>W: 7. Receive LLM response (streamed tokens)
+    W->>Q: 8. Enqueue response (token/EOS, sessionId, chatMessageId)
+    Q-->>F: 9. Front dequeues response tokens (session-aware)
+    F-->>C: 10. Stream tokens to Client via SSE (filtered by chatMessageId)
+    W->>D: 11. Save question & answer to DB (optional)
 ```
 *Figures: High-level architecture (top) and step-by-step data flow (bottom).*
 
-1. **Client → Front:** The client sends a new user question (with a session/thread ID) to the front service via an HTTP request. The front service establishes an SSE connection to the client to stream back the answer.  
-2. **Front → Queue (Request):** The front service immediately packages the question (along with the session ID and possibly user metadata) into a message and places it onto the message queue. It then waits (non-blocking) for response tokens to come back to forward to the client.  
-3. **Queue → Worker:** A free worker service instance picks up the next message from the queue. The queue ensures that messages with the same session ID go to the same worker (or at least one at a time) to maintain ordering.  
-4. **Worker → DB (History fetch):** The worker retrieves the conversation history for that session ID. This could involve querying CosmosDB for previous messages in the thread. (If the LLM API manages context internally via the session ID, this step might be omitted.)  
-5. **Worker → LLM API:** The worker calls the LLM API, sending the user’s question and relevant context (either by constructing a prompt with the retrieved history or by referencing the session ID if the API supports it). The request is made in a **streaming mode** so that the LLM will start returning a partial response immediately.  
-6. **LLM API → Worker (Streaming):** The LLM processes the prompt and streams back the generated answer token by token (or in small chunks). The worker receives this as a stream of data.  
-7. **Worker → Queue (Response stream):** As the worker receives tokens from the LLM, it places them onto the queue as response messages (tagged with the same session ID). These might be very granular (one token each) or slightly bigger chunks of text, depending on implementation. The FIFO nature of the queue and session partitioning preserves the order of tokens. (Alternatively, the worker could stream directly to the front via a persistent connection or RPC, but using the queue simplifies delivery through the existing channel.)  
-8. **Queue → Front (Response):** The front service, which is listening for messages on the queue for that session, dequeues the response tokens in order.  
-9. **Front → Client (SSE):** The front service pushes each token or text chunk to the client over the open SSE connection. The client appends these to the displayed answer in real-time. This continues until the answer is complete. The front then closes the SSE stream (or keeps it alive for reuse if protocol allows, though typically each question is a separate SSE connection in this design).  
-10. **Worker → DB (Save History):** The worker (or another component) saves the interaction – the user question and the assistant’s answer – to the conversation store (CosmosDB) for persistence. This ensures that if the session is long-running, the full history is recorded, and it can be used for future queries or analysis. (If using only LLM’s memory, we may still log to DB for our records.)
+1.  **Client → Front (Session Start):** The client sends an HTTP `POST` request to `/api/session/start`. The Front Service returns a unique `sessionId`.
+2.  **Client → Front (Chat Request):** The client sends the user's question, the `sessionId`, and a client-generated `chatMessageId` to the Front Service via an HTTP `POST` request to `/api/chat`. The Front Service establishes an SSE connection to the client to stream back the answer for this `chatMessageId`.
+3.  **Front → Queue (Request):** The Front Service packages the question (`text`), `sessionId`, and `chatMessageId` into a message. It places this message onto the `user-messages` topic in the Message Queue, using the `sessionId` as the Service Bus message's `session_id` property (for session-aware processing by the queue or worker).
+4.  **Queue → Worker:** A Worker Service instance picks up the message from its subscription on the `user-messages` topic.
+5.  **Worker → DB (History fetch):** (Optional) The worker retrieves the conversation history for the `sessionId` from the Conversation Store.
+6.  **Worker → LLM API:** The worker calls the LLM API, sending the user’s question and relevant context. The request is made in a **streaming mode**.
+7.  **LLM API → Worker (Streaming):** The LLM processes the prompt and streams back the generated answer token by token.
+8.  **Worker → Queue (Response stream):** As the worker receives tokens from the LLM, it places them onto the `token-streams` topic in the Message Queue. Each message contains the `token` (or an `end_of_stream` signal), the original `sessionId`, and `chatMessageId`.
+9.  **Queue → Front (Response):** The Front Service, listening to its subscription on the `token-streams` topic (session-aware, using `sessionId` to receive messages for active client sessions), dequeues the response tokens.
+10. **Front → Client (SSE Stream):** The Front Service streams the tokens to the correct client via the SSE connection previously established for the `sessionId`. It uses the `chatMessageId` from the token message to ensure tokens are routed to the correct message response stream on the client side, sending `data: {"token": "..."}` for each token and `data: __END__` upon receiving the `end_of_stream` signal for that specific `chatMessageId`.
+11. **Worker → DB (Save Q&A):** (Optional) The worker saves the question and answer to the Conversation Store for persistence.
 
 ## Scalability and Performance
 
