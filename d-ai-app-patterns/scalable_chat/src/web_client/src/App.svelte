@@ -68,86 +68,122 @@
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+  body, .page {
+    background: #fafbfc;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+  .page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2.5rem 0;
+  }
   .chat-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    width: 100%;
     max-width: 600px;
-    margin: 0 auto;
-    background-color: #e5ddd5;
+    min-height: 60vh;
+    max-height: 80vh;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
     font-family: 'Roboto', sans-serif;
     font-size: 1rem;
+    margin: 0 auto;
+    padding: 2rem 0 1rem 0;
+    overflow: hidden;
   }
   .chat-header {
-    padding: 1rem;
-    background-color: #008cff;
-    color: white;
     text-align: center;
-    font-size: 1.5rem;
-    flex-shrink: 0;
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: #222;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.01em;
   }
   .messages {
     flex: 1;
     overflow-y: auto;
-    padding: 1rem;
+    padding: 0 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
   }
   .message {
     display: flex;
-    align-items: flex-end;
-    max-width: 70%;
-    padding: 0.75rem;
-    margin: 0.5rem 0;
-    word-wrap: break-word;
-    font-size: 1.1rem;
+    flex-direction: row;
+    align-items: flex-start;
+    max-width: 80%;
+    font-size: 1.08rem;
+    line-height: 1.6;
+    word-break: break-word;
   }
   .message.user {
-    background-color: #dcf8c6;
     align-self: flex-end;
-    margin-left: auto;
-    margin-right: 0.5rem;
-    flex-direction: row-reverse;
-    border-radius: 16px 16px 16px 0;
+    justify-content: flex-end;
+    background: #f5f6f8;
+    color: #222;
+    border-radius: 16px 16px 4px 16px;
+    padding: 0.7rem 1.2rem;
+    margin-right: 0.2rem;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03);
   }
   .message.assistant {
-    background-color: #ffffff;
     align-self: flex-start;
-    margin-right: auto;
-    margin-left: 0.5rem;
-    flex-direction: row;
-    border-radius: 16px 16px 0 16px;
-  }
-  .icon {
-    font-size: 1.2rem;
-    margin: 0 0.5rem;
+    justify-content: flex-start;
+    background: #f9f9fa;
+    color: #222;
+    border-radius: 16px 16px 16px 4px;
+    padding: 0.7rem 1.2rem;
+    margin-left: 0.2rem;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03);
   }
   .content {
     flex: 1;
   }
   .chat-input {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.2rem 2rem 0.5rem 2rem;
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
     position: sticky;
     bottom: 0;
-    background: white;
-    padding: 0.5rem 1rem;
-    border-top: 1px solid #ccc;
-    display: flex;
-    flex-shrink: 0;
+    z-index: 2;
   }
   input {
     flex: 1;
-    padding: 0.75rem;
+    padding: 0.9rem 1.2rem;
     font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+    border-radius: 999px;
+    background: #fafbfc;
+    outline: none;
+    transition: border 0.2s;
+  }
+  input:focus {
+    border: 1.5px solid #b3cdf6;
+    background: #fff;
   }
   button {
-    margin-left: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    background-color: #008cff;
+    padding: 0.7rem 1.5rem;
+    background-color: #222;
     color: white;
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    border-radius: 999px;
     font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  button:hover {
+    background: #444;
   }
 </style>
 
