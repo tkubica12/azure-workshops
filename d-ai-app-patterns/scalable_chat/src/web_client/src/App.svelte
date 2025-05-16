@@ -6,9 +6,21 @@
   let messagesContainer;
   const API_URL = import.meta.env.VITE_API_URL || window._env_?.API_URL;
 
-  onMount(() => {
-    sessionId = localStorage.getItem('session_id') || crypto.randomUUID();
-    localStorage.setItem('session_id', sessionId);
+  onMount(async () => {
+    try {
+      const response = await fetch(`/api/session/start`, { method: 'POST' });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      sessionId = data.sessionId;
+      localStorage.setItem('session_id', sessionId);
+      console.log('Session started with ID:', sessionId);
+    } catch (error) {
+      console.error('Failed to start session:', error);
+      sessionId = localStorage.getItem('session_id') || crypto.randomUUID();
+      localStorage.setItem('session_id', sessionId);
+    }
   });
 
   afterUpdate(() => {
@@ -19,49 +31,74 @@
   });
 
   async function send() {
-    if (!question.trim()) return;
-    console.log('Sending question to API URL:', API_URL);
-    // Append user message
-    messages = [...messages, { sender: 'user', content: question }];
+    if (!question.trim() || !sessionId) return;
+    const messageId = crypto.randomUUID();
+    const userMessage = { sender: 'user', content: question, id: messageId };
+    messages = [...messages, userMessage];
+
     // Prepare placeholder for assistant response
-    messages = [...messages, { sender: 'assistant', content: '' }];
-    const assistantIndex = messages.length - 1;
+    const assistantMessagePlaceholder = { sender: 'assistant', content: '...', id: crypto.randomUUID(), isLoading: true };
+    messages = [...messages, assistantMessagePlaceholder];
+
+    const currentQuestion = question;
+    question = ''; // Clear input
+
     try {
-      const res = await fetch(`${API_URL}/chat`, {
+      const response = await fetch(`/api/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: sessionId, question }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: currentQuestion, sessionId, messageId }),
       });
-      if (!res.ok) {
-        console.error('Fetch error:', res.status, res.statusText);
-        return;
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const reader = res.body.getReader();
+
+      // Handle SSE stream
+      const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      // Stream and parse SSE-like chunks
+      let assistantResponse = '';
+
+      messages = messages.map(msg => 
+        msg.id === assistantMessagePlaceholder.id ? { ...msg, isLoading: true, content: '' } : msg
+      );
+
       while (true) {
-        const { done, value } = await reader.read();
+        const { value, done } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value);
-        const parts = chunk.split('\n\n');
-        for (const part of parts) {
-          if (part.startsWith('data: ')) {
-            const data = part.slice(6).trim();
-            if (data === '__END__') {
-              // End of message
-              break;
-            } else {
-              // Update streamed content
-              messages[assistantIndex].content += data;
-              messages = [...messages];
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const dataStr = line.substring(6);
+            if (dataStr === '__END__') {
+              messages = messages.map(msg => 
+                msg.id === assistantMessagePlaceholder.id ? { ...msg, isLoading: false } : msg
+              );
+              return; // End of stream
+            }
+            try {
+              const data = JSON.parse(dataStr);
+              if (data.token) {
+                assistantResponse += data.token;
+                messages = messages.map(msg => 
+                  msg.id === assistantMessagePlaceholder.id ? { ...msg, content: assistantResponse, isLoading: true } : msg
+                );
+              }
+            } catch (e) {
+              console.error('Error parsing SSE data:', e, 'Raw data:', dataStr);
             }
           }
         }
       }
-    } catch (err) {
-      console.error('Error in send():', err);
-    } finally {
-      question = '';
+    } catch (error) {
+      console.error('Failed to send message or process stream:', error);
+      messages = messages.map(msg => 
+        msg.id === assistantMessagePlaceholder.id ? { ...msg, content: 'Error: Could not connect to the server.', isLoading: false, isError: true } : msg
+      );
     }
   }
 </script>
@@ -143,6 +180,19 @@
     margin-left: 0.2rem;
     box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03);
   }
+  .message.assistant .content {
+    white-space: pre-wrap; /* Allow wrapping of long tokens */
+  }
+  .message.assistant.isLoading .content::after {
+    content: '▋'; /* Blinking cursor */
+    animation: blink 1s step-start infinite;
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+  .message.isError .content {
+    color: red;
+  }
   .content {
     flex: 1;
   }
@@ -190,15 +240,14 @@
 <div class="chat-container">
   <div class="chat-header">Scalable Chat</div>
   <div bind:this={messagesContainer} class="messages">
-    {#each messages as msg}
-      <div class="message {msg.sender}">
-        <span class="icon">{msg.sender === 'user' ? '👤' : '🤖'}</span>
-        <div class="content">{msg.content}</div>
+    {#each messages as message (message.id)}
+      <div class="message" class:user={message.sender === 'user'} class:assistant={message.sender === 'assistant'} class:isLoading={message.isLoading} class:isError={message.isError}>
+        <div class="content">{message.content}</div>
       </div>
     {/each}
   </div>
   <form on:submit|preventDefault={send} class="chat-input">
-    <input bind:value={question} placeholder="Type your message..." autocomplete="off" />
+    <input type="text" bind:value={question} placeholder="Type your message..." />
     <button type="submit">Send</button>
   </form>
 </div>

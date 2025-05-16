@@ -8,7 +8,7 @@ export default ({ mode }) => {
     plugins: [svelte()],
     server: {
       proxy: {
-        '/chat': {
+        '/api': { // Changed from '/chat' to '/api' to catch all API calls
           target: env.VITE_API_URL,
           changeOrigin: true,
           secure: false,

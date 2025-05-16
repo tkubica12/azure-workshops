@@ -1,8 +1,10 @@
 import os
 import json
 import logging
+import asyncio
+import uuid
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -30,19 +32,21 @@ logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 logger.setLevel(LOG_LEVEL)
 
-# Initialize Azure credentials and Service Bus client
+# Initialize Azure credentials
 credential = DefaultAzureCredential()
-sb_client = ServiceBusClient(
-    fully_qualified_namespace=SERVICEBUS_FULLY_QUALIFIED_NAMESPACE,
-    credential=credential,
-)
+
+# Global ServiceBusClient
+sb_client: ServiceBusClient | None = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup logic (if any) goes here
+    global sb_client
+    logger.info("Application startup: Initializing Service Bus client.")
+    sb_client = ServiceBusClient(fully_qualified_namespace=SERVICEBUS_FULLY_QUALIFIED_NAMESPACE, credential=credential)
     yield
-    # Shutdown logic
-    await sb_client.close()
+    logger.info("Application shutdown: Closing Service Bus client.")
+    if sb_client:
+        await sb_client.close()
     await credential.close()
 
 app = FastAPI(
@@ -63,60 +67,73 @@ app.add_middleware(
     allow_credentials=True,
 )
 
-class ChatRequest(BaseModel):
-    """
-    Request model for chat API
-    - session_id: Conversation session identifier
-    - question: User question text
-    """
-    session_id: str
-    question: str
+class ChatMessage(BaseModel):
+    message: str
+    sessionId: str
+    messageId: str
 
-@app.post("/chat")
-async def chat(request: ChatRequest):
-    logger.info(f"Received user request: session_id={request.session_id}, question={request.question}")
-    """
-    Start a new SSE stream for the given session.
-    Enqueues user question to Service Bus and streams back response tokens.
-    """
-    # Enqueue the request message
-    sender = sb_client.get_topic_sender(topic_name=SERVICEBUS_USER_MESSAGES_TOPIC)
-    async with sender:
-        payload = {"session_id": request.session_id, "question": request.question}
-        message = ServiceBusMessage(
-            json.dumps(payload), session_id=request.session_id
-        )
-        await sender.send_messages(message)
-        logger.info(f"Enqueued user message to Service Bus: {payload}")
+class SessionStartResponse(BaseModel):
+    sessionId: str
 
-    async def event_generator():
-        """
-        Async generator that yields SSE events from Service Bus messages (token stream).
-        """
-        receiver = sb_client.get_subscription_receiver(
-            topic_name=SERVICEBUS_TOKEN_STREAMS_TOPIC,
-            subscription_name=SERVICEBUS_TOKEN_STREAMS_SUBSCRIPTION,
-            session_id=request.session_id,
-            prefetch_count=1,
-        )
-        async with receiver:
-            while True:
-                messages = await receiver.receive_messages(max_wait_time=10)
-                if not messages:
-                    continue
-                for msg in messages:
-                    body = msg.body.decode() if hasattr(msg.body, 'decode') else str(msg)
-                    await receiver.complete_message(msg)
-                    logger.info(f"Received Service Bus message: {body}")
-                    logger.info(f"Sending SSE chunk: {body}")
-                    # Format as SSE data field
-                    yield f"data: {body}\n\n"
-                    # End on sentinel
-                    if body == "__END__":
-                        logger.info(f"End of SSE stream for session {request.session_id}")
-                        return
+@app.post("/api/session/start", response_model=SessionStartResponse)
+async def start_session():
+    sessionId = str(uuid.uuid4())
+    logger.info(f"New session started: {sessionId}")
+    return SessionStartResponse(sessionId=sessionId)
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+async def token_stream_generator(sessionId: str, initial_messageId: str):
+    logger.info(f"Opening sessionful receiver for token streams for session: {sessionId}")
+    async with sb_client.get_subscription_receiver(
+        SERVICEBUS_TOKEN_STREAMS_TOPIC,
+        SERVICEBUS_TOKEN_STREAMS_SUBSCRIPTION,
+        session_id=sessionId
+    ) as receiver:
+        logger.info(f"Token stream receiver opened for session: {sessionId}")
+        async for sb_msg in receiver:
+            logger.debug(f"Received message: {sb_msg}")
+            data = json.loads(str(sb_msg))
+            # Only process tokens for the matching messageId
+            if data.get("messageId") != initial_messageId:
+                await receiver.complete_message(sb_msg)
+                continue
+            # End-of-stream signal
+            if data.get("end_of_stream"):
+                yield "data: __END__\n\n"
+                await receiver.complete_message(sb_msg)
+                break
+            # Token data event
+            token = data.get("token")
+            if token is not None:
+                yield f"data: {{\"token\": \"{token}\"}}\n\n"
+                await receiver.complete_message(sb_msg)
+    logger.info(f"SSE stream generator finished for session: {sessionId}, message: {initial_messageId}")
+
+@app.post("/api/chat")
+async def chat_endpoint(chat_message: ChatMessage, request: Request):
+    global sb_client
+    if not sb_client:
+        raise HTTPException(status_code=503, detail="Service Bus client not initialized.")
+
+    logger.info(f"Received message: '{chat_message.message}' for session: {chat_message.sessionId}, messageId: {chat_message.messageId}")
+
+    try:
+        async with sb_client.get_topic_sender(SERVICEBUS_USER_MESSAGES_TOPIC) as sender:
+            message_to_send = ServiceBusMessage(
+                body=json.dumps({
+                    "text": chat_message.message,
+                    "sessionId": chat_message.sessionId,
+                    "messageId": chat_message.messageId
+                }),
+                message_id=chat_message.messageId,
+                session_id=chat_message.sessionId
+            )
+            await sender.send_messages(message_to_send)
+        logger.info(f"Message {chat_message.messageId} for session {chat_message.sessionId} sent to topic '{SERVICEBUS_USER_MESSAGES_TOPIC}'")
+    except Exception as e:
+        logger.error(f"Failed to send message to Service Bus for session {chat_message.sessionId}, messageId {chat_message.messageId}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process message.")
+
+    return StreamingResponse(token_stream_generator(chat_message.sessionId, chat_message.messageId), media_type="text/event-stream")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
