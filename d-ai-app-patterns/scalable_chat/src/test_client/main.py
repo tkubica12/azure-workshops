@@ -8,7 +8,7 @@ import sseclient
 
 load_dotenv()
 
-TARGET_BASE_URL = os.getenv("TARGET_BASE_URL", "http://localhost:8000")
+LOCUST_HOST = os.getenv("LOCUST_HOST", "http://localhost:8000")
 DEFAULT_TEST_MESSAGE = "Hello from Locust test user"
 TEST_MESSAGE = os.getenv("TEST_MESSAGE", DEFAULT_TEST_MESSAGE)
 
@@ -37,7 +37,7 @@ class ChatUser(HttpUser):
         Initialize user session and set base URL.
         """
         self.session_id = None
-        self.client.base_url = TARGET_BASE_URL
+        self.client.base_url = LOCUST_HOST
         self.start_chat_session()
 
     def start_chat_session(self):
