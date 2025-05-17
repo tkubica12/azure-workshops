@@ -9,7 +9,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from azure.identity.aio import DefaultAzureCredential
-from azure.servicebus.aio import ServiceBusClient
+from azure.servicebus.aio import ServiceBusClient, ServiceBusSender
 from azure.servicebus import ServiceBusMessage
 from contextlib import asynccontextmanager
 import uvicorn
@@ -37,17 +37,51 @@ credential = DefaultAzureCredential()
 
 # Global ServiceBusClient
 sb_client: ServiceBusClient | None = None
+# Sender pool size (defaults to 10) and the pool itself
+SERVICEBUS_SENDER_POOL_SIZE = int(os.getenv("SERVICEBUS_SENDER_POOL_SIZE", "10"))
+sender_pool: asyncio.Queue | None = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global sb_client
-    logger.info("Application startup: Initializing Service Bus client.")
-    sb_client = ServiceBusClient(fully_qualified_namespace=SERVICEBUS_FULLY_QUALIFIED_NAMESPACE, credential=credential)
-    yield
-    logger.info("Application shutdown: Closing Service Bus client.")
-    if sb_client:
-        await sb_client.close()
-    await credential.close()
+    global sb_client, sender_pool
+
+    local_sb_client = None
+    
+    try:
+        logger.info("Application startup: Initializing Service Bus client.")
+        local_sb_client = ServiceBusClient(
+            fully_qualified_namespace=SERVICEBUS_FULLY_QUALIFIED_NAMESPACE,
+            credential=credential
+        )
+        # Assign to global client
+        sb_client = local_sb_client
+        # Initialize sender pool
+        logger.info(f"Application startup: Creating {SERVICEBUS_SENDER_POOL_SIZE}-size Service Bus sender pool.")
+        local_pool: asyncio.Queue = asyncio.Queue()
+        for _ in range(SERVICEBUS_SENDER_POOL_SIZE):
+            sender = local_sb_client.get_topic_sender(SERVICEBUS_USER_MESSAGES_TOPIC)
+            lock = asyncio.Lock()
+            await local_pool.put((sender, lock))
+        sender_pool = local_pool
+        
+        yield  # Application runs
+
+    finally:
+        # Close all pooled senders
+        if sender_pool:
+            logger.info("Application shutdown: Closing Service Bus sender pool.")
+            while not sender_pool.empty():
+                sender, _ = await sender_pool.get()
+                await sender.close()
+        # Close client
+        logger.info("Application shutdown: Closing Service Bus client.")
+        if local_sb_client:
+            await local_sb_client.close()
+        # Close credentials
+        await credential.close()
+        # Reset globals
+        sb_client = None
+        sender_pool = None
 
 app = FastAPI(
     title="Scalable Chat Front Service",
@@ -90,7 +124,7 @@ async def token_stream_generator(sessionId: str, initial_chatMessageId: str):
     ) as receiver:
         logger.info(f"Token stream receiver opened for session: {sessionId}")
         async for sb_msg in receiver:
-            logger.debug(f"Received chunk: {sb_msg}")
+            logger.debug("Received chunk: %s", sb_msg)
             data = json.loads(str(sb_msg))
             # Only process tokens for the matching chatMessageId
             if data.get("chatMessageId") != initial_chatMessageId:
@@ -110,24 +144,33 @@ async def token_stream_generator(sessionId: str, initial_chatMessageId: str):
 
 @app.post("/api/chat")
 async def chat_endpoint(chat_message: ChatMessage, request: Request):
-    global sb_client
+    global sb_client, sender_pool
     if not sb_client:
         raise HTTPException(status_code=503, detail="Service Bus client not initialized.")
+    if not sender_pool:
+        raise HTTPException(status_code=503, detail="Service Bus sender pool not initialized.")
 
     logger.info(f"Received message: '{chat_message.message}' for session: {chat_message.sessionId}, chatMessageId: {chat_message.chatMessageId}")
 
     try:
-        async with sb_client.get_topic_sender(SERVICEBUS_USER_MESSAGES_TOPIC) as sender:
-            message_to_send = ServiceBusMessage(
-                body=json.dumps({
-                    "text": chat_message.message,
-                    "sessionId": chat_message.sessionId,
-                    "chatMessageId": chat_message.chatMessageId
-                }),
-                message_id=chat_message.chatMessageId,
-                session_id=chat_message.sessionId
-            )
-            await sender.send_messages(message_to_send)
+        # Prepare Service Bus message
+        message_to_send = ServiceBusMessage(
+            body=json.dumps({
+                "text": chat_message.message,
+                "sessionId": chat_message.sessionId,
+                "chatMessageId": chat_message.chatMessageId
+            }),
+            message_id=chat_message.chatMessageId,
+            session_id=chat_message.sessionId
+        )
+        # Acquire a sender and its lock from the pool
+        sender, lock = await sender_pool.get()
+        try:
+            async with lock:
+                await sender.send_messages(message_to_send)
+        finally:
+            # Return sender to pool
+            await sender_pool.put((sender, lock))
         logger.info(f"Message {chat_message.chatMessageId} for session {chat_message.sessionId} sent to topic '{SERVICEBUS_USER_MESSAGES_TOPIC}'")
     except Exception as e:
         logger.error(f"Failed to send message to Service Bus for session {chat_message.sessionId}, chatMessageId {chat_message.chatMessageId}: {e}")
