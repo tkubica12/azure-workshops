@@ -48,7 +48,7 @@ Ensure `LOCUST_USERS`, `LOCUST_SPAWN_RATE`, and `LOCUST_RUN_TIME` are set in you
 uv run -- locust -f main.py --headless --users $env:LOCUST_USERS --spawn-rate $env:LOCUST_SPAWN_RATE --run-time $env:LOCUST_RUN_TIME --host $env:TARGET_BASE_URL
 
 # Alternatively, pass values directly:
-uv run -- locust -f main.py --headless --users 50 --spawn-rate 0.3 --run-time 3m --host http://localhost:8000 --only-summary
+uv run -- locust -f main.py --headless --users 50 --spawn-rate 10 --run-time 3m --host http://localhost:8000 --only-summary
 ```
 Locust will print statistics to the console upon completion.
 

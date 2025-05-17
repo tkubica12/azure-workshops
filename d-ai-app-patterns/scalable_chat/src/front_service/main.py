@@ -90,7 +90,7 @@ async def token_stream_generator(sessionId: str, initial_chatMessageId: str):
     ) as receiver:
         logger.info(f"Token stream receiver opened for session: {sessionId}")
         async for sb_msg in receiver:
-            logger.debug(f"Received message: {sb_msg}")
+            logger.debug(f"Received chunk: {sb_msg}")
             data = json.loads(str(sb_msg))
             # Only process tokens for the matching chatMessageId
             if data.get("chatMessageId") != initial_chatMessageId:
