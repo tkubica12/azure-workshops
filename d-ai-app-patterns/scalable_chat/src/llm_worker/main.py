@@ -15,6 +15,7 @@ SERVICEBUS_FULLY_QUALIFIED_NAMESPACE = os.getenv("SERVICEBUS_FULLY_QUALIFIED_NAM
 SERVICEBUS_USER_MESSAGES_TOPIC = os.getenv("SERVICEBUS_USER_MESSAGES_TOPIC")
 SERVICEBUS_USER_MESSAGES_SUBSCRIPTION = os.getenv("SERVICEBUS_USER_MESSAGES_SUBSCRIPTION")
 SERVICEBUS_TOKEN_STREAMS_TOPIC = os.getenv("SERVICEBUS_TOKEN_STREAMS_TOPIC")
+MAX_CONCURRENCY = int(os.getenv("MAX_CONCURRENCY", 10))
 
 if not SERVICEBUS_FULLY_QUALIFIED_NAMESPACE or not SERVICEBUS_USER_MESSAGES_TOPIC or not SERVICEBUS_USER_MESSAGES_SUBSCRIPTION or not SERVICEBUS_TOKEN_STREAMS_TOPIC:
     raise RuntimeError("Missing Service Bus configuration in environment variables")
@@ -91,32 +92,58 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
         # Potentially re-raise or handle to allow the message to be abandoned/dead-lettered by the caller
         raise
 
+async def _process_and_handle_message(sb_client: ServiceBusClient, msg: ServiceBusMessage, receiver, semaphore: asyncio.Semaphore, logger_instance: logging.Logger):
+    """
+    Wrapper to process a message and ensure semaphore release and message settlement.
+    """
+    try:
+        await process_message(sb_client, msg)
+        await receiver.complete_message(msg)
+        logger_instance.info(f"Successfully processed and completed message id: {msg.message_id}")
+    except Exception as e:
+        logger_instance.error(f"Unhandled exception during message processing for msg_id {msg.message_id}. Error: {e}. Abandoning message.")
+        try:
+            await receiver.abandon_message(msg)
+        except Exception as abandon_e:
+            logger_instance.error(f"Failed to abandon message {msg.message_id}. Error: {abandon_e}")
+    finally:
+        semaphore.release()
+
 async def main():
     logger.info("Starting LLM worker...")
     logger.info(f"Service Bus Namespace: {SERVICEBUS_FULLY_QUALIFIED_NAMESPACE}")
     logger.info(f"Listening for user messages on Topic: '{SERVICEBUS_USER_MESSAGES_TOPIC}', Subscription: '{SERVICEBUS_USER_MESSAGES_SUBSCRIPTION}'")
     logger.info(f"Sending token streams to Topic: '{SERVICEBUS_TOKEN_STREAMS_TOPIC}'")
+    logger.info(f"Maximum concurrency for message processing: {MAX_CONCURRENCY}")
     
     credential = DefaultAzureCredential()
+    semaphore = asyncio.Semaphore(MAX_CONCURRENCY)
     
     while True:
+        active_tasks = set()
         try:
             async with ServiceBusClient(fully_qualified_namespace=SERVICEBUS_FULLY_QUALIFIED_NAMESPACE, credential=credential) as sb_client:
                 async with sb_client.get_subscription_receiver(SERVICEBUS_USER_MESSAGES_TOPIC, SERVICEBUS_USER_MESSAGES_SUBSCRIPTION) as receiver:
                     logger.info("LLM Worker connected and listening for messages.")
                     async for msg in receiver:
-                        try:
-                            await process_message(sb_client, msg)
-                            await receiver.complete_message(msg)
-                        except Exception as e:
-                            logger.error(f"Unhandled exception during message processing for msg_id {msg.message_id}. Error: {e}. Abandoning message.")
-                            await receiver.abandon_message(msg) # Abandon if processing fails critically
+                        await semaphore.acquire() # Wait for an available slot
+                        task = asyncio.create_task(
+                            _process_and_handle_message(sb_client, msg, receiver, semaphore, logger)
+                        )
+                        active_tasks.add(task)
+                        # Remove task from set upon completion to prevent memory leak over long runs
+                        task.add_done_callback(active_tasks.discard)
         except Exception as e:
             logger.error(f"Exception in LLM worker main connection/receive loop: {e}. Retrying in 10 seconds...")
+            # Attempt to wait for any outstanding tasks to complete or cancel them
+            # This is a simplified approach; more sophisticated shutdown might be needed for production
+            if active_tasks:
+                logger.info(f"Waiting for {len(active_tasks)} active tasks to complete before retrying...")
+                await asyncio.wait(list(active_tasks), timeout=5.0) # Wait for a short period
             await asyncio.sleep(10) # Wait before retrying connection
         finally:
-            # Close credential only if loop is broken, but this loop is infinite.
-            # Credential will be closed if main exits, which it doesn't in this structure.
+            # Ensure credential is closed if main loop exits (though this one is infinite)
+            # await credential.close() # DefaultAzureCredential does not need explicit close in this async context usually
             pass 
 
 if __name__ == "__main__":
