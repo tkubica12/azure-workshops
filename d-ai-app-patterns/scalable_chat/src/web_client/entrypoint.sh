@@ -12,4 +12,4 @@ window._env_ = {
 EOF
 
 # Start nginx in foreground
-inginx -g 'daemon off;'
+nginx -g 'daemon off;'
