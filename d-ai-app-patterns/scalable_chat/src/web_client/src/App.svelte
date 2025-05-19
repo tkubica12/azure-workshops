@@ -8,7 +8,7 @@
 
   onMount(async () => {
     try {
-      const response = await fetch(`/api/session/start`, { method: 'POST' });
+      const response = await fetch(`${API_URL}/api/session/start`, { method: 'POST' });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -44,7 +44,7 @@
     question = ''; // Clear input
 
     try {
-      const response = await fetch(`/api/chat`, {
+      const response = await fetch(`${API_URL}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
