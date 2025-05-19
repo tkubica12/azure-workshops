@@ -1,1 +1,1 @@
-service_bus_sku = "Premium"
+service_bus_sku = "Standard"
