@@ -173,7 +173,6 @@ async def chat_endpoint(chat_message: ChatMessage, request: Request):
     logger.info(f"Received message: '{chat_message.message}' for session: {chat_message.sessionId}, chatMessageId: {chat_message.chatMessageId}")
 
     try:
-        # Prepare Service Bus message
         message_to_send = ServiceBusMessage(
             body=json.dumps({
                 "text": chat_message.message,
