@@ -3,7 +3,7 @@ name: BUILD d-ai-app-patterns-scalable-chat-web-client
 on:
   push:
     paths:
-      - 'd-ai-app-patterns/scalable-chat/src/web_client/**'
+      - 'd-ai-app-patterns/scalable_chat/src/web_client/**'
   workflow_dispatch:
 
 permissions:
@@ -28,6 +28,6 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
-        context: d-ai-app-patterns/scalable-chat/src/web_client
+        context: d-ai-app-patterns/scalable_chat/src/web_client
         push: true
         tags: ghcr.io/${{ github.repository }}/d-ai-app-patterns-scalable-chat-web-client:latest

@@ -3,7 +3,7 @@ name: BUILD d-ai-app-patterns-scalable-chat-llm-worker
 on:
   push:
     paths:
-      - 'd-ai-app-patterns/scalable-chat/src/llm_worker/**'
+      - 'd-ai-app-patterns/scalable_chat/src/llm_worker/**'
   workflow_dispatch: 
 
 permissions:
@@ -28,6 +28,6 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
-        context: d-ai-app-patterns/scalable-chat/src/llm_worker
+        context: d-ai-app-patterns/scalable_chat/src/llm_worker
         push: true
         tags: ghcr.io/${{ github.repository }}/d-ai-app-patterns-scalable-chat-llm-worker:latest
