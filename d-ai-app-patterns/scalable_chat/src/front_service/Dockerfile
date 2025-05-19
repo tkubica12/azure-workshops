@@ -1,20 +1,21 @@
-# Use official Python image
 FROM python:3.12-slim
 
-# Set work directory
 WORKDIR /app
 
-# Install dependencies via pip-compatible uv
-COPY pyproject.toml uv.lock ./
-RUN pip install --upgrade pip \
-    && pip install uv \
-    && uv install
+# Install curl for the uv installer
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
 
-# Copy project files
+# Download and install uv
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
+RUN sh /uv-installer.sh && rm /uv-installer.sh
+
+# Copy dependency files and install dependencies
+COPY pyproject.toml uv.lock ./
+RUN uv pip install
+
+# Copy the rest of the project
 COPY . .
 
-# Expose port
 EXPOSE 8000
 
-# Start the app with uvicorn
 CMD ["uv", "run", "main.py"]
