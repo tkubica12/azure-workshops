@@ -31,7 +31,7 @@ resource "azurerm_container_app" "front_service" {
 
       env {
         name  = "SERVICEBUS_FULLY_QUALIFIED_NAMESPACE"
-        value = azurerm_servicebus_namespace.main.endpoint
+        value = "${azurerm_servicebus_namespace.main.name}.servicebus.windows.net"
       }
       env {
         name  = "SERVICEBUS_USER_MESSAGES_TOPIC"
