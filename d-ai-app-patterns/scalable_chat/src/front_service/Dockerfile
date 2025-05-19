@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certifi
 ADD https://astral.sh/uv/install.sh /uv-installer.sh
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 
+# Add uv to PATH
+ENV PATH="/root/.local/bin:${PATH}"
+
 # Copy dependency files and install dependencies
 COPY pyproject.toml uv.lock ./
 RUN uv pip install
