@@ -31,8 +31,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
  # ============================
 # Stage 3: Runtime (final image)
 # ============================
-# We could use a smaller image like python-slim or alpine, but here we stick with Debian
-FROM python:3.12-bookworm-slim AS runtime
+FROM python:3.12-slim AS runtime
 
  # Copy virtual environment and code from builder stage
 COPY --from=builder /app /app
