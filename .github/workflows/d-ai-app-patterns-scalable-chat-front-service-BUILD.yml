@@ -5,6 +5,9 @@ on:
     paths:
       - 'd-ai-app-patterns/scalable-chat/src/front_service/**'
   workflow_dispatch: 
+  pull_request:
+    paths:
+      - 'd-ai-app-patterns/scalable-chat/src/front_service/**'
 
 permissions:
   contents: read
