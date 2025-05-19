@@ -26,7 +26,7 @@ resource "azurerm_container_app" "web_client" {
       memory = "0.5Gi"
 
       env {
-        name  = "VITE_API_URL"
+        name  = "API_URL"
         value = "https://${azurerm_container_app.front_service.ingress[0].fqdn}"
       }
     }

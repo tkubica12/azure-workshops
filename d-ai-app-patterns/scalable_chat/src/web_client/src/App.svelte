@@ -4,7 +4,7 @@
   let messages = [];
   let sessionId;
   let messagesContainer;
-  const API_URL = import.meta.env.VITE_API_URL || window._env_?.API_URL;
+  const API_URL = import.meta.env.API_URL || window._env_?.API_URL;
 
   onMount(async () => {
     try {
