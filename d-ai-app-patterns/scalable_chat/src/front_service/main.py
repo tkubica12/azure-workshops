@@ -55,7 +55,6 @@ credential = DefaultAzureCredential()
 
 # Global ServiceBusClient
 sb_client: ServiceBusClient | None = None
-# Sender pool size (defaults to 10) and the pool itself
 SERVICEBUS_SENDER_POOL_SIZE = int(os.getenv("SERVICEBUS_SENDER_POOL_SIZE", "10"))
 sender_pool: asyncio.Queue | None = None
 
