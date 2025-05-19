@@ -2,7 +2,7 @@
 # Stage 1: Builder (install dependencies)
 # ============================
 # Using the official uv image with Python 3.14 on Bookworm Slim (Debian)
-FROM ghcr.io/astral-sh/uv:latest AS builder
+FROM ghcr.io/astral-sh/uv:debian-slim AS builder
 
  # Set working directory
 WORKDIR /app
