@@ -1,24 +1,48 @@
-FROM python:3.12-slim
+# ============================
+# Stage 1: Builder (install dependencies)
+# ============================
+# Using the official uv image with Python 3.14 on Bookworm Slim (Debian)
+FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim AS builder
 
+ # Set working directory
 WORKDIR /app
 
-# Install curl for the uv installer
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+ # Copy lock and project file for dependency installation
+COPY uv.lock pyproject.toml /app/
 
-# Download and install uv
-ADD https://astral.sh/uv/install.sh /uv-installer.sh
-RUN sh /uv-installer.sh && rm /uv-installer.sh
+ # Set environment variables for faster and more stable installation
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
 
-# Add uv to PATH
-ENV PATH="/root/.local/bin:${PATH}"
+ # Use cache for uv so dependencies are not installed from scratch on every build
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project
 
-# Copy dependency files and install dependencies
-COPY pyproject.toml uv.lock ./
-RUN uv pip install --system --requirements uv.lock
+ # ============================
+# Stage 2: Build application
+# ============================
+# Copy the rest of the code and install the project itself
+COPY . /app
 
-# Copy the rest of the project
-COPY . .
+ # Sync again, this time with project installation
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen
+
+ # ============================
+# Stage 3: Runtime (final image)
+# ============================
+# We could use a smaller image like python-slim or alpine, but here we stick with Debian
+FROM python:3.14-bookworm-slim AS runtime
+
+ # Copy virtual environment and code from builder stage
+COPY --from=builder /app /app
+
+ # Adjust PATH to run python/uvicorn from the created .venv
+ENV PATH="/app/.venv/bin:${PATH}"
+
+ # Set working directory
+WORKDIR /app
 
 EXPOSE 8000
 
-CMD ["python", "main.py"]
+ENTRYPOINT ["uv", "run", "python", "main.py"]
