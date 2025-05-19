@@ -16,3 +16,13 @@ Azure region for resources.
 Examples: swedencentral, westeurope, northeurope, germanywestcentral.
 EOF
 }
+
+variable "service_bus_sku" {
+  type        = string
+  default     = "Premium"
+  description = "Service Bus SKU: Standard or Premium"
+  validation {
+    condition     = contains(["Standard", "Premium"], var.service_bus_sku)
+    error_message = "SKU must be either 'Standard' or 'Premium'."
+  }
+}
