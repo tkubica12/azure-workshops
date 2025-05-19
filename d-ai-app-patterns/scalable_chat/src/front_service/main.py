@@ -13,6 +13,8 @@ from azure.servicebus.aio import ServiceBusClient, ServiceBusSender
 from azure.servicebus import ServiceBusMessage
 from contextlib import asynccontextmanager
 import uvicorn
+from azure.monitor.opentelemetry import configure_azure_monitor
+from opentelemetry import trace
 
 # Load local .env when in development
 load_dotenv()
@@ -31,6 +33,22 @@ LOG_LEVEL = os.getenv('LOG_LEVEL', 'WARNING').upper()
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 logger.setLevel(LOG_LEVEL)
+
+# Azure Monitor configuration
+configure_azure_monitor(
+    enable_live_metrics=True,
+    instrumentation_options={
+        "azure_sdk": {"enabled": True},
+        "django": {"enabled": False},
+        "fastapi": {"enabled": True},
+        "flask": {"enabled": False},
+        "psycopg2": {"enabled": False},
+        "requests": {"enabled": False},
+        "urllib": {"enabled": False},
+        "urllib3": {"enabled": False},
+    }
+    )
+tracer = trace.get_tracer(__name__)
 
 # Initialize Azure credentials
 credential = DefaultAzureCredential()
@@ -60,6 +78,8 @@ async def lifespan(app: FastAPI):
         local_pool: asyncio.Queue = asyncio.Queue()
         for _ in range(SERVICEBUS_SENDER_POOL_SIZE):
             sender = local_sb_client.get_topic_sender(SERVICEBUS_USER_MESSAGES_TOPIC)
+            # Open AMQP link once per sender
+            await sender.__aenter__()
             lock = asyncio.Lock()
             await local_pool.put((sender, lock))
         sender_pool = local_pool
@@ -72,7 +92,8 @@ async def lifespan(app: FastAPI):
             logger.info("Application shutdown: Closing Service Bus sender pool.")
             while not sender_pool.empty():
                 sender, _ = await sender_pool.get()
-                await sender.close()
+                # Cleanly close AMQP link for each sender
+                await sender.__aexit__(None, None, None)
         # Close client
         logger.info("Application shutdown: Closing Service Bus client.")
         if local_sb_client:
