@@ -14,11 +14,12 @@ ENV PATH="/root/.local/bin:${PATH}"
 
 # Copy dependency files and install dependencies
 COPY pyproject.toml uv.lock ./
-RUN uv pip install
+RUN uv pip install --system --project
+
 
 # Copy the rest of the project
 COPY . .
 
 EXPOSE 8000
 
-CMD ["uv", "run", "main.py"]
+CMD ["python", "main.py"]
