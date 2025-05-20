@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 from azure.identity.aio import DefaultAzureCredential
 from azure.servicebus.aio import ServiceBusClient
 from azure.servicebus import ServiceBusMessage
+from azure.monitor.opentelemetry import configure_azure_monitor
+from opentelemetry import trace
 
 # Load local .env when in development
 load_dotenv()
@@ -25,6 +27,22 @@ LOG_LEVEL = os.getenv('LOG_LEVEL', 'WARNING').upper()
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 logger.setLevel(LOG_LEVEL)
+
+# Azure Monitor configuration
+configure_azure_monitor(
+    enable_live_metrics=True,
+    instrumentation_options={
+        "azure_sdk": {"enabled": True},
+        "django": {"enabled": False},
+        "fastapi": {"enabled": False}, # LLM worker doesn't use FastAPI
+        "flask": {"enabled": False},
+        "psycopg2": {"enabled": False},
+        "requests": {"enabled": False},
+        "urllib": {"enabled": False},
+        "urllib3": {"enabled": False},
+    }
+)
+tracer = trace.get_tracer(__name__)
 
 async def process_message(sb_client: ServiceBusClient, service_bus_message):
     """
