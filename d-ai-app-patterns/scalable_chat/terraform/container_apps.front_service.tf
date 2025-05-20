@@ -35,15 +35,15 @@ resource "azurerm_container_app" "front_service" {
       }
       env {
         name  = "SERVICEBUS_USER_MESSAGES_TOPIC"
-        value = "user-messages" 
+        value = azurerm_servicebus_topic.user_messages.name
       }
       env {
         name  = "SERVICEBUS_TOKEN_STREAMS_TOPIC"
-        value = "token-streams" 
+        value = azurerm_servicebus_topic.token_streams.name
       }
       env {
         name  = "SERVICEBUS_TOKEN_STREAMS_SUBSCRIPTION"
-        value = "front-service" 
+        value = azurerm_servicebus_subscription.front_service.name
       }
       env {
         name  = "SERVICEBUS_SENDER_POOL_SIZE"

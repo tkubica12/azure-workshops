@@ -48,6 +48,18 @@ resource "azurerm_role_assignment" "app_servicebus_receiver" {
   principal_id         = azurerm_user_assigned_identity.main.principal_id
 }
 
+resource "azurerm_role_assignment" "llm_worker_servicebus_receiver" {
+  scope                = azurerm_servicebus_namespace.main.id
+  role_definition_name = "Azure Service Bus Data Receiver"
+  principal_id         = azurerm_container_app.llm_worker.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "llm_worker_servicebus_sender" {
+  scope                = azurerm_servicebus_namespace.main.id
+  role_definition_name = "Azure Service Bus Data Sender"
+  principal_id         = azurerm_container_app.llm_worker.identity[0].principal_id
+}
+
 // Cosmos DB
 resource "random_uuid" "cosmosdb_role_assignment_guid_self" {}
 resource "random_uuid" "cosmosdb_role_assignment_guid_app" {}
