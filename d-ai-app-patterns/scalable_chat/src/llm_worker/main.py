@@ -8,33 +8,41 @@ from azure.servicebus.aio import ServiceBusClient
 from azure.servicebus import ServiceBusMessage
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
+from azure.ai.inference.aio import ChatCompletionsClient  # async client for streaming
+from azure.ai.inference.models import SystemMessage, UserMessage
+from azure.core.pipeline.transport import AioHttpTransport # Existing import
 
-# Load local .env when in development
+
+# Load .env in development
 load_dotenv()
 
-# Read configuration from environment
+
+# Service Bus and concurrency configuration
 SERVICEBUS_FULLY_QUALIFIED_NAMESPACE = os.getenv("SERVICEBUS_FULLY_QUALIFIED_NAMESPACE")
 SERVICEBUS_USER_MESSAGES_TOPIC = os.getenv("SERVICEBUS_USER_MESSAGES_TOPIC")
 SERVICEBUS_USER_MESSAGES_SUBSCRIPTION = os.getenv("SERVICEBUS_USER_MESSAGES_SUBSCRIPTION")
 SERVICEBUS_TOKEN_STREAMS_TOPIC = os.getenv("SERVICEBUS_TOKEN_STREAMS_TOPIC")
 MAX_CONCURRENCY = int(os.getenv("MAX_CONCURRENCY", 10))
 
+
 if not SERVICEBUS_FULLY_QUALIFIED_NAMESPACE or not SERVICEBUS_USER_MESSAGES_TOPIC or not SERVICEBUS_USER_MESSAGES_SUBSCRIPTION or not SERVICEBUS_TOKEN_STREAMS_TOPIC:
     raise RuntimeError("Missing Service Bus configuration in environment variables")
 
-# Logging configuration
+
+# Logging
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'WARNING').upper()
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 logger.setLevel(LOG_LEVEL)
 
-# Azure Monitor configuration
+
+# Azure Monitor (optional, for observability)
 configure_azure_monitor(
     enable_live_metrics=True,
     instrumentation_options={
         "azure_sdk": {"enabled": True},
         "django": {"enabled": False},
-        "fastapi": {"enabled": False}, # LLM worker doesn't use FastAPI
+        "fastapi": {"enabled": False},
         "flask": {"enabled": False},
         "psycopg2": {"enabled": False},
         "requests": {"enabled": False},
@@ -44,19 +52,30 @@ configure_azure_monitor(
 )
 tracer = trace.get_tracer(__name__)
 
+
+# Azure AI Inference endpoint
+AZURE_AI_CHAT_ENDPOINT = os.getenv("AZURE_AI_CHAT_ENDPOINT")
+if not AZURE_AI_CHAT_ENDPOINT:
+    raise RuntimeError("Missing required environment variable AZURE_AI_CHAT_ENDPOINT")
+
+
+# Shared Azure credentials and LLM client
+shared_credential = DefaultAzureCredential(exclude_interactive_browser_credential=False)
+chat_client = ChatCompletionsClient(
+    endpoint=AZURE_AI_CHAT_ENDPOINT,
+    credential=shared_credential,
+    credential_scopes=["https://cognitiveservices.azure.com/.default"],
+    transport=AioHttpTransport(retries=3)
+)
+
 async def process_message(sb_client: ServiceBusClient, service_bus_message):
     """
-    Processes a single message from the user messages topic.
-    Extracts text, sessionId, and chatMessageId.
-    Sends response tokens (currently static) back to the token streams topic,
-    including sessionId and chatMessageId for routing by the front service.
+    Handle a single user message: parse, call LLM, and stream tokens to the token streams topic.
     """
     try:
         message_body_str = str(service_bus_message)
         logger.info(f"Received message: {message_body_str}")
         
-        # The message body from the front service is expected to be a JSON string
-        # like: {"text": "...", "sessionId": "...", "chatMessageId": "..."}
         message_data = json.loads(message_body_str)
         
         user_text = message_data.get("text")
@@ -67,40 +86,36 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
             logger.error(f"Message missing required fields (text, sessionId, chatMessageId): {message_data}")
             # Depending on requirements, might dead-letter this message
             return
-
         logger.info(f"Processing chatMessageId: {chat_message_id} for sessionId: {session_id} - Text: '{user_text}'")
 
-        # Simulate LLM processing and token streaming
-        response_content = "Hello from assistant!"
-        
+        # Call Azure AI Inference SDK for chat completions with streaming
+        messages = [
+            SystemMessage("You are a helpful assistant."),
+            UserMessage(user_text)
+        ]
+        stream = await chat_client.complete(stream=True, messages=messages)
         async with sb_client.get_topic_sender(SERVICEBUS_TOKEN_STREAMS_TOPIC) as sender:
-            # Send tokens one by one
-            for char_token in response_content:
-                token_payload = {
-                    "sessionId": session_id,
-                    "chatMessageId": chat_message_id,
-                    "token": char_token
-                }
-                token_message = ServiceBusMessage(
-                    body=json.dumps(token_payload),
-                    session_id=session_id  # Ensure session_id is set for session-aware routing
-                )
-                await sender.send_messages(token_message)
-                logger.debug(f"Sent token for chatMessageId {json.dumps(token_payload)}")
-                await asyncio.sleep(1)  # Simulate delay between tokens
-
-            # Send end-of-stream sentinel for this specific chatMessageId
-            eos_payload = {
-                "sessionId": session_id,
-                "chatMessageId": chat_message_id,
-                "end_of_stream": True
-            }
-            eos_message = ServiceBusMessage(
-                body=json.dumps(eos_payload),
-                session_id=session_id  # Ensure session_id is set for session-aware routing
-            )
+            async for update in stream:
+                if update.choices and update.choices[0].delta and update.choices[0].delta.content:
+                    chunk = update.choices[0].delta.content
+                    token_payload = {
+                        "sessionId": session_id,
+                        "chatMessageId": chat_message_id,
+                        "token": chunk
+                    }
+                    token_message = ServiceBusMessage(
+                        body=json.dumps(token_payload),
+                        session_id=session_id
+                    )
+                    await sender.send_messages(token_message)
+                    logger.debug(f"Sent token chunk: {chunk}")
+                if update.usage:
+                    logger.info(f"Token usage: {update.usage}")
+            # Send end-of-stream sentinel
+            eos_payload = {"sessionId": session_id, "chatMessageId": chat_message_id, "end_of_stream": True}
+            eos_message = ServiceBusMessage(body=json.dumps(eos_payload), session_id=session_id)
             await sender.send_messages(eos_message)
-            logger.info(f"Sent __END__ for chatMessageId {chat_message_id}, sessionId {session_id}")
+            logger.info(f"Sent end-of-stream for chatMessageId {chat_message_id}")
 
     except json.JSONDecodeError as e:
         logger.error(f"Failed to decode JSON from user message: {message_body_str}, error: {e}")
@@ -112,16 +127,16 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
 
 async def _process_and_handle_message(sb_client: ServiceBusClient, msg: ServiceBusMessage, receiver, semaphore: asyncio.Semaphore, logger_instance: logging.Logger):
     """
-    Wrapper to process a message and ensure semaphore release and message settlement.
+    Process a message, settle it, and release the concurrency semaphore.
     """
     try:
         await process_message(sb_client, msg)
-        await receiver.complete_message(msg)
+        await receiver.complete_message(msg) # Reverted to use receiver.complete_message()
         logger_instance.info(f"Successfully processed and completed message id: {msg.message_id}")
     except Exception as e:
         logger_instance.error(f"Unhandled exception during message processing for msg_id {msg.message_id}. Error: {e}. Abandoning message.")
         try:
-            await receiver.abandon_message(msg)
+            await receiver.abandon_message(msg) # Reverted to use receiver.abandon_message()
         except Exception as abandon_e:
             logger_instance.error(f"Failed to abandon message {msg.message_id}. Error: {abandon_e}")
     finally:

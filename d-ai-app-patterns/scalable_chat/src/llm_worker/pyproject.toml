@@ -13,4 +13,5 @@ dependencies = [
     "opentelemetry-instrumentation-fastapi>=0.54b1",
     "opentelemetry-sdk>=1.33.1",
     "python-dotenv==1.1.0",
+    "azure-ai-inference>=1.0.0b3",
 ]
