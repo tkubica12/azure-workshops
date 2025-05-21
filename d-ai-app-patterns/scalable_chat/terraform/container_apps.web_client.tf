@@ -1,34 +1,59 @@
-resource "azurerm_container_app" "web_client" {
-  name                         = "ca-webclient-${local.base_name}"
-  container_app_environment_id = azurerm_container_app_environment.main.id
-  resource_group_name          = azurerm_resource_group.main.name
-  revision_mode                = "Single"
+resource "azapi_resource" "web_client" {
+  type      = "Microsoft.App/containerApps@2025-01-01"
+  name      = "ca-webclient-${local.base_name}"
+  location  = azurerm_resource_group.main.location
+  parent_id = azurerm_resource_group.main.id
 
-  ingress {
-    external_enabled = true
-    target_port      = 80 
-    transport        = "http" 
-
-    traffic_weight {
-      percentage      = 100
-      latest_revision = true
-    }
-  }
-
-  template {
-    min_replicas = 0
-    max_replicas = 1 // Adjust as needed
-
-    container {
-      name   = "web-client"
-      image  = "ghcr.io/tkubica12/azure-workshops/d-ai-app-patterns-scalable-chat-web-client:latest"
-      cpu    = 0.25
-      memory = "0.5Gi"
-
-      env {
-        name  = "API_URL"
-        value = "https://${azurerm_container_app.front_service.ingress[0].fqdn}"
+  body = {
+    properties = {
+      managedEnvironmentId = azurerm_container_app_environment.main.id
+      configuration = {
+        activeRevisionsMode = "Single"
+        ingress = {
+          external    = true
+          targetPort  = 80
+          transport   = "http"
+          traffic = [
+            {
+              latestRevision = true
+              weight         = 100
+            }
+          ]
+        }
+      }
+      template = {
+        scale = {
+          minReplicas = 0
+          maxReplicas = 3
+          rules = [
+            {
+              name = "http-scale-rule"
+              http = {
+                metadata = {
+                  concurrentRequests = "50"
+                }
+              }
+            }
+          ]
+        }
+        containers = [
+          {
+            name  = "web-client"
+            image = "ghcr.io/tkubica12/azure-workshops/d-ai-app-patterns-scalable-chat-web-client:latest"
+            resources = {
+              cpu    = 0.25
+              memory = "0.5Gi"
+            }
+            env = [
+              {
+                name  = "API_URL"
+                value = "https://${azapi_resource.front_service.output.properties.configuration.ingress.fqdn}"
+              }
+            ]
+          }
+        ]
       }
     }
   }
+
 }

@@ -5,6 +5,7 @@ resource "azurerm_cosmosdb_account" "main" {
   kind                          = "GlobalDocumentDB"
   offer_type                    = "Standard"
   local_authentication_disabled = true
+  public_network_access_enabled = false
 
   capabilities {
     name = "EnableServerless"

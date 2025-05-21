@@ -21,7 +21,7 @@ resource "azurerm_role_assignment" "self_servicebus_sender" {
 resource "azurerm_role_assignment" "front_service_servicebus_sender" {
   scope                = azurerm_servicebus_namespace.main.id
   role_definition_name = "Azure Service Bus Data Sender"
-  principal_id         = azurerm_container_app.front_service.identity[0].principal_id
+  principal_id         = azapi_resource.front_service.output.identity.principalId
 }
 
 resource "azurerm_role_assignment" "app_servicebus_sender" {
@@ -39,7 +39,7 @@ resource "azurerm_role_assignment" "self_servicebus_receiver" {
 resource "azurerm_role_assignment" "front_service_servicebus_receiver" {
   scope                = azurerm_servicebus_namespace.main.id
   role_definition_name = "Azure Service Bus Data Receiver"
-  principal_id         = azurerm_container_app.front_service.identity[0].principal_id
+  principal_id         = azapi_resource.front_service.output.identity.principalId
 }
 
 resource "azurerm_role_assignment" "app_servicebus_receiver" {
@@ -51,13 +51,13 @@ resource "azurerm_role_assignment" "app_servicebus_receiver" {
 resource "azurerm_role_assignment" "llm_worker_servicebus_receiver" {
   scope                = azurerm_servicebus_namespace.main.id
   role_definition_name = "Azure Service Bus Data Receiver"
-  principal_id         = azurerm_container_app.llm_worker.identity[0].principal_id
+  principal_id         = azapi_resource.llm_worker.output.identity.principalId
 }
 
 resource "azurerm_role_assignment" "llm_worker_servicebus_sender" {
   scope                = azurerm_servicebus_namespace.main.id
   role_definition_name = "Azure Service Bus Data Sender"
-  principal_id         = azurerm_container_app.llm_worker.identity[0].principal_id
+  principal_id         = azapi_resource.llm_worker.output.identity.principalId
 }
 
 // Cosmos DB
