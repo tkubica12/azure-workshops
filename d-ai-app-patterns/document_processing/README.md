@@ -1,4 +1,4 @@
-# Using async architecture in AI applications
+# Document processing using async architecture in AI applications
 In order to provide scalable and highly reliable solution that incorporates AI in user experience workflow let's demonstrate asynchronous microservices solution:
 
 1. User submits image processing request from frontend to processing API
