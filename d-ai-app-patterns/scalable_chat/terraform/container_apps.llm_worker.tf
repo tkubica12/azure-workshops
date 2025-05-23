@@ -54,6 +54,10 @@ resource "azapi_resource" "llm_worker" {
               {
                 name  = "OTEL_SERVICE_NAME"
                 value = "llm-worker"
+              },
+              {
+                name  = "AZURE_AI_CHAT_ENDPOINT"
+                value = "https://${azapi_resource.ai_service.name}.cognitiveservices.azure.com/openai/deployments/${azurerm_cognitive_deployment.openai_model.name}"
               }
             ]
           }
