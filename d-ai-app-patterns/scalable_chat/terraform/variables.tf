@@ -1,3 +1,8 @@
+variable "llm_location" {
+  type        = string
+  default     = "swedencentral"
+  description = "Azure region for LLM-related resources."
+}
 variable "prefix" {
   type        = string
   default     = "chat"

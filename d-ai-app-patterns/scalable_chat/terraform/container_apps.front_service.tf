@@ -15,7 +15,7 @@ resource "azapi_resource" "front_service" {
         ingress = {
           external   = true
           targetPort = 8000
-          transport  = "http"
+          transport  = "Http"
           traffic = [
             {
               latestRevision = true
@@ -45,7 +45,7 @@ resource "azapi_resource" "front_service" {
             image = "ghcr.io/tkubica12/azure-workshops/d-ai-app-patterns-scalable-chat-front-service:latest"
             resources = {
               cpu    = 0.5
-              memory = "1.0Gi"
+              memory = "1Gi"
             }
             env = [
               {

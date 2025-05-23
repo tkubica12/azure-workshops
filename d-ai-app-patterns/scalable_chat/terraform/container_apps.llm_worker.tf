@@ -20,7 +20,7 @@ resource "azapi_resource" "llm_worker" {
             image = "ghcr.io/tkubica12/azure-workshops/d-ai-app-patterns-scalable-chat-llm-worker:latest"
             resources = {
               cpu    = 0.5
-              memory = "1.0Gi"
+              memory = "1Gi"
             }
             env = [
               {

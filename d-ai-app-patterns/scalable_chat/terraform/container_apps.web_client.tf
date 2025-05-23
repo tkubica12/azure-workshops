@@ -12,7 +12,7 @@ resource "azapi_resource" "web_client" {
         ingress = {
           external    = true
           targetPort  = 80
-          transport   = "http"
+          transport   = "Http"
           traffic = [
             {
               latestRevision = true

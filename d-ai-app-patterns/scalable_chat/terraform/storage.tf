@@ -1,14 +1,20 @@
-# resource "azurerm_storage_account" "main" {
-#   name                            = "st${local.base_name_nodash}"
-#   resource_group_name             = azurerm_resource_group.main.name
-#   location                        = azurerm_resource_group.main.location
-#   account_tier                    = "Standard"
-#   account_replication_type        = "LRS"
-#   default_to_oauth_authentication = true
-#   local_user_enabled              = false
-# }
+resource "azapi_resource" "storage_account_main" {
+  type      = "Microsoft.Storage/storageAccounts@2024-01-01"
+  name      = "st${local.base_name_nodash}"
+  parent_id = azurerm_resource_group.main.id
+  location  = azurerm_resource_group.main.location
 
-# resource "azurerm_storage_container" "main" {
-#   name               = "data"
-#   storage_account_id = azurerm_storage_account.main.id
-# }
+  body = {
+    sku = {
+      name = "Standard_LRS"
+    }
+    kind = "StorageV2"
+    properties = {
+      defaultToOAuthAuthentication = true
+      isLocalUserEnabled           = false
+      supportsHttpsTrafficOnly     = true
+      minimumTlsVersion            = "TLS1_2"
+      allowBlobPublicAccess        = false
+    }
+  }
+}
