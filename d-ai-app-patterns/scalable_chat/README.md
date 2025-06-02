@@ -4,10 +4,11 @@
 This architecture enables a scalable, reliable, and secure chat application using **Server-Sent Events (SSE)** for real-time streaming responses and **asynchronous worker processes** for heavy lifting. The design decouples the user-facing front-end from the back-end computational work via a message queue, allowing each component to scale and fail independently without disrupting the whole system.
 
 **Key components:**  
-- **Client Application (Browser/App):** Sends user questions to the server and renders streaming responses via SSE. Maintains a session ID to identify the conversation thread.  
-- **Front Service (Web Front-End):** A lightweight service (or set of instances) that accepts client questions over HTTP, initiates an SSE connection back to the client for streaming answers, and offloads processing tasks to the queue. It does not execute AI logic itself.  
+- **Client Application (Browser/App):** Sends user questions to the front service and connects to the SSE service for streaming responses via Server-Sent Events. Maintains a session ID to identify the conversation thread.  
+- **Front Service (Message Handler):** A lightweight service that accepts client questions over HTTP and manages sessions. It queues messages for processing but does not handle streaming responses directly.  
+- **SSE Service (Streaming Service):** A dedicated service that handles Server-Sent Events connections and streams tokens back to clients. This service can be scaled independently based on streaming demand.  
 - **Message Queue Service:** A persistent FIFO queue (with partitions or sessions by conversation ID) that brokers requests and responses between the front service and worker service. Ensures ordering of messages for each conversation thread.  
-- **Worker Service (Async Workers):** A pool of one or more back-end worker processes that consume tasks from the queue. Each worker retrieves the necessary context (conversation history) and calls the Large Language Model (LLM) API to generate a response. The response is streamed back (token by token) via the queue or another channel to the front service.  
+- **Worker Service (Async Workers):** A pool of one or more back-end worker processes that consume tasks from the queue. Each worker retrieves the necessary context (conversation history) and calls the Large Language Model (LLM) API to generate a response. The response is streamed back (token by token) via the queue to the SSE service.  
 - **Conversation Store (CosmosDB or Equivalent):** A database for storing conversation history (optional if the LLM API inherently manages context). This provides persistence and the ability to review or use past interactions when generating new answers.  
 - **LLM API (e.g., Azure OpenAI Service):** An external service that generates the chat response. Supports streaming output and might offer built-in conversation memory if provided with a session or thread ID.
 
@@ -16,12 +17,15 @@ Below is a pair of diagrams illustrating the system:
 ### 1. Architecture overview
 ```mermaid
 flowchart LR
-    Client[Client UI] -->|HTTP/SSE| Front[Front Service]
+    Client[Client UI] -->|HTTP POST| Front[Front Service]
+    Client -->|SSE| SSE[SSE Service]
     Front -->|enqueue| Queue[(Message&nbsp;Queue)]
     Queue --> Worker[Worker Service]
     Worker -->|store/fetch| DB[(Conversation&nbsp;DB)]
     Worker -->|LLM call| LLM[LLM&nbsp;API]
-    Front -->|SSE| Client
+    Worker -->|stream tokens| Queue
+    Queue -->|tokens| SSE
+    SSE -->|SSE stream| Client
 ```
 
 ### 2. Request / response walkthrough
@@ -29,6 +33,7 @@ flowchart LR
 sequenceDiagram
     participant C as Client
     participant F as Front Service
+    participant S as SSE Service
     participant Q as Message Queue
     participant W as Worker Service
     participant D as Conversation DB
@@ -38,14 +43,16 @@ sequenceDiagram
     F-->>C: Returns sessionId
     C->>F: 2. HTTP POST /api/chat (question, sessionId, chatMessageId)
     F->>Q: 3. Enqueue user message (text, sessionId, chatMessageId)
-    Q-->>W: 4. Worker dequeues message
-    W->>D: 5. Fetch history for sessionId (optional)
-    W->>L: 6. Call LLM API with question & history (streaming)
-    L-->>W: 7. Receive LLM response (streamed tokens)
-    W->>Q: 8. Enqueue response (token/EOS, sessionId, chatMessageId)
-    Q-->>F: 9. Front dequeues response tokens (session-aware)
-    F-->>C: 10. Stream tokens to Client via SSE (filtered by chatMessageId)
-    W->>D: 11. Save question & answer to DB (optional)
+    F-->>C: 4. Return success response
+    C->>S: 5. HTTP GET /api/stream/{sessionId}/{chatMessageId} (SSE)
+    Q-->>W: 6. Worker dequeues message
+    W->>D: 7. Fetch history for sessionId (optional)
+    W->>L: 8. Call LLM API with question & history (streaming)
+    L-->>W: 9. Receive LLM response (streamed tokens)
+    W->>Q: 10. Enqueue response (token/EOS, sessionId, chatMessageId)
+    Q-->>S: 11. SSE service dequeues response tokens (session-aware)
+    S-->>C: 12. Stream tokens to Client via SSE (filtered by chatMessageId)
+    W->>D: 13. Save question & answer to DB (optional)
 ```
 *Figures: High-level architecture (top) and step-by-step data flow (bottom).*
 
@@ -61,11 +68,11 @@ sequenceDiagram
 10. **Front → Client (SSE Stream):** The Front Service streams the tokens to the correct client via the SSE connection previously established for the `sessionId`. It uses the `chatMessageId` from the token message to ensure tokens are routed to the correct message response stream on the client side, sending `data: {"token": "..."}` for each token and `data: __END__` upon receiving the `end_of_stream` signal for that specific `chatMessageId`.
 11. **Worker → DB (Save Q&A):** (Optional) The worker saves the question and answer to the Conversation Store for persistence.
 
-*Note: We use `sessionId` as the Service Bus session key for all chat-related messages. This allows the front service to open a session receiver for a specific session and only receive messages for that session, without filtering or processing unrelated messages. This approach enables stateless, horizontally scalable front-end instances, as any instance can handle any session. The `chatMessageId` is used to correlate individual questions and responses within a session, especially when a user sends multiple questions in the same session. There is no need for per-message subscriptions or filters, and no risk of subscription explosion. This design achieves both scalability and simplicity.*
+*Note: We use `sessionId` as the Service Bus session key for all chat-related messages. This allows the SSE service to open a session receiver for a specific session and only receive messages for that session, without filtering or processing unrelated messages. This approach enables stateless, horizontally scalable services, as any SSE service instance can handle any session. The `chatMessageId` is used to correlate individual questions and responses within a session, especially when a user sends multiple questions in the same session. The front service is lightweight and only handles message queuing, while the SSE service handles all streaming concerns. This design achieves both scalability and simplicity through clear separation of concerns.*
 
 ## Scalability and Performance
 
-**Stateless, Scalable Front-End:** The front service does not maintain conversational state itself; it relies on the session ID and the back-end. This statelessness (aside from the open SSE connections) means we can run many front-end instances behind a load balancer. Each user request (for a new question) can be routed to any instance, which then becomes responsible for that response. Even the same session can be handled by different front instances across questions. This allows efficient use of resources and easy scaling—if traffic increases, we simply add more front-end servers/pods. The SSE connections are handled in an asynchronous, non-blocking manner to support large numbers of concurrent streams. The front-end should be implemented using an I/O efficient framework (e.g., Node.js, Python asyncio, or reactive Java/Spring WebFlux, etc.) to avoid creating a thread per connection.
+**Stateless, Scalable Services:** Both the front service and SSE service do not maintain conversational state themselves; they rely on the session ID and the back-end queue. This statelessness means we can run many instances behind load balancers. The front service handles HTTP requests for message queuing and can be scaled based on incoming request volume. The SSE service handles persistent streaming connections and can be scaled independently based on the number of concurrent streams needed. Even the same session can be handled by different service instances across questions and streaming connections. This allows efficient use of resources and easy scaling—if traffic increases, we simply add more service instances. The SSE connections are handled in an asynchronous, non-blocking manner to support large numbers of concurrent streams. Both services should be implemented using I/O efficient frameworks (e.g., Python asyncio, Node.js, or reactive Java/Spring WebFlux) to avoid creating a thread per connection.
 
 **Concurrent SSE Streams:** SSE uses a single HTTP response that remains open. Each front instance must handle possibly thousands of open HTTP responses. With event-driven or asynchronous programming, this is feasible. We also plan for **keep-alive** or ping messages if needed to keep connections from timing out (some proxies might drop idle connections, so sending a comment line `":heartbeat\n\n"` periodically can help). The client’s browser typically auto-reconnects if the SSE connection drops; our front should handle reconnection logic carefully. (For instance, we could implement Last-Event-ID to let a reconnecting client indicate where it left off, but in our case, each SSE is tied to one question which either completes or fails, so simple retry of the question might be the fallback.)
 

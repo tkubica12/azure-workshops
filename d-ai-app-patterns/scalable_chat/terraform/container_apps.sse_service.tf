@@ -1,6 +1,6 @@
-resource "azapi_resource" "front_service" {
+resource "azapi_resource" "sse_service" {
   type      = "Microsoft.App/containerApps@2025-01-01" 
-  name      = "ca-frontservice-${local.base_name}"
+  name      = "ca-sseservice-${local.base_name}"
   location  = azurerm_resource_group.main.location
   parent_id = azurerm_resource_group.main.id
 
@@ -40,9 +40,8 @@ resource "azapi_resource" "front_service" {
           ]
         }
         containers = [
-          {
-            name  = "front-service"
-            image = "ghcr.io/tkubica12/azure-workshops/d-ai-app-patterns-scalable-chat-front-service:latest"
+          {            name  = "sse-service"
+            image = "ghcr.io/tkubica12/azure-workshops/d-ai-app-patterns-scalable-chat-sse-service:latest"
             resources = {
               cpu    = 0.5
               memory = "1Gi"
@@ -53,12 +52,12 @@ resource "azapi_resource" "front_service" {
                 value = "${azurerm_servicebus_namespace.main.name}.servicebus.windows.net"
               },
               {
-                name  = "SERVICEBUS_USER_MESSAGES_TOPIC"
-                value = azurerm_servicebus_topic.user_messages.name
+                name  = "SERVICEBUS_TOKEN_STREAMS_TOPIC"
+                value = azurerm_servicebus_topic.token_streams.name
               },
               {
-                name  = "SERVICEBUS_SENDER_POOL_SIZE"
-                value = "10"
+                name  = "SERVICEBUS_TOKEN_STREAMS_SUBSCRIPTION"
+                value = azurerm_servicebus_subscription.front_service.name
               },
               {
                 name  = "LOG_LEVEL"
@@ -74,7 +73,7 @@ resource "azapi_resource" "front_service" {
               },
               {
                 name  = "OTEL_SERVICE_NAME"
-                value = "front-service"
+                value = "sse-service"
               }
             ]
           }

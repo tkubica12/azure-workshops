@@ -45,3 +45,9 @@ resource "azurerm_role_assignment" "llm_worker_servicebus_sender" {
   role_definition_name = "Azure Service Bus Data Sender"
   principal_id         = azapi_resource.llm_worker.output.identity.principalId
 }
+
+resource "azurerm_role_assignment" "sse_service_servicebus_receiver" {
+  scope                = azurerm_servicebus_namespace.main.id
+  role_definition_name = "Azure Service Bus Data Receiver"
+  principal_id         = azapi_resource.sse_service.output.identity.principalId
+}

@@ -48,6 +48,10 @@ resource "azapi_resource" "web_client" {
               {
                 name  = "API_URL"
                 value = "https://${azapi_resource.front_service.output.properties.configuration.ingress.fqdn}"
+              },
+              {
+                name  = "SSE_URL"
+                value = "https://${azapi_resource.sse_service.output.properties.configuration.ingress.fqdn}"
               }
             ]
           }

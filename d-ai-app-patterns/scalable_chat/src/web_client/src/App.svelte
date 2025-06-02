@@ -1,10 +1,10 @@
 <script>
-  import { onMount, afterUpdate } from 'svelte';
-  let question = '';
+  import { onMount, afterUpdate } from 'svelte';  let question = '';
   let messages = [];
   let sessionId;
   let messagesContainer;
   const API_URL = import.meta.env.API_URL || window._env_?.API_URL;
+  const SSE_URL = import.meta.env.SSE_URL || window._env_?.SSE_URL;
 
   onMount(async () => {
     try {
@@ -29,7 +29,6 @@
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
   });
-
   async function send() {
     if (!question.trim() || !sessionId) return;
     const chatMessageId = crypto.randomUUID();
@@ -44,6 +43,7 @@
     question = ''; // Clear input
 
     try {
+      // 1. Post message to front service
       const response = await fetch(`${API_URL}/api/chat`, {
         method: 'POST',
         headers: {
@@ -56,8 +56,18 @@
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      const chatResponse = await response.json();
+      console.log('Message queued:', chatResponse);
+
+      // 2. Connect to SSE service for streaming response
+      const sseResponse = await fetch(`${SSE_URL}/api/stream/${sessionId}/${chatMessageId}`);
+      
+      if (!sseResponse.ok) {
+        throw new Error(`SSE connection failed! status: ${sseResponse.status}`);
+      }
+
       // Handle SSE stream
-      const reader = response.body.getReader();
+      const reader = sseResponse.body.getReader();
       const decoder = new TextDecoder();
       let assistantResponse = '';
 
@@ -87,6 +97,12 @@
                 messages = messages.map(msg => 
                   msg.id === assistantMessagePlaceholder.id ? { ...msg, content: assistantResponse, isLoading: true } : msg
                 );
+              }
+              if (data.error) {
+                messages = messages.map(msg => 
+                  msg.id === assistantMessagePlaceholder.id ? { ...msg, content: data.error, isLoading: false, isError: true } : msg
+                );
+                return;
               }
             } catch (e) {
               console.error('Error parsing SSE data:', e, 'Raw data:', dataStr);
