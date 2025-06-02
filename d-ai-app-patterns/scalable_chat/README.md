@@ -19,12 +19,12 @@ Below is a pair of diagrams illustrating the system:
 flowchart LR
     Client[Client UI] -->|HTTP POST| Front[Front Service]
     Client -->|SSE| SSE[SSE Service]
-    Front -->|enqueue| Queue[(Message&nbsp;Queue)]
-    Queue --> Worker[Worker Service]
+    Front -->|enqueue| UserMsgTopic[(user-messages<br/>topic)]
+    UserMsgTopic --> Worker[Worker Service]
     Worker -->|store/fetch| DB[(Conversation&nbsp;DB)]
     Worker -->|LLM call| LLM[LLM&nbsp;API]
-    Worker -->|stream tokens| Queue
-    Queue -->|tokens| SSE
+    Worker -->|stream tokens| TokenTopic[(token-streams<br/>topic)]
+    TokenTopic -->|tokens| SSE
     SSE -->|SSE stream| Client
 ```
 
@@ -34,7 +34,8 @@ sequenceDiagram
     participant C as Client
     participant F as Front Service
     participant S as SSE Service
-    participant Q as Message Queue
+    participant UM as user-messages topic
+    participant TS as token-streams topic
     participant W as Worker Service
     participant D as Conversation DB
     participant L as LLM API
@@ -42,30 +43,31 @@ sequenceDiagram
     C->>F: 1. HTTP POST /api/session/start
     F-->>C: Returns sessionId
     C->>F: 2. HTTP POST /api/chat (question, sessionId, chatMessageId)
-    F->>Q: 3. Enqueue user message (text, sessionId, chatMessageId)
+    F->>UM: 3. Enqueue user message (text, sessionId, chatMessageId)
     F-->>C: 4. Return success response
     C->>S: 5. HTTP GET /api/stream/{sessionId}/{chatMessageId} (SSE)
-    Q-->>W: 6. Worker dequeues message
+    UM-->>W: 6. Worker dequeues message
     W->>D: 7. Fetch history for sessionId (optional)
     W->>L: 8. Call LLM API with question & history (streaming)
     L-->>W: 9. Receive LLM response (streamed tokens)
-    W->>Q: 10. Enqueue response (token/EOS, sessionId, chatMessageId)
-    Q-->>S: 11. SSE service dequeues response tokens (session-aware)
+    W->>TS: 10. Enqueue response (token/EOS, sessionId, chatMessageId)
+    TS-->>S: 11. SSE service dequeues response tokens (session-aware)
     S-->>C: 12. Stream tokens to Client via SSE (filtered by chatMessageId)
     W->>D: 13. Save question & answer to DB (optional)
 ```
 *Figures: High-level architecture (top) and step-by-step data flow (bottom).*
 
 1.  **Client → Front (Session Start):** The client sends an HTTP `POST` request to `/api/session/start`. The Front Service returns a unique `sessionId`.
-2.  **Client → Front (Chat Request):** The client sends the user's question, the `sessionId`, and a client-generated `chatMessageId` to the Front Service via an HTTP `POST` request to `/api/chat`. The Front Service establishes an SSE connection to the client to stream back the answer for this `chatMessageId`.
-3.  **Front → Queue (Request):** The Front Service packages the question (`text`), `sessionId`, and `chatMessageId` into a message. It places this message onto the `user-messages` topic in the Message Queue, using the `sessionId` as the Service Bus message's `session_id` property (for session-aware processing by the queue or worker).
-4.  **Queue → Worker:** A Worker Service instance picks up the message from its subscription on the `user-messages` topic.
-5.  **Worker → DB (History fetch):** (Optional) The worker retrieves the conversation history for the `sessionId` from the Conversation Store.
+2.  **Client → Front (Chat Request):** The client sends the user's question, the `sessionId`, and a client-generated `chatMessageId` to the Front Service via an HTTP `POST` request to `/api/chat`.
+3.  **Front → user-messages topic (Request):** The Front Service packages the question (`text`), `sessionId`, and `chatMessageId` into a message. It places this message onto the `user-messages` topic in Azure Service Bus, using the `sessionId` as the Service Bus message's `session_id` property (for session-aware processing by the queue or worker).
+4.  **Client → SSE Service (Stream Connection):** The client establishes an SSE connection to the SSE Service via HTTP `GET` request to `/api/stream/{sessionId}/{chatMessageId}` to receive the streaming response.
+5.  **user-messages topic → Worker:** A Worker Service instance picks up the message from its subscription on the `user-messages` topic.
+6.  **Worker → DB (History fetch):** (Optional) The worker retrieves the conversation history for the `sessionId` from the Conversation Store.
 6.  **Worker → LLM API:** The worker calls the LLM API, sending the user’s question and relevant context. The request is made in a **streaming mode**.
 7.  **LLM API → Worker (Streaming):** The LLM processes the prompt and streams back the generated answer token by token.
-8.  **Worker → Queue (Response stream):** As the worker receives tokens from the LLM, it places them onto the `token-streams` topic in the Message Queue. Each message contains the `token` (or an `end_of_stream` signal), the original `sessionId`, and `chatMessageId`.
-9.  **Queue → Front (Response):** The Front Service, listening to its subscription on the `token-streams` topic (session-aware, using `sessionId` to receive messages for active client sessions), dequeues the response tokens. Only messages for the specified `sessionId` are delivered to the receiver, ensuring efficient routing and isolation between sessions.
-10. **Front → Client (SSE Stream):** The Front Service streams the tokens to the correct client via the SSE connection previously established for the `sessionId`. It uses the `chatMessageId` from the token message to ensure tokens are routed to the correct message response stream on the client side, sending `data: {"token": "..."}` for each token and `data: __END__` upon receiving the `end_of_stream` signal for that specific `chatMessageId`.
+8.  **Worker → token-streams topic (Response stream):** As the worker receives tokens from the LLM, it places them onto the `token-streams` topic in Azure Service Bus. Each message contains the `token` (or an `end_of_stream` signal), the original `sessionId`, and `chatMessageId`.
+9.  **token-streams topic → SSE Service (Response):** The SSE Service, listening to its subscription on the `token-streams` topic (session-aware, using `sessionId` to receive messages for active client sessions), dequeues the response tokens. Only messages for the specified `sessionId` are delivered to the receiver, ensuring efficient routing and isolation between sessions.
+10. **SSE Service → Client (SSE Stream):** The SSE Service streams the tokens to the correct client via the SSE connection previously established for the `sessionId`. It uses the `chatMessageId` from the token message to ensure tokens are routed to the correct message response stream on the client side, sending `data: {"token": "..."}` for each token and `data: __END__` upon receiving the `end_of_stream` signal for that specific `chatMessageId`.
 11. **Worker → DB (Save Q&A):** (Optional) The worker saves the question and answer to the Conversation Store for persistence.
 
 *Note: We use `sessionId` as the Service Bus session key for all chat-related messages. This allows the SSE service to open a session receiver for a specific session and only receive messages for that session, without filtering or processing unrelated messages. This approach enables stateless, horizontally scalable services, as any SSE service instance can handle any session. The `chatMessageId` is used to correlate individual questions and responses within a session, especially when a user sends multiple questions in the same session. The front service is lightweight and only handles message queuing, while the SSE service handles all streaming concerns. This design achieves both scalability and simplicity through clear separation of concerns.*

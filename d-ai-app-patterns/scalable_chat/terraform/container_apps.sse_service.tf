@@ -1,5 +1,5 @@
 resource "azapi_resource" "sse_service" {
-  type      = "Microsoft.App/containerApps@2025-01-01" 
+  type      = "Microsoft.App/containerApps@2025-01-01"
   name      = "ca-sseservice-${local.base_name}"
   location  = azurerm_resource_group.main.location
   parent_id = azurerm_resource_group.main.id
@@ -40,7 +40,8 @@ resource "azapi_resource" "sse_service" {
           ]
         }
         containers = [
-          {            name  = "sse-service"
+          {
+            name  = "sse-service"
             image = "ghcr.io/tkubica12/azure-workshops/d-ai-app-patterns-scalable-chat-sse-service:latest"
             resources = {
               cpu    = 0.5
