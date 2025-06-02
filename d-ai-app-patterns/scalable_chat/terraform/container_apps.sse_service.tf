@@ -14,7 +14,7 @@ resource "azapi_resource" "sse_service" {
         activeRevisionsMode = "Single"
         ingress = {
           external   = true
-          targetPort = 8000
+          targetPort = 8002
           transport  = "Http"
           traffic = [
             {
