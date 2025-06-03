@@ -2,6 +2,8 @@ import os
 import json
 import asyncio
 import logging
+import signal
+import sys
 from dotenv import load_dotenv
 from azure.identity.aio import DefaultAzureCredential
 from azure.servicebus.aio import ServiceBusClient
@@ -59,14 +61,14 @@ if not AZURE_AI_CHAT_ENDPOINT:
     raise RuntimeError("Missing required environment variable AZURE_AI_CHAT_ENDPOINT")
 
 
-# Shared Azure credentials and LLM client
+# Shared Azure credentials
 shared_credential = DefaultAzureCredential(exclude_interactive_browser_credential=False)
-chat_client = ChatCompletionsClient(
-    endpoint=AZURE_AI_CHAT_ENDPOINT,
-    credential=shared_credential,
-    credential_scopes=["https://cognitiveservices.azure.com/.default"],
-    transport=AioHttpTransport(retries=3)
-)
+
+# Global chat client - will be initialized in main()
+chat_client = None
+
+# Global shutdown event for graceful shutdown
+shutdown_event = asyncio.Event()
 
 async def process_message(sb_client: ServiceBusClient, service_bus_message):
     """
@@ -142,42 +144,144 @@ async def _process_and_handle_message(sb_client: ServiceBusClient, msg: ServiceB
     finally:
         semaphore.release()
 
+async def setup_signal_handlers():
+    """
+    Setup signal handlers for graceful shutdown using asyncio.
+    """
+    loop = asyncio.get_running_loop()
+    
+    def signal_handler():
+        logger.info("Received shutdown signal. Initiating graceful shutdown...")
+        loop.call_soon_threadsafe(shutdown_event.set)
+    
+    # Add signal handlers for SIGTERM and SIGINT
+    # On Windows, only SIGINT is supported, SIGTERM is not available
+    signals_to_handle = [signal.SIGINT]
+    if sys.platform != 'win32':
+        signals_to_handle.append(signal.SIGTERM)
+    
+    for sig in signals_to_handle:
+        try:
+            loop.add_signal_handler(sig, signal_handler)
+            logger.info(f"Added signal handler for {sig}")
+        except (NotImplementedError, RuntimeError):
+            # Fallback for platforms that don't support add_signal_handler
+            logger.warning(f"Signal handler for {sig} not supported on this platform, using fallback")
+            signal.signal(sig, lambda s, f: signal_handler())
+
+async def wait_for_tasks_completion(active_tasks: set, timeout: int = 240):
+    """
+    Wait for all active tasks to complete within the given timeout.
+    Args:
+        active_tasks: Set of active asyncio tasks
+        timeout: Maximum time to wait in seconds (default 4 minutes)
+    """
+    if not active_tasks:
+        return
+    
+    logger.info(f"Waiting for {len(active_tasks)} active tasks to complete (timeout: {timeout}s)...")
+    try:
+        await asyncio.wait_for(
+            asyncio.gather(*active_tasks, return_exceptions=True),
+            timeout=timeout
+        )
+        logger.info("All active tasks completed successfully")
+    except asyncio.TimeoutError:
+        logger.warning(f"Timeout reached ({timeout}s). Some tasks may not have completed.")
+        # Cancel remaining tasks
+        for task in active_tasks:
+            if not task.done():
+                task.cancel()
+        # Wait a bit for cancellation to take effect
+        await asyncio.sleep(1)
+
 async def main():
+    global chat_client
+    
     logger.info("Starting LLM worker...")
     logger.info(f"Service Bus Namespace: {SERVICEBUS_FULLY_QUALIFIED_NAMESPACE}")
     logger.info(f"Listening for user messages on Topic: '{SERVICEBUS_USER_MESSAGES_TOPIC}', Subscription: '{SERVICEBUS_USER_MESSAGES_SUBSCRIPTION}'")
     logger.info(f"Sending token streams to Topic: '{SERVICEBUS_TOKEN_STREAMS_TOPIC}'")
     logger.info(f"Maximum concurrency for message processing: {MAX_CONCURRENCY}")
     
+    # Setup signal handlers for graceful shutdown
+    await setup_signal_handlers()
+    
+    # Initialize the chat client
+    chat_client = ChatCompletionsClient(
+        endpoint=AZURE_AI_CHAT_ENDPOINT,
+        credential=shared_credential,
+        credential_scopes=["https://cognitiveservices.azure.com/.default"],
+        transport=AioHttpTransport(retries=3)
+    )
+    
     credential = DefaultAzureCredential()
     semaphore = asyncio.Semaphore(MAX_CONCURRENCY)
+    active_tasks = set()
     
-    while True:
-        active_tasks = set()
-        try:
-            async with ServiceBusClient(fully_qualified_namespace=SERVICEBUS_FULLY_QUALIFIED_NAMESPACE, credential=credential) as sb_client:
-                async with sb_client.get_subscription_receiver(SERVICEBUS_USER_MESSAGES_TOPIC, SERVICEBUS_USER_MESSAGES_SUBSCRIPTION) as receiver:
-                    logger.info("LLM Worker connected and listening for messages.")
-                    async for msg in receiver:
-                        await semaphore.acquire() # Wait for an available slot
-                        task = asyncio.create_task(
-                            _process_and_handle_message(sb_client, msg, receiver, semaphore, logger)
-                        )
-                        active_tasks.add(task)
-                        # Remove task from set upon completion to prevent memory leak over long runs
-                        task.add_done_callback(active_tasks.discard)
-        except Exception as e:
-            logger.error(f"Exception in LLM worker main connection/receive loop: {e}. Retrying in 10 seconds...")
-            # Attempt to wait for any outstanding tasks to complete or cancel them
-            # This is a simplified approach; more sophisticated shutdown might be needed for production
-            if active_tasks:
-                logger.info(f"Waiting for {len(active_tasks)} active tasks to complete before retrying...")
-                await asyncio.wait(list(active_tasks), timeout=5.0) # Wait for a short period
-            await asyncio.sleep(10) # Wait before retrying connection
-        finally:
-            # Ensure credential is closed if main loop exits (though this one is infinite)
-            # await credential.close() # DefaultAzureCredential does not need explicit close in this async context usually
-            pass 
+    try:
+        while not shutdown_event.is_set():
+            try:
+                async with ServiceBusClient(fully_qualified_namespace=SERVICEBUS_FULLY_QUALIFIED_NAMESPACE, credential=credential) as sb_client:
+                    async with sb_client.get_subscription_receiver(SERVICEBUS_USER_MESSAGES_TOPIC, SERVICEBUS_USER_MESSAGES_SUBSCRIPTION) as receiver:
+                        logger.info("LLM Worker connected and listening for messages.")
+                        
+                        # Main message processing loop with timeout to allow periodic shutdown checks
+                        while not shutdown_event.is_set():
+                            try:
+                                # Receive messages with a timeout to allow shutdown checks
+                                received_messages = await asyncio.wait_for(
+                                    receiver.receive_messages(max_message_count=1, max_wait_time=5),
+                                    timeout=10
+                                )
+                                
+                                if not received_messages:
+                                    continue  # No messages received, check shutdown and retry
+                                
+                                for msg in received_messages:
+                                    # Check for shutdown signal before processing new messages
+                                    if shutdown_event.is_set():
+                                        logger.info("Shutdown signal received. Stopping message processing.")
+                                        # Abandon the current message so it can be processed by another worker
+                                        await receiver.abandon_message(msg)
+                                        break
+                                    
+                                    await semaphore.acquire() # Wait for an available slot
+                                    task = asyncio.create_task(
+                                        _process_and_handle_message(sb_client, msg, receiver, semaphore, logger)
+                                    )
+                                    active_tasks.add(task)
+                                    # Remove task from set upon completion to prevent memory leak over long runs
+                                    task.add_done_callback(active_tasks.discard)
+                            except asyncio.TimeoutError:
+                                # Timeout is expected, continue to check shutdown event
+                                continue
+            except Exception as e:
+                if shutdown_event.is_set():
+                    logger.info("Shutdown in progress, ignoring connection error.")
+                    break
+                logger.error(f"Exception in LLM worker main connection/receive loop: {e}. Retrying in 10 seconds...")
+                # Clean up any completed tasks
+                active_tasks = {task for task in active_tasks if not task.done()}
+                await asyncio.sleep(10) # Wait before retrying connection
+    except KeyboardInterrupt:
+        logger.info("Keyboard interrupt received. Initiating graceful shutdown...")
+        shutdown_event.set()
+    
+    finally:
+        logger.info("Shutting down gracefully...")
+        # Wait for all active tasks to complete with a 4-minute timeout
+        await wait_for_tasks_completion(active_tasks, timeout=240)
+        
+        # Close the chat client to clean up aiohttp session
+        if chat_client:
+            try:
+                await chat_client.close()
+                logger.info("Chat client closed successfully")
+            except Exception as e:
+                logger.warning(f"Error closing chat client: {e}")
+        
+        logger.info("LLM worker shutdown complete.")
 
 if __name__ == "__main__":
     asyncio.run(main())

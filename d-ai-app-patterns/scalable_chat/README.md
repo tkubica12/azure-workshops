@@ -72,6 +72,12 @@ sequenceDiagram
 
 *Note: We use `sessionId` as the Service Bus session key for all chat-related messages. This allows the SSE service to open a session receiver for a specific session and only receive messages for that session, without filtering or processing unrelated messages. This approach enables stateless, horizontally scalable services, as any SSE service instance can handle any session. The `chatMessageId` is used to correlate individual questions and responses within a session, especially when a user sends multiple questions in the same session. The front service is lightweight and only handles message queuing, while the SSE service handles all streaming concerns. This design achieves both scalability and simplicity through clear separation of concerns.*
 
+## Graceful Shutdown and Container Lifecycle
+
+The LLM worker service implements graceful shutdown to handle scale-down events properly, ensuring user requests are not lost and partial responses are completed during scaling operations. The worker uses a 4-minute timeout and is configured with matching container termination grace periods.
+
+For detailed implementation information, see the [LLM Worker README](src/llm_worker/README.md#graceful-shutdown-and-container-lifecycle).
+
 ## Scalability and Performance
 
 **Stateless, Scalable Services:** Both the front service and SSE service do not maintain conversational state themselves; they rely on the session ID and the back-end queue. This statelessness means we can run many instances behind load balancers. The front service handles HTTP requests for message queuing and can be scaled based on incoming request volume. The SSE service handles persistent streaming connections and can be scaled independently based on the number of concurrent streams needed. Even the same session can be handled by different service instances across questions and streaming connections. This allows efficient use of resources and easy scaling—if traffic increases, we simply add more service instances. The SSE connections are handled in an asynchronous, non-blocking manner to support large numbers of concurrent streams. Both services should be implemented using I/O efficient frameworks (e.g., Python asyncio, Node.js, or reactive Java/Spring WebFlux) to avoid creating a thread per connection.

@@ -3,7 +3,6 @@ resource "azapi_resource" "llm_worker" {
   name      = "ca-llmworker-${local.base_name}"
   location  = azurerm_resource_group.main.location
   parent_id = azurerm_resource_group.main.id
-
   body = {
     identity = {
       type = "SystemAssigned"
@@ -58,8 +57,7 @@ resource "azapi_resource" "llm_worker" {
               {
                 name  = "AZURE_AI_CHAT_ENDPOINT"
                 value = "https://${azapi_resource.ai_service.name}.cognitiveservices.azure.com/openai/deployments/${azurerm_cognitive_deployment.openai_model.name}"
-              }
-            ]
+              }            ]
           }
         ]
         scale = {
@@ -81,6 +79,8 @@ resource "azapi_resource" "llm_worker" {
             }
           ]
         }
+        # Configure graceful shutdown with 4-minute grace period for LLM processing
+        terminationGracePeriodSeconds = 240
       }
     }
   }

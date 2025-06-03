@@ -62,3 +62,29 @@ This `sessionId` and `messageId` are crucial for the front service to correctly 
 ## Demo Behavior
 
 Currently, the worker sends a static response string, character by character, with a short delay (e.g., 0.1 seconds) between each character. It includes the original `messageId` in its response. It then sends an `end_of_stream` sentinel message (also containing the `sessionId` and `messageId`) to signal the end of the stream for that specific message.
+
+## Graceful Shutdown and Container Lifecycle
+
+**LLM Worker Graceful Shutdown:** The LLM worker service implements graceful shutdown to handle scale-down events properly. When a `SIGTERM` signal is received (typical in container orchestration environments like Azure Container Apps), the worker:
+
+1. **Stops accepting new messages** from the Service Bus queue
+2. **Continues processing existing LLM calls** that are already in progress  
+3. **Waits for all active tasks to complete** before shutting down
+4. **Uses a 4-minute timeout** to allow sufficient time for LLM responses to complete
+
+This ensures that user requests are not lost during scale-down events and that partial responses are properly completed and streamed to clients.
+
+**Container Apps Configuration:** The Azure Container Apps deployment is configured with a `terminationGracePeriodSeconds` of 240 seconds (4 minutes) to align with the worker's shutdown timeout. This extended grace period (increased from the default 30 seconds) provides adequate time for:
+- Long-running LLM API calls to complete
+- Token streaming to finish properly  
+- Proper message settlement in Service Bus
+- Clean resource cleanup
+
+**Implementation Details:** The graceful shutdown mechanism:
+- Uses Python's `signal` module to handle `SIGTERM` and `SIGINT` signals
+- Employs an `asyncio.Event` to coordinate shutdown across all async tasks
+- Tracks active message processing tasks and waits for their completion
+- Abandons unprocessed messages so they can be picked up by other worker instances
+- Provides detailed logging for monitoring shutdown progress
+
+This approach ensures high reliability during scaling events and prevents message loss or incomplete responses that could degrade user experience.
