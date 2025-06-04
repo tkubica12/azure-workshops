@@ -264,11 +264,11 @@ async def main():
                 # Clean up any completed tasks
                 active_tasks = {task for task in active_tasks if not task.done()}
                 await asyncio.sleep(10) # Wait before retrying connection
+                
     except KeyboardInterrupt:
         logger.info("Keyboard interrupt received. Initiating graceful shutdown...")
         shutdown_event.set()
-    
-    finally:
+      finally:
         logger.info("Shutting down gracefully...")
         # Wait for all active tasks to complete with a 4-minute timeout
         await wait_for_tasks_completion(active_tasks, timeout=240)

@@ -85,6 +85,8 @@ This ensures that user requests are not lost during scale-down events and that p
 - Employs an `asyncio.Event` to coordinate shutdown across all async tasks
 - Tracks active message processing tasks and waits for their completion
 - Abandons unprocessed messages so they can be picked up by other worker instances
+- Properly closes all Azure AI and HTTP client sessions to prevent resource leaks
+- Uses timeout-based message receiving to allow periodic shutdown checks
 - Provides detailed logging for monitoring shutdown progress
 
 This approach ensures high reliability during scaling events and prevents message loss or incomplete responses that could degrade user experience.
