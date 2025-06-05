@@ -39,6 +39,10 @@ resource "azapi_resource" "llm_worker" {
                 value = azurerm_servicebus_topic.token_streams.name
               },
               {
+                name  = "SERVICEBUS_MESSAGE_COMPLETED_TOPIC"
+                value = azurerm_servicebus_topic.message_completed.name
+              },
+              {
                 name  = "MAX_CONCURRENCY"
                 value = "100"
               },
