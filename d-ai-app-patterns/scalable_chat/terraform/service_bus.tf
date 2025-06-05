@@ -20,23 +20,30 @@ resource "azurerm_servicebus_topic" "token_streams" {
   partitioning_enabled = true
 }
 
-resource "azurerm_servicebus_subscription" "front_service" {
-  name               = "front-service"
+resource "azurerm_servicebus_topic" "message_completed" {
+  name                 = "message-completed"
+  namespace_id         = azurerm_servicebus_namespace.main.id
+  partitioning_enabled = true
+}
+
+resource "azurerm_servicebus_subscription" "front_service_token_streams" {
+  name               = "front-service-token-streams"
   topic_id           = azurerm_servicebus_topic.token_streams.id
   max_delivery_count = 10
   requires_session   = true
 }
 
-resource "azurerm_servicebus_subscription" "sse_service" {
-  name               = "sse-service-subscription"
+resource "azurerm_servicebus_subscription" "sse_service_token_streams" {
+  name               = "sse-service-token-streams"
   topic_id           = azurerm_servicebus_topic.token_streams.id
   max_delivery_count = 10
   requires_session   = true
 }
 
-resource "azurerm_servicebus_subscription" "worker_service" {
-  name               = "worker-service"
+resource "azurerm_servicebus_subscription" "worker_service_user_messages" {
+  name               = "worker-service-user-messages"
   topic_id           = azurerm_servicebus_topic.user_messages.id
   max_delivery_count = 10
   requires_session   = false
 }
+
