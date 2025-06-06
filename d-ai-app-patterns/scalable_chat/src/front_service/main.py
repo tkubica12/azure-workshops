@@ -118,10 +118,14 @@ app.add_middleware(
     allow_credentials=True,
 )
 
+class SessionStartRequest(BaseModel):
+    userId: str
+
 class ChatMessage(BaseModel):
     message: str
     sessionId: str
     chatMessageId: str
+    userId: str
 
 class ChatResponse(BaseModel):
     success: bool
@@ -133,9 +137,9 @@ class SessionStartResponse(BaseModel):
     sessionId: str
 
 @app.post("/api/session/start", response_model=SessionStartResponse)
-async def start_session():
+async def start_session(session_request: SessionStartRequest):
     sessionId = str(uuid.uuid4())
-    logger.info(f"New session started: {sessionId}")
+    logger.info(f"New session started: {sessionId} for user: {session_request.userId}")
     return SessionStartResponse(sessionId=sessionId)
 
 @app.post("/api/chat", response_model=ChatResponse)
@@ -144,16 +148,15 @@ async def chat_endpoint(chat_message: ChatMessage, request: Request):
     if not sb_client:
         raise HTTPException(status_code=503, detail="Service Bus client not initialized.")
     if not sender_pool:
-        raise HTTPException(status_code=503, detail="Service Bus sender pool not initialized.")
-
-    logger.info(f"Received message: '{chat_message.message}' for session: {chat_message.sessionId}, chatMessageId: {chat_message.chatMessageId}")
+        raise HTTPException(status_code=503, detail="Service Bus sender pool not initialized.")    logger.info(f"Received message: '{chat_message.message}' for session: {chat_message.sessionId}, chatMessageId: {chat_message.chatMessageId}, userId: {chat_message.userId}")
 
     try:
         message_to_send = ServiceBusMessage(
             body=json.dumps({
                 "text": chat_message.message,
                 "sessionId": chat_message.sessionId,
-                "chatMessageId": chat_message.chatMessageId
+                "chatMessageId": chat_message.chatMessageId,
+                "userId": chat_message.userId
             }),
             message_id=chat_message.chatMessageId,
             session_id=chat_message.sessionId

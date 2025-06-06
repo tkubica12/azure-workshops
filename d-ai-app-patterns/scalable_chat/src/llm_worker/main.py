@@ -77,18 +77,19 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
     try:
         message_body_str = str(service_bus_message)
         logger.info(f"Received message: {message_body_str}")
-        
-        message_data = json.loads(message_body_str)
+          message_data = json.loads(message_body_str)
         
         user_text = message_data.get("text")
         session_id = message_data.get("sessionId")
         chat_message_id = message_data.get("chatMessageId")
+        user_id = message_data.get("userId")
 
         if not all([user_text, session_id, chat_message_id]):
             logger.error(f"Message missing required fields (text, sessionId, chatMessageId): {message_data}")
             # Depending on requirements, might dead-letter this message
             return
-        logger.info(f"Processing chatMessageId: {chat_message_id} for sessionId: {session_id} - Text: '{user_text}'")
+        
+        logger.info(f"Processing chatMessageId: {chat_message_id} for sessionId: {session_id}, userId: {user_id} - Text: '{user_text}'")
 
         # Call Azure AI Inference SDK for chat completions with streaming
         messages = [

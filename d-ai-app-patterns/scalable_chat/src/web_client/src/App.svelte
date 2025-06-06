@@ -1,21 +1,36 @@
 <script>
-  import { onMount, afterUpdate } from 'svelte';  let question = '';
+  import { onMount, afterUpdate } from 'svelte';
+  
+  // Hardcoded users for development
+  const USERS = [
+    { userId: "user_001", name: "Alice Johnson", email: "alice@example.com" },
+    { userId: "user_002", name: "Bob Smith", email: "bob@example.com" },
+    { userId: "user_003", name: "Carol White", email: "carol@example.com" }
+  ];
+    let question = '';
   let messages = [];
   let sessionId;
   let messagesContainer;
+  let selectedUser = USERS[0]; // Default to first user
+  let showUserDropdown = false;
   const API_URL = import.meta.env.API_URL || window._env_?.API_URL;
   const SSE_URL = import.meta.env.SSE_URL || window._env_?.SSE_URL;
-
   onMount(async () => {
     try {
-      const response = await fetch(`${API_URL}/api/session/start`, { method: 'POST' });
+      const response = await fetch(`${API_URL}/api/session/start`, { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: selectedUser.userId })
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       sessionId = data.sessionId;
       localStorage.setItem('session_id', sessionId);
-      console.log('Session started with ID:', sessionId);
+      console.log('Session started with ID:', sessionId, 'for user:', selectedUser.name);
     } catch (error) {
       console.error('Failed to start session:', error);
       sessionId = localStorage.getItem('session_id') || crypto.randomUUID();
@@ -27,8 +42,38 @@
     // Auto-scroll to bottom on new messages
     if (messagesContainer) {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }  });
+
+  async function switchUser(user) {
+    selectedUser = user;
+    // Clear current session and messages
+    sessionId = null;
+    messages = [];
+    localStorage.removeItem('session_id');
+    
+    // Start new session for the selected user
+    try {
+      const response = await fetch(`${API_URL}/api/session/start`, { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: selectedUser.userId })
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      sessionId = data.sessionId;
+      localStorage.setItem('session_id', sessionId);
+      console.log('Session started with ID:', sessionId, 'for user:', selectedUser.name);
+    } catch (error) {
+      console.error('Failed to start session:', error);
+      sessionId = crypto.randomUUID();
+      localStorage.setItem('session_id', sessionId);
     }
-  });
+  }
+
   async function send() {
     if (!question.trim() || !sessionId) return;
     const chatMessageId = crypto.randomUUID();
@@ -49,7 +94,7 @@
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: currentQuestion, sessionId, chatMessageId }),
+        body: JSON.stringify({ message: currentQuestion, sessionId, chatMessageId, userId: selectedUser.userId }),
       });
 
       if (!response.ok) {
@@ -121,20 +166,7 @@
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-  body, .page {
-    background: #fafbfc;
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-  }
-  .page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 2.5rem 0;
-  }
+  
   .chat-container {
     display: flex;
     flex-direction: column;
@@ -150,14 +182,67 @@
     margin: 0 auto;
     padding: 2rem 0 1rem 0;
     overflow: hidden;
-  }
-  .chat-header {
-    text-align: center;
+  }  .chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
     font-size: 1.3rem;
     font-weight: 500;
     color: #222;
     margin-bottom: 1.5rem;
     letter-spacing: 0.01em;
+  }
+  .user-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .user-dropdown {
+    position: relative;
+  }  .user-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    color: inherit;
+    font-family: inherit;
+  }
+  .user-button:hover {
+    background: #e9ecef;
+  }
+  .user-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    min-width: 200px;
+  }
+  .user-menu-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f3f4;
+    transition: background 0.2s;
+  }
+  .user-menu-item:hover {
+    background: #f8f9fa;
+  }
+  .user-menu-item:last-child {
+    border-bottom: none;
+  }
+  .user-menu-item.selected {
+    background: #e3f2fd;
+    color: #1976d2;
   }
   .messages {
     flex: 1;
@@ -254,7 +339,30 @@
 </style>
 
 <div class="chat-container">
-  <div class="chat-header">Scalable Chat</div>
+  <div class="chat-header">
+    <span>Scalable Chat</span>
+    <div class="user-selector">
+      <div class="user-dropdown">        <button class="user-button" on:click={() => showUserDropdown = !showUserDropdown}>
+          <span>{selectedUser.name}</span>
+          <span>▼</span>
+        </button>
+        {#if showUserDropdown}
+          <div class="user-menu">
+            {#each USERS as user}
+              <div 
+                class="user-menu-item" 
+                class:selected={user.userId === selectedUser.userId}
+                on:click={() => { switchUser(user); showUserDropdown = false; }}
+              >
+                <div>{user.name}</div>
+                <div style="font-size: 0.75rem; color: #666;">{user.email}</div>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
+    </div>
+  </div>
   <div bind:this={messagesContainer} class="messages">
     {#each messages as message (message.id)}
       <div class="message" class:user={message.sender === 'user'} class:assistant={message.sender === 'assistant'} class:isLoading={message.isLoading} class:isError={message.isError}>
