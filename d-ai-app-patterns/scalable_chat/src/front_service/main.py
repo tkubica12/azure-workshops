@@ -148,7 +148,8 @@ async def chat_endpoint(chat_message: ChatMessage, request: Request):
     if not sb_client:
         raise HTTPException(status_code=503, detail="Service Bus client not initialized.")
     if not sender_pool:
-        raise HTTPException(status_code=503, detail="Service Bus sender pool not initialized.")    logger.info(f"Received message: '{chat_message.message}' for session: {chat_message.sessionId}, chatMessageId: {chat_message.chatMessageId}, userId: {chat_message.userId}")
+        raise HTTPException(status_code=503, detail="Service Bus sender pool not initialized.")    
+    logger.info(f"Received message: '{chat_message.message}' for session: {chat_message.sessionId}, chatMessageId: {chat_message.chatMessageId}, userId: {chat_message.userId}")
 
     try:
         message_to_send = ServiceBusMessage(

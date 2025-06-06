@@ -4,6 +4,7 @@ import asyncio
 import logging
 import signal
 import sys
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 from azure.identity.aio import DefaultAzureCredential
 from azure.servicebus.aio import ServiceBusClient
@@ -13,6 +14,8 @@ from opentelemetry import trace
 from azure.ai.inference.aio import ChatCompletionsClient  # async client for streaming
 from azure.ai.inference.models import SystemMessage, UserMessage
 from azure.core.pipeline.transport import AioHttpTransport # Existing import
+import redis.asyncio as redis
+from redis_entraid.cred_provider import create_from_default_azure_credential
 
 
 # Load .env in development
@@ -60,6 +63,14 @@ AZURE_AI_CHAT_ENDPOINT = os.getenv("AZURE_AI_CHAT_ENDPOINT")
 if not AZURE_AI_CHAT_ENDPOINT:
     raise RuntimeError("Missing required environment variable AZURE_AI_CHAT_ENDPOINT")
 
+# Redis configuration
+REDIS_HOST = os.getenv("REDIS_HOST")
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6380))
+REDIS_SSL = os.getenv("REDIS_SSL", "true").lower() == "true"
+
+if not REDIS_HOST:
+    raise RuntimeError("Missing required environment variable REDIS_HOST")
+
 
 # Shared Azure credentials
 shared_credential = DefaultAzureCredential(exclude_interactive_browser_credential=False)
@@ -67,8 +78,113 @@ shared_credential = DefaultAzureCredential(exclude_interactive_browser_credentia
 # Global chat client - will be initialized in main()
 chat_client = None
 
+# Global Redis client - will be initialized in main()
+redis_client = None
+
 # Global shutdown event for graceful shutdown
 shutdown_event = asyncio.Event()
+
+async def get_conversation_history(session_id: str, user_id: str) -> list:
+    """
+    Retrieve conversation history from Redis.
+    Returns a list of messages in the expected format for the LLM.
+    """
+    try:
+        redis_key = f"session:{session_id}"
+        conversation_data = await redis_client.get(redis_key)
+        
+        if not conversation_data:
+            logger.info(f"No conversation history found for session {session_id}")
+            return []
+        
+        conversation = json.loads(conversation_data)
+        
+        # Validate session belongs to the user
+        if conversation.get("userId") != user_id:
+            logger.warning(f"Session {session_id} does not belong to user {user_id}")
+            return []        # Convert stored messages to LLM format
+        # For Azure AI Inference, we need to build conversation history properly
+        # Since we can only use SystemMessage and UserMessage, we'll include assistant responses
+        # as part of context or create a conversation history in the system message
+        
+        conversation_context = []
+        for msg in conversation.get("messages", []):
+            if msg["role"] == "user":
+                conversation_context.append(f"User: {msg['content']}")
+            elif msg["role"] == "assistant":
+                conversation_context.append(f"Assistant: {msg['content']}")
+        
+        logger.info(f"Retrieved conversation history with {len(conversation.get('messages', []))} messages for session {session_id}")
+        
+        # Return conversation context as a single system message if there's history
+        if conversation_context:
+            history_text = "Previous conversation:\n" + "\n".join(conversation_context)
+            return [SystemMessage(history_text)]
+        else:
+            return []
+        
+    except Exception as e:
+        logger.error(f"Error retrieving conversation history for session {session_id}: {e}")
+        return []
+
+async def update_conversation_history(session_id: str, user_id: str, user_message: str, assistant_response: str, chat_message_id: str):
+    """
+    Update conversation history in Redis with new user message and assistant response.
+    Creates a new conversation if it doesn't exist.
+    """
+    try:
+        redis_key = f"session:{session_id}"
+        current_time = datetime.now(timezone.utc).isoformat()
+        
+        # Get existing conversation or create new one
+        conversation_data = await redis_client.get(redis_key)
+        
+        if conversation_data:
+            conversation = json.loads(conversation_data)
+            logger.info(f"Updating existing conversation for session {session_id}")
+        else:
+            conversation = {
+                "sessionId": session_id,
+                "userId": user_id,
+                "createdAt": current_time,
+                "title": None,  # Will be generated later by history worker
+                "messages": []
+            }
+            logger.info(f"Creating new conversation for session {session_id}")
+        
+        # Update last activity timestamp
+        conversation["lastActivity"] = current_time
+        
+        # Add user message
+        user_msg = {
+            "messageId": f"{chat_message_id}_user",
+            "role": "user",
+            "content": user_message,
+            "timestamp": current_time
+        }
+        conversation["messages"].append(user_msg)
+        
+        # Add assistant response
+        assistant_msg = {
+            "messageId": f"{chat_message_id}_assistant",
+            "role": "assistant", 
+            "content": assistant_response,
+            "timestamp": current_time
+        }
+        conversation["messages"].append(assistant_msg)
+        
+        # Save back to Redis with 24-hour TTL
+        await redis_client.setex(
+            redis_key,
+            24 * 60 * 60,  # 24 hours in seconds
+            json.dumps(conversation)
+        )
+        
+        logger.info(f"Updated conversation history for session {session_id} with {len(conversation['messages'])} total messages")
+        
+    except Exception as e:
+        logger.error(f"Error updating conversation history for session {session_id}: {e}")
+        # Don't raise the exception as this shouldn't stop message processing
 
 async def process_message(sb_client: ServiceBusClient, service_bus_message):
     """
@@ -77,7 +193,7 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
     try:
         message_body_str = str(service_bus_message)
         logger.info(f"Received message: {message_body_str}")
-          message_data = json.loads(message_body_str)
+        message_data = json.loads(message_body_str)
         
         user_text = message_data.get("text")
         session_id = message_data.get("sessionId")
@@ -89,18 +205,33 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
             # Depending on requirements, might dead-letter this message
             return
         
-        logger.info(f"Processing chatMessageId: {chat_message_id} for sessionId: {session_id}, userId: {user_id} - Text: '{user_text}'")
+        logger.info(f"Processing chatMessageId: {chat_message_id} for sessionId: {session_id}, userId: {user_id} - Text: '{user_text}'")        # Get conversation history from Redis
+        conversation_history = await get_conversation_history(session_id, user_id)
+        
+        # Build messages for LLM: system message + conversation history + current user message
+        messages = [SystemMessage("You are a helpful assistant.")]
+        
+        # Add conversation history if available
+        if conversation_history:
+            messages.extend(conversation_history)
+        
+        # Add current user message
+        messages.append(UserMessage(user_text))
+        
+        logger.info(f"Calling LLM with {len(messages)} messages (including system message and history)")
 
         # Call Azure AI Inference SDK for chat completions with streaming
-        messages = [
-            SystemMessage("You are a helpful assistant."),
-            UserMessage(user_text)
-        ]
         stream = await chat_client.complete(stream=True, messages=messages)
+        
+        # Collect the full assistant response
+        assistant_response_tokens = []
+        
         async with sb_client.get_topic_sender(SERVICEBUS_TOKEN_STREAMS_TOPIC) as sender:
             async for update in stream:
                 if update.choices and update.choices[0].delta and update.choices[0].delta.content:
                     chunk = update.choices[0].delta.content
+                    assistant_response_tokens.append(chunk)
+                    
                     token_payload = {
                         "sessionId": session_id,
                         "chatMessageId": chat_message_id,
@@ -114,11 +245,16 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
                     logger.debug(f"Sent token chunk: {chunk}")
                 if update.usage:
                     logger.info(f"Token usage: {update.usage}")
+            
             # Send end-of-stream sentinel
             eos_payload = {"sessionId": session_id, "chatMessageId": chat_message_id, "end_of_stream": True}
             eos_message = ServiceBusMessage(body=json.dumps(eos_payload), session_id=session_id)
             await sender.send_messages(eos_message)
             logger.info(f"Sent end-of-stream for chatMessageId {chat_message_id}")
+        
+        # Update conversation history in Redis with the complete interaction
+        assistant_response = "".join(assistant_response_tokens)
+        await update_conversation_history(session_id, user_id, user_text, assistant_response, chat_message_id)
 
     except json.JSONDecodeError as e:
         logger.error(f"Failed to decode JSON from user message: {message_body_str}, error: {e}")
@@ -197,16 +333,39 @@ async def wait_for_tasks_completion(active_tasks: set, timeout: int = 240):
         await asyncio.sleep(1)
 
 async def main():
-    global chat_client
+    global chat_client, redis_client
     
     logger.info("Starting LLM worker...")
     logger.info(f"Service Bus Namespace: {SERVICEBUS_FULLY_QUALIFIED_NAMESPACE}")
     logger.info(f"Listening for user messages on Topic: '{SERVICEBUS_USER_MESSAGES_TOPIC}', Subscription: '{SERVICEBUS_USER_MESSAGES_SUBSCRIPTION}'")
     logger.info(f"Sending token streams to Topic: '{SERVICEBUS_TOKEN_STREAMS_TOPIC}'")
     logger.info(f"Maximum concurrency for message processing: {MAX_CONCURRENCY}")
+    logger.info(f"Redis Host: {REDIS_HOST}:{REDIS_PORT}, SSL: {REDIS_SSL}")
     
     # Setup signal handlers for graceful shutdown
     await setup_signal_handlers()
+    
+    # Initialize the Redis client with managed identity authentication
+    try:
+        redis_credential_provider = create_from_default_azure_credential(
+            ("https://redis.azure.com/.default",)
+        )
+        
+        redis_client = redis.Redis(
+            host=REDIS_HOST,
+            port=REDIS_PORT,
+            ssl=REDIS_SSL,
+            ssl_cert_reqs=None,  # For Azure Managed Redis, SSL cert validation can be relaxed
+            credential_provider=redis_credential_provider
+        )
+        
+        # Test Redis connection
+        await redis_client.ping()
+        logger.info("Redis connection established successfully")
+        
+    except Exception as e:
+        logger.error(f"Failed to initialize Redis client: {e}")
+        raise
     
     # Initialize the chat client
     chat_client = ChatCompletionsClient(
@@ -264,8 +423,7 @@ async def main():
                 logger.error(f"Exception in LLM worker main connection/receive loop: {e}. Retrying in 10 seconds...")
                 # Clean up any completed tasks
                 active_tasks = {task for task in active_tasks if not task.done()}
-                await asyncio.sleep(10) # Wait before retrying connection
-    except KeyboardInterrupt:
+                await asyncio.sleep(10) # Wait before retrying connection    except KeyboardInterrupt:
         logger.info("Keyboard interrupt received. Initiating graceful shutdown...")
         shutdown_event.set()
     
@@ -281,6 +439,14 @@ async def main():
                 logger.info("Chat client closed successfully")
             except Exception as e:
                 logger.warning(f"Error closing chat client: {e}")
+        
+        # Close the Redis client
+        if redis_client:
+            try:
+                await redis_client.aclose()
+                logger.info("Redis client closed successfully")
+            except Exception as e:
+                logger.warning(f"Error closing Redis client: {e}")
         
         logger.info("LLM worker shutdown complete.")
 
