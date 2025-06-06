@@ -844,20 +844,22 @@
           class="conversation-item" 
           class:current={conversation.sessionId === sessionId}
           on:click={() => loadConversation(conversation.sessionId)}
-        >
-          {#if editingTitleSessionId === conversation.sessionId}
-            <div class="title-edit">              <input 
+        >          {#if editingTitleSessionId === conversation.sessionId}
+            <div class="title-edit" on:click|stopPropagation>
+              <input 
                 type="text" 
                 bind:value={editingTitle} 
                 on:keydown={(e) => e.key === 'Enter' && saveTitle(conversation.sessionId)}
                 on:keydown={(e) => e.key === 'Escape' && cancelEditingTitle()}
+                on:click|stopPropagation
               />
-              <div class="title-edit-buttons">                <button class="title-edit-btn save" on:click={() => saveTitle(conversation.sessionId)}>
+              <div class="title-edit-buttons">
+                <button class="title-edit-btn save" on:click|stopPropagation={() => saveTitle(conversation.sessionId)}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                   </svg>
                 </button>
-                <button class="title-edit-btn cancel" on:click={cancelEditingTitle}>
+                <button class="title-edit-btn cancel" on:click|stopPropagation={cancelEditingTitle}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                   </svg>
