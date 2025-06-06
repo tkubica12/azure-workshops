@@ -58,7 +58,7 @@ resource "azapi_resource" "sse_service" {
               },
               {
                 name  = "SERVICEBUS_TOKEN_STREAMS_SUBSCRIPTION"
-                value = azurerm_servicebus_subscription.front_service.name
+                value = azurerm_servicebus_subscription.front_service_token_streams.name
               },
               {
                 name  = "LOG_LEVEL"
