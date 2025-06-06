@@ -8,7 +8,8 @@
 cat <<EOF > /usr/share/nginx/html/env.js
 window._env_ = {
   API_URL: "${API_URL}",
-  SSE_URL: "${SSE_URL}"
+  SSE_URL: "${SSE_URL}",
+  HISTORY_API_URL: "${HISTORY_API_URL}"
 };
 EOF
 

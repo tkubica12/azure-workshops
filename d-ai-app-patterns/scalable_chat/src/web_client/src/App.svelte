@@ -7,15 +7,19 @@
     { userId: "user_002", name: "Bob Smith", email: "bob@example.com" },
     { userId: "user_003", name: "Carol White", email: "carol@example.com" }
   ];
-    let question = '';
+  let question = '';
   let messages = [];
   let sessionId;
   let messagesContainer;
   let selectedUser = USERS[0]; // Default to first user
   let showUserDropdown = false;
+  let showHistory = false;
+  let conversations = [];
+  let editingTitleSessionId = null;
+  let editingTitle = '';
   const API_URL = import.meta.env.API_URL || window._env_?.API_URL;
   const SSE_URL = import.meta.env.SSE_URL || window._env_?.SSE_URL;
-  onMount(async () => {
+  const HISTORY_API_URL = import.meta.env.HISTORY_API_URL || window._env_?.HISTORY_API_URL;  onMount(async () => {
     try {
       const response = await fetch(`${API_URL}/api/session/start`, { 
         method: 'POST',
@@ -31,6 +35,9 @@
       sessionId = data.sessionId;
       localStorage.setItem('session_id', sessionId);
       console.log('Session started with ID:', sessionId, 'for user:', selectedUser.name);
+      
+      // Load conversation history for the user
+      await loadConversationHistory();
     } catch (error) {
       console.error('Failed to start session:', error);
       sessionId = localStorage.getItem('session_id') || crypto.randomUUID();
@@ -43,7 +50,6 @@
     if (messagesContainer) {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }  });
-
   async function switchUser(user) {
     selectedUser = user;
     // Clear current session and messages
@@ -67,10 +73,95 @@
       sessionId = data.sessionId;
       localStorage.setItem('session_id', sessionId);
       console.log('Session started with ID:', sessionId, 'for user:', selectedUser.name);
+      
+      // Load conversation history for the new user
+      await loadConversationHistory();
     } catch (error) {
       console.error('Failed to start session:', error);
       sessionId = crypto.randomUUID();
       localStorage.setItem('session_id', sessionId);
+    }
+  }
+
+  async function loadConversationHistory() {
+    try {
+      const response = await fetch(`${HISTORY_API_URL}/conversations/${selectedUser.userId}`);
+      if (response.ok) {
+        conversations = await response.json();
+        console.log('Loaded conversation history:', conversations);
+      } else {
+        console.error('Failed to load conversation history:', response.status);
+        conversations = [];
+      }
+    } catch (error) {
+      console.error('Error loading conversation history:', error);
+      conversations = [];
+    }
+  }
+  async function loadConversation(conversationSessionId) {
+    try {
+      const response = await fetch(`${HISTORY_API_URL}/conversations/${selectedUser.userId}/${conversationSessionId}/messages`);
+      if (response.ok) {
+        const conversationData = await response.json();        messages = conversationData.messages.map(msg => ({
+          id: msg.messageId,
+          sender: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp
+        }));
+        // Switch to this conversation
+        sessionId = conversationSessionId;
+        localStorage.setItem('session_id', conversationSessionId);
+        showHistory = false;
+        console.log('Loaded conversation:', conversationSessionId);
+      } else {
+        console.error('Failed to load conversation:', response.status);
+      }
+    } catch (error) {
+      console.error('Error loading conversation:', error);
+    }
+  }
+
+  async function updateConversationTitle(sessionId, newTitle) {
+    try {
+      const response = await fetch(`${HISTORY_API_URL}/conversations/${selectedUser.userId}/${sessionId}/title`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title: newTitle })
+      });
+      
+      if (response.ok) {
+        // Update the local conversations list
+        conversations = conversations.map(conv => 
+          conv.sessionId === sessionId ? { ...conv, title: newTitle } : conv
+        );
+        editingTitleSessionId = null;
+        editingTitle = '';
+        console.log('Updated conversation title:', newTitle);
+      } else {
+        console.error('Failed to update conversation title:', response.status);
+      }
+    } catch (error) {
+      console.error('Error updating conversation title:', error);
+    }
+  }
+
+  function startEditingTitle(sessionId, currentTitle) {
+    editingTitleSessionId = sessionId;
+    editingTitle = currentTitle || '';
+  }
+
+  function cancelEditingTitle() {
+    editingTitleSessionId = null;
+    editingTitle = '';
+  }
+
+  function saveTitle(sessionId) {
+    if (editingTitle.trim()) {
+      updateConversationTitle(sessionId, editingTitle.trim());
+    } else {
+      cancelEditingTitle();
     }
   }
 
@@ -162,12 +253,43 @@
       );
     }
   }
+
+  async function startNewChat() {
+    try {
+      // Clear current session and messages
+      sessionId = null;
+      messages = [];
+      localStorage.removeItem('session_id');
+      
+      // Start new session for the current user
+      const response = await fetch(`${API_URL}/api/session/start`, { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: selectedUser.userId })
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      sessionId = data.sessionId;
+      localStorage.setItem('session_id', sessionId);
+      console.log('New session started with ID:', sessionId, 'for user:', selectedUser.name);
+      
+      // Close history panel if open
+      showHistory = false;
+    } catch (error) {
+      console.error('Failed to start new session:', error);
+      sessionId = crypto.randomUUID();
+      localStorage.setItem('session_id', sessionId);
+    }
+  }
 </script>
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-  
-  .chat-container {
+    .chat-container {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -182,7 +304,8 @@
     margin: 0 auto;
     padding: 2rem 0 1rem 0;
     overflow: hidden;
-  }  .chat-header {
+    transition: all 0.3s ease;
+  }.chat-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -192,6 +315,90 @@
     color: #222;
     margin-bottom: 1.5rem;
     letter-spacing: 0.01em;
+  }
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .control-button {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.6rem;
+    cursor: pointer;
+    font-size: 0;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: #555;
+  }
+  
+  .control-button:hover {
+    background: #e9ecef;
+    transform: translateY(-1px);
+    color: #333;
+  }
+  
+  .control-button.active {
+    background: #e9ecef;
+    border-color: #333;
+    color: #333;
+  }
+  
+  .control-button.active .control-icon {
+    transform: scale(1.1);
+  }
+  
+  .control-icon {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    transition: all 0.2s ease;
+  }
+  
+  /* Legacy class names for backward compatibility */
+  .history-toggle {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.6rem;
+    cursor: pointer;
+    font-size: 0;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: #555;
+  }
+  
+  .history-toggle:hover {
+    background: #e9ecef;
+    transform: translateY(-1px);
+    color: #333;
+  }
+  
+  .history-toggle.active {
+    background: #e9ecef;
+    border-color: #333;
+    color: #333;
+  }
+  
+  .history-toggle.active .history-icon {
+    transform: scale(1.1);
+  }
+  
+  .history-icon {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    transition: all 0.2s ease;
   }
   .user-selector {
     display: flex;
@@ -332,46 +539,435 @@
     font-weight: 500;
     cursor: pointer;
     transition: background 0.2s;
-  }
-  button:hover {
+  }  button:hover {
     background: #444;
+  }
+    /* History Panel Styles */
+  .chat-layout {
+    display: flex;
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    min-height: 60vh;
+    max-height: 80vh;
+  }
+  
+  .history-panel {
+    width: 320px;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
+    margin-right: 1rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: 'Roboto', sans-serif;
+    transform: translateX(-100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    position: absolute;
+    height: 100%;
+    z-index: 10;
+  }
+  
+  .history-panel.open {
+    transform: translateX(0);
+    opacity: 1;
+    position: relative;
+  }
+  
+  .chat-container.with-history {
+    margin-left: 1rem;
+    flex: 1;
+  }
+    .history-header {
+    padding: 2rem 1.5rem 1rem 1.5rem;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 500;
+    color: #222;
+    font-size: 1.1rem;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .conversations-list {
+    padding: 1rem;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #e0e0e0 transparent;
+  }
+  
+  .conversations-list::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .conversations-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .conversations-list::-webkit-scrollbar-thumb {
+    background-color: #e0e0e0;
+    border-radius: 3px;
+  }
+  
+  .conversation-item {
+    padding: 1rem 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .conversation-item:hover {
+    background: #f8f9fa;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .conversation-item.current {
+    background: #e3f2fd;
+    border-color: #1976d2;
+    transform: none;
+  }
+  
+  .conversation-title {
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    font-size: 0.95rem;
+    line-height: 1.3;
+    color: #222;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .conversation-date {
+    font-size: 0.8rem;
+    color: #666;
+    font-family: 'Roboto', sans-serif;
+  }
+    .title-edit {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .title-edit input {
+    flex: 1;
+    font-size: 0.95rem;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-family: 'Roboto', sans-serif;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  
+  .title-edit input:focus {
+    border-color: #1976d2;
+  }
+  
+  .title-edit-buttons {
+    display: flex;
+    gap: 0.25rem;
+  }
+  
+  .title-edit-btn {
+    background: none;
+    border: none;
+    padding: 0.3rem;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    min-width: auto;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  .title-edit-btn:hover {
+    background: #f0f0f0;
+    transform: scale(1.1);
+  }
+  
+  .title-edit-btn.save {
+    color: #1976d2;
+  }
+  
+  .title-edit-btn.cancel {
+    color: #666;
+  }
+  
+  .conversation-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+    .edit-title-btn {
+    background: none;
+    border: none;
+    padding: 0.3rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    min-width: auto;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+  }
+  
+  .conversation-item:hover .edit-title-btn {
+    opacity: 1;
+  }
+  
+  .edit-title-btn:hover {
+    background: #f0f0f0;
+    color: #333;
+    transform: scale(1.1);
+  }
+  
+  .no-conversations {
+    text-align: center;
+    color: #666;
+    padding: 3rem 1rem;
+    font-size: 0.9rem;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.5;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .chat-layout {
+      max-width: 100%;
+      padding: 0 1rem;
+    }
+    
+    .history-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: 1000;
+      margin-right: 0;
+      border-radius: 0;
+      transform: translateX(-100%);
+    }
+    
+    .history-panel.open {
+      transform: translateX(0);
+    }
+    
+    .chat-container {
+      max-width: 100%;
+      border-radius: 12px;
+      margin: 0;
+    }
+    
+    .chat-container.with-history {
+      margin-left: 0;
+    }
+    
+    .history-header {
+      padding-top: 3rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .chat-header {
+      padding: 0 1rem;
+      font-size: 1.1rem;
+    }
+    
+    .messages {
+      padding: 0 1rem;
+    }
+    
+    .chat-input {
+      padding: 1rem;
+    }
+      .user-button {
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+    }
+  }
+
+  /* Mobile backdrop */
+  .backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .backdrop.open {
+    opacity: 1;
+    visibility: visible;
+  }
+    @media (min-width: 769px) {
+    .backdrop {
+      display: none;
+    }
+  }
+
+  .mobile-close {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .mobile-close {
+      display: block !important;
+    }
   }
 </style>
 
-<div class="chat-container">
-  <div class="chat-header">
-    <span>Scalable Chat</span>
-    <div class="user-selector">
-      <div class="user-dropdown">        <button class="user-button" on:click={() => showUserDropdown = !showUserDropdown}>
-          <span>{selectedUser.name}</span>
-          <span>▼</span>
-        </button>
-        {#if showUserDropdown}
-          <div class="user-menu">
-            {#each USERS as user}
-              <div 
-                class="user-menu-item" 
-                class:selected={user.userId === selectedUser.userId}
-                on:click={() => { switchUser(user); showUserDropdown = false; }}
-              >
-                <div>{user.name}</div>
-                <div style="font-size: 0.75rem; color: #666;">{user.email}</div>
+<div class="chat-layout">
+  <!-- Mobile backdrop -->
+  <div class="backdrop" class:open={showHistory} on:click={() => showHistory = false}></div>
+  
+  <!-- History Panel -->
+  <div class="history-panel" class:open={showHistory}>
+    <div class="history-header">
+      Conversation History
+      <!-- Mobile close button -->
+      <button 
+        class="mobile-close" 
+        on:click={() => showHistory = false}
+        style="display: none; position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0.5rem;"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="conversations-list">
+      {#each conversations as conversation}
+        <div 
+          class="conversation-item" 
+          class:current={conversation.sessionId === sessionId}
+          on:click={() => loadConversation(conversation.sessionId)}
+        >
+          {#if editingTitleSessionId === conversation.sessionId}
+            <div class="title-edit">              <input 
+                type="text" 
+                bind:value={editingTitle} 
+                on:keydown={(e) => e.key === 'Enter' && saveTitle(conversation.sessionId)}
+                on:keydown={(e) => e.key === 'Escape' && cancelEditingTitle()}
+              />
+              <div class="title-edit-buttons">                <button class="title-edit-btn save" on:click={() => saveTitle(conversation.sessionId)}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                  </svg>
+                </button>
+                <button class="title-edit-btn cancel" on:click={cancelEditingTitle}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                  </svg>
+                </button>
               </div>
-            {/each}
-          </div>
-        {/if}
-      </div>
+            </div>
+          {:else}
+            <div class="conversation-actions">
+              <div>
+                <div class="conversation-title">{conversation.title || 'Untitled Conversation'}</div>
+                <div class="conversation-date">{new Date(conversation.lastActivity).toLocaleDateString()}</div>
+              </div>              <button 
+                class="edit-title-btn" 
+                on:click|stopPropagation={() => startEditingTitle(conversation.sessionId, conversation.title)}
+                title="Edit title"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M14.06 9.02l.92.92L5.92 19H5v-.92l9.06-9.06M17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29zm-3.6 3.19L3 17.25V21h3.75L17.81 9.94l-3.75-3.75z"/>
+                </svg>
+              </button>
+            </div>
+          {/if}
+        </div>
+      {/each}      {#if conversations.length === 0}
+        <div class="no-conversations">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="#bbb" style="margin-bottom: 1rem;">
+            <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4C22,2.89 21.1,2 20,2Z"/>
+          </svg>
+          <div>No conversations yet</div>
+          <div style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">Start a new conversation to see it here</div>
+        </div>
+      {/if}
     </div>
   </div>
-  <div bind:this={messagesContainer} class="messages">
-    {#each messages as message (message.id)}
-      <div class="message" class:user={message.sender === 'user'} class:assistant={message.sender === 'assistant'} class:isLoading={message.isLoading} class:isError={message.isError}>
-        <div class="content">{message.content}</div>
+
+  <!-- Main Chat Container -->
+  <div class="chat-container" class:with-history={showHistory}>    <div class="chat-header">
+      <div class="header-controls">
+        <button 
+          class="control-button" 
+          on:click={startNewChat}
+          title="New Chat"
+        >
+          <svg class="control-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+          </svg>
+        </button>
+        <button 
+          class="control-button" 
+          class:active={showHistory}
+          on:click={() => showHistory = !showHistory}
+          title="Toggle conversation history"
+        >
+          <svg class="control-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+          </svg>
+        </button>
+        <span>Scalable Chat</span>
       </div>
-    {/each}
+      <div class="user-selector">
+        <div class="user-dropdown">
+          <button class="user-button" on:click={() => showUserDropdown = !showUserDropdown}>
+            <span>{selectedUser.name}</span>
+            <span>▼</span>
+          </button>
+          {#if showUserDropdown}
+            <div class="user-menu">
+              {#each USERS as user}
+                <div 
+                  class="user-menu-item" 
+                  class:selected={user.userId === selectedUser.userId}
+                  on:click={() => { switchUser(user); showUserDropdown = false; }}
+                >
+                  <div>{user.name}</div>
+                  <div style="font-size: 0.75rem; color: #666;">{user.email}</div>
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      </div>
+    </div>
+    <div bind:this={messagesContainer} class="messages">
+      {#each messages as message (message.id)}
+        <div class="message" class:user={message.sender === 'user'} class:assistant={message.sender === 'assistant'} class:isLoading={message.isLoading} class:isError={message.isError}>
+          <div class="content">{message.content}</div>
+        </div>
+      {/each}
+    </div>
+    <form on:submit|preventDefault={send} class="chat-input">
+      <input type="text" bind:value={question} placeholder="Type your message..." />
+      <button type="submit">Send</button>
+    </form>
   </div>
-  <form on:submit|preventDefault={send} class="chat-input">
-    <input type="text" bind:value={question} placeholder="Type your message..." />
-    <button type="submit">Send</button>
-  </form>
 </div>
