@@ -1,4 +1,3 @@
-
 resource "azapi_resource" "redis_access_self" {
   type      = "Microsoft.Cache/redisEnterprise/databases/accessPolicyAssignments@2024-09-01-preview"
   name      = "self"
@@ -13,17 +12,16 @@ resource "azapi_resource" "redis_access_self" {
   }
 }
 
-
-# resource "azapi_resource" "redis_access_app" {
-#   type      = "Microsoft.Cache/redisEnterprise/databases/accessPolicyAssignments@2024-09-01-preview"
-#   name      = "app"
-#   parent_id = azapi_resource.redis.id
-#   body = {
-#     properties = {
-#       accessPolicyName = "default"
-#       user = {
-#         objectId = azurerm_user_assigned_identity.app.principal_id
-#       }
-#     }
-#   }
-# }
+resource "azapi_resource" "redis_access_history_worker" {
+  type      = "Microsoft.Cache/redisEnterprise/databases/accessPolicyAssignments@2024-09-01-preview"
+  name      = "historyworker"
+  parent_id = azapi_resource.redis_db.id
+  body = {
+    properties = {
+      accessPolicyName = "default"
+      user = {
+        objectId = azapi_resource.history_worker.output.identity.principalId
+      }
+    }
+  }
+}
