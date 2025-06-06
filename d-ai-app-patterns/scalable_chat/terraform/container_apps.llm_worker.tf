@@ -30,10 +30,10 @@ resource "azapi_resource" "llm_worker" {
                 name  = "SERVICEBUS_USER_MESSAGES_TOPIC"
                 value = azurerm_servicebus_topic.user_messages.name
               },
-              {
-                name  = "SERVICEBUS_USER_MESSAGES_SUBSCRIPTION"
-                value = azurerm_servicebus_subscription.worker_service.name
-              },
+                  {
+                    name  = "SERVICEBUS_USER_MESSAGES_SUBSCRIPTION"
+                    value = azurerm_servicebus_subscription.worker_service_user_messages.name
+                  },
               {
                 name  = "SERVICEBUS_TOKEN_STREAMS_TOPIC"
                 value = azurerm_servicebus_topic.token_streams.name
@@ -74,7 +74,7 @@ resource "azapi_resource" "llm_worker" {
                 type = "azure-servicebus"
                 metadata = {
                   topicName        = azurerm_servicebus_topic.user_messages.name
-                  subscriptionName = azurerm_servicebus_subscription.worker_service.name
+                  subscriptionName = azurerm_servicebus_subscription.worker_service_user_messages.name
                   namespace        = azurerm_servicebus_namespace.main.name
                   messageCount     = "10"
                 },
