@@ -12,7 +12,7 @@ from azure.servicebus import ServiceBusMessage
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
 from azure.ai.inference.aio import ChatCompletionsClient  # async client for streaming
-from azure.ai.inference.models import SystemMessage, UserMessage
+from azure.ai.inference.models import SystemMessage, UserMessage, AssistantMessage
 from azure.core.pipeline.transport import AioHttpTransport # Existing import
 import redis.asyncio as redis
 from redis_entraid.cred_provider import create_from_default_azure_credential
@@ -27,11 +27,15 @@ SERVICEBUS_FULLY_QUALIFIED_NAMESPACE = os.getenv("SERVICEBUS_FULLY_QUALIFIED_NAM
 SERVICEBUS_USER_MESSAGES_TOPIC = os.getenv("SERVICEBUS_USER_MESSAGES_TOPIC")
 SERVICEBUS_USER_MESSAGES_SUBSCRIPTION = os.getenv("SERVICEBUS_USER_MESSAGES_SUBSCRIPTION")
 SERVICEBUS_TOKEN_STREAMS_TOPIC = os.getenv("SERVICEBUS_TOKEN_STREAMS_TOPIC")
+SERVICEBUS_MESSAGE_COMPLETED_TOPIC = os.getenv("SERVICEBUS_MESSAGE_COMPLETED_TOPIC")
 MAX_CONCURRENCY = int(os.getenv("MAX_CONCURRENCY", 10))
 
 
 if not SERVICEBUS_FULLY_QUALIFIED_NAMESPACE or not SERVICEBUS_USER_MESSAGES_TOPIC or not SERVICEBUS_USER_MESSAGES_SUBSCRIPTION or not SERVICEBUS_TOKEN_STREAMS_TOPIC:
     raise RuntimeError("Missing Service Bus configuration in environment variables")
+
+if not SERVICEBUS_MESSAGE_COMPLETED_TOPIC:
+    raise RuntimeError("Missing SERVICEBUS_MESSAGE_COMPLETED_TOPIC environment variable")
 
 
 # Logging
@@ -102,26 +106,19 @@ async def get_conversation_history(session_id: str, user_id: str) -> list:
         # Validate session belongs to the user
         if conversation.get("userId") != user_id:
             logger.warning(f"Session {session_id} does not belong to user {user_id}")
-            return []        # Convert stored messages to LLM format
-        # For Azure AI Inference, we need to build conversation history properly
-        # Since we can only use SystemMessage and UserMessage, we'll include assistant responses
-        # as part of context or create a conversation history in the system message
+            return []
         
-        conversation_context = []
+        # Convert stored messages to LLM format
+        # Azure AI Inference supports SystemMessage, UserMessage, and AssistantMessage
+        conversation_messages = []
         for msg in conversation.get("messages", []):
             if msg["role"] == "user":
-                conversation_context.append(f"User: {msg['content']}")
+                conversation_messages.append(UserMessage(msg["content"]))
             elif msg["role"] == "assistant":
-                conversation_context.append(f"Assistant: {msg['content']}")
+                conversation_messages.append(AssistantMessage(msg["content"]))
         
-        logger.info(f"Retrieved conversation history with {len(conversation.get('messages', []))} messages for session {session_id}")
-        
-        # Return conversation context as a single system message if there's history
-        if conversation_context:
-            history_text = "Previous conversation:\n" + "\n".join(conversation_context)
-            return [SystemMessage(history_text)]
-        else:
-            return []
+        logger.info(f"Retrieved conversation history with {len(conversation_messages)} messages for session {session_id}")
+        return conversation_messages
         
     except Exception as e:
         logger.error(f"Error retrieving conversation history for session {session_id}: {e}")
@@ -186,6 +183,34 @@ async def update_conversation_history(session_id: str, user_id: str, user_messag
         logger.error(f"Error updating conversation history for session {session_id}: {e}")
         # Don't raise the exception as this shouldn't stop message processing
 
+async def publish_message_completed_event(sb_client: ServiceBusClient, session_id: str, user_id: str, chat_message_id: str):
+    """
+    Publish a message-completed event to notify other services that a conversation interaction is complete.
+    This enables asynchronous processing like history persistence and memory extraction.
+    """
+    try:
+        completed_payload = {
+            "sessionId": session_id,
+            "userId": user_id,
+            "chatMessageId": chat_message_id,
+            "completedAt": datetime.now(timezone.utc).isoformat(),
+            "eventType": "message_completed"
+        }
+        
+        completed_message = ServiceBusMessage(
+            body=json.dumps(completed_payload),
+            session_id=session_id,
+            message_id=f"{chat_message_id}_completed"
+        )
+        
+        async with sb_client.get_topic_sender(SERVICEBUS_MESSAGE_COMPLETED_TOPIC) as sender:
+            await sender.send_messages(completed_message)
+            logger.info(f"Published message-completed event for session {session_id}, chatMessageId {chat_message_id}")
+            
+    except Exception as e:
+        logger.error(f"Error publishing message-completed event for session {session_id}, chatMessageId {chat_message_id}: {e}")
+        # Don't raise the exception as this shouldn't stop the main processing flow
+
 async def process_message(sb_client: ServiceBusClient, service_bus_message):
     """
     Handle a single user message: parse, call LLM, and stream tokens to the token streams topic.
@@ -217,6 +242,7 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
         
         # Add current user message
         messages.append(UserMessage(user_text))
+        logger.debug(f"Built messages for LLM: {messages}")
         
         logger.info(f"Calling LLM with {len(messages)} messages (including system message and history)")
 
@@ -251,10 +277,12 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
             eos_message = ServiceBusMessage(body=json.dumps(eos_payload), session_id=session_id)
             await sender.send_messages(eos_message)
             logger.info(f"Sent end-of-stream for chatMessageId {chat_message_id}")
-        
-        # Update conversation history in Redis with the complete interaction
+          # Update conversation history in Redis with the complete interaction
         assistant_response = "".join(assistant_response_tokens)
         await update_conversation_history(session_id, user_id, user_text, assistant_response, chat_message_id)
+        
+        # Publish message-completed event for downstream processing (history, memory, etc.)
+        await publish_message_completed_event(sb_client, session_id, user_id, chat_message_id)
 
     except json.JSONDecodeError as e:
         logger.error(f"Failed to decode JSON from user message: {message_body_str}, error: {e}")
@@ -334,11 +362,11 @@ async def wait_for_tasks_completion(active_tasks: set, timeout: int = 240):
 
 async def main():
     global chat_client, redis_client
-    
     logger.info("Starting LLM worker...")
     logger.info(f"Service Bus Namespace: {SERVICEBUS_FULLY_QUALIFIED_NAMESPACE}")
     logger.info(f"Listening for user messages on Topic: '{SERVICEBUS_USER_MESSAGES_TOPIC}', Subscription: '{SERVICEBUS_USER_MESSAGES_SUBSCRIPTION}'")
     logger.info(f"Sending token streams to Topic: '{SERVICEBUS_TOKEN_STREAMS_TOPIC}'")
+    logger.info(f"Sending completion events to Topic: '{SERVICEBUS_MESSAGE_COMPLETED_TOPIC}'")
     logger.info(f"Maximum concurrency for message processing: {MAX_CONCURRENCY}")
     logger.info(f"Redis Host: {REDIS_HOST}:{REDIS_PORT}, SSL: {REDIS_SSL}")
     
