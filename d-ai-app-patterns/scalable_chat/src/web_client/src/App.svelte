@@ -120,7 +120,6 @@
       console.error('Error loading conversation:', error);
     }
   }
-
   async function updateConversationTitle(sessionId, newTitle) {
     try {
       const response = await fetch(`${HISTORY_API_URL}/conversations/${selectedUser.userId}/${sessionId}/title`, {
@@ -139,6 +138,9 @@
         editingTitleSessionId = null;
         editingTitle = '';
         console.log('Updated conversation title:', newTitle);
+        
+        // Refresh conversation history to ensure consistency
+        await loadConversationHistory();
       } else {
         console.error('Failed to update conversation title:', response.status);
       }
@@ -219,11 +221,15 @@
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
-            const dataStr = line.substring(6);
-            if (dataStr === '__END__') {
+            const dataStr = line.substring(6);            if (dataStr === '__END__') {
               messages = messages.map(msg => 
                 msg.id === assistantMessagePlaceholder.id ? { ...msg, isLoading: false } : msg
               );
+              
+              // Refresh conversation history after message completion
+              // This ensures new conversations appear in the history immediately
+              await loadConversationHistory();
+              
               return; // End of stream
             }
             try {
@@ -251,9 +257,14 @@
       messages = messages.map(msg => 
         msg.id === assistantMessagePlaceholder.id ? { ...msg, content: 'Error: Could not connect to the server.', isLoading: false, isError: true } : msg
       );
+    }  }
+  async function toggleHistory() {
+    // If opening the history panel, refresh the conversation list
+    if (!showHistory) {
+      await loadConversationHistory();
     }
+    showHistory = !showHistory;
   }
-
   async function startNewChat() {
     try {
       // Clear current session and messages
@@ -279,6 +290,9 @@
       
       // Close history panel if open
       showHistory = false;
+      
+      // Refresh conversation history to show the new session
+      await loadConversationHistory();
     } catch (error) {
       console.error('Failed to start new session:', error);
       sessionId = crypto.randomUUID();
@@ -360,46 +374,7 @@
     fill: currentColor;
     transition: all 0.2s ease;
   }
-  
-  /* Legacy class names for backward compatibility */
-  .history-toggle {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 0.6rem;
-    cursor: pointer;
-    font-size: 0;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    color: #555;
-  }
-  
-  .history-toggle:hover {
-    background: #e9ecef;
-    transform: translateY(-1px);
-    color: #333;
-  }
-  
-  .history-toggle.active {
-    background: #e9ecef;
-    border-color: #333;
-    color: #333;
-  }
-  
-  .history-toggle.active .history-icon {
-    transform: scale(1.1);
-  }
-  
-  .history-icon {
-    width: 18px;
-    height: 18px;
-    fill: currentColor;
-    transition: all 0.2s ease;
-  }
+    /* User selector styles */
   .user-selector {
     display: flex;
     align-items: center;
@@ -837,9 +812,16 @@
   }
 </style>
 
-<div class="chat-layout">
-  <!-- Mobile backdrop -->
-  <div class="backdrop" class:open={showHistory} on:click={() => showHistory = false}></div>
+<div class="chat-layout">  <!-- Mobile backdrop -->
+  <div 
+    class="backdrop" 
+    class:open={showHistory} 
+    role="button" 
+    tabindex="0"
+    on:click={() => showHistory = false}
+    on:keydown={(e) => e.key === 'Escape' && (showHistory = false)}
+    aria-label="Close conversation history"
+  ></div>
   
   <!-- History Panel -->
   <div class="history-panel" class:open={showHistory}>
@@ -922,11 +904,10 @@
           <svg class="control-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
           </svg>
-        </button>
-        <button 
+        </button>        <button 
           class="control-button" 
           class:active={showHistory}
-          on:click={() => showHistory = !showHistory}
+          on:click={toggleHistory}
           title="Toggle conversation history"
         >
           <svg class="control-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
