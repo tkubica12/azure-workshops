@@ -47,3 +47,10 @@ resource "azurerm_servicebus_subscription" "worker_service_user_messages" {
   requires_session   = false
 }
 
+resource "azurerm_servicebus_subscription" "history_worker_message_completed" {
+  name               = "history-worker-message-completed"
+  topic_id           = azurerm_servicebus_topic.message_completed.id
+  max_delivery_count = 10
+  requires_session   = false
+}
+
