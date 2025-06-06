@@ -83,7 +83,6 @@ sequenceDiagram
     participant S as SSE Service
     participant UM as user-messages topic
     participant TS as token-streams topic
-    participant CC as message-completed topic
     participant W as Worker Service
     participant R as Redis
     participant CD as Cosmos DB
@@ -91,10 +90,6 @@ sequenceDiagram
     participant AS as Azure AI Search
     participant G  as Memgraph
     participant L as LLM API
-    participant HW as History Worker
-    participant HA as History API
-
-    participant MCP as Memory Completion Processor
 
     C->>F: 1. HTTP POST /api/session/start (userId)
     F-->>C: Returns sessionId
@@ -118,39 +113,80 @@ sequenceDiagram
     W->>TS: 12. Enqueue response (token/EOS, sessionId, chatMessageId)
     TS-->>S: 13. SSE service dequeues response tokens (session-aware)
     S-->>C: 14. Stream tokens to Client via SSE (filtered by chatMessageId)
-    W->>CC: 15. Publish completed message
-    CC-->>HW: 16. History worker persists to Cosmos DB (async)
-    HW->>CD: 17. Upsert conversation, title
-    CC-->>MCP: 17. Memory completion processor receives completed message
-    MCP->>M: 18. Update long-term memory in mem0
-    %% client history access (out-of-band)
-    C->>HA: 18. GET /api/history/conversations?userId=...
-    HA->>R: 19. Redis (recent slice, optional)
-    HA->>CD: 20. Cosmos DB (full)
-    HA-->>C: 21. Return merged list
 ```
 
 *Figures: High-level architecture (top) and step-by-step data flow (bottom).*
 
 1.  **Client → Front (Session Start):** The client sends an HTTP `POST` request to `/api/session/start`. The Front Service returns a unique `sessionId`.
 2.  **Client → Front (Chat Request):** The client sends the user's question, the `sessionId`, user id `userId`, and a client-generated `chatMessageId` to the Front Service via an HTTP `POST` request to `/api/chat`.
-3.  **Front → user-messages topic (Request):** The Front Service packages the question (`text`), `sessionId`, and `chatMessageId` into a message. It places this message onto the `user-messages` topic in Azure Service Bus, using the `sessionId` as the Service Bus message's `session_id` property (for session-aware processing by the queue or worker).
-4.  **Client → SSE Service (Stream Connection):** The client establishes an SSE connection to the SSE Service via HTTP `GET` request to `/api/stream/{sessionId}/{chatMessageId}` to receive the streaming response.
-5.  **user-messages topic → Worker:** A Worker Service instance picks up the message from its subscription on the `user-messages` topic.
-6.  **Worker → Redis (History fetch):** The worker retrieves the conversation history for the `sessionId` from the Short-term Conversation Store.
-7.  **Worker → LLM API:** The worker calls the LLM API, sending the user’s question and relevant context. The request is made in a **streaming mode**.
-8.  **LLM API → Worker (Streaming):** The LLM processes the prompt and streams back the generated answer token by token.
-8.  **Worker → token-streams topic (Response stream):** As the worker receives tokens from the LLM, it places them onto the `token-streams` topic in Azure Service Bus. Each message contains the `token` (or an `end_of_stream` signal), the original `sessionId`, and `chatMessageId`.
-9.  **token-streams topic → SSE Service (Response):** The SSE Service, listening to its subscription on the `token-streams` topic (session-aware, using `sessionId` to receive messages for active client sessions), dequeues the response tokens. Only messages for the specified `sessionId` are delivered to the receiver, ensuring efficient routing and isolation between sessions.
-10. **SSE Service → Client (SSE Stream):** The SSE Service streams the tokens to the correct client via the SSE connection previously established for the `sessionId`. It uses the `chatMessageId` from the token message to ensure tokens are routed to the correct message response stream on the client side, sending `data: {"token": "..."}` for each token and `data: __END__` upon receiving the `end_of_stream` signal for that specific `chatMessageId`.
-11. **Worker → Update short-term history:** The worker saves the question and answer to the Short-term Conversation Store.
-12. **Worker → Publish completed message:** The worker publishes a message to the `message-completed` topic in Azure Service Bus, indicating that the conversation has been completed.
-13. **message-completed topic → History Worker:** The History Worker listens to the `message-completed` topic and processes the completed conversation for long-term storage.
-14. **History Worker → Cosmos DB:** The History Worker persists the completed conversation to Azure Cosmos DB, including metadata like title and timestamps.
-15. **message-completed topic → Memory System:** The Memory System listens to the `message-completed` topic and processes the completed conversation for long-term memory extraction.
-16. **Memory System** The Memory System extracts relevant memories from the completed conversation and stores them in the mem0 framework to AI Search (vector store) and Memgraph (graph store) for future retrieval.
+3.  **Front → user-messages topic (Request):** The Front Service packages the question (`text`), `sessionId`, `userId` and `chatMessageId` into a message. It places this message onto the `user-messages` topic in Azure Service Bus, using the `sessionId` as the Service Bus message's `session_id` property.
+4.  **Front → Client (Success Response):** The Front Service returns a success response to the client, confirming the message has been queued.
+5.  **Client → SSE Service (Stream Connection):** The client establishes an SSE connection to the SSE Service via HTTP `GET` request to `/api/stream/{sessionId}/{chatMessageId}` to receive the streaming response.
+6.  **user-messages topic → Worker:** A Worker Service instance picks up the message from its subscription on the `user-messages` topic.
+7.  **Worker → Redis/Cosmos DB (History fetch):** The worker retrieves the conversation history for the `sessionId`. It first attempts to fetch from Redis (hot cache). If it's a cache miss (7a), it fetches from Cosmos DB (7b) and then caches it in Redis (7c).
+8.  **Worker → mem0 (Memory fetch):** The worker fetches long-term user memory from the mem0 service. mem0 in turn might query Azure AI Search (8a) for vector similarity and Memgraph (8b) for graph-based relationships.
+9.  **Worker → LLM API:** The worker calls the LLM API, sending the user’s question, retrieved conversation history, and relevant long-term memories. The request is made in a **streaming mode**.
+10. **LLM API → Worker (Streaming):** The LLM processes the prompt and streams back the generated answer token by token.
+11. **Worker → Redis (Update short-term history):** The worker synchronously saves the new question and the assistant's response to Redis to ensure immediate consistency for the ongoing conversation.
+12. **Worker → token-streams topic (Response stream):** As the worker receives tokens from the LLM, it places them onto the `token-streams` topic. Each message contains the `token` (or an `end_of_stream` signal), the original `sessionId`, and `chatMessageId`.
+13. **token-streams topic → SSE Service (Response):** The SSE Service, listening to its subscription on the `token-streams` topic (session-aware, using `sessionId`), dequeues the response tokens.
+14. **SSE Service → Client (SSE Stream):** The SSE Service streams the tokens to the correct client via the SSE connection. It uses the `chatMessageId` to ensure tokens are routed to the correct message response stream on the client side.
 
-*Note: We use `sessionId` as the Service Bus session key for all chat-related messages. This allows the SSE service to open a session receiver for a specific session and only receive messages for that session, without filtering or processing unrelated messages. This approach enables stateless, horizontally scalable services, as any SSE service instance can handle any session. The `chatMessageId` is used to correlate individual questions and responses within a session, especially when a user sends multiple questions in the same session. The front service is lightweight and only handles message queuing, while the SSE service handles all streaming concerns. The worker service writes to Redis synchronously for immediate consistency and publishes to the message-completed topic for asynchronous long-term persistence. This design achieves both scalability and simplicity through clear separation of concerns.*
+After the main user flow is complete, the Worker service also publishes a `message-completed` event. This event triggers asynchronous processing for long-term history persistence and memory consolidation, detailed in the following sections.
+
+### 3. History System - Asynchronous Persistence
+This diagram illustrates how conversation history is persisted long-term after a chat interaction is completed.
+```mermaid
+sequenceDiagram
+    participant W as Worker Service
+    participant CC as message-completed topic
+    participant HW as History Worker
+    participant R as Redis
+    participant CD as Cosmos DB
+    participant HA as History API
+    participant C as Client
+
+    W->>CC: 1. Publish completed message
+    CC-->>HW: 2. History worker dequeues message
+    HW->>R: 3. Fetch session history from Redis
+    HW->>CD: 4. Generate title & upsert conversation to Cosmos DB
+    
+    C->>HA: 5. GET /api/history/conversations?userId=... (User requests history)
+    HA->>CD: 6. Fetch full history from Cosmos DB
+    HA-->>C: 7. Return conversation list
+```
+1.  **Worker → message-completed topic:** After successfully processing a user message and streaming the response, the Worker service publishes a message to the `message-completed` topic. This message typically contains identifiers like `sessionId` and `userId`.
+2.  **message-completed topic → History Worker:** The History Worker, subscribed to the `message-completed` topic, dequeues the message.
+3.  **History Worker → Redis (Fetch Session Data):** The History Worker fetches the complete conversation session data from Redis using the `sessionId`.
+4.  **History Worker → Cosmos DB (Persist Long-Term):** The History Worker processes the retrieved session data (e.g., generates a conversation title if not already present) and then persists the full conversation into Azure Cosmos DB for long-term storage.
+5.  **Client → History API (Request History):** At a later time, the client can request conversation history via the History API (e.g., `GET /api/history/conversations?userId=...`).
+6.  **History API → Cosmos DB (Full History):** The History API queries Cosmos DB directly to retrieve the comprehensive conversation history for the user.
+7.  **History API → Client (Return History):** The History API returns the list of conversations to the client.
+
+### 4. Memory System - Asynchronous Consolidation
+This diagram shows how long-term memories are extracted and stored after a chat interaction.
+```mermaid
+sequenceDiagram
+    participant W as Worker Service
+    participant CC as message-completed topic
+    participant MCP as Memory Completion Processor
+    participant M as mem0
+    participant AS as Azure AI Search
+    participant G as Memgraph
+
+    W->>CC: 1. Publish completed message
+    CC-->>MCP: 2. Memory Completion Processor dequeues message
+    MCP->>M: 3. Process conversation for memory extraction
+    M->>AS: 3a. Store/update vector embeddings in Azure AI Search
+    M->>G: 3b. Store/update graph data in Memgraph
+```
+1.  **Worker → message-completed topic:** Similar to the history system, the Worker service publishes a message to the `message-completed` topic upon completing a chat interaction.
+2.  **message-completed topic → Memory Completion Processor:** The Memory Completion Processor, also subscribed to the `message-completed` topic, dequeues the message.
+3.  **Memory Completion Processor → mem0:** The processor sends the completed conversation data to the `mem0` framework. `mem0` analyzes the conversation to extract or update long-term user memories. This involves:
+    *   **3a. mem0 → Azure AI Search:** Storing or updating vector embeddings of the memories in Azure AI Search for future semantic retrieval.
+    *   **3b. mem0 → Memgraph:** Storing or updating graph-based representations of memories, entities, and their relationships in Memgraph.
+
+*Note: We use `sessionId` as the Service Bus session key for all chat-related messages. This allows the SSE service to open a session receiver for a specific session and only receive messages for that session, without filtering or processing unrelated messages. This approach enables stateless, horizontally scalable services, as any SSE service instance can handle any session. The `chatMessageId` is used to correlate individual questions and responses within a session, especially when a user sends multiple questions in the same session. The front service is lightweight and only handles message queuing, while the SSE service handles all streaming concerns. The worker service writes to Redis synchronously for immediate consistency and publishes to the message-completed topic for asynchronous long-term persistence and memory processing. This design achieves both scalability and simplicity through clear separation of concerns.*
 
 ## User Management and Authentication
 
