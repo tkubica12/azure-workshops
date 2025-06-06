@@ -358,7 +358,6 @@ async def main():
             credential_provider=redis_credential_provider
         )
         
-        # Test Redis connection
         await redis_client.ping()
         logger.info("Redis connection established successfully")
         
