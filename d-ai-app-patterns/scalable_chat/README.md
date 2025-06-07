@@ -4,7 +4,7 @@
 This architecture enables a scalable, reliable, and secure chat application using **Server-Sent Events (SSE)** for real-time streaming responses and **asynchronous worker processes** for heavy lifting. The design decouples the user-facing front-end from the back-end computational work via a message queue, allowing each component to scale and fail independently without disrupting the whole system.
 
 **Key components:**  
-- **Client Application (Browser/App):** Sends user questions to the front service and connects to the SSE service for streaming responses via Server-Sent Events. Maintains a session ID to identify the conversation thread and user ID for authentication.  
+- **Client Application (Browser/App):** Sends user questions to the front service and connects to the SSE service for streaming responses via Server-Sent Events. Maintains a session ID to identify the conversation thread and user ID for authentication. Can also retrieve conversation history from History API and user memories from Memory API/MCP for display purposes.
 - **Front Service (Message Handler):** A lightweight service that accepts client questions over HTTP, manages sessions, and provides conversation history API. It queues messages for processing but does not handle streaming responses directly. Handles user authentication and session management.  
 - **SSE Service (Streaming Service):** A dedicated service that handles Server-Sent Events connections and streams tokens back to clients. This service can be scaled independently based on streaming demand.  
 - **Message Queue Service:** A persistent FIFO queue (with partitions or sessions by conversation ID) that brokers requests and responses between services. Includes multiple topics: `user-messages`, `token-streams`, and `message-completed`.  
@@ -13,9 +13,9 @@ This architecture enables a scalable, reliable, and secure chat application usin
 - **Azure Cosmos DB (Long-term Store):** Persistent storage for conversation history with configurable retention. Provides multi-region capabilities and serves as the authoritative source for historical conversations beyond the Redis cache window.
 - **History Worker:** Listens to `message-completed` events and **persists** conversations to Cosmos DB, generates titles.
 - **History API:** Stateless REST service that **serves history to the web client** (`GET /conversations`, `GET /messages`, `PUT /title`). Reads recent data from Redis, full history from Cosmos DB.
-- **Memory Service:** Service that processes completed conversations to extract and store long-term user memories using the mem0 framework. Subscribes to conversation completion events.  
+- **Memory Worker:** Listens to `message-completed` events and processes completed conversations to extract and store long-term user memories. Updates the memory stores based on conversation data.  
+- **Memory API/MCP:** Service that manages user memories and provides dual interfaces - MCP (Model Context Protocol) for Worker Service to retrieve memories during LLM processing, and REST API for Client UI to display memories to users.
 - **Long-term Memory Stack:**
-  - **mem0:** Framework for managing user memories and semantic understanding
   - **Azure AI Search:** Vector store for semantic similarity and memory retrieval  
   - **Memgraph (Azure Container Apps):** Graph database for relationship modeling between memories  
 - **LLM API (e.g., Azure OpenAI Service):** An external service that generates the chat response. Supports streaming output and receives both conversation context and long-term user memories.
@@ -25,7 +25,7 @@ Below is a pair of diagrams illustrating the system:
 ### 1. Architecture overview
 ```mermaid
 flowchart LR
-    Client[Client UI] -->|HTTP POST| Front[Front Service]
+    Client((Client UI)) -->|HTTP POST| Front[Front Service]
     Client -->|SSE| SSE[SSE Service]
 
     Front -->|enqueue| UserMsgTopic[[user-messages topic]]
@@ -37,19 +37,18 @@ flowchart LR
         LLM[LLM API]
     end
     Worker -->|conversation fetch / sync| Redis
-    Worker -->|LLM call| LLM
-
+    Worker -->|LLM call| LLM    
     subgraph MemorySystem["Memory System"]
-        MemoryCompletionProcessor[Memory Completion Processor]
-        Mem0[mem0 Framework]
+        MemoryWorker[Memory Worker]
+        MemoryAPI[Memory API/MCP]
         AISearch[(Azure AI Search)]
         Memgraph[(Memgraph ACA)]
     end
-    Worker -->|memory fetch| Mem0
-    Mem0 -->|vector search| AISearch
-    Mem0 -->|graph data| Memgraph
-    CompletedTopic --> MemoryCompletionProcessor
-    MemoryCompletionProcessor --> Mem0
+    Worker -->|fetch memory| MemoryAPI
+    MemoryAPI -->|vector search| AISearch
+    MemoryAPI -->|graph data| Memgraph
+    CompletedTopic --> MemoryWorker
+    MemoryWorker -->|update memory| MemoryAPI
 
     Worker -->|stream tokens| TokenTopic[[token-streams topic]]
     Worker -->|completed message| CompletedTopic[[message-completed topic]]
@@ -62,23 +61,22 @@ flowchart LR
         CosmosDB[(Azure Cosmos DB)]
     end
     CompletedTopic --> HistoryWorker
-    HistoryWorker -->|persist| CosmosDB
+    HistoryWorker -->|persist| CosmosDB    
     Client -->|read history / rename conversation| HistoryAPI
+    Client -->|read user memories| MemoryAPI
     HistoryAPI -->|read / write| CosmosDB
 
     classDef service fill:#E8F6F3,stroke:#2E86C1,stroke-width:1px;
     classDef storage fill:#EEEEEE,stroke:#000000,stroke-width:1px;
-    classDef queue   fill:#FEF5E7,stroke:#A04000,stroke-width:1px;
-
-    class Front,SSE,Worker,HistoryAPI,HistoryWorker,Mem0 service;
+    classDef queue   fill:#FEF5E7,stroke:#A04000,stroke-width:1px;    
+    class Front,SSE,Worker,HistoryAPI,HistoryWorker,MemoryAPI,MemoryWorker service;
     class Redis,CosmosDB,AISearch,Memgraph storage;
     class UserMsgTopic,TokenTopic,CompletedTopic queue;
 ```
 
 ### 2. Request / response walkthrough
 ```mermaid
-sequenceDiagram
-    participant C as Client
+sequenceDiagram    participant C as Client
     participant F as Front Service
     participant S as SSE Service
     participant UM as user-messages topic
@@ -86,7 +84,7 @@ sequenceDiagram
     participant W as Worker Service
     participant R as Redis
     participant CD as Cosmos DB
-    participant M  as mem0
+    participant MA as Memory API/MCP
     participant AS as Azure AI Search
     participant G  as Memgraph
     participant L as LLM API
@@ -103,10 +101,9 @@ sequenceDiagram
         W->>CD: 7a. Fetch from Cosmos DB directly
         CD-->>W: 7b. Return conversation history
         W->>R: 7c. Cache conversation in Redis
-    end
-    W->>M: 8. Fetch long-term user memory
-    M->>AS: 8a. Vector search
-    M->>G: 8b. Graph traversal
+    end    W->>MA: 8. Fetch long-term user memory
+    MA->>AS: 8a. Vector search
+    MA->>G: 8b. Graph traversal
     W->>L: 9. Call LLM API with question, history & memory (streaming)
     L-->>W: 10. Receive LLM response (streamed tokens)
     W->>R: 11. Update conversation in Redis (SYNCHRONOUS)
@@ -124,7 +121,7 @@ sequenceDiagram
 5.  **Client → SSE Service (Stream Connection):** The client establishes an SSE connection to the SSE Service via HTTP `GET` request to `/api/stream/{sessionId}/{chatMessageId}` to receive the streaming response.
 6.  **user-messages topic → Worker:** A Worker Service instance picks up the message from its subscription on the `user-messages` topic.
 7.  **Worker → Redis/Cosmos DB (History fetch):** The worker retrieves the conversation history for the `sessionId`. It first attempts to fetch from Redis (hot cache). If it's a cache miss (7a), it fetches from Cosmos DB (7b) and then caches it in Redis (7c).
-8.  **Worker → mem0 (Memory fetch):** The worker fetches long-term user memory from the mem0 service. mem0 in turn might query Azure AI Search (8a) for vector similarity and Memgraph (8b) for graph-based relationships.
+8.  **Worker → Memory API/MCP (Memory fetch):** The worker fetches long-term user memory from the Memory API/MCP service. The Memory API/MCP in turn might query Azure AI Search (8a) for vector similarity and Memgraph (8b) for graph-based relationships.
 9.  **Worker → LLM API:** The worker calls the LLM API, sending the user’s question, retrieved conversation history, and relevant long-term memories. The request is made in a **streaming mode**.
 10. **LLM API → Worker (Streaming):** The LLM processes the prompt and streams back the generated answer token by token.
 11. **Worker → Redis (Update short-term history):** The worker synchronously saves the new question and the assistant's response to Redis to ensure immediate consistency for the ongoing conversation.
@@ -169,24 +166,60 @@ This diagram shows how long-term memories are extracted and stored after a chat 
 sequenceDiagram
     participant W as Worker Service
     participant CC as message-completed topic
-    participant MCP as Memory Completion Processor
-    participant M as mem0
+    participant MW as Memory Worker
+    participant MA as Memory API/MCP
     participant AS as Azure AI Search
     participant G as Memgraph
 
     W->>CC: 1. Publish completed message
-    CC-->>MCP: 2. Memory Completion Processor dequeues message
-    MCP->>M: 3. Process conversation for memory extraction
-    M->>AS: 3a. Store/update vector embeddings in Azure AI Search
-    M->>G: 3b. Store/update graph data in Memgraph
+    CC-->>MW: 2. Memory Worker dequeues message
+    MW->>MA: 3. Process conversation for memory extraction
+    MA->>AS: 3a. Store/update vector embeddings in Azure AI Search
+    MA->>G: 3b. Store/update graph data in Memgraph
 ```
 1.  **Worker → message-completed topic:** Similar to the history system, the Worker service publishes a message to the `message-completed` topic upon completing a chat interaction.
-2.  **message-completed topic → Memory Completion Processor:** The Memory Completion Processor, also subscribed to the `message-completed` topic, dequeues the message.
-3.  **Memory Completion Processor → mem0:** The processor sends the completed conversation data to the `mem0` framework. `mem0` analyzes the conversation to extract or update long-term user memories. This involves:
-    *   **3a. mem0 → Azure AI Search:** Storing or updating vector embeddings of the memories in Azure AI Search for future semantic retrieval.
-    *   **3b. mem0 → Memgraph:** Storing or updating graph-based representations of memories, entities, and their relationships in Memgraph.
+2.  **message-completed topic → Memory Worker:** The Memory Worker, also subscribed to the `message-completed` topic, dequeues the message.
+3.  **Memory Worker → Memory API/MCP:** The Memory Worker sends the completed conversation data to the Memory API/MCP service. The Memory API/MCP analyzes the conversation to extract or update long-term user memories. This involves:
+    *   **3a. Memory API/MCP → Azure AI Search:** Storing or updating vector embeddings of the memories in Azure AI Search for future semantic retrieval.
+    *   **3b. Memory API/MCP → Memgraph:** Storing or updating graph-based representations of memories, entities, and their relationships in Memgraph.
 
 *Note: We use `sessionId` as the Service Bus session key for all chat-related messages. This allows the SSE service to open a session receiver for a specific session and only receive messages for that session, without filtering or processing unrelated messages. This approach enables stateless, horizontally scalable services, as any SSE service instance can handle any session. The `chatMessageId` is used to correlate individual questions and responses within a session, especially when a user sends multiple questions in the same session. The front service is lightweight and only handles message queuing, while the SSE service handles all streaming concerns. The worker service writes to Redis synchronously for immediate consistency and publishes to the message-completed topic for asynchronous long-term persistence and memory processing. This design achieves both scalability and simplicity through clear separation of concerns.*
+
+## API Reference
+
+This section provides a comprehensive reference for all REST APIs in the scalable chat system. Each service exposes specific endpoints for different aspects of the chat functionality.
+
+### Front Service APIs
+The Front Service provides session management and message queuing functionality. These are the primary endpoints that client applications interact with to initiate conversations.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/session/start` | Start a new conversation session for a user |
+| `POST` | `/api/chat` | Send a chat message to be processed by the system |
+
+### History APIs  
+History APIs provide access to conversation history and allow users to update conversation titles. They are designed to be stateless and can scale independently of the front service.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/history/users/{userId}/conversations` | Retrieve all conversations for a specific user |
+| `GET` | `/api/history/conversations/{sessionId}` | Retrieve a specific conversation by session ID |
+| `PUT` | `/api/history/conversations/{sessionId}/title` | Update the title of a specific conversation |
+
+### Memory APIs
+Memory API/MCP provides dual interfaces for memory management:
+
+**REST API endpoints (for Client UI):**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/memory/users/{userId}/memories` | Retrieve all memories for a specific user |
+| `GET` | `/api/memory/users/{userId}/memories/{memoryId}` | Retrieve a specific memory by ID |
+| `GET` | `/api/memory/users/{userId}/memories/search?query={query}` | Search user memories using a text query |
+
+**MCP Interface (for Worker Service):**
+- Retrieves relevant memories based on conversation context
+- Supports semantic and graph-based memory queries
 
 ## User Management and Authentication
 
@@ -275,23 +308,18 @@ Structure: {
 }
 ```
 
-### Long-term History APIs  
-History APIs provide access to conversation history and allow users to update conversation titles. They are designed to be stateless and can scale independently of the front service.
-
-```
-GET  /api/history/users/{userId}/conversations
-GET  /api/history/conversations/{sessionId}
-PUT  /api/history/conversations/{sessionId}/title
-```
-
 ## Memory Architecture
-**mem0 Integration:** The system integrates mem0 for sophisticated user memory management, enabling personalized experiences across conversations:
+**Memory API/MCP Integration:** The system integrates a Memory API/MCP service for sophisticated user memory management, enabling personalized experiences across conversations:
 
-LLM Worker accesses mem0 to retrieve relevant user memories during LLM processing. 
-**Memory completion processor** is triggered by the `message-completed` topic to extract and store long-term memories by calling mem0 APIs.
+LLM Worker accesses Memory API/MCP via Model Context Protocol (MCP) to retrieve relevant user memories during LLM processing. 
+**Memory Worker** is triggered by the `message-completed` topic to extract and store long-term memories by calling Memory API/MCP.
+**Client UI** can request user memories via REST API endpoints exposed by Memory API/MCP for display purposes.
 
 ### Memory Components:
+- **Memory API/MCP:** Central service providing dual interfaces:
+  - **MCP Interface:** Used by Worker Service to retrieve memories during LLM processing
+  - **REST API:** Used by Client UI to display memories to users
 - **Azure AI Search:** Vector store for semantic similarity search of memories
 - **Memgraph (Azure Container Apps):** Graph database for modeling relationships between memories, topics, and user preferences
-- **mem0 Framework:** Orchestrates memory extraction, storage, and retrieval
+- **Memory Worker:** Processes completed conversations to extract and update memories
 
