@@ -355,11 +355,9 @@ Memory API/MCP provides dual interfaces for memory management:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/api/memory/users/{userId}/memories` | Retrieve all memories for a specific user |
-| `GET` | `/api/memory/users/{userId}/memories/{memoryId}` | Retrieve a specific memory by ID |
-| `GET` | `/api/memory/users/{userId}/memories/search?query={query}` | Search user memories using a text query |
+| `GET` | `/api/memory/users/{userId}/memories` | Retrieve structured memories for a specific user |
+| `POST` | `/api/memory/users/{userId}/memories/search` | Search conversational memories for a specific user |
 
 **MCP Interface (for Worker Service):**
-- Retrieves relevant memories based on conversation context
-- Supports semantic search on conversation embeddings and queries on structured user data in Azure Cosmos DB.
+The same as the REST API, but uses a different protocol for communication. 
 
