@@ -57,3 +57,9 @@ resource "azurerm_role_assignment" "history_worker_servicebus_receiver" {
   role_definition_name = "Azure Service Bus Data Receiver"
   principal_id         = azapi_resource.history_worker.output.identity.principalId
 }
+
+resource "azurerm_role_assignment" "memory_worker_servicebus_receiver" {
+  scope                = azurerm_servicebus_namespace.main.id
+  role_definition_name = "Azure Service Bus Data Receiver"
+  principal_id         = azapi_resource.memory_worker.output.identity.principalId
+}

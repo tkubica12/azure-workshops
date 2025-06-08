@@ -25,3 +25,17 @@ resource "azapi_resource" "redis_access_history_worker" {
     }
   }
 }
+
+resource "azapi_resource" "redis_access_memory_worker" {
+  type      = "Microsoft.Cache/redisEnterprise/databases/accessPolicyAssignments@2024-09-01-preview"
+  name      = "memoryworker"
+  parent_id = azapi_resource.redis_db.id
+  body = {
+    properties = {
+      accessPolicyName = "default"
+      user = {
+        objectId = azapi_resource.memory_worker.output.identity.principalId
+      }
+    }
+  }
+}
