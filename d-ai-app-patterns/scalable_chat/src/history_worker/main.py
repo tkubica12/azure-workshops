@@ -180,20 +180,18 @@ async def persist_conversation_to_cosmos(conversation_data: dict):
     # Generate title if not present
     if not conversation_data.get("title"):
         conversation_data["title"] = await generate_conversation_title(conversation_data)
-    
     # Prepare document for Cosmos DB
-    # Use sessionId as the document id and userId as partition key
     cosmos_document = {
-        "id": session_id,  # Cosmos DB document ID
+        "id": session_id, 
         "sessionId": session_id,
-        "userId": user_id,  # Partition key
+        "userId": user_id, 
         "title": conversation_data.get("title"),
         "createdAt": conversation_data.get("createdAt"),
         "lastActivity": conversation_data.get("lastActivity"),
         "messages": conversation_data.get("messages", []),
         "persistedAt": datetime.now(timezone.utc).isoformat()
     }
-      # Get container reference
+    # Get container reference
     database = cosmos_client.get_database_client(COSMOS_DATABASE_NAME)
     container = database.get_container_client(COSMOS_CONTAINER_NAME)
     

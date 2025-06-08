@@ -1,0 +1,18 @@
+[project]
+name = "scalable-chat-memory-api"
+version = "0.1.0"
+description = "Memory API service for scalable chat - manages conversation memories and user profiles in Cosmos DB"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.112.0",
+    "azure-identity>=1.20.0",
+    "azure-cosmos>=4.8.0",
+    "azure-ai-inference>=1.0.0b3",
+    "python-dotenv==1.1.0",
+    "uvicorn[standard]==0.29.0",
+    "opentelemetry-sdk>=1.33.1",
+    "opentelemetry-instrumentation-fastapi>=0.54b1",
+    "azure-monitor-opentelemetry>=1.6.7",
+    "numpy>=1.24.0",
+]

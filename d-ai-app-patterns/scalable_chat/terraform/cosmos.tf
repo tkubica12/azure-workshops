@@ -5,10 +5,14 @@ resource "azurerm_cosmosdb_account" "main" {
   kind                          = "GlobalDocumentDB"
   offer_type                    = "Standard"
   local_authentication_disabled = true
-  public_network_access_enabled = false
+  public_network_access_enabled = true
 
   capabilities {
     name = "EnableServerless"
+  }
+
+  capabilities {
+    name = "EnableNoSQLVectorSearch"
   }
 
   consistency_policy {
@@ -19,18 +23,4 @@ resource "azurerm_cosmosdb_account" "main" {
     location          = azurerm_resource_group.main.location
     failover_priority = 0
   }
-}
-
-resource "azurerm_cosmosdb_sql_database" "main" {
-  name                = "mydb"
-  resource_group_name = azurerm_resource_group.main.name
-  account_name        = azurerm_cosmosdb_account.main.name
-}
-
-resource "azurerm_cosmosdb_sql_container" "main" {
-  name                = "mydocuments"
-  resource_group_name = azurerm_resource_group.main.name
-  account_name        = azurerm_cosmosdb_account.main.name
-  database_name       = azurerm_cosmosdb_sql_database.main.name
-  partition_key_paths = ["/id"]
 }
