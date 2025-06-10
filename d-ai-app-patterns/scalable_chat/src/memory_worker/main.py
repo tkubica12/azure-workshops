@@ -18,7 +18,7 @@ from azure.ai.inference.aio import ChatCompletionsClient, EmbeddingsClient
 from azure.ai.inference.models import SystemMessage, UserMessage, JsonSchemaFormat
 from azure.cosmos.aio import CosmosClient
 from azure.cosmos import PartitionKey
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 # Load .env in development
 load_dotenv()
@@ -26,23 +26,47 @@ load_dotenv()
 # Pydantic models for structured output
 class ConversationSummary(BaseModel):
     """Structured output model for conversation analysis"""
+    model_config = ConfigDict(extra="forbid")
+    
     summary: str = Field(description="A concise paragraph summarizing the conversation")
     themes: List[str] = Field(description="Array of key topics discussed (max 5)")
     persons: List[str] = Field(description="Array of people mentioned by name (excluding the user and assistant)")
     places: List[str] = Field(description="Array of specific locations mentioned")
     user_sentiment: Literal["positive", "neutral", "negative"] = Field(description="Overall user sentiment")
 
+class OutputPreferences(BaseModel):
+    """User's preferred output styles"""
+    model_config = ConfigDict(extra="forbid")
+
+class PersonalPreferences(BaseModel):
+    """How user prefers to be addressed"""
+    model_config = ConfigDict(extra="forbid")
+
+class AssistantPreferences(BaseModel):
+    """User's preferences for assistant behavior"""
+    model_config = ConfigDict(extra="forbid")
+
+class FamilyAndFriends(BaseModel):
+    """Personal connections user mentions"""
+    model_config = ConfigDict(extra="forbid")
+
+class WorkProfile(BaseModel):
+    """Professional information user shares"""
+    model_config = ConfigDict(extra="forbid")
+
 class UserMemoryUpdates(BaseModel):
     """Structured output model for user memory updates."""
-    output_preferences: dict = Field(default_factory=dict, description="User's preferred output styles")
-    personal_preferences: dict = Field(default_factory=dict, description="How user prefers to be addressed")
-    assistant_preferences: dict = Field(default_factory=dict, description="User's preferences for assistant behavior")
-    knowledge: List[str] = Field(default_factory=list, description="Topics where user demonstrates understanding")
-    interests: List[str] = Field(default_factory=list, description="User's hobbies and interests")
-    dislikes: List[str] = Field(default_factory=list, description="Things user explicitly dislikes")
-    family_and_friends: dict = Field(default_factory=dict, description="Personal connections user mentions")
-    work_profile: dict = Field(default_factory=dict, description="Professional information user shares")
-    goals: List[str] = Field(default_factory=list, description="User's stated objectives or aspirations")
+    model_config = ConfigDict(extra="forbid")
+    
+    output_preferences: OutputPreferences = Field(description="User's preferred output styles")
+    personal_preferences: PersonalPreferences = Field(description="How user prefers to be addressed")
+    assistant_preferences: AssistantPreferences = Field(description="User's preferences for assistant behavior")
+    knowledge: List[str] = Field(description="Topics where user demonstrates understanding")
+    interests: List[str] = Field(description="User's hobbies and interests")
+    dislikes: List[str] = Field(description="Things user explicitly dislikes")
+    family_and_friends: FamilyAndFriends = Field(description="Personal connections user mentions")
+    work_profile: WorkProfile = Field(description="Professional information user shares")
+    goals: List[str] = Field(description="User's stated objectives or aspirations")
 
 # Service Bus configuration
 SERVICEBUS_FULLY_QUALIFIED_NAMESPACE = os.getenv("SERVICEBUS_FULLY_QUALIFIED_NAMESPACE")
@@ -173,12 +197,11 @@ Return structured data following the specified schema.
                 UserMessage(content=user_prompt)
             ],
             temperature=0.1,
-            max_tokens=1000,
-            response_format=JsonSchemaFormat(
+            max_tokens=1000,            response_format=JsonSchemaFormat(
                 name="ConversationAnalysis",
                 schema=ConversationSummary.model_json_schema(),
                 description="Structured analysis of a conversation including summary, themes, persons, places, and user sentiment",
-                strict=False
+                strict=True
             )
         )
         
@@ -235,7 +258,6 @@ async def extract_user_memory_updates(conversation_data: dict, existing_memory: 
         
         # Prepare LLM prompt for user memory extraction
         existing_memory_json = json.dumps(existing_memory, indent=2)
-        
         system_prompt = f"""
 You are a user memory extractor. Based on the conversation, identify any new information about the user that should be added to their memory profile.
 
@@ -255,7 +277,7 @@ From the conversation, extract ONLY NEW information in these categories:
 
 All extracted information should be from user messages in the conversation. Do not include assistant messages or system prompts. Those are provided for context only.
 
-Return structured data with only the categories that have new information. Return empty values for categories with no new information.
+IMPORTANT: You must provide values for ALL fields in the response. If there is no new information for a category, provide an empty object {{}} for nested objects or empty array [] for lists.
 """
 
         user_prompt = f"Extract new user memory information from this conversation:\n\n{conversation_text}"
@@ -265,27 +287,29 @@ Return structured data with only the categories that have new information. Retur
                 UserMessage(content=user_prompt)
             ],
             temperature=0.1,
-            max_tokens=1000,
-            response_format=JsonSchemaFormat(
+            max_tokens=1000,            response_format=JsonSchemaFormat(
                 name="UserMemoryUpdates",
                 schema=UserMemoryUpdates.model_json_schema(),
                 description="Updates to user memory based on conversation analysis",
-                strict=False
+                strict=True
             )
         )
-        
-        # Parse the structured response
+          # Parse the structured response
         content = response.choices[0].message.content
         try:
             # Validate and parse using Pydantic
             memory_updates = UserMemoryUpdates.model_validate_json(content)
             # Only return non-empty fields
             updates_dict = memory_updates.model_dump()
-            # Filter out empty values
-            filtered_updates = {
-                k: v for k, v in updates_dict.items() 
-                if v and (isinstance(v, (list, dict)) and len(v) > 0 or isinstance(v, str) and v.strip())
-            }
+            # Filter out empty values - for nested objects, check if they have any fields
+            filtered_updates = {}
+            for k, v in updates_dict.items():
+                if isinstance(v, list) and len(v) > 0:
+                    filtered_updates[k] = v
+                elif isinstance(v, dict) and len(v) > 0:
+                    filtered_updates[k] = v
+                elif isinstance(v, str) and v.strip():
+                    filtered_updates[k] = v
             return filtered_updates
         except Exception as e:
             logger.warning(f"Failed to parse structured user memory updates: {e}, content: {content}")
