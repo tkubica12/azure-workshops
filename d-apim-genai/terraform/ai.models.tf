@@ -1,10 +1,10 @@
 resource "azurerm_cognitive_deployment" "openai_model_p1" {
-  name                 = "gpt-4o-mini"
+  name                 = "gpt-4.1"
   cognitive_account_id = azapi_resource.ai_service_p1.id
   model {
     format  = "OpenAI"
-    name    = "gpt-4o-mini"
-    version = "2024-07-18"
+    name    = "gpt-4.1"
+    version = "2025-04-14"
   }
 
   sku {
@@ -16,12 +16,12 @@ resource "azurerm_cognitive_deployment" "openai_model_p1" {
 }
 
 resource "azurerm_cognitive_deployment" "openai_model_p2" {
-  name                 = "gpt-4o-mini"
+  name                 = "gpt-4.1"
   cognitive_account_id = azapi_resource.ai_service_p2.id
   model {
     format  = "OpenAI"
-    name    = "gpt-4o-mini"
-    version = "2024-07-18"
+    name    = "gpt-4.1"
+    version = "2025-04-14"
   }
 
   sku {

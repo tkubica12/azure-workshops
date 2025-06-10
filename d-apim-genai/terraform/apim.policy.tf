@@ -207,7 +207,7 @@ POLICY
         <!-- <set-backend-service backend-id="${azapi_resource.embeddings_backend.name}" /> -->
         <authentication-managed-identity resource="https://cognitiveservices.azure.com/" />
         <azure-openai-semantic-cache-lookup
-            score-threshold="0.05"
+            score-threshold="0.5"
             embeddings-backend-id="${azapi_resource.embeddings_backend.name}"
             embeddings-backend-auth="system-assigned"
             ignore-system-messages="false"

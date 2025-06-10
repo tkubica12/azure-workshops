@@ -14,7 +14,7 @@ resource "azapi_resource" "ai_service_p1" {
       #   restore             = true
       customSubDomainName = "p1-${local.base_name}"
       apiProperties = {
-        statisticsEnabled = false
+        # statisticsEnabled = false
       }
     }
     kind = "AIServices"
@@ -41,7 +41,7 @@ resource "azapi_resource" "ai_service_p2" {
       #   restore             = true
       customSubDomainName = "p2-${local.base_name}"
       apiProperties = {
-        statisticsEnabled = false
+        # statisticsEnabled = false
       }
     }
     kind = "AIServices"

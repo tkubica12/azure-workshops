@@ -16,3 +16,13 @@ Azure region for resources.
 Examples: swedencentral, westeurope, northeurope, germanywestcentral.
 EOF
 }
+
+variable "apim_sku" {
+  type        = string
+  default     = "Premium_1"
+  description = <<EOF
+Azure API Management SKU.
+
+Examples: Developer_1, Standard_1, Premium_1.
+EOF
+}

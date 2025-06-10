@@ -4,7 +4,7 @@ resource "azurerm_api_management" "main" {
   resource_group_name = azurerm_resource_group.main.name
   publisher_name      = "My Company"
   publisher_email     = "company@company.local"
-  sku_name            = "Developer_1"
+  sku_name            = var.apim_sku
 
   identity {
     type         = "SystemAssigned"
