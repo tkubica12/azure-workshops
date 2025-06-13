@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import numpy as np
+import uvicorn
 from datetime import datetime, timezone
 from typing import List, Optional, Dict, Any
 from dotenv import load_dotenv
@@ -12,7 +13,6 @@ from azure.identity import DefaultAzureCredential
 from azure.cosmos import CosmosClient, PartitionKey, exceptions
 from azure.monitor.opentelemetry import configure_azure_monitor
 from azure.ai.inference.aio import EmbeddingsClient
-from azure.ai.inference.models import EmbeddingInput
 from opentelemetry import trace
 
 # Load local .env when in development
@@ -96,16 +96,15 @@ class ConversationSummary(BaseModel):
 
 class UserMemory(BaseModel):
     userId: str
-    output_preferences: Optional[Dict[str, Any]] = None
-    personal_preferences: Optional[Dict[str, Any]] = None
-    assistant_preferences: Optional[Dict[str, Any]] = None
+    output_preferences: Optional[List[str]] = None
+    personal_preferences: Optional[List[str]] = None
+    assistant_preferences: Optional[List[str]] = None
     knowledge: Optional[List[str]] = None
     interests: Optional[List[str]] = None
     dislikes: Optional[List[str]] = None
-    family_and_friends: Optional[Dict[str, Any]] = None
-    work_profile: Optional[Dict[str, Any]] = None
+    family_and_friends: Optional[List[str]] = None
+    work_profile: Optional[List[str]] = None
     goals: Optional[List[str]] = None
-    last_updated: datetime
 
 class MemorySearchRequest(BaseModel):
     query: str
@@ -139,9 +138,8 @@ class UserMemoryUpdate(BaseModel):
 async def generate_embedding(text: str) -> List[float]:
     """Generate text embedding using Azure AI Inference."""
     try:
-        response = await embeddings_client.embed(
-            input=[EmbeddingInput(text=text)]
-        )
+        # Use the correct API - pass input as a list of strings
+        response = await embeddings_client.embed(input=[text])
         return response.data[0].embedding
     except Exception as e:
         logger.error(f"Failed to generate embedding: {e}")
@@ -206,7 +204,7 @@ async def search_conversation_memories(user_id: str, search_request: MemorySearc
             query_embedding = await generate_embedding(search_request.query)
             
             if query_embedding:
-                # Use vector similarity search if embeddings are available
+                # Use CosmosDB vector similarity search if embeddings are available
                 query = """
                     SELECT c.sessionId, c.summary, c.timestamp, c.themes, c.persons, 
                            c.places, c.user_sentiment, c.vector_embedding,
@@ -376,6 +374,8 @@ async def update_user_memory(memory_update: UserMemoryUpdate):
                         existing_memory[key].update(value)
                     else:
                         existing_memory[key] = value
+                else:
+                    existing_memory[key] = value
             
             existing_memory["last_updated"] = datetime.now(timezone.utc).isoformat()
             
@@ -394,6 +394,5 @@ async def update_user_memory(memory_update: UserMemoryUpdate):
 # For now, we'll use the same REST endpoints that the Worker can call
 
 if __name__ == "__main__":
-    import uvicorn
     port = int(os.getenv("PORT", 8003))
     uvicorn.run(app, host="0.0.0.0", port=port)

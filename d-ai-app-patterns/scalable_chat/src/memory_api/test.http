@@ -1,0 +1,28 @@
+### Variables
+@baseUrl = http://localhost:8003
+@userId = user_001
+@sessionId = session-abc-456
+
+### Health Check
+GET {{baseUrl}}/health
+
+### Get User Memories
+GET {{baseUrl}}/api/memory/users/{{userId}}/memories
+
+### Search Conversation Memories - Text Query
+POST {{baseUrl}}/api/memory/users/{{userId}}/memories/search
+Content-Type: application/json
+
+{
+  "query": "vacation plans",
+  "limit": 5
+}
+
+### Search Conversation Memories - Vector Query (with different limit)
+POST {{baseUrl}}/api/memory/users/{{userId}}/memories/search
+Content-Type: application/json
+
+{
+  "query": "work meeting discussion about project deadlines",
+  "limit": 10
+}

@@ -34,39 +34,19 @@ class ConversationSummary(BaseModel):
     places: List[str] = Field(description="Array of specific locations mentioned")
     user_sentiment: Literal["positive", "neutral", "negative"] = Field(description="Overall user sentiment")
 
-class OutputPreferences(BaseModel):
-    """User's preferred output styles"""
-    model_config = ConfigDict(extra="forbid")
-
-class PersonalPreferences(BaseModel):
-    """How user prefers to be addressed"""
-    model_config = ConfigDict(extra="forbid")
-
-class AssistantPreferences(BaseModel):
-    """User's preferences for assistant behavior"""
-    model_config = ConfigDict(extra="forbid")
-
-class FamilyAndFriends(BaseModel):
-    """Personal connections user mentions"""
-    model_config = ConfigDict(extra="forbid")
-
-class WorkProfile(BaseModel):
-    """Professional information user shares"""
-    model_config = ConfigDict(extra="forbid")
-
 class UserMemoryUpdates(BaseModel):
     """Structured output model for user memory updates."""
     model_config = ConfigDict(extra="forbid")
     
-    output_preferences: OutputPreferences = Field(description="User's preferred output styles")
-    personal_preferences: PersonalPreferences = Field(description="How user prefers to be addressed")
-    assistant_preferences: AssistantPreferences = Field(description="User's preferences for assistant behavior")
-    knowledge: List[str] = Field(description="Topics where user demonstrates understanding")
-    interests: List[str] = Field(description="User's hobbies and interests")
-    dislikes: List[str] = Field(description="Things user explicitly dislikes")
-    family_and_friends: FamilyAndFriends = Field(description="Personal connections user mentions")
-    work_profile: WorkProfile = Field(description="Professional information user shares")
-    goals: List[str] = Field(description="User's stated objectives or aspirations")
+    output_preferences: List[str] = Field(description="Array of strings of User's preferred output styles")
+    personal_preferences: List[str] = Field(description="Array of strings of how user prefers to be addressed")
+    assistant_preferences: List[str] = Field(description="Array of strings of User's preferences for assistant behavior")
+    knowledge: List[str] = Field(description="Array of strings of topics where user demonstrates understanding")
+    interests: List[str] = Field(description="Array of strings of user's hobbies and interests")
+    dislikes: List[str] = Field(description="Array of strings of things user explicitly dislikes")
+    family_and_friends: List[str] = Field(description="Array of strings of personal connections user mentions")
+    work_profile: List[str] = Field(description="Array of strings of professional information user shares")
+    goals: List[str] = Field(description="Array of strings of user's stated objectives or aspirations")
 
 # Service Bus configuration
 SERVICEBUS_FULLY_QUALIFIED_NAMESPACE = os.getenv("SERVICEBUS_FULLY_QUALIFIED_NAMESPACE")
@@ -261,7 +241,7 @@ async def extract_user_memory_updates(conversation_data: dict, existing_memory: 
         system_prompt = f"""
 You are a user memory extractor. Based on the conversation, identify any new information about the user that should be added to their memory profile.
 
-Current user memory profile:
+Current user memory profile (if any):
 {existing_memory_json}
 
 From the conversation, extract ONLY NEW information in these categories:
@@ -277,7 +257,9 @@ From the conversation, extract ONLY NEW information in these categories:
 
 All extracted information should be from user messages in the conversation. Do not include assistant messages or system prompts. Those are provided for context only.
 
-IMPORTANT: You must provide values for ALL fields in the response. If there is no new information for a category, provide an empty object {{}} for nested objects or empty array [] for lists.
+If new and existing information overlaps, merge them intelligently. For example, if user mentions a new interest that is similar to an existing one, combine them.
+
+IMPORTANT: You must provide values for ALL fields in the response. If there is no information for a category, provide an empty array [] for lists.
 """
 
         user_prompt = f"Extract new user memory information from this conversation:\n\n{conversation_text}"
@@ -363,6 +345,8 @@ User sentiment: {analysis['user_sentiment']}"""
 async def update_user_memory(user_id: str, updates: dict):
     """
     Update user memory directly in CosmosDB.
+    Memory fields are REPLACED with LLM output (not merged) since LLM already does consolidation.
+    Only system fields like userId, id, timestamp are preserved.
     """
     if not updates:
         return
@@ -381,36 +365,39 @@ async def update_user_memory(user_id: str, updates: dict):
                 "id": user_id,
                 "userId": user_id,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
-                "output_preferences": {},
-                "personal_preferences": {},
-                "assistant_preferences": {},
+                "output_preferences": [],
+                "personal_preferences": [],
+                "assistant_preferences": [],
                 "knowledge": [],
                 "interests": [],
                 "dislikes": [],
-                "family_and_friends": {},
-                "work_profile": {},
+                "family_and_friends": [],
+                "work_profile": [],
                 "goals": []
             }
         
-        # Merge updates into existing document
+        # Memory field names that should be replaced (not merged) since LLM does consolidation
+        memory_fields = {
+            "output_preferences", "personal_preferences", "assistant_preferences",
+            "knowledge", "interests", "dislikes", "family_and_friends", 
+            "work_profile", "goals"
+        }
+        
+        # Update document with LLM output - REPLACE memory fields, preserve system fields
         for key, value in updates.items():
-            if key in existing_doc:
-                if isinstance(value, list) and isinstance(existing_doc[key], list):
-                    # Merge lists and remove duplicates
-                    existing_doc[key] = list(set(existing_doc[key] + value))
-                elif isinstance(value, dict) and isinstance(existing_doc[key], dict):
-                    # Merge dictionaries
-                    existing_doc[key].update(value)
-                else:
-                    # Replace value
-                    existing_doc[key] = value
+            if key in memory_fields:
+                # Replace memory fields entirely with LLM's consolidated output
+                existing_doc[key] = value
+            else:
+                # For non-memory fields, preserve existing logic (shouldn't happen with current schema)
+                existing_doc[key] = value
         
         # Update timestamp
         existing_doc["timestamp"] = datetime.now(timezone.utc).isoformat()
         
         # Upsert the document
         await container.upsert_item(existing_doc)
-        logger.info(f"Updated user memory for user {user_id} in CosmosDB")
+        logger.info(f"Updated user memory for user {user_id} in CosmosDB - replaced fields: {list(updates.keys())}")
                 
     except Exception as e:
         logger.error(f"Error updating user memory in CosmosDB: {e}")
@@ -420,42 +407,42 @@ async def get_existing_user_memory(user_id: str) -> dict:
     """
     Get existing user memory from CosmosDB.
     """
-    try:        # Get user memories container
+    try:        
+        # Get user memories container
         database = cosmos_client.get_database_client(COSMOS_DATABASE_NAME)
         container = database.get_container_client(COSMOS_CONTAINER_NAME_USER_MEMORIES)
         
         # Try to read user memory document
         try:
-            memory_doc = await container.read_item(item=user_id, partition_key=user_id)
-            # Return only the memory fields for analysis
-            return {
-                "output_preferences": memory_doc.get("output_preferences", {}),
-                "personal_preferences": memory_doc.get("personal_preferences", {}),
-                "assistant_preferences": memory_doc.get("assistant_preferences", {}),
-                "knowledge": memory_doc.get("knowledge", []),
-                "interests": memory_doc.get("interests", []),
-                "dislikes": memory_doc.get("dislikes", []),
-                "family_and_friends": memory_doc.get("family_and_friends", {}),
-                "work_profile": memory_doc.get("work_profile", {}),
-                "goals": memory_doc.get("goals", [])
-            }
+            existing_memory = await container.read_item(item=user_id, partition_key=user_id)
+            return existing_memory
         except:
             # Return empty memory structure if document doesn't exist
             return {
-                "output_preferences": {},
-                "personal_preferences": {},
-                "assistant_preferences": {},
+                "output_preferences": [],
+                "personal_preferences": [],
+                "assistant_preferences": [],
                 "knowledge": [],
                 "interests": [],
                 "dislikes": [],
-                "family_and_friends": {},
-                "work_profile": {},
+                "family_and_friends": [],
+                "work_profile": [],
                 "goals": []
             }
                 
     except Exception as e:
         logger.error(f"Error getting existing user memory from CosmosDB: {e}")
-        return {}
+        return {
+            "output_preferences": [],
+            "personal_preferences": [],
+            "assistant_preferences": [],
+            "knowledge": [],
+            "interests": [],
+            "dislikes": [],
+            "family_and_friends": [],
+            "work_profile": [],
+            "goals": []
+        }
 
 
 async def get_conversation_from_redis(session_id: str) -> dict:
@@ -598,7 +585,8 @@ async def main():
     # Setup signal handlers
     await setup_signal_handlers()
     
-    try:  
+    # Initialize clients outside the Service Bus loop
+    try:
         redis_credential_provider = create_from_default_azure_credential(
             ("https://redis.azure.com/.default",)
         )
@@ -616,6 +604,7 @@ async def main():
         # Test Redis connection
         await redis_client.ping()
         logger.info("Redis connection established")
+        
         # Initialize LLM client
         chat_client = ChatCompletionsClient(
             endpoint=AZURE_AI_CHAT_ENDPOINT,
@@ -624,6 +613,7 @@ async def main():
             credential_scopes=["https://cognitiveservices.azure.com/.default"]
         )
         logger.info("LLM client initialized")
+        
         # Initialize Embeddings client
         embeddings_client = EmbeddingsClient(
             endpoint=AZURE_AI_EMBEDDINGS_ENDPOINT,
@@ -640,66 +630,93 @@ async def main():
         )
         logger.info("CosmosDB client initialized")
         
-        # Initialize Service Bus client
-        servicebus_client = ServiceBusClient(
-            fully_qualified_namespace=SERVICEBUS_FULLY_QUALIFIED_NAMESPACE,
-            credential=shared_credential
-        )
-          # Create subscription receiver
-        receiver = servicebus_client.get_subscription_receiver(
-            topic_name=SERVICEBUS_MESSAGE_COMPLETED_TOPIC,
-            subscription_name=SERVICEBUS_MESSAGE_COMPLETED_SUBSCRIPTION,
-            max_concurrent_calls=MAX_CONCURRENCY
-        )
-        
-        logger.info("Service Bus receiver initialized")
-        logger.info("Memory Worker is running and listening for messages...")
-        
-        # Initialize semaphore for concurrency control and task tracking
-        semaphore = asyncio.Semaphore(MAX_CONCURRENCY)
-        active_tasks = set()
-        
-        # Start receiving messages
-        async with receiver:
-            async for msg in receiver:
-                # Check for shutdown
-                if shutdown_event.is_set():
-                    logger.info("Shutdown event set, stopping message reception")
-                    await receiver.abandon_message(msg)
-                    break
-                
-                # Create a task to process the message
-                task = asyncio.create_task(
-                    _process_and_handle_message(servicebus_client, msg, receiver, semaphore, logger)
-                )
-                active_tasks.add(task)
-                
-                # Remove completed tasks from the set
-                active_tasks = {t for t in active_tasks if not t.done()}
-                
-                logger.debug(f"Active tasks count: {len(active_tasks)}")
-        
-        # Wait for active tasks to complete during shutdown
-        await wait_for_tasks_completion(active_tasks, timeout=60)
-    
     except Exception as e:
-        logger.error(f"Critical error in main loop: {e}")
+        logger.error(f"Failed to initialize clients: {e}")
         sys.exit(1)
+    
+    # Initialize semaphore for concurrency control and task tracking
+    semaphore = asyncio.Semaphore(MAX_CONCURRENCY)
+    active_tasks = set()
+    
+    try:
+        while not shutdown_event.is_set():
+            try:
+                async with ServiceBusClient(
+                    fully_qualified_namespace=SERVICEBUS_FULLY_QUALIFIED_NAMESPACE,
+                    credential=shared_credential
+                ) as servicebus_client:
+                    
+                    logger.info(f"Connected to Service Bus, listening for messages on topic '{SERVICEBUS_MESSAGE_COMPLETED_TOPIC}', subscription '{SERVICEBUS_MESSAGE_COMPLETED_SUBSCRIPTION}'")
+                    
+                    async with servicebus_client.get_subscription_receiver(
+                        topic_name=SERVICEBUS_MESSAGE_COMPLETED_TOPIC,
+                        subscription_name=SERVICEBUS_MESSAGE_COMPLETED_SUBSCRIPTION,
+                        max_wait_time=30,
+                        max_concurrent_calls=MAX_CONCURRENCY
+                    ) as receiver:
+                        
+                        logger.info("Memory Worker is running and listening for messages...")
+                        
+                        async for msg in receiver:
+                            # Check for shutdown
+                            if shutdown_event.is_set():
+                                logger.info("Shutdown event set, stopping message reception")
+                                await receiver.abandon_message(msg)
+                                break
+                            
+                            # Create a task to process the message
+                            task = asyncio.create_task(
+                                _process_and_handle_message(servicebus_client, msg, receiver, semaphore, logger)
+                            )
+                            active_tasks.add(task)
+                            
+                            # Remove completed tasks from the set
+                            active_tasks = {t for t in active_tasks if not t.done()}
+                            
+                            logger.debug(f"Active tasks count: {len(active_tasks)}")
+                        
+            except Exception as e:
+                if shutdown_event.is_set():
+                    logger.info("Shutdown initiated, stopping message processing")
+                    break
+                logger.error(f"Error in main message loop: {e}")
+                logger.info("Retrying in 5 seconds...")
+                await asyncio.sleep(5)
+    
     finally:
         logger.info("Shutting down Memory Worker service...")
         
+        # Wait for active tasks to complete during shutdown
+        await wait_for_tasks_completion(active_tasks, timeout=60)
+        
         # Cleanup resources
-        if redis_client:
-            await redis_client.aclose()
+        try:
+            if redis_client:
+                await redis_client.aclose()
+                logger.info("Redis client closed")
+        except Exception as e:
+            logger.error(f"Error closing Redis client: {e}")
         
-        if chat_client:
-            await chat_client.aclose()
+        try:
+            if chat_client:
+                await chat_client.aclose()
+                logger.info("Chat client closed")
+        except Exception as e:
+            logger.error(f"Error closing chat client: {e}")
             
-        if embeddings_client:
-            await embeddings_client.aclose()
+        try:
+            if embeddings_client:
+                await embeddings_client.aclose()
+                logger.info("Embeddings client closed")
+        except Exception as e:
+            logger.error(f"Error closing embeddings client: {e}")
         
-        if cosmos_client:
-            await cosmos_client.aclose()
+        try:
+            if cosmos_client:
+                await cosmos_client.aclose()
+                logger.info("CosmosDB client closed")
+        except Exception as e:
+            logger.error(f"Error closing CosmosDB client: {e}")
         
         logger.info("Memory Worker service stopped")
 

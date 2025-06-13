@@ -10,16 +10,20 @@
   let question = '';
   let messages = [];
   let sessionId;
-  let messagesContainer;
-  let selectedUser = USERS[0]; // Default to first user
+  let messagesContainer;  let selectedUser = USERS[0]; // Default to first user
   let showUserDropdown = false;
   let showHistory = false;
+  let showMemory = false;
+  let userMemory = null;
   let conversations = [];
   let editingTitleSessionId = null;
   let editingTitle = '';
   const API_URL = import.meta.env.API_URL || window._env_?.API_URL;
   const SSE_URL = import.meta.env.SSE_URL || window._env_?.SSE_URL;
-  const HISTORY_API_URL = import.meta.env.HISTORY_API_URL || window._env_?.HISTORY_API_URL;  onMount(async () => {
+  const HISTORY_API_URL = import.meta.env.HISTORY_API_URL || window._env_?.HISTORY_API_URL;
+  const MEMORY_API_URL = import.meta.env.MEMORY_API_URL || window._env_?.MEMORY_API_URL;
+
+  onMount(async () => {
     try {
       const response = await fetch(`${API_URL}/api/session/start`, { 
         method: 'POST',
@@ -299,6 +303,30 @@
       localStorage.setItem('session_id', sessionId);
     }
   }
+
+  async function loadUserMemory() {
+    try {
+      const response = await fetch(`${MEMORY_API_URL}/api/memory/users/${selectedUser.userId}/memories`);
+      if (response.ok) {
+        userMemory = await response.json();
+        console.log('Loaded user memory:', userMemory);
+      } else {
+        console.error('Failed to load user memory:', response.status);
+        userMemory = null;
+      }
+    } catch (error) {
+      console.error('Error loading user memory:', error);
+      userMemory = null;
+    }
+  }
+
+  async function toggleMemory() {
+    // If opening the memory panel, refresh the user memory
+    if (!showMemory) {
+      await loadUserMemory();
+    }
+    showMemory = !showMemory;
+  }
 </script>
 
 <style>
@@ -395,8 +423,7 @@
     transition: all 0.2s;
     color: inherit;
     font-family: inherit;
-  }
-  .user-button:hover {
+  }  .user-button:hover {
     background: #e9ecef;
   }
   .user-menu {
@@ -514,10 +541,199 @@
     font-weight: 500;
     cursor: pointer;
     transition: background 0.2s;
-  }  button:hover {
+  }
+  button:hover {
     background: #444;
   }
-    /* History Panel Styles */
+    /* Memory Panel Styles */
+  .memory-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 420px;
+    max-height: 85vh;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+    z-index: 1000;
+    overflow: hidden;
+    font-family: 'Roboto', sans-serif;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .memory-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    cursor: pointer;
+  }
+  
+  .memory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fafbfc;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .memory-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #222;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .close-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0;
+  }
+  
+  .close-button:hover {
+    background: #e9ecef;
+    color: #333;
+    transform: scale(1.1);
+  }
+  
+  .memory-content {
+    padding: 0;
+    max-height: 70vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #c0c0c0 transparent;
+  }
+  
+  .memory-content::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .memory-content::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .memory-content::-webkit-scrollbar-thumb {
+    background-color: #c0c0c0;
+    border-radius: 3px;
+  }
+  
+  .memory-content::-webkit-scrollbar-thumb:hover {
+    background-color: #a0a0a0;
+  }
+  
+  .memory-section {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  
+  .memory-section:last-child {
+    border-bottom: none;
+  }
+  
+  .memory-section h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #222;
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    align-items: center;
+  }
+  
+  .memory-section h4::before {
+    content: '';
+    width: 4px;
+    height: 1rem;
+    background: #007acc;
+    border-radius: 2px;
+    margin-right: 0.75rem;
+  }
+  
+  .memory-section h5 {
+    margin: 1rem 0 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #555;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .memory-section ul {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+  
+  .memory-section li {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #555;
+    font-family: 'Roboto', sans-serif;
+    padding: 0.5rem 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #e9ecef;
+  }
+  
+  .subsection {
+    margin-top: 1rem;
+  }
+  
+  .subsection:first-child {
+    margin-top: 0;
+  }
+  
+  .no-data {
+    font-size: 0.85rem;
+    color: #999;
+    font-style: italic;
+    margin: 0;
+    padding: 1rem;
+    text-align: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .no-memory {
+    text-align: center;
+    color: #666;
+    padding: 3rem 2rem;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .no-memory p {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  
+  .no-memory p:first-child {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #555;
+  }
+  
+  /* History Panel Styles */
   .chat-layout {
     display: flex;
     position: relative;
@@ -917,8 +1133,7 @@
           </svg>
         </button>
         <span>Scalable Chat</span>
-      </div>
-      <div class="user-selector">
+      </div>      <div class="user-selector">
         <div class="user-dropdown">
           <button class="user-button" on:click={() => showUserDropdown = !showUserDropdown}>
             <span>{selectedUser.name}</span>
@@ -939,6 +1154,15 @@
             </div>
           {/if}
         </div>
+        <button 
+          class="control-button"
+          on:click={toggleMemory}
+          title="View user memory"
+        >
+          <svg class="control-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+        </button>
       </div>
     </div>
     <div bind:this={messagesContainer} class="messages">
@@ -951,6 +1175,146 @@
     <form on:submit|preventDefault={send} class="chat-input">
       <input type="text" bind:value={question} placeholder="Type your message..." />
       <button type="submit">Send</button>
-    </form>
-  </div>
+    </form>  </div>
+    <!-- Memory Panel -->
+  {#if showMemory}
+    <!-- Backdrop -->
+    <div class="memory-backdrop" on:click={() => showMemory = false}></div>
+    
+    <div class="memory-panel">
+      <div class="memory-header">
+        <h3>User Memory for {selectedUser.name}</h3>
+        <button class="close-button" on:click={() => showMemory = false}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="memory-content">
+        {#if userMemory}
+          <div class="memory-section">
+            <h4>Work Profile</h4>
+            {#if userMemory.work_profile && userMemory.work_profile.length > 0}
+              <ul>
+                {#each userMemory.work_profile as item}
+                  <li>{item}</li>
+                {/each}
+              </ul>
+            {:else}
+              <p class="no-data">No work profile information</p>
+            {/if}
+          </div>
+
+          <div class="memory-section">
+            <h4>Interests</h4>
+            {#if userMemory.interests && userMemory.interests.length > 0}
+              <ul>
+                {#each userMemory.interests as interest}
+                  <li>{interest}</li>
+                {/each}
+              </ul>
+            {:else}
+              <p class="no-data">No interests recorded</p>
+            {/if}
+          </div>
+
+          <div class="memory-section">
+            <h4>Knowledge Areas</h4>
+            {#if userMemory.knowledge && userMemory.knowledge.length > 0}
+              <ul>
+                {#each userMemory.knowledge as knowledge}
+                  <li>{knowledge}</li>
+                {/each}
+              </ul>
+            {:else}
+              <p class="no-data">No knowledge areas recorded</p>
+            {/if}
+          </div>
+
+          <div class="memory-section">
+            <h4>Goals</h4>
+            {#if userMemory.goals && userMemory.goals.length > 0}
+              <ul>
+                {#each userMemory.goals as goal}
+                  <li>{goal}</li>
+                {/each}
+              </ul>
+            {:else}
+              <p class="no-data">No goals recorded</p>
+            {/if}
+          </div>
+
+          <div class="memory-section">
+            <h4>Family & Friends</h4>
+            {#if userMemory.family_and_friends && userMemory.family_and_friends.length > 0}
+              <ul>
+                {#each userMemory.family_and_friends as person}
+                  <li>{person}</li>
+                {/each}
+              </ul>
+            {:else}
+              <p class="no-data">No family/friends information</p>
+            {/if}
+          </div>
+
+          <div class="memory-section">
+            <h4>Preferences</h4>
+            {#if userMemory.personal_preferences && userMemory.personal_preferences.length > 0}
+              <div class="subsection">
+                <h5>Personal:</h5>
+                <ul>
+                  {#each userMemory.personal_preferences as pref}
+                    <li>{pref}</li>
+                  {/each}
+                </ul>
+              </div>
+            {/if}
+            {#if userMemory.output_preferences && userMemory.output_preferences.length > 0}
+              <div class="subsection">
+                <h5>Output:</h5>
+                <ul>
+                  {#each userMemory.output_preferences as pref}
+                    <li>{pref}</li>
+                  {/each}
+                </ul>
+              </div>
+            {/if}
+            {#if userMemory.assistant_preferences && userMemory.assistant_preferences.length > 0}
+              <div class="subsection">
+                <h5>Assistant:</h5>
+                <ul>
+                  {#each userMemory.assistant_preferences as pref}
+                    <li>{pref}</li>
+                  {/each}
+                </ul>
+              </div>
+            {/if}
+            {#if (!userMemory.personal_preferences || userMemory.personal_preferences.length === 0) && 
+                 (!userMemory.output_preferences || userMemory.output_preferences.length === 0) && 
+                 (!userMemory.assistant_preferences || userMemory.assistant_preferences.length === 0)}
+              <p class="no-data">No preferences recorded</p>
+            {/if}
+          </div>
+
+          <div class="memory-section">
+            <h4>Dislikes</h4>
+            {#if userMemory.dislikes && userMemory.dislikes.length > 0}
+              <ul>
+                {#each userMemory.dislikes as dislike}
+                  <li>{dislike}</li>
+                {/each}
+              </ul>
+            {:else}
+              <p class="no-data">No dislikes recorded</p>
+            {/if}
+          </div>
+        {:else}
+          <div class="no-memory">
+            <p>No memory data available</p>
+            <p>Start chatting to build user memory</p>
+          </div>
+        {/if}
+      </div>
+    </div>
+  {/if}
 </div>

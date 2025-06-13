@@ -325,7 +325,6 @@ The long-term memory is stored in Azure Cosmos DB using two main collections:
         -   `family_and_friends`: Information the user has voluntarily shared about their personal connections.
         -   `work_profile`: Details shared by the user about their profession, tasks, or work-related context.
         -   `goals`: Long-term personal or professional objectives the user has mentioned.
-        -   `last_updated`: Timestamp of the last update to this user's memory profile.
 
 ## API Reference
 
@@ -356,6 +355,7 @@ Memory API/MCP provides dual interfaces for memory management:
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/memory/users/{userId}/memories` | Retrieve structured memories for a specific user |
+| `DELETE` | `/api/memory/users/{userId}/memories` | Delete memories for a specific user |
 | `POST` | `/api/memory/users/{userId}/memories/search` | Search conversational memories for a specific user |
 
 **MCP Interface (for Worker Service):**
