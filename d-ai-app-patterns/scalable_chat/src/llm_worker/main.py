@@ -4,7 +4,9 @@ import asyncio
 import logging
 import signal
 import sys
+import aiohttp
 from datetime import datetime, timezone
+from pathlib import Path
 from dotenv import load_dotenv
 from azure.identity.aio import DefaultAzureCredential
 from azure.servicebus.aio import ServiceBusClient
@@ -16,6 +18,7 @@ from azure.ai.inference.models import SystemMessage, UserMessage, AssistantMessa
 from azure.core.pipeline.transport import AioHttpTransport # Existing import
 import redis.asyncio as redis
 from redis_entraid.cred_provider import create_from_default_azure_credential
+from jinja2 import Environment, FileSystemLoader
 
 
 # Load .env in development
@@ -75,6 +78,16 @@ REDIS_SSL = os.getenv("REDIS_SSL", "true").lower() == "true"
 if not REDIS_HOST:
     raise RuntimeError("Missing required environment variable REDIS_HOST")
 
+# Memory API configuration
+MEMORY_API_ENDPOINT = os.getenv("MEMORY_API_ENDPOINT")
+MEMORY_API_TIMEOUT = float(os.getenv("MEMORY_API_TIMEOUT", 2.0))  # 2 seconds default timeout
+
+if not MEMORY_API_ENDPOINT:
+    logger.warning("MEMORY_API_ENDPOINT not configured. Memory integration will be disabled.")
+
+# System prompt template configuration
+SYSTEM_PROMPT_TEMPLATE_PATH = Path(__file__).parent / "system_prompt.j2"
+
 
 # Shared Azure credentials
 shared_credential = DefaultAzureCredential(exclude_interactive_browser_credential=False)
@@ -87,6 +100,59 @@ redis_client = None
 
 # Global shutdown event for graceful shutdown
 shutdown_event = asyncio.Event()
+
+# Global Jinja2 environment for system prompt template
+jinja_env = Environment(loader=FileSystemLoader(Path(__file__).parent))
+
+async def fetch_user_memory(user_id: str) -> dict:
+    """
+    Fetch user memory from Memory API with timeout.
+    Returns empty dict if API is unavailable or times out.
+    """
+    if not MEMORY_API_ENDPOINT:
+        logger.debug("Memory API endpoint not configured, skipping memory fetch")
+        return {}
+    
+    try:
+        timeout = aiohttp.ClientTimeout(total=MEMORY_API_TIMEOUT)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            url = f"{MEMORY_API_ENDPOINT}/api/memory/users/{user_id}/memories"
+            logger.debug(f"Fetching memory from: {url}")
+            async with session.get(url) as response:
+                if response.status == 200:
+                    memory_data = await response.json()
+                    logger.debug(f"Memory API response: {json.dumps(memory_data, indent=2, default=str)}")
+                    logger.info(f"Successfully fetched memory for user {user_id}")
+                    return memory_data
+                elif response.status == 404:
+                    logger.info(f"No memory found for user {user_id}")
+                    return {}
+                else:
+                    logger.warning(f"Memory API returned status {response.status} for user {user_id}")
+                    return {}
+    except asyncio.TimeoutError:
+        logger.warning(f"Memory API timeout ({MEMORY_API_TIMEOUT}s) for user {user_id}")
+        return {}
+    except Exception as e:
+        logger.warning(f"Error fetching memory for user {user_id}: {e}")
+        return {}
+
+def generate_system_prompt(user_memory: dict = None) -> str:
+    """
+    Generate system prompt using Jinja2 template with user memory.
+    """
+    try:
+        logger.debug(f"Generating system prompt with memory: {json.dumps(user_memory, indent=2, default=str) if user_memory else 'None'}")
+        template = jinja_env.get_template("system_prompt.j2")
+        rendered_prompt = template.render(user_memory=user_memory)
+        logger.debug(f"Generated system prompt: {rendered_prompt}")
+        return rendered_prompt
+    except Exception as e:
+        logger.error(f"Error generating system prompt: {e}")
+        # Fallback to basic system prompt
+        fallback_prompt = "You are a helpful assistant."
+        logger.debug(f"Using fallback system prompt: {fallback_prompt}")
+        return fallback_prompt
 
 async def get_conversation_history(session_id: str, user_id: str) -> list:
     """
@@ -106,13 +172,14 @@ async def get_conversation_history(session_id: str, user_id: str) -> list:
         # Validate session belongs to the user
         if conversation.get("userId") != user_id:
             logger.warning(f"Session {session_id} does not belong to user {user_id}")
-            return []
-        
+            return []        
         # Convert stored messages to LLM format
         # Azure AI Inference supports SystemMessage, UserMessage, and AssistantMessage
         conversation_messages = []
         for msg in conversation.get("messages", []):
-            if msg["role"] == "user":
+            if msg["role"] == "system":
+                conversation_messages.append(SystemMessage(msg["content"]))
+            elif msg["role"] == "user":
                 conversation_messages.append(UserMessage(msg["content"]))
             elif msg["role"] == "assistant":
                 conversation_messages.append(AssistantMessage(msg["content"]))
@@ -124,7 +191,7 @@ async def get_conversation_history(session_id: str, user_id: str) -> list:
         logger.error(f"Error retrieving conversation history for session {session_id}: {e}")
         return []
 
-async def update_conversation_history(session_id: str, user_id: str, user_message: str, assistant_response: str, chat_message_id: str):
+async def update_conversation_history(session_id: str, user_id: str, user_message: str, assistant_response: str, chat_message_id: str, system_message: str = None):
     """
     Update conversation history in Redis with new user message and assistant response.
     Creates a new conversation if it doesn't exist.
@@ -132,8 +199,7 @@ async def update_conversation_history(session_id: str, user_id: str, user_messag
     try:
         redis_key = f"session:{session_id}"
         current_time = datetime.now(timezone.utc).isoformat()
-        
-        # Get existing conversation or create new one
+          # Get existing conversation or create new one
         conversation_data = await redis_client.get(redis_key)
         
         if conversation_data:
@@ -148,6 +214,16 @@ async def update_conversation_history(session_id: str, user_id: str, user_messag
                 "messages": []
             }
             logger.info(f"Creating new conversation for session {session_id}")
+            
+            # Add system message for new conversations
+            if system_message:
+                system_msg = {
+                    "messageId": f"{chat_message_id}_system",
+                    "role": "system",
+                    "content": system_message,
+                    "timestamp": current_time
+                }
+                conversation["messages"].append(system_msg)
         
         # Update last activity timestamp
         conversation["lastActivity"] = current_time
@@ -230,19 +306,41 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
             # Depending on requirements, might dead-letter this message
             return
         
-        logger.info(f"Processing chatMessageId: {chat_message_id} for sessionId: {session_id}, userId: {user_id} - Text: '{user_text}'")        # Get conversation history from Redis
+        logger.info(f"Processing chatMessageId: {chat_message_id} for sessionId: {session_id}, userId: {user_id} - Text: '{user_text}'")
+          # Get conversation history from Redis
         conversation_history = await get_conversation_history(session_id, user_id)
         
-        # Build messages for LLM: system message + conversation history + current user message
-        messages = [SystemMessage("You are a helpful assistant.")]
+        # Build messages for LLM
+        messages = []
+        
+        # Check if history already starts with a SystemMessage
+        has_system_message_in_history = (
+            conversation_history and 
+            len(conversation_history) > 0 and 
+            isinstance(conversation_history[0], SystemMessage)
+        )
+        if not has_system_message_in_history:
+            # This is a new conversation, fetch user memory and generate system prompt
+            logger.debug("New conversation detected, fetching user memory for system prompt")
+            user_memory = await fetch_user_memory(user_id)
+            logger.debug(f"Fetched user memory for user {user_id}: {json.dumps(user_memory, indent=2, default=str) if user_memory else 'Empty'}")
+            system_message_content = generate_system_prompt(user_memory)
+            
+            # Add system message with memory context
+            messages.append(SystemMessage(system_message_content))
+            logger.debug("Added system message with user memory context")
+        else:
+            logger.debug("System message already present in conversation history")
+            system_message_content = None  # Don't store system message for existing conversations
         
         # Add conversation history if available
         if conversation_history:
-            messages.extend(conversation_history)
-        
-        # Add current user message
+            messages.extend(conversation_history)        # Add current user message
         messages.append(UserMessage(user_text))
-        logger.debug(f"Built messages for LLM: {messages}")
+        logger.debug(f"Built messages for LLM: {len(messages)} total messages")
+        
+        # Debug: Log the complete messages array as JSON
+        logger.debug(f"Messages sent to LLM: {json.dumps(messages, indent=2, default=str)}")
         
         logger.info(f"Calling LLM with {len(messages)} messages (including system message and history)")
 
@@ -279,7 +377,18 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
             logger.info(f"Sent end-of-stream for chatMessageId {chat_message_id}")
           # Update conversation history in Redis with the complete interaction
         assistant_response = "".join(assistant_response_tokens)
-        await update_conversation_history(session_id, user_id, user_text, assistant_response, chat_message_id)
+        
+        # Pass system message content only if this is a new conversation (no history)
+        system_msg_to_store = system_message_content if not has_system_message_in_history else None
+        
+        await update_conversation_history(
+            session_id, 
+            user_id, 
+            user_text, 
+            assistant_response, 
+            chat_message_id,
+            system_msg_to_store
+        )
         
         # Publish message-completed event for downstream processing (history, memory, etc.)
         await publish_message_completed_event(sb_client, session_id, user_id, chat_message_id)

@@ -1,6 +1,9 @@
 # Scalable chat using SSE and async workers
 - [Scalable chat using SSE and async workers](#scalable-chat-using-sse-and-async-workers)
-  - [Overview](#overview)
+  - [O8.  **Worker → Memory API (Conditional Memory fetch):** For new conversations only (when no history exists), the worker fetches long-term user memory from the Memory API with a 2-second timeout. If memory is retrieved successfully, it's used to generate a personalized system prompt. If the API is unavailable or times out, the worker continues with a basic system prompt to ensure reliability.
+9.  **Worker → LLM API:** The worker calls the LLM API, sending the user's question, retrieved conversation history, and a personalized system prompt (either with memory context for new conversations or the stored system message for existing conversations). The request is made in **streaming mode**.
+10. **LLM API → Worker (Streaming):** The LLM processes the prompt and streams back the generated answer token by token.
+11. **Worker → Redis (Update short-term history):** The worker synchronously saves the new question and the assistant's response to Redis. For new conversations, it also stores the personalized system prompt as the first message to ensure consistency for the ongoing conversation.iew](#overview)
     - [1. Architecture overview](#1-architecture-overview)
     - [2. Request / response walkthrough](#2-request--response-walkthrough)
     - [3. History System - Asynchronous Persistence](#3-history-system---asynchronous-persistence)
@@ -27,7 +30,7 @@ This architecture enables a scalable, reliable, and secure chat application usin
 - **Front Service (Message Handler):** A lightweight service that accepts client questions over HTTP, manages sessions, and provides conversation history API. It queues messages for processing but does not handle streaming responses directly. Handles user authentication and session management.  
 - **SSE Service (Streaming Service):** A dedicated service that handles Server-Sent Events connections and streams tokens back to clients. This service can be scaled independently based on streaming demand.  
 - **Message Queue Service:** A persistent FIFO queue (with partitions or sessions by conversation ID) that brokers requests and responses between services. Includes multiple topics: `user-messages`, `token-streams`, and `message-completed`.  
-- **Worker Service (Async Workers):** A pool of one or more back-end worker processes that consume tasks from the queue. Each worker retrieves conversation history from Redis and long-term memory, calls the LLM API, and synchronously updates Redis with new messages for immediate consistency. Also publishes completed conversations for memory processing and long-term storage.  
+- **Worker Service (Async Workers):** A pool of one or more back-end worker processes that consume tasks from the queue. Each worker retrieves conversation history from Redis and, for new conversations, fetches long-term user memory from the Memory API to personalize the system prompt. The worker calls the LLM API with context-aware prompts and synchronously updates Redis with new messages for immediate consistency. Also publishes completed conversations for memory processing and long-term storage. Memory API calls have a 2-second timeout to ensure system reliability - if memory is unavailable, the worker continues with a basic system prompt.  
 - **Azure Managed Redis (Hot Cache):** Fast lookup storage for active conversation history with 24-hour TTL. Workers write directly to Redis synchronously to ensure immediate consistency for ongoing conversations. Optimized for LLM worker performance with dual indexing strategy.  
 - **Azure Cosmos DB (Long-term Store):** Persistent storage for conversation history with configurable retention. Provides multi-region capabilities and serves as the authoritative source for historical conversations beyond the Redis cache window. Also used for storing and querying long-term user memories.
 - **History Worker:** Listens to `message-completed` events and **persists** conversations to Cosmos DB, generates titles.
@@ -110,15 +113,20 @@ sequenceDiagram    participant C as Client
     F->>UM: 3. Enqueue user message (text, sessionId, chatMessageId, userId)
     F-->>C: 4. Return success response
     C->>S: 5. HTTP GET /api/stream/{sessionId}/{chatMessageId} (SSE)
-    UM-->>W: 6. Worker dequeues message
-    W->>R: 7. Fetch conversation history for sessionId (cache hit/miss)
+    UM-->>W: 6. Worker dequeues message    W->>R: 7. Fetch conversation history for sessionId (cache hit/miss)
     alt Cache Miss
         W->>CD: 7a. Fetch from Cosmos DB directly
         CD-->>W: 7b. Return conversation history
         W->>R: 7c. Cache conversation in Redis
-    end    W->>MA: 8. Fetch long-term user memory
-    MA->>CosmosDBMem: 8a. Query memories from Cosmos DB (vector search in \'conversations\', structured data in \'user-memories\')
-    W->>L: 9. Call LLM API with question, history & memory (streaming)
+    end
+    alt New Conversation (No History)
+        W->>MA: 8a. Fetch long-term user memory (2s timeout)
+        MA->>CosmosDBMem: 8b. Query memories from Cosmos DB
+        CosmosDBMem-->>MA: 8c. Return user memories
+        MA-->>W: 8d. Return user memory data (or timeout/error)
+        Note over W: Generate personalized system prompt with memory
+    end
+    W->>L: 9. Call LLM API with question, history & personalized system prompt (streaming)
     L-->>W: 10. Receive LLM response (streamed tokens)
     W->>R: 11. Update conversation in Redis (SYNCHRONOUS)
     W->>TS: 12. Enqueue response (token/EOS, sessionId, chatMessageId)
@@ -286,9 +294,16 @@ Structure: {
 ## Memory Architecture
 **Memory API/MCP Integration:** The system integrates a Memory API/MCP service for sophisticated user memory management, enabling personalized experiences across conversations:
 
-LLM Worker accesses Memory API/MCP via Model Context Protocol (MCP) to retrieve relevant user memories during LLM processing. 
+LLM Worker accesses Memory API/MCP via HTTP REST API to retrieve relevant user memories during LLM processing for new conversations only. 
 **Memory Worker** is triggered by the `message-completed` topic to extract and store long-term memories by calling Memory API/MCP.
 **Client UI** can request user memories via REST API endpoints exposed by Memory API/MCP for display purposes.
+
+**System Prompt Personalization:** The system uses a Jinja2 template-based approach for generating personalized system prompts:
+- **Template Location:** `system_prompt.j2` contains the base system prompt with placeholders for user memory
+- **Memory Integration:** For new conversations (no existing history), the Worker fetches user memory from Memory API with a 2-second timeout
+- **Fallback Strategy:** If Memory API is unavailable or times out, the system continues with a basic system prompt to ensure reliability
+- **Template Rendering:** User memory data is injected into the template to create personalized context including preferences, interests, knowledge areas, and communication style
+- **Conversation Persistence:** The personalized system prompt is stored as the first message in Redis for conversation continuity
 
 ### Memory Components:
 - **Memory API/MCP:** Central service providing dual interfaces:
