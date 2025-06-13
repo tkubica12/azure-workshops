@@ -26,3 +26,7 @@ Content-Type: application/json
   "query": "work meeting discussion about project deadlines",
   "limit": 10
 }
+
+### Delete User Memories
+
+DELETE {{baseUrl}}/api/memory/users/{{userId}}/memories

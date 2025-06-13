@@ -195,6 +195,39 @@ async def get_user_memories(user_id: str):
             logger.error(f"Error retrieving user memories for {user_id}: {e}")
             raise HTTPException(status_code=500, detail="Failed to retrieve user memories")
 
+@app.delete("/api/memory/users/{user_id}/memories")
+async def delete_user_memories(user_id: str):
+    """Delete all structured memories for a specific user."""
+    with tracer.start_as_current_span("delete_user_memories"):
+        try:
+            # Query for existing user memories
+            query = "SELECT * FROM c WHERE c.userId = @userId"
+            items = list(user_memories_container.query_items(
+                query=query,
+                parameters=[{"name": "@userId", "value": user_id}],
+                enable_cross_partition_query=True
+            ))
+            
+            if not items:
+                # No memories found for this user
+                raise HTTPException(status_code=404, detail="No user memories found")
+            
+            # Delete the user memory document
+            memory_doc = items[0]
+            user_memories_container.delete_item(
+                item=memory_doc["id"],
+                partition_key=memory_doc["userId"]
+            )
+            
+            logger.info(f"Deleted user memories for user {user_id}")
+            return {"status": "success", "message": f"User memories deleted for user {user_id}"}
+            
+        except exceptions.CosmosResourceNotFoundError:
+            raise HTTPException(status_code=404, detail="No user memories found")
+        except exceptions.CosmosHttpResponseError as e:
+            logger.error(f"Error deleting user memories for {user_id}: {e}")
+            raise HTTPException(status_code=500, detail="Failed to delete user memories")
+
 @app.post("/api/memory/users/{user_id}/memories/search", response_model=List[MemorySearchResult])
 async def search_conversation_memories(user_id: str, search_request: MemorySearchRequest):
     """Search conversational memories for a specific user."""

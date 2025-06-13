@@ -320,6 +320,35 @@
     }
   }
 
+  async function deleteUserMemory() {
+    if (!confirm('Are you sure you want to delete all your memories? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${MEMORY_API_URL}/api/memory/users/${selectedUser.userId}/memories`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        console.log('User memory deleted successfully');
+        userMemory = null;
+        // Show success message or notification
+        alert('Your memories have been deleted successfully.');
+      } else if (response.status === 404) {
+        console.log('No user memories found to delete');
+        userMemory = null;
+        alert('No memories found to delete.');
+      } else {
+        console.error('Failed to delete user memory:', response.status);
+        alert('Failed to delete memories. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting user memory:', error);
+      alert('Error deleting memories. Please check your connection and try again.');
+    }
+  }
+
   async function toggleMemory() {
     // If opening the memory panel, refresh the user memory
     if (!showMemory) {
@@ -448,10 +477,9 @@
   }
   .user-menu-item:last-child {
     border-bottom: none;
-  }
-  .user-menu-item.selected {
-    background: #e3f2fd;
-    color: #1976d2;
+  }  .user-menu-item.selected {
+    background: #e9ecef;
+    color: #333;
   }
   .messages {
     flex: 1;
@@ -526,9 +554,8 @@
     background: #fafbfc;
     outline: none;
     transition: border 0.2s;
-  }
-  input:focus {
-    border: 1.5px solid #b3cdf6;
+  }  input:focus {
+    border: 1.5px solid #888;
     background: #fff;
   }
   button {
@@ -615,6 +642,33 @@
     transform: scale(1.1);
   }
   
+  .memory-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+    .delete-memory-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0;
+  }
+  
+  .delete-memory-button:hover {
+    background: #e9ecef;
+    color: #333;
+    transform: scale(1.1);
+  }
+  
   .memory-content {
     padding: 0;
     max-height: 70vh;
@@ -658,12 +712,11 @@
     display: flex;
     align-items: center;
   }
-  
-  .memory-section h4::before {
+    .memory-section h4::before {
     content: '';
     width: 4px;
     height: 1rem;
-    background: #007acc;
+    background: #666;
     border-radius: 2px;
     margin-right: 0.75rem;
   }
@@ -817,10 +870,9 @@
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
-  
-  .conversation-item.current {
-    background: #e3f2fd;
-    border-color: #1976d2;
+    .conversation-item.current {
+    background: #e9ecef;
+    border-color: #666;
     transform: none;
   }
   
@@ -1181,14 +1233,22 @@
     <!-- Backdrop -->
     <div class="memory-backdrop" on:click={() => showMemory = false}></div>
     
-    <div class="memory-panel">
-      <div class="memory-header">
+    <div class="memory-panel">      <div class="memory-header">
         <h3>User Memory for {selectedUser.name}</h3>
-        <button class="close-button" on:click={() => showMemory = false}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-          </svg>
-        </button>
+        <div class="memory-header-actions">
+          {#if userMemory}
+            <button class="delete-memory-button" on:click={deleteUserMemory} title="Delete all memories">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+              </svg>
+            </button>
+          {/if}
+          <button class="close-button" on:click={() => showMemory = false}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+          </button>
+        </div>
       </div>
       <div class="memory-content">
         {#if userMemory}
