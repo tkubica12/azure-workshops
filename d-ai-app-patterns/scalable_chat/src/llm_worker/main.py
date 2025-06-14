@@ -14,7 +14,7 @@ from azure.servicebus import ServiceBusMessage
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
 from azure.ai.inference.aio import ChatCompletionsClient  # async client for streaming
-from azure.ai.inference.models import SystemMessage, UserMessage, AssistantMessage
+from azure.ai.inference.models import SystemMessage, UserMessage, AssistantMessage, ToolMessage, ChatCompletionsToolDefinition
 from azure.core.pipeline.transport import AioHttpTransport # Existing import
 import redis.asyncio as redis
 from redis_entraid.cred_provider import create_from_default_azure_credential
@@ -338,37 +338,175 @@ async def process_message(sb_client: ServiceBusClient, service_bus_message):
             messages.extend(conversation_history)        # Add current user message
         messages.append(UserMessage(user_text))
         logger.debug(f"Built messages for LLM: {len(messages)} total messages")
-        
-        # Debug: Log the complete messages array as JSON
+          # Debug: Log the complete messages array as JSON
         logger.debug(f"Messages sent to LLM: {json.dumps(messages, indent=2, default=str)}")
         
         logger.info(f"Calling LLM with {len(messages)} messages (including system message and history)")
 
-        # Call Azure AI Inference SDK for chat completions with streaming
-        stream = await chat_client.complete(stream=True, messages=messages)
-        
-        # Collect the full assistant response
+        # Call Azure AI Inference SDK for chat completions with streaming and tools
+        stream = await chat_client.complete(
+            stream=True, 
+            messages=messages,
+            tools=[conversation_search_tool],
+            tool_choice="auto"
+        )
+        # Collect the full assistant response and handle function calls
         assistant_response_tokens = []
+        function_calls = {} 
         
         async with sb_client.get_topic_sender(SERVICEBUS_TOKEN_STREAMS_TOPIC) as sender:
             async for update in stream:
-                if update.choices and update.choices[0].delta and update.choices[0].delta.content:
-                    chunk = update.choices[0].delta.content
-                    assistant_response_tokens.append(chunk)
+                if update.choices and update.choices[0].delta:
+                    delta = update.choices[0].delta
                     
-                    token_payload = {
-                        "sessionId": session_id,
-                        "chatMessageId": chat_message_id,
-                        "token": chunk
-                    }
-                    token_message = ServiceBusMessage(
-                        body=json.dumps(token_payload),
-                        session_id=session_id
-                    )
-                    await sender.send_messages(token_message)
-                    logger.debug(f"Sent token chunk: {chunk}")
+                    # Handle regular content
+                    if delta.content:
+                        chunk = delta.content
+                        assistant_response_tokens.append(chunk)
+                        
+                        token_payload = {
+                            "sessionId": session_id,
+                            "chatMessageId": chat_message_id,
+                            "token": chunk
+                        }
+                        token_message = ServiceBusMessage(
+                            body=json.dumps(token_payload),
+                            session_id=session_id
+                        )
+                        await sender.send_messages(token_message)
+                        logger.debug(f"Sent token chunk: {chunk}")                    # Handle function calls (accumulate arguments for each tool call)
+                    if delta.tool_calls:
+                        for tool_call in delta.tool_calls:
+                            logger.debug(f"Tool call delta: id={tool_call.id}, function={tool_call.function}")
+                            if tool_call.id:
+                                # Initialize or update the function call
+                                if tool_call.id not in function_calls:
+                                    function_calls[tool_call.id] = {
+                                        "id": tool_call.id,
+                                        "name": "",
+                                        "arguments": ""                                    }
+                                    logger.debug(f"Initialized function call: {tool_call.id}")
+                                
+                                if tool_call.function:
+                                    if tool_call.function.name:
+                                        function_calls[tool_call.id]["name"] = tool_call.function.name
+                                        logger.info(f"Function call detected: {tool_call.function.name}")
+                                    
+                                    if tool_call.function.arguments is not None:
+                                        logger.debug(f"Adding arguments chunk: '{tool_call.function.arguments}' to call {tool_call.id}")
+                                        function_calls[tool_call.id]["arguments"] += tool_call.function.arguments
+                                        logger.debug(f"Current accumulated arguments for {tool_call.id}: '{function_calls[tool_call.id]['arguments']}')")
+                            
+                            # Handle the case where we don't have an ID but have function data (continuation)
+                            elif tool_call.function and tool_call.function.arguments is not None:
+                                # Find the most recent function call and append arguments to it
+                                if function_calls:
+                                    latest_call_id = list(function_calls.keys())[-1]
+                                    function_calls[latest_call_id]["arguments"] += tool_call.function.arguments
+                                    logger.debug(f"Appended arguments to latest call {latest_call_id}: '{function_calls[latest_call_id]['arguments']}'")
+                                else:
+                                    logger.warning(f"Received function arguments without any active function call: {tool_call.function.arguments}")
+                
                 if update.usage:
-                    logger.info(f"Token usage: {update.usage}")
+                    logger.info(f"Token usage: {update.usage}")            # Process function calls if any
+            if function_calls:
+                logger.info(f"Processing {len(function_calls)} function calls")
+                logger.debug(f"Complete function calls state: {function_calls}")
+                
+                # Convert function_calls dict to list for processing
+                function_calls_list = list(function_calls.values())
+                
+                # Create assistant message with tool calls first
+                assistant_tool_calls = []
+                for func_call in function_calls_list:
+                    # Create a tool call object for the assistant message
+                    tool_call_dict = {
+                        "id": func_call["id"],
+                        "type": "function",
+                        "function": {
+                            "name": func_call["name"],
+                            "arguments": func_call["arguments"]
+                        }
+                    }
+                    assistant_tool_calls.append(tool_call_dict)
+                
+                # Add assistant message with tool calls to conversation
+                assistant_message = AssistantMessage(
+                    content="",  # Usually empty when there are tool calls
+                    tool_calls=assistant_tool_calls
+                )
+                messages.append(assistant_message)
+                logger.debug(f"Added assistant message with {len(assistant_tool_calls)} tool calls")
+                  # Execute function calls and add tool responses
+                for func_call in function_calls_list:
+                    logger.debug(f"Processing function call: {func_call}")
+                    if func_call["name"] == "search_conversation_history":
+                        try:
+                            logger.debug(f"Raw function arguments: '{func_call['arguments']}'")
+                            args = json.loads(func_call["arguments"]) if func_call["arguments"].strip() else {}
+                            search_query = args.get("search_query", "")
+                            limit = args.get("limit", 5)
+                            
+                            logger.info(f"Executing conversation search: query='{search_query}', limit={limit}")
+                            
+                            if not search_query:
+                                logger.warning(f"Empty search query detected! Full function call: {func_call}")
+                            
+                            search_result = await search_conversation_history(user_id, search_query, limit)
+                            
+                            # Add tool message to conversation
+                            tool_message = ToolMessage(
+                                content=json.dumps(search_result, indent=2),
+                                tool_call_id=func_call["id"]
+                            )
+                            messages.append(tool_message)
+                            
+                            logger.info(f"Function call result: Found {search_result.get('total_found', 0)} conversations")
+                            
+                        except json.JSONDecodeError as e:
+                            logger.error(f"Error parsing function arguments '{func_call['arguments']}': {e}")
+                            error_message = ToolMessage(
+                                content=json.dumps({"error": f"Invalid function arguments: {str(e)}"}),
+                                tool_call_id=func_call["id"]
+                            )
+                            messages.append(error_message)
+                        except Exception as e:
+                            logger.error(f"Error executing function call: {e}")
+                            error_message = ToolMessage(
+                                content=json.dumps({"error": str(e)}),
+                                tool_call_id=func_call["id"]
+                            )
+                            messages.append(error_message)
+                
+                # Make another LLM call with the function results
+                logger.info("Making follow-up LLM call with function results")
+                followup_stream = await chat_client.complete(
+                    stream=True,
+                    messages=messages,
+                    tools=[conversation_search_tool],
+                    tool_choice="auto"
+                )
+                
+                # Process the follow-up response
+                async for update in followup_stream:
+                    if update.choices and update.choices[0].delta and update.choices[0].delta.content:
+                        chunk = update.choices[0].delta.content
+                        assistant_response_tokens.append(chunk)
+                        
+                        token_payload = {
+                            "sessionId": session_id,
+                            "chatMessageId": chat_message_id,
+                            "token": chunk
+                        }
+                        token_message = ServiceBusMessage(
+                            body=json.dumps(token_payload),
+                            session_id=session_id
+                        )
+                        await sender.send_messages(token_message)
+                        logger.debug(f"Sent follow-up token chunk: {chunk}")
+                    
+                    if update.usage:
+                        logger.info(f"Follow-up token usage: {update.usage}")
             
             # Send end-of-stream sentinel
             eos_payload = {"sessionId": session_id, "chatMessageId": chat_message_id, "end_of_stream": True}
@@ -469,6 +607,120 @@ async def wait_for_tasks_completion(active_tasks: set, timeout: int = 240):
         # Wait a bit for cancellation to take effect
         await asyncio.sleep(1)
 
+async def search_conversation_history(user_id: str, search_query: str, limit: int = 5) -> dict:
+    """
+    Search previous conversations for a user using semantic search.
+    Returns a structured response with conversation summaries and metadata.
+    """
+    if not MEMORY_API_ENDPOINT:
+        logger.debug("Memory API endpoint not configured, skipping conversation history search")
+        return {"conversations": [], "message": "Memory API not available"}
+    
+    try:
+        timeout = aiohttp.ClientTimeout(total=MEMORY_API_TIMEOUT)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            url = f"{MEMORY_API_ENDPOINT}/api/memory/users/{user_id}/conversations/search"
+            payload = {
+                "query": search_query,
+                "limit": max(1, min(10, limit))  # Ensure limit is between 1 and 10
+            }
+            
+            logger.debug(f"Searching conversation history: {url}, payload: {payload}")
+            async with session.post(url, json=payload) as response:
+                if response.status == 200:
+                    conversations = await response.json()
+                    logger.info(f"Found {len(conversations)} relevant conversations for user {user_id}")
+                    
+                    # Format the response for the LLM
+                    formatted_conversations = []
+                    for conv in conversations:
+                        formatted_conv = {
+                            "summary": conv["summary"],
+                            "themes": conv["themes"],
+                            "timestamp": conv["timestamp"],
+                            "relevance_score": conv.get("relevance_score", 0.0),
+                            "user_sentiment": conv.get("user_sentiment", "neutral"),
+                            "persons_mentioned": conv.get("persons", []),
+                            "places_mentioned": conv.get("places", [])
+                        }
+                        formatted_conversations.append(formatted_conv)
+                    
+                    return {
+                        "conversations": formatted_conversations,
+                        "total_found": len(conversations),
+                        "search_query": search_query
+                    }
+                elif response.status == 404:
+                    logger.info(f"No conversation history found for user {user_id}")
+                    return {"conversations": [], "message": "No previous conversations found"}
+                else:
+                    logger.warning(f"Memory API returned status {response.status} for conversation search")
+                    return {"conversations": [], "message": f"Search failed with status {response.status}"}
+                    
+    except asyncio.TimeoutError:
+        logger.warning(f"Memory API timeout ({MEMORY_API_TIMEOUT}s) for conversation search")
+        return {"conversations": [], "message": "Search timeout"}
+    except Exception as e:
+        logger.warning(f"Error searching conversation history for user {user_id}: {e}")
+        return {"conversations": [], "message": f"Search error: {str(e)}"}
+
+# Define the function tool for LLM
+conversation_search_tool = ChatCompletionsToolDefinition(
+    type="function",
+    function={
+        "name": "search_conversation_history",
+        "description": """Search through the user's previous conversations using semantic search. This tool finds relevant past conversations based on topics, themes, or context rather than exact keyword matching.
+
+Use this tool when:
+- User references something they discussed before
+- User asks about previous topics or conversations
+- You need context from past interactions
+- User wants to continue a previous discussion
+
+The tool returns conversation summaries with:
+- Brief summary of each conversation
+- Main themes and topics discussed
+- People and places mentioned
+- User sentiment during the conversation
+- Relevance score (how well it matches the search query)
+- Timestamp of the conversation
+
+Example response format:
+{
+  "conversations": [
+    {
+      "summary": "User discussed their vacation plans to Japan, asking about travel tips and cultural customs",
+      "themes": ["travel", "Japan", "vacation planning", "cultural advice"],
+      "timestamp": "2024-12-01T10:30:00Z",
+      "relevance_score": 0.85,
+      "user_sentiment": "excited",
+      "persons_mentioned": ["Sakura (local guide)"],
+      "places_mentioned": ["Tokyo", "Kyoto", "Mount Fuji"]
+    }
+  ],
+  "total_found": 1,
+  "search_query": "Japan travel plans"
+}""",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "search_query": {
+                    "type": "string",
+                    "description": "Semantic search query describing what to look for in previous conversations. Use natural language describing topics, themes, or context rather than exact keywords. Examples: 'vacation planning', 'work stress discussion', 'family conversation', 'technical programming questions'"
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Number of most relevant conversations to return (1-10). Use smaller numbers (1-3) for specific searches, larger numbers (5-10) for broader context gathering",
+                    "minimum": 1,
+                    "maximum": 10,
+                    "default": 5
+                }
+            },
+            "required": ["search_query"]
+        }
+    }
+)
+
 async def main():
     global chat_client, redis_client
     logger.info("Starting LLM worker...")
@@ -503,11 +755,11 @@ async def main():
     except Exception as e:
         logger.error(f"Failed to initialize Redis client: {e}")
         raise
-    
-    # Initialize the chat client
+      # Initialize the chat client
     chat_client = ChatCompletionsClient(
         endpoint=AZURE_AI_CHAT_ENDPOINT,
         credential=shared_credential,
+        api_version="2024-10-21",
         credential_scopes=["https://cognitiveservices.azure.com/.default"],
         transport=AioHttpTransport(retries=3)
     )
