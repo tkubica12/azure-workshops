@@ -10,16 +10,16 @@ GET {{baseUrl}}/health
 GET {{baseUrl}}/api/memory/users/{{userId}}/memories
 
 ### Search Conversation Memories - Text Query
-POST {{baseUrl}}/api/memory/users/{{userId}}/memories/search
+POST {{baseUrl}}/api/memory/users/{{userId}}/conversations/search
 Content-Type: application/json
 
 {
-  "query": "vacation plans",
-  "limit": 5
+  "query": "working as cloud architect",
+  "limit": 1
 }
 
 ### Search Conversation Memories - Vector Query (with different limit)
-POST {{baseUrl}}/api/memory/users/{{userId}}/memories/search
+POST {{baseUrl}}/api/memory/users/{{userId}}/conversations/search
 Content-Type: application/json
 
 {

@@ -1,9 +1,31 @@
 # Scalable chat using SSE and async workers
 - [Scalable chat using SSE and async workers](#scalable-chat-using-sse-and-async-workers)
-  - [O8.  **Worker → Memory API (Conditional Memory fetch):** For new conversations only (when no history exists), the worker fetches long-term user memory from the Memory API with a 2-second timeout. If memory is retrieved successfully, it's used to generate a personalized system prompt. If the API is unavailable or times out, the worker continues with a basic system prompt to ensure reliability.
+  - [Overview](#overview)
+    - [1. Architecture overview](#1-architecture-overview)
+    - [2. Request / response walkthrough](#2-request--response-walkthrough)
+    - [3. History System - Asynchronous Persistence](#3-history-system---asynchronous-persistence)
+    - [4. Memory System - Asynchronous Consolidation](#4-memory-system---asynchronous-consolidation)
+  - [User Management and Authentication](#user-management-and-authentication)
+  - [Conversational history architecture](#conversational-history-architecture)
+    - [Data Consistency Model](#data-consistency-model)
+    - [Short-term data schema](#short-term-data-schema)
+    - [Long-term data schema](#long-term-data-schema)
+  - [Memory Architecture](#memory-architecture)
+    - [Memory Components:](#memory-components)
+    - [Memory Data Structures](#memory-data-structures)
+  - [API Reference](#api-reference)
+    - [Front Service APIs](#front-service-apis)
+    - [History APIs](#history-apis)
+    - [Memory APIs](#memory-apis)
 9.  **Worker → LLM API:** The worker calls the LLM API, sending the user's question, retrieved conversation history, and a personalized system prompt (either with memory context for new conversations or the stored system message for existing conversations). The request is made in **streaming mode**.
 10. **LLM API → Worker (Streaming):** The LLM processes the prompt and streams back the generated answer token by token.
 11. **Worker → Redis (Update short-term history):** The worker synchronously saves the new question and the assistant's response to Redis. For new conversations, it also stores the personalized system prompt as the first message to ensure consistency for the ongoing conversation.iew](#overview)
+    - [1. Architecture overview](#1-architecture-overview)
+    - [2. Request / response walkthrough](#2-request--response-walkthrough)
+    - [3. History System - Asynchronous Persistence](#3-history-system---asynchronous-persistence)
+    - [4. Memory System - Asynchronous Consolidation](#4-memory-system---asynchronous-consolidation)
+- [Scalable chat using SSE and async workers](#scalable-chat-using-sse-and-async-workers)
+  - [Overview](#overview)
     - [1. Architecture overview](#1-architecture-overview)
     - [2. Request / response walkthrough](#2-request--response-walkthrough)
     - [3. History System - Asynchronous Persistence](#3-history-system---asynchronous-persistence)
@@ -371,7 +393,7 @@ Memory API/MCP provides dual interfaces for memory management:
 |--------|----------|-------------|
 | `GET` | `/api/memory/users/{userId}/memories` | Retrieve structured memories for a specific user |
 | `DELETE` | `/api/memory/users/{userId}/memories` | Delete memories for a specific user |
-| `POST` | `/api/memory/users/{userId}/memories/search` | Search conversational memories for a specific user |
+| `POST` | `/api/memory/users/{userId}/conversations/search` | Search conversational memories for a specific user |
 
 **MCP Interface (for Worker Service):**
 The same as the REST API, but uses a different protocol for communication. 

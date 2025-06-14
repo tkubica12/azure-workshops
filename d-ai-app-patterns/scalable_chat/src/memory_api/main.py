@@ -61,8 +61,13 @@ database = cosmos_client.get_database_client(COSMOS_DATABASE_NAME)
 conversations_container = database.get_container_client(COSMOS_CONVERSATIONS_CONTAINER_NAME)
 user_memories_container = database.get_container_client(COSMOS_USER_MEMORIES_CONTAINER_NAME)
 
-# Initialize embeddings client
-embeddings_client = EmbeddingsClient(endpoint=AZURE_AI_EMBEDDINGS_ENDPOINT, credential=credential)
+# Initialize embeddings client with proper AAD authentication
+embeddings_client = EmbeddingsClient(
+    endpoint=AZURE_AI_EMBEDDINGS_ENDPOINT,
+    credential=credential,
+    api_version="2024-10-21",
+    credential_scopes=["https://cognitiveservices.azure.com/.default"]
+)
 
 # FastAPI app
 app = FastAPI(
@@ -228,7 +233,7 @@ async def delete_user_memories(user_id: str):
             logger.error(f"Error deleting user memories for {user_id}: {e}")
             raise HTTPException(status_code=500, detail="Failed to delete user memories")
 
-@app.post("/api/memory/users/{user_id}/memories/search", response_model=List[MemorySearchResult])
+@app.post("/api/memory/users/{user_id}/conversations/search", response_model=List[MemorySearchResult])
 async def search_conversation_memories(user_id: str, search_request: MemorySearchRequest):
     """Search conversational memories for a specific user."""
     with tracer.start_as_current_span("search_conversation_memories"):
@@ -317,114 +322,6 @@ async def search_conversation_memories(user_id: str, search_request: MemorySearc
         except exceptions.CosmosHttpResponseError as e:
             logger.error(f"Error searching conversation memories for {user_id}: {e}")
             raise HTTPException(status_code=500, detail="Failed to search conversation memories")
-
-# Internal API endpoints (used by Memory Worker)
-
-@app.post("/internal/conversation-memory")
-async def store_conversation_memory(conversation: ConversationMemoryUpdate):
-    """Store or update a conversation memory (internal endpoint for Memory Worker)."""
-    with tracer.start_as_current_span("store_conversation_memory"):
-        try:
-            # Create document for conversations collection
-            document = {
-                "id": conversation.sessionId,
-                "sessionId": conversation.sessionId,
-                "userId": conversation.userId,
-                "summary": conversation.summary,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "themes": conversation.themes,
-                "persons": conversation.persons,
-                "places": conversation.places,
-                "user_sentiment": conversation.user_sentiment,
-                "vector_embedding": conversation.vector_embedding
-            }
-            
-            # Upsert the document
-            conversations_container.upsert_item(body=document)
-            logger.info(f"Stored conversation memory for session {conversation.sessionId}")
-            
-            return {"status": "success", "sessionId": conversation.sessionId}
-            
-        except exceptions.CosmosHttpResponseError as e:
-            logger.error(f"Error storing conversation memory: {e}")
-            raise HTTPException(status_code=500, detail="Failed to store conversation memory")
-
-@app.post("/internal/user-memory")
-async def update_user_memory(memory_update: UserMemoryUpdate):
-    """Update user memory profile (internal endpoint for Memory Worker)."""
-    with tracer.start_as_current_span("update_user_memory"):
-        try:
-            user_id = memory_update.userId
-            
-            # Get existing user memory or create new one
-            try:
-                query = "SELECT * FROM c WHERE c.userId = @userId"
-                items = list(user_memories_container.query_items(
-                    query=query,
-                    parameters=[{"name": "@userId", "value": user_id}],
-                    enable_cross_partition_query=True
-                ))
-                
-                if items:
-                    existing_memory = items[0]
-                else:
-                    existing_memory = {
-                        "id": user_id,
-                        "userId": user_id,
-                        "output_preferences": {},
-                        "personal_preferences": {},
-                        "assistant_preferences": {},
-                        "knowledge": [],
-                        "interests": [],
-                        "dislikes": [],
-                        "family_and_friends": {},
-                        "work_profile": {},
-                        "goals": []
-                    }
-            except exceptions.CosmosResourceNotFoundError:
-                existing_memory = {
-                    "id": user_id,
-                    "userId": user_id,
-                    "output_preferences": {},
-                    "personal_preferences": {},
-                    "assistant_preferences": {},
-                    "knowledge": [],
-                    "interests": [],
-                    "dislikes": [],
-                    "family_and_friends": {},
-                    "work_profile": {},
-                    "goals": []
-                }
-            
-            # Update with new data
-            for key, value in memory_update.updates.items():
-                if key in existing_memory:
-                    if isinstance(existing_memory[key], list) and isinstance(value, list):
-                        # Merge lists and remove duplicates
-                        existing_memory[key] = list(set(existing_memory[key] + value))
-                    elif isinstance(existing_memory[key], dict) and isinstance(value, dict):
-                        # Merge dictionaries
-                        existing_memory[key].update(value)
-                    else:
-                        existing_memory[key] = value
-                else:
-                    existing_memory[key] = value
-            
-            existing_memory["last_updated"] = datetime.now(timezone.utc).isoformat()
-            
-            # Upsert the document
-            user_memories_container.upsert_item(body=existing_memory)
-            logger.info(f"Updated user memory for user {user_id}")
-            
-            return {"status": "success", "userId": user_id}
-            
-        except exceptions.CosmosHttpResponseError as e:
-            logger.error(f"Error updating user memory: {e}")
-            raise HTTPException(status_code=500, detail="Failed to update user memory")
-
-# MCP Interface endpoints (for Worker Service)
-# TODO: Implement Model Context Protocol interface
-# For now, we'll use the same REST endpoints that the Worker can call
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8003))

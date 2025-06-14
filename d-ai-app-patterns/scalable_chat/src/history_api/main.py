@@ -73,7 +73,7 @@ app.add_middleware(
 # Pydantic models
 class Message(BaseModel):
     messageId: str
-    role: str  # 'user' or 'assistant'
+    role: str 
     content: str
     timestamp: str  # ISO format string
 
