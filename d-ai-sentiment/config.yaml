@@ -1,0 +1,19 @@
+dataset_files:
+  train: "dataset/train_df.csv"
+  test: "dataset/test_df.csv"
+  validation: "dataset/val_df.csv"
+  train_100: "train/train_100.csv"
+  train_1000: "train/train_1000.csv"
+  train_all: "train/train_all.csv"
+
+# Column name that contains the text to analyze
+text_column: "text"
+
+# Tokenizer configurations
+tokenizers:
+  gpt4:
+    model: "gpt-4o"  # GPT-4.1 uses same tokenizer as GPT-4o
+    description: "GPT-4.1/GPT-4o style vocabulary"
+  embeddings:
+    model: "text-embedding-ada-002"
+    description: "OpenAI embeddings style vocabulary"
