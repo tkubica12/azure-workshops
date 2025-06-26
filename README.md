@@ -5,6 +5,7 @@ This repo contains materials I am using with customers to help them learn Azure,
 Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 
 ## AI demos
+- [4 approaches to sentiment analysis - llm, finetuning, encoder, embeddings with classifier](./d-ai-sentiment/)
 - [Async pattern in AI apps](./d-ai-async/)
 - [AI Inference SDK with monitoring](./d-ai-inference-sdk-with-monitoring/)
 - [Advanced RAG patterns](./d-ai-rag/)
