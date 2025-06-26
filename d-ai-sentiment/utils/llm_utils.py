@@ -5,19 +5,18 @@ LLM utilities for sentiment analysis using Azure OpenAI.
 import os
 import time
 import random
-from typing import Optional
+from typing import Optional, List
 from openai import AzureOpenAI, RateLimitError
 from azure.identity import DefaultAzureCredential
-from azure.core.credentials import AccessToken
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 class LlmUtils:
-    """Utility class for LLM-based sentiment analysis with efficient token management."""
+    """Utility class for LLM-based sentiment analysis and embedding generation with efficient token management."""
     
-    def __init__(self, examples_csv: str = None, deployment_name: str = None, api_version: str = None):
+    def __init__(self, examples_csv: str = None, deployment_name: str = None, api_version: str = None, embedding_deployment_name: str = None):
         """
         Initialize the Azure OpenAI client with AAD authentication and token caching.
         
@@ -25,10 +24,12 @@ class LlmUtils:
             examples_csv: CSV string with examples in format "text,label"
             deployment_name: Override deployment name (optional, falls back to env)
             api_version: Override API version (optional, falls back to env)
+            embedding_deployment_name: Override embedding deployment name (optional, falls back to env)
         """
         self.endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
         self.api_version = api_version or os.getenv("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
         self.deployment_name = deployment_name or os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-4.1-nano")
+        self.embedding_deployment_name = embedding_deployment_name or os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME", "text-embedding-3-small")
         
         if not self.endpoint:
             raise ValueError("AZURE_OPENAI_ENDPOINT environment variable is required")
@@ -57,11 +58,9 @@ class LlmUtils:
         Returns:
             Access token string
         """
-        import time
-        
         # Check if we have a valid cached token (with 5-minute buffer before expiry)
         if (self._cached_token and self._token_expires_on and 
-            time.time() < (self._token_expires_on - 300)):  # 5-minute buffer
+            time.time() < (self._token_expires_on - 300)):
             return self._cached_token
         
         # Get new token
@@ -187,6 +186,69 @@ Always return only the sentiment class as a single digit without any additional 
                     time.sleep(0.5)
         
         return None
+
+    def embed_text(self, texts: List[str], max_retries: int = 3) -> Optional[List[List[float]]]:
+        """
+        Generate embeddings for a list of texts.
+        
+        Args:
+            texts: List of texts to embed
+            max_retries: Maximum number of retry attempts
+            
+        Returns:
+            List of embeddings, each as a list of floats, or None if failed
+        """
+        embeddings = []
+        for text in texts:
+            for attempt in range(max_retries):
+                try:
+                    response = self.client.embeddings.create(
+                        model=self.embedding_deployment_name,
+                        input=text
+                    )
+                    
+                    # Track token usage
+                    if hasattr(response, 'usage') and response.usage:
+                        input_tokens = response.usage.prompt_tokens
+                        self.total_input_tokens += input_tokens
+                        self.total_requests += 1
+                        
+                        logger.debug(f"Request {self.total_requests}: {input_tokens} input tokens")
+                    
+                    embedding = response.data[0].embedding
+                    embeddings.append(embedding)
+                    break  # Success, exit retry loop
+                
+                except RateLimitError as e:
+                    # Handle 429 errors specifically with exponential backoff
+                    if attempt == max_retries - 1:
+                        logger.error(f"Rate limit exceeded after {max_retries} attempts for text: '{text[:50]}...'")
+                        embeddings.append(None)  # Append None for this text
+                        break
+                    
+                    # Extract retry-after from error message or use exponential backoff
+                    retry_after = self._extract_retry_after(str(e))
+                    if retry_after:
+                        wait_time = retry_after
+                        logger.warning(f"Rate limit hit, waiting {wait_time}s as suggested by API")
+                    else:
+                        # Exponential backoff with jitter: 2^attempt + random(0, 1)
+                        wait_time = (2 ** attempt) + random.uniform(0, 1)
+                        logger.warning(f"Rate limit hit, using exponential backoff: {wait_time:.2f}s")
+                    
+                    time.sleep(wait_time)
+                    logger.info(f"Retrying attempt {attempt + 2} after rate limit")
+                
+                except Exception as e:
+                    logger.error(f"Attempt {attempt + 1} failed: {str(e)}")
+                    if attempt == max_retries - 1:
+                        logger.error(f"All {max_retries} attempts failed for text: '{text[:50]}...'")
+                        embeddings.append(None)  # Append None for this text
+                    else:
+                        # Brief wait for other errors to avoid hammering the API
+                        time.sleep(0.5)
+        
+        return embeddings
 
     def _extract_retry_after(self, error_message: str) -> Optional[float]:
         """

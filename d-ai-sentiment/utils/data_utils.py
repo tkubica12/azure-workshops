@@ -10,7 +10,7 @@ class DataUtils:
         """Initialize the calculator with tokenizers."""
         self.tokenizers = {
             'gpt41': tiktoken.encoding_for_model("gpt-4o"),  
-            'embeddings': tiktoken.encoding_for_model("text-embedding-ada-002")
+            'embeddings': tiktoken.encoding_for_model("text-embedding-3-small")
         }
     
     def load_csv_file(self, filepath: str) -> pd.DataFrame:

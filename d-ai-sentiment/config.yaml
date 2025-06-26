@@ -8,12 +8,3 @@ dataset_files:
 
 # Column name that contains the text to analyze
 text_column: "text"
-
-# Tokenizer configurations
-tokenizers:
-  gpt4:
-    model: "gpt-4o"  # GPT-4.1 uses same tokenizer as GPT-4o
-    description: "GPT-4.1/GPT-4o style vocabulary"
-  embeddings:
-    model: "text-embedding-ada-002"
-    description: "OpenAI embeddings style vocabulary"

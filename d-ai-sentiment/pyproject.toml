@@ -11,4 +11,8 @@ dependencies = [
     "pandas>=2.3.0",
     "pyyaml>=6.0.2",
     "azure-identity>=1.15.0",
+    "pyarrow>=18.0.0",
+    "scikit-learn>=1.5.0",
+    "numpy>=1.26.0",
+    "psutil>=6.0.0",
 ]
