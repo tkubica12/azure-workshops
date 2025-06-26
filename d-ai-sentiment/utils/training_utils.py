@@ -7,8 +7,9 @@ import os
 import time
 import pickle
 import logging
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, Optional
 from datetime import datetime
+import joblib
 
 import pandas as pd
 import numpy as np
@@ -302,21 +303,80 @@ class TrainingUtils:
     
     def load_model(self, model_path: str):
         """
-        Load a trained model from file.
+        Load a trained logistic regression model from file.
         
         Args:
-            model_path: Path to saved model
+            model_path: Path to the saved model file
             
         Returns:
             Loaded model instance
         """
-        logger.info(f"Loading model from {model_path}")
-        
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found: {model_path}")
         
-        with open(model_path, 'rb') as f:
-            model = pickle.load(f)
-        
-        logger.info("Model loaded successfully")
+        logger.info(f"Loading model from {model_path}")
+        model = joblib.load(model_path)
+        logger.info(f"Model loaded successfully: {type(model).__name__}")
         return model
+    
+    def predict_sentiment(self, model, embedding: np.ndarray) -> int:
+        """
+        Predict sentiment using the trained model.
+        
+        Args:
+            model: Trained logistic regression model
+            embedding: Text embedding as numpy array
+            
+        Returns:
+            Predicted label (0, 1, or 2)
+        """
+        # Ensure embedding is the right shape (1, embedding_dim)
+        if embedding.ndim == 1:
+            embedding = embedding.reshape(1, -1)
+        
+        prediction = model.predict(embedding)
+        return int(prediction[0])
+    
+    def create_lr_classifier(self, model_path: str, llm_utils):
+        """
+        Create a classifier function that uses the trained LR model.
+        
+        Args:
+            model_path: Path to the trained model
+            llm_utils: LlmUtils instance for generating embeddings
+            
+        Returns:
+            Classifier function compatible with AnalysisUtils.run_experiment
+        """
+        # Load the model
+        model = self.load_model(model_path)
+        
+        def classify_sentiment_lr(text: str) -> Optional[int]:
+            """
+            Classify sentiment using logistic regression on embeddings.
+            
+            Args:
+                text: Text to classify
+                
+            Returns:
+                Predicted label (0, 1, or 2) or None if embedding fails
+            """
+            try:
+                # Generate embedding for the text
+                embeddings = llm_utils.embed_text([text])
+                if embeddings is None or len(embeddings) == 0:
+                    logger.warning(f"Failed to generate embedding for text: {text[:50]}...")
+                    return None
+                
+                # Use the first (and only) embedding
+                embedding = np.array(embeddings[0])
+                
+                # Predict using the model
+                prediction = self.predict_sentiment(model, embedding)
+                return prediction
+                
+            except Exception as e:
+                logger.error(f"Error in LR classification: {str(e)}")
+                return None
+        
+        return classify_sentiment_lr
