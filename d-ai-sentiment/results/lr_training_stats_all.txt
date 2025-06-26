@@ -1,0 +1,63 @@
+LOGISTIC REGRESSION TRAINING STATISTICS
+============================================================
+
+Timestamp: 2025-06-26T07:30:57.816510
+Data Path: train/train_embeddings_all.parquet
+Model Path: models/lr_model_all.pkl
+
+DATASET INFORMATION:
+  Total samples: 31,232
+  Embedding dimensions: 1,536
+  Training samples: 24,985
+  Test samples: 6,247
+
+PERFORMANCE METRICS:
+  Test Accuracy: 0.7344
+
+RESOURCE USAGE:
+  Device Used: CPU (sklearn)
+  Training Time: 18.25 seconds
+  Total Time: 20.00 seconds
+  Memory Used: 793.6 MB
+
+DEVICE INFORMATION:
+  cpu_count: 20
+  memory_gb: 63.83
+  gpu_available: False
+
+MODEL CONFIGURATION:
+  Model Type: LogisticRegression
+  Random State: 42
+  Max Iterations: 2000
+
+CLASSIFICATION REPORT:
+  0:
+    precision: 0.7380
+    recall: 0.7424
+    f1-score: 0.7402
+    support: 1821.0000
+  1:
+    precision: 0.6640
+    recall: 0.6794
+    f1-score: 0.6716
+    support: 2330.0000
+  2:
+    precision: 0.8139
+    recall: 0.7886
+    f1-score: 0.8011
+    support: 2096.0000
+  macro avg:
+    precision: 0.7386
+    recall: 0.7368
+    f1-score: 0.7376
+    support: 6247.0000
+  weighted avg:
+    precision: 0.7359
+    recall: 0.7344
+    f1-score: 0.7350
+    support: 6247.0000
+
+CONFUSION MATRIX:
+[[1352  426   43]
+ [ 412 1583  335]
+ [  68  375 1653]]

@@ -1,0 +1,52 @@
+================================================================================
+🎉 EXPERIMENT COMPLETED!
+================================================================================
+🤖 Model: GPT-4.1-mini
+⏱️  Total execution time: 5565.6 seconds
+
+📊 FINAL TOKEN USAGE:
+   Total input tokens:  14,683,620
+   Total output tokens: 5,243
+   Total tokens:        14,688,863
+   Total API requests:  5,243
+
+📈 FINAL PERFORMANCE METRICS:
+   Samples processed:   5,243
+   Samples per second:  0.94
+   Tokens per second:   2639.2
+   Avg tokens/sample:   2801.6
+   Input cost rate:     $0.00040 per 1K tokens
+   Output cost rate:    $0.00160 per 1K tokens
+   Estimated cost:      $5.8818
+================================================================================
+
+📋 CLASSIFICATION REPORT:
+================================================================================
+
+
+=== SENTIMENT ANALYSIS RESULTS ===
+Experiment: LLM_MINI_FEWSHOT_100
+Generated on: 2025-06-25 16:24:59
+
+OVERALL STATISTICS:
+- Total samples: 5205
+- Completed predictions: 5140 (98.8%)
+- Failed predictions: 65 (1.2%)
+- Correct predictions: 3567 (68.5%)
+- Incorrect predictions: 1573 (30.2%)
+- Overall accuracy: 0.694 (69.4%)
+
+LABEL DISTRIBUTION (ACTUAL):
+- Negative (0): 1489 samples
+- Neutral (1): 1905 samples  
+- Positive (2): 1746 samples
+
+LABEL DISTRIBUTION (PREDICTED):
+- Negative (0): 1515 samples
+- Neutral (1): 1840 samples
+- Positive (2): 1785 samples
+
+ACCURACY BY CLASS:
+- Negative (0): 1111/1489 = 0.746
+- Neutral (1): 1149/1905 = 0.603
+- Positive (2): 1307/1746 = 0.749

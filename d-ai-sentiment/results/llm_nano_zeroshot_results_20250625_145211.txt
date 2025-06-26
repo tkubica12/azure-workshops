@@ -1,0 +1,52 @@
+================================================================================
+🎉 EXPERIMENT COMPLETED!
+================================================================================
+🤖 Model: GPT-4.1-nano
+⏱️  Total execution time: 3306.7 seconds
+
+📊 FINAL TOKEN USAGE:
+   Total input tokens:  1,284,780
+   Total output tokens: 5,166
+   Total tokens:        1,289,946
+   Total API requests:  5,166
+
+📈 FINAL PERFORMANCE METRICS:
+   Samples processed:   5,166
+   Samples per second:  1.56
+   Tokens per second:   390.1
+   Avg tokens/sample:   249.7
+   Input cost rate:     $0.00010 per 1K tokens
+   Output cost rate:    $0.00040 per 1K tokens
+   Estimated cost:      $0.1305
+================================================================================
+
+📋 CLASSIFICATION REPORT:
+================================================================================
+
+
+=== SENTIMENT ANALYSIS RESULTS ===
+Experiment: LLM_NANO_ZEROSHOT
+Generated on: 2025-06-25 15:47:18
+
+OVERALL STATISTICS:
+- Total samples: 5205
+- Completed predictions: 5166 (99.3%)
+- Failed predictions: 39 (0.7%)
+- Correct predictions: 3495 (67.1%)
+- Incorrect predictions: 1671 (32.1%)
+- Overall accuracy: 0.677 (67.7%)
+
+LABEL DISTRIBUTION (ACTUAL):
+- Negative (0): 1502 samples
+- Neutral (1): 1914 samples  
+- Positive (2): 1750 samples
+
+LABEL DISTRIBUTION (PREDICTED):
+- Negative (0): 1343 samples
+- Neutral (1): 1909 samples
+- Positive (2): 1914 samples
+
+ACCURACY BY CLASS:
+- Negative (0): 972/1502 = 0.647
+- Neutral (1): 1170/1914 = 0.611
+- Positive (2): 1353/1750 = 0.773
