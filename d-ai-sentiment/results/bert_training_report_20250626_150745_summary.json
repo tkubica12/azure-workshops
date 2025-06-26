@@ -1,0 +1,22 @@
+{
+  "model_name": "bert-base-uncased",
+  "training_samples": 24985,
+  "validation_samples": 6247,
+  "epochs": 5,
+  "batch_size": 16,
+  "learning_rate": 2e-05,
+  "training_time_seconds": 499.71,
+  "training_time_minutes": 8.33,
+  "final_train_loss": 0.7074225199222565,
+  "final_eval_accuracy": 0.7590843604930366,
+  "final_eval_loss": 0.597461998462677,
+  "device_info": {
+    "device": "cuda",
+    "cpu_count": 20,
+    "memory_gb": 63.83,
+    "gpu_name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "gpu_memory_gb": 8.0,
+    "cuda_version": "12.8"
+  },
+  "output_dir": "models/bert_sentiment_full"
+}

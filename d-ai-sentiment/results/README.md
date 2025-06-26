@@ -5,7 +5,9 @@
 This document presents the results of sentiment analysis experiments conducted on June 25-26, 2025, comparing different approaches:
 
 1. **Large Language Models (LLMs)**: GPT-4.1-mini and GPT-4.1-nano with various prompting strategies (zero-shot, few-shot with 100/1000 examples)
-2. **Hybrid Embedding + ML Models**: OpenAI embedding models combined with logistic regression classifiers trained on different dataset sizes (100, 1000, and full training set)
+2. **Fine-tuned Large Language Model Approaches**: Fine-tuned versions of GPT-4.1-mini and GPT-4.1-nano models trained on the full training dataset
+3. **Hybrid Embedding + ML Models**: OpenAI embedding models combined with logistic regression classifiers trained on different dataset sizes (100, 1000, and full training set)
+4. **Fine-tuned Transformer Approaches**: Traditional encoder-only transformer models (BERT) fine-tuned on the sentiment classification task
 
 ## Experiment Comparison Table
 
@@ -27,6 +29,8 @@ This document presents the results of sentiment analysis experiments conducted o
 | LR_100 | OpenAI Embeddings + LR | Trained on 100 samples | 60.9% | 5,205 (100%) | 0 (0%) | 124,123 | 124,123 | 0 | $0.0025 | 963.2s | 5.40 |
 | LR_1000 | OpenAI Embeddings + LR | Trained on 1000 samples | 67.1% | 5,205 (100%) | 0 (0%) | 124,123 | 124,123 | 0 | $0.0025 | 951.7s | 5.47 |
 | LR_ALL | OpenAI Embeddings + LR | Trained on full dataset | 73.2% | 5,205 (100%) | 0 (0%) | 124,123 | 124,123 | 0 | $0.0025 | 932.1s | 5.58 |
+| **Fine-tuned Transformer Approaches** |
+| BERT_SENTIMENT | BERT-base Fine-tuned | Trained on full dataset | 74.5% | 5,205 (100%) | 0 (0%) | N/A | N/A | N/A | $0.028 | 465.4s | 11.19 |
 
 ## Detailed Performance Metrics
 
@@ -50,6 +54,8 @@ This document presents the results of sentiment analysis experiments conducted o
 | LR_100 | 69.9% | 38.3% | 77.9% |
 | LR_1000 | 74.2% | 55.0% | 74.1% |
 | LR_ALL | 74.9% | 69.6% | 75.7% |
+| **Fine-tuned Transformer Approaches** |
+| BERT_SENTIMENT | 70.9% | 73.5% | 78.6% |
 
 ### Cost Analysis
 
@@ -60,38 +66,42 @@ This document presents the results of sentiment analysis experiments conducted o
 | LR_1000 | $0.0005 | 1st (Best) |
 | LR_ALL | $0.0005 | 1st (Best) |
 | LLM_NANO_ZEROSHOT | $0.025 | 4th |
-| LLM_FT_NANO_ZEROSHOT | $0.050 | 5th |
-| LLM_MINI_ZEROSHOT | $0.106 | 6th |
-| LLM_FT_MINI_ZEROSHOT | $0.202 | 7th |
+| BERT_SENTIMENT | $0.028 | 5th |
+| LLM_FT_NANO_ZEROSHOT | $0.050 | 6th |
+| LLM_MINI_ZEROSHOT | $0.106 | 7th |
+| LLM_FT_MINI_ZEROSHOT | $0.202 | 8th |
 | **Moderate Cost** |
-| LLM_NANO_FEWSHOT_100 | $0.280 ($0.168 cached) | 8th |
-| LLM_FT_NANO_FEWSHOT_100 | $0.562 ($0.337 cached) | 9th |
-| LLM_MINI_FEWSHOT_100 | $1.130 ($0.678 cached) | 10th |
-| LLM_FT_MINI_FEWSHOT_100 | $2.242 ($1.345 cached) | 11th |
+| LLM_NANO_FEWSHOT_100 | $0.280 ($0.168 cached) | 9th |
+| LLM_FT_NANO_FEWSHOT_100 | $0.562 ($0.337 cached) | 10th |
+| LLM_MINI_FEWSHOT_100 | $1.130 ($0.678 cached) | 11th |
+| LLM_FT_MINI_FEWSHOT_100 | $2.242 ($1.345 cached) | 12th |
 | **High Cost** |
-| LLM_NANO_FEWSHOT_1000 | $2.590 ($1.554 cached) | 12th |
-| LLM_MINI_FEWSHOT_1000 | $10.670 ($6.402 cached) | 13th (Most Expensive) |
+| LLM_NANO_FEWSHOT_1000 | $2.590 ($1.554 cached) | 13th |
+| LLM_MINI_FEWSHOT_1000 | $10.670 ($6.402 cached) | 14th (Most Expensive) |
 
 ### Processing Speed Analysis
 
 | Experiment | Processing Speed Rank | Time per Sample (seconds) |
 |------------|---------------------|---------------------------|
 | **Fastest Processing** |
-| LR_ALL | 1st (Fastest) | 0.18 |
-| LR_1000 | 2nd | 0.18 |
-| LR_100 | 3rd | 0.19 |
+| BERT_SENTIMENT | 1st (Fastest) | 0.09 |
+| LR_ALL | 2nd | 0.18 |
+| LR_1000 | 3rd | 0.18 |
+| LR_100 | 4th | 0.19 |
 | **Moderate Speed** |
-| LLM_FT_MINI_ZEROSHOT | 4th | 0.30 |
-| LLM_FT_MINI_FEWSHOT_100 | 5th | 0.37 |
-| LLM_FT_NANO_ZEROSHOT | 6th | 0.37 |
-| LLM_FT_NANO_FEWSHOT_100 | 7th | 0.38 |
-| LLM_NANO_ZEROSHOT | 8th | 0.64 |
-| LLM_MINI_ZEROSHOT | 9th | 0.72 |
-| LLM_NANO_FEWSHOT_100 | 10th | 0.81 |
-| LLM_MINI_FEWSHOT_100 | 11th | 1.06 |
+| LLM_FT_MINI_ZEROSHOT | 5th | 0.30 |
+| LLM_FT_MINI_FEWSHOT_100 | 6th | 0.37 |
+| LLM_FT_NANO_ZEROSHOT | 7th | 0.37 |
+| LLM_FT_NANO_FEWSHOT_100 | 8th | 0.38 |
+| LLM_NANO_ZEROSHOT | 9th | 0.64 |
+| LLM_MINI_ZEROSHOT | 10th | 0.72 |
+| LLM_NANO_FEWSHOT_100 | 11th | 0.81 |
+| LLM_MINI_FEWSHOT_100 | 12th | 1.06 |
 | **Slower Processing** |
-| LLM_NANO_FEWSHOT_1000 | 12th | 1.77 |
-| LLM_MINI_FEWSHOT_1000 | 13th (Slowest) | 3.00 |
+| LLM_NANO_FEWSHOT_1000 | 13th | 1.77 |
+| LLM_MINI_FEWSHOT_1000 | 14th (Slowest) | 3.00 |
+
+**Note**: BERT processing times represent fully local inference without network latency, while other approaches include network round-trip times to cloud APIs which can vary significantly based on location and network conditions.
 
 ## Technical Methodology
 
@@ -110,7 +120,7 @@ Fine-tuned versions of GPT-4.1-mini and GPT-4.1-nano models trained on the full 
 - **Fine-tuning process**: Models were fine-tuned on 7,848,000 tokens from the complete training dataset
 - **Training cost**: $39.24 per model (both nano and mini)
 - **Training duration**: 8h 20m for nano, 2h 25m for mini
-- **Inference strategies**: Both zero-shot and few-shot (100 examples) approaches tested
+- **Inference strategies**: Both zero-shot and few-shot (100 examples) approaches tested. Note with finetuned model adding examples increased cost while reducing accuracy so there is no point in using few-shot prompting with fine-tuned models unless there is some change in the task or domain.
 
 **Pricing considerations:**
 - **OpenAI pricing model (used in analysis)**: No hosting fees, but 2x token pricing compared to base models
@@ -128,26 +138,44 @@ Two-stage pipeline combining OpenAI embeddings with traditional ML:
 
 **Cost considerations:** Training and inference costs for logistic regression are negligible compared to embedding generation costs.
 
+### Fine-tuned Transformer Approaches
+Traditional encoder-only transformer models (BERT) fine-tuned on the sentiment classification task:
+- **BERT-base**: Fine-tuned BERT-base-uncased model trained on the full training dataset
+- **Training process**: 5 epochs, batch size 16, learning rate 2e-05 on 24,985 training samples
+- **Training infrastructure**: NVIDIA GeForce RTX 4060 Laptop GPU (8GB VRAM)
+- **Training time**: 8.33 minutes (500 seconds)
+
+**Cost considerations:** 
+- **Training cost**: Based on Azure T4 GPU rental ($0.56/hour): $0.078 one-time training cost
+- **Inference cost**: $0.014 per 1K samples (single GPU), $0.028 per 1K samples (2 redundant GPUs for reliability)
+- **Infrastructure**: Requires GPU compute infrastructure for both training and inference
+- **Deployment**: Self-hosted model, full control over infrastructure and data privacy
+
 ## Key Findings and Conclusions
 
-### 1. **Approach Comparison: LLMs vs Fine-tuned LLMs vs Embedding+ML**
+### 1. **Approach Comparison: LLMs vs Fine-tuned LLMs vs Embedding+ML vs Fine-tuned BERT**
 - **Best Overall Performance**: LR_ALL (Embedding + LR trained on full dataset) achieved the highest accuracy (73.2%) at minimal cost
-- **Best Fine-tuned Performance**: LLM_FT_MINI_ZEROSHOT achieved 80.0% accuracy, outperforming all other LLM approaches
-- **Fine-tuning Impact**: Fine-tuned models show significant improvement over base models (79-80% vs 67-69% accuracy)
+- **Best Fine-tuned Performance**: LLM_FT_MINI_ZEROSHOT achieved 80.0% accuracy, outperforming all other approaches
+- **BERT Performance**: BERT_SENTIMENT achieved 74.5% accuracy, outperforming LR_ALL and all base LLM approaches
+- **Fine-tuning Impact**: Fine-tuned models show significant improvement over base models (79-80% vs 67-69% accuracy for LLMs)
 - **LLM Advantages**: Better performance with limited training data, more robust to different text patterns
 - **Fine-tuned LLM Advantages**: Highest single-model accuracy, faster inference than few-shot approaches, no prompt engineering needed
 - **Embedding+ML Advantages**: Superior cost-effectiveness, faster inference, perfect reliability (100% completion rate)
+- **BERT Advantages**: Excellent accuracy-to-cost ratio, very fast inference, local deployment, data privacy, balanced class performance
 - **Training Data Impact**: Embedding+ML approaches show dramatic improvement with more training data (60.9% → 67.1% → 73.2%)
 
 ### 2. **Cost-Effectiveness Revolution**
 - **Embedding+ML approaches** are 50-21,000x more cost-effective than LLM approaches
+- **BERT approach** provides excellent accuracy-to-cost ratio at $0.028 per 1K samples (5th most cost-effective)
 - **LR_ALL** provides the best accuracy at $0.0005 per 1K samples vs $0.025-$10.67 for LLM approaches
 - **Prompt caching impact**: Few-shot approaches benefit from 50% discount on cached input tokens, reducing actual costs by ~40%
 - **Fine-tuned models** have 2x token costs compared to base models (OpenAI pricing) plus significant upfront training investment ($39.24 per model)
+- **BERT training cost**: Minimal one-time cost of $0.078 for training, infrastructure flexibility
 - **Break-even analysis**: 
   - Embedding+ML becomes cost-effective after ~1,000 predictions
-  - Fine-tuned models break even vs few-shot approaches after ~500-19,000 predictions (depending on prompt complexity)
-  - Cached pricing makes few-shot approaches more competitive but still higher than embedding+ML
+  - BERT becomes cost-effective vs LLMs after ~100-1,000 predictions depending on approach
+  - Fine-tuned LLMs break even vs few-shot approaches after ~500-19,000 predictions (depending on prompt complexity)
+  - Cached pricing makes few-shot approaches more competitive but still higher than embedding+ML and BERT
   - Azure hosting costs would add ongoing expense but lower per-token costs for fine-tuned models
 
 ### 3. **Performance vs Training Data Size**
@@ -156,10 +184,12 @@ Two-stage pipeline combining OpenAI embeddings with traditional ML:
 - **LR_ALL**: Exceeds all LLM approaches in overall accuracy and maintains balanced class performance
 
 ### 4. **Processing Speed and Scalability**
-- **Embedding+ML approaches** are 3-17x faster than LLM approaches
+- **BERT approach** provides fastest processing (0.09s per sample) with fully local inference
+- **Embedding+ML approaches** are 2-17x faster than LLM approaches (but include network latency)
 - **Fine-tuned models** are 1.7-4.5x faster than corresponding base models with few-shot prompting
-- **Perfect reliability**: 100% completion rate for embedding+ML vs 97-99% for LLMs
-- **Scalability**: Embedding+ML approaches can handle much higher throughput for production workloads
+- **Perfect reliability**: 100% completion rate for embedding+ML and BERT vs 97-99% for LLMs due to outputs errors (model outputs not matching expected classes) or safety filters (model refusing to answer on certain inputs)
+- **Scalability**: BERT and embedding+ML approaches can handle much higher throughput for production workloads
+- **Network independence**: BERT offers consistent performance without dependency on cloud API availability
 
 ### 5. **Fine-tuning vs Few-shot Comparison**
 - **Fine-tuned zero-shot** consistently outperforms base model few-shot approaches (79-80% vs 67-69%)
@@ -168,61 +198,71 @@ Two-stage pipeline combining OpenAI embeddings with traditional ML:
 - **Deployment**: Fine-tuned models need hosting infrastructure vs stateless API calls
 
 ### 6. **Class-Specific Performance Insights**
-- **Neutral sentiment** remains challenging across all approaches but embedding+ML with sufficient training data (LR_ALL) achieves best performance (69.6%)
+- **Neutral sentiment** remains challenging across all approaches but BERT achieves excellent neutral detection (73.5%), competitive with fine-tuned LLMs
 - **Fine-tuned models** show strong performance across all classes, with fine-tuned mini achieving best neutral detection among LLM approaches (74.7%)
+- **BERT** shows well-balanced performance across all sentiment classes (70.9% negative, 73.5% neutral, 78.6% positive)
 - **Negative sentiment** detection is consistently strong across approaches (69-87% accuracy)
 - **Positive sentiment** shows good performance across all methods (68-85% accuracy)
-
-### 7. **Reliability and Robustness**
-- **Embedding+ML approaches** show perfect completion rates (100%)
-- **LLM approaches** have occasional failures, especially with complex prompts (2-3% failure rate)
-- **Fine-tuned models** maintain high reliability (99.2-99.3% completion rate)
-- **Consistency**: Embedding+ML provides most predictable performance and costs
 
 ## Recommendations
 
 ### For Production Use Cases:
 
-1. **High-Volume Production Applications**: Use **LR_ALL (Embedding + LR on full dataset)**
-   - Best overall accuracy (73.2%)
-   - Lowest cost per prediction ($0.0005 per 1K samples)
-   - Fastest processing (5.58 samples/sec)
+1. **Cost-Sensitive High-Volume Applications**: Use **LR_ALL (Embedding + LR on full dataset)**
+   - Excellent accuracy (73.2%) at lowest cost per prediction ($0.0005 per 1K samples)
+   - Good processing speed (5.58 samples/sec)
    - Perfect reliability (100% completion rate)
-   - **Ideal for**: Large-scale sentiment analysis, real-time applications, cost-sensitive deployments
+   - **Ideal for**: Cost-sensitive deployments, large-scale batch processing, applications where cost optimization is primary concern
 
-2. **High-Accuracy Applications with Budget**: Use **LLM_FT_MINI_ZEROSHOT (Fine-tuned Mini)**
+2. **Highest Accuracy Requirements**: Use **LLM_FT_MINI_ZEROSHOT (Fine-tuned Mini)**
    - Highest single-model accuracy (80.0%)
-   - Higher cost than base models ($0.202 per 1K samples due to 2x token pricing)
+   - Higher cost ($0.202 per 1K samples due to 2x token pricing)
    - Fast processing (3.30 samples/sec)
    - No prompt engineering required
-   - **Ideal for**: Critical applications requiring highest accuracy, where training investment and 2x token costs are justified
+   - **Ideal for**: Critical applications requiring maximum accuracy, where training investment and higher costs are justified
 
-3. **Balanced Performance/Cost for LLM Approach**: Use **LLM_FT_NANO_ZEROSHOT (Fine-tuned Nano)**
-   - Strong accuracy (79.0%)
+3. **Balanced Performance with Speed Priority**: Use **BERT_SENTIMENT**
+   - Best accuracy (74.5%) with fastest processing (11.19 samples/sec)
+   - Good cost-effectiveness ($0.028 per 1K samples)
+   - Perfect reliability (100% completion rate)
+   - Local deployment with data privacy
+   - **Ideal for**: Real-time applications, performance-critical systems, regulatory compliance, hybrid cloud deployments
+
+4. **LLM Approach with Cost Control**: Use **LLM_FT_NANO_ZEROSHOT (Fine-tuned Nano)**
+   - Strong accuracy (79.0%) with controlled costs
    - Moderate cost increase over base nano ($0.050 vs $0.025 per 1K samples)
    - Good processing speed (2.71 samples/sec)
-   - **Ideal for**: Applications needing LLM robustness with controlled cost increase
+   - **Ideal for**: Applications needing LLM robustness with budget constraints
 
-4. **Medium-Volume Applications with Limited Training Data**: Use **LR_1000**
+5. **Limited Training Data Scenarios**: Use **LR_1000**
    - Good accuracy (67.1%) competitive with base LLM zero-shot approaches
    - Extremely low cost ($0.0005 per 1K samples)
    - Fast processing (5.47 samples/sec)
    - **Ideal for**: Applications where collecting large training datasets is challenging
 
-5. **Rapid Prototyping/Small-Scale Applications**: Use **LLM_NANO_ZEROSHOT**
+6. **Rapid Prototyping/Exploration**: Use **LLM_NANO_ZEROSHOT**
    - No training data required
    - Decent accuracy (67.7%)
    - Moderate cost ($0.025 per 1K samples)
-   - **Ideal for**: Quick prototypes, one-off analyses, exploratory work
+   - **Ideal for**: Quick prototypes, one-off analyses, exploratory work, proof-of-concept development
 
 ### Deployment Strategy Recommendations:
 
-- **Start with LR_1000** if you have 1000+ labeled samples  
-- **Scale to LR_ALL** as you collect more training data
-- **Consider fine-tuned models** when you need highest accuracy and can justify training costs
+**For New Projects:**
+- **Start with LR_1000** if you have 1000+ labeled samples for cost-effective baseline
+- **Scale to LR_ALL** as you collect more training data for maximum cost efficiency
+- **Consider BERT** when you need higher accuracy than embedding+ML with fast processing and data privacy
+- **Consider fine-tuned LLMs** when you need maximum accuracy and can justify training costs
+
+**For Existing Systems:**
+- **Migrate from base LLMs to BERT** for immediate accuracy and speed improvements with cost reduction
 - **Use base LLM approaches** only when training data is unavailable or for handling edge cases
+- **Implement hybrid approaches**: Use embedding+ML for bulk processing, BERT for performance-critical tasks, LLMs for edge cases
+
+**Optimization Strategies:**
 - **Few-shot with caching**: If using few-shot approaches, ensure consistent example ordering to maximize cache benefits
-- **Consider hybrid approaches**: Use embedding+ML for bulk processing, LLMs for edge cases
+- **Infrastructure planning**: BERT requires GPU infrastructure but offers operational independence
+- **Cost monitoring**: Track actual vs estimated costs, especially for cached LLM approaches
 
 ### Avoid:
 - **LR_100**: Insufficient training data leads to poor performance
@@ -231,9 +271,3 @@ Two-stage pipeline combining OpenAI embeddings with traditional ML:
 
 **Note on pricing**: Cached pricing estimates assume ~85% of few-shot input tokens are cached (50% discount). Actual caching depends on request patterns and cache retention.
 
----
-
-*Generated on: June 25-26, 2025*  
-*Total samples analyzed: 5,205 per experiment*  
-*Dataset: Multi-class sentiment analysis (Negative, Neutral, Positive)*
-*Approaches tested: 6 base LLM configurations + 4 fine-tuned LLM configurations + 3 Embedding+ML configurations*
