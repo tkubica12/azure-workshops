@@ -9,42 +9,42 @@ def index() -> rx.Component:
         rx.vstack(
             rx.heading(
                 "🚀 Token Visualizer",
-                size="2xl",
-                color="blue.600",
-                margin_bottom="1rem"
+                size="9",  # Valid Reflex heading size (1-9)
+                color_scheme="blue",
+                margin_bottom="4"
             ),
             rx.text(
                 "Educational LLM Token Prediction Visualization Tool",
-                size="lg",
-                color="gray.600",
-                margin_bottom="2rem"
+                size="4",  # Valid Reflex text size
+                color_scheme="gray",
+                margin_bottom="6"
             ),
             rx.box(
                 rx.text(
                     "Hello World! 🌍",
-                    font_size="xl",
-                    font_weight="bold",
-                    color="green.500"
+                    size="6",  # Valid Reflex text size
+                    weight="bold",
+                    color_scheme="green"
                 ),
-                padding="2rem",
-                border="2px solid",
-                border_color="green.200",
-                border_radius="lg",
-                background="green.50"
+                padding="4",
+                border_width="2",
+                border_color="green",
+                border_radius="4",
+                background_color="green"
             ),
             rx.text(
                 "The Token Visualizer application is starting up...",
-                color="gray.500",
-                margin_top="1rem"
+                color_scheme="gray",
+                margin_top="4"
             ),
-            spacing="1rem",
+            spacing="4",
             align="center",
             min_height="100vh",
             justify="center"
         ),
         max_width="800px",
-        margin="0 auto",
-        padding="2rem"
+        margin_x="auto",
+        padding="6"
     )
 
 

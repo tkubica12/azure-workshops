@@ -1,10 +1,6 @@
-"""Token Visualizer - Educational LLM Token Prediction Visualization Tool."""
+"""Token Visualizer - Main application entry point."""
 
 import reflex as rx
-
-__version__ = "0.1.0"
-__author__ = "Token Visualizer Team"
-__description__ = "Interactive visualization of LLM token generation probabilities using Azure OpenAI"
 
 
 def index() -> rx.Component:
@@ -13,21 +9,21 @@ def index() -> rx.Component:
         rx.vstack(
             rx.heading(
                 "🚀 Token Visualizer",
-                size="2xl",
+                size="9",  # Valid Reflex heading size (1-9)
                 color="blue.600",
                 margin_bottom="1rem"
             ),
             rx.text(
                 "Educational LLM Token Prediction Visualization Tool",
-                size="lg",
+                size="4",  # Valid Reflex text size
                 color="gray.600",
                 margin_bottom="2rem"
             ),
             rx.box(
                 rx.text(
                     "Hello World! 🌍",
-                    font_size="xl",
-                    font_weight="bold",
+                    size="6",  # Valid Reflex text size
+                    weight="bold",
                     color="green.500"
                 ),
                 padding="2rem",
