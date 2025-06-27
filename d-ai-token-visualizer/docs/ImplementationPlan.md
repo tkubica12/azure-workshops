@@ -17,13 +17,13 @@ This implementation plan provides a step-by-step checklist for building the Toke
 - [x] Create Azure OpenAI resource in Azure portal
 - [x] Deploy GPT-4 model (or available model with logprobs support)
 - [x] Note down endpoint URL and API key
-- [ ] Test API access with simple Python script
-- [ ] Verify logprobs functionality works with test request
+- [x] Test API access with simple Python script
+- [x] Verify logprobs functionality works with test request
 
 ### 1.3 Project Structure Creation
-- [ ] Create basic project structure following Reflex conventions
-- [ ] Create `pyproject.toml` with project metadata
-- [ ] Set up directory structure:
+- [x] Create basic project structure following Reflex conventions
+- [x] Create `pyproject.toml` with project metadata
+- [x] Set up directory structure:
   ```
   token_visualizer/
   ├── token_visualizer/
