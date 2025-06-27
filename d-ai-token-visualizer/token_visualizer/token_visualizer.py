@@ -9,20 +9,20 @@ def index() -> rx.Component:
         rx.vstack(
             rx.heading(
                 "🚀 Token Visualizer",
-                size="9",  # Valid Reflex heading size (1-9)
+                size="9", 
                 color_scheme="blue",
                 margin_bottom="4"
             ),
             rx.text(
                 "Educational LLM Token Prediction Visualization Tool",
-                size="4",  # Valid Reflex text size
+                size="4", 
                 color_scheme="gray",
                 margin_bottom="6"
             ),
             rx.box(
                 rx.text(
                     "Hello World! 🌍",
-                    size="6",  # Valid Reflex text size
+                    size="6",
                     weight="bold",
                     color_scheme="green"
                 ),
