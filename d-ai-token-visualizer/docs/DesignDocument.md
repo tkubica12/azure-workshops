@@ -238,20 +238,6 @@ token_visualizer/
 - **Template System**: Pre-defined prompts for educational scenarios
 - **History Management**: Prompt history with easy access to previous inputs
 
-### Real-time Features
-
-**WebSocket Integration**:
-- **Live Updates**: Instant UI updates as tokens are generated
-- **Progress Indicators**: Real-time progress for long-running operations
-- **Error Handling**: Graceful handling of connection issues
-- **Reconnection Logic**: Automatic reconnection on network issues
-
-**Performance Optimizations**:
-- **Debounced Updates**: Prevent excessive API calls during rapid input changes
-- **Selective Re-rendering**: Only update components that have changed
-- **Lazy Loading**: Load components and data as needed
-- **Caching**: Client-side caching of frequently accessed data
-
 ## User Interface Design
 
 ### Layout Components
@@ -272,6 +258,47 @@ token_visualizer/
 - Token history
 - Probability legend
 - Help/tutorial access
+
+## UI Design Principles
+
+### Design Philosophy
+Modern minimalist aesthetic inspired by ChatGPT, Gemini, and Perplexity. Focus on **intentional simplicity** where every element serves the educational mission. Eliminate visual noise to help students focus on token generation and probability visualization.
+
+### Visual System
+
+#### Colors
+- **Light Mode**: White background (`#FFFFFF`), charcoal text (`#1A1A1A`), blue accents (`#2563EB`)
+- **Dark Mode**: Near-black background (`#0F0F0F`), light gray text (`#F9F9F9`)
+- **Probability Heat Map**: Red (high) → Yellow (medium) → Blue (low probability)
+
+#### Typography
+- **Primary**: Inter (clean, modern sans-serif)
+- **Monospace**: JetBrains Mono (for token display)
+- **Hierarchy**: 32px display, 24px titles, 16px body, 14px captions
+- **Spacing**: 1.5x line height, 8px grid system
+
+#### Iconography
+- **Style**: Feather Icons/Lucide React - monochromatic line icons
+- **Treatment**: 2px stroke, rounded caps, no colorful decorations
+- **Sizes**: 16px (small), 20px (medium), 24px (large)
+
+### Components
+
+#### Interactive Elements
+- **Buttons**: 8px radius, 44px minimum touch target, subtle hover states
+- **Tokens**: Pill-shaped with gentle hover effects and color-coded probabilities
+- **Inputs**: Clean borders, blue focus states, clear placeholders
+
+#### Layout
+- **Desktop**: Three-column (sidebar, content, info panel)
+- **Tablet**: Two-column with collapsible sidebar
+- **Mobile**: Single column, bottom navigation
+- **Spacing**: 8px grid system, generous white space (60/40 content ratio)
+
+### Accessibility
+- **WCAG 2.1 AA**: 4.5:1 text contrast, keyboard navigation, ARIA labels
+- **Color Blind Support**: Shape/pattern indicators beyond color
+- **Responsive**: Touch-friendly 44px targets, readable fonts across devices
 
 ### Responsive Design
 
@@ -484,317 +511,3 @@ terraform/
 The Token Visualizer represents an innovative approach to LLM education, combining interactive visualization with hands-on experimentation. By leveraging Azure OpenAI's logprobs functionality and modern web technologies, the application will provide students with an intuitive understanding of how autoregressive language models work at the token level.
 
 The modular design allows for incremental development, starting with the core interactive token selection mode and expanding to include more advanced visualization and analysis features. The focus on educational outcomes, combined with robust technical architecture, positions this tool to make a significant impact in AI/ML education.
-
-## DevOps & Infrastructure
-
-### Dockerfile Specification
-
-**Multi-stage Dockerfile**:
-```dockerfile
-# Build stage
-FROM python:3.12-slim as builder
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-RUN reflex export --frontend-only
-
-# Production stage
-FROM python:3.12-slim
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-WORKDIR /app
-COPY --from=builder /app/.web/_static ./static
-COPY --from=builder /app/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY --from=builder /app .
-RUN chown -R appuser:appuser /app
-USER appuser
-EXPOSE 8000
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8000/health || exit 1
-CMD ["reflex", "run", "--env", "prod", "--backend-only"]
-```
-
-### GitHub Actions Workflows
-
-**CI/CD Pipeline** (`.github/workflows/deploy.yml`):
-```yaml
-name: Build and Deploy
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install pytest black flake8
-      - name: Lint and test
-        run: |
-          black --check .
-          flake8 .
-          pytest tests/
-
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-      - name: Terraform Apply
-        env:
-          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        run: |
-          cd terraform/environments/prod
-          terraform init
-          terraform plan
-          terraform apply -auto-approve
-```
-
-### Terraform Infrastructure
-
-**Main Container App Configuration** (`terraform/modules/container-app/main.tf`):
-```hcl
-resource "azurerm_container_app" "token_visualizer" {
-  name                         = var.app_name
-  container_app_environment_id = var.container_app_environment_id
-  resource_group_name          = var.resource_group_name
-  revision_mode                = "Single"
-
-  template {
-    min_replicas = 1
-    max_replicas = 10
-
-    container {
-      name   = "token-visualizer"
-      image  = var.container_image
-      cpu    = 0.5
-      memory = "1Gi"
-
-      env {
-        name  = "AZURE_OPENAI_ENDPOINT"
-        value = var.azure_openai_endpoint
-      }
-
-      env {
-        name        = "AZURE_OPENAI_API_KEY"
-        secret_name = "azure-openai-key"
-      }
-
-      env {
-        name  = "APPLICATIONINSIGHTS_CONNECTION_STRING"
-        value = var.app_insights_connection_string
-      }
-    }
-  }
-
-  secret {
-    name  = "azure-openai-key"
-    value = var.azure_openai_api_key
-  }
-
-  ingress {
-    external_enabled = true
-    target_port      = 8000
-    traffic_weight {
-      percentage = 100
-      latest_revision = true
-    }
-  }
-}
-```
-
-**Monitoring Configuration** (`terraform/modules/monitoring/main.tf`):
-```hcl
-resource "azurerm_application_insights" "token_visualizer" {
-  name                = "${var.app_name}-insights"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  application_type    = "web"
-  retention_in_days   = 90
-
-  tags = var.tags
-}
-
-resource "azurerm_monitor_action_group" "alerts" {
-  name                = "${var.app_name}-alerts"
-  resource_group_name = var.resource_group_name
-  short_name          = "tokenvis"
-
-  email_receiver {
-    name          = "admin"
-    email_address = var.admin_email
-  }
-}
-
-resource "azurerm_monitor_metric_alert" "high_response_time" {
-  name                = "High Response Time"
-  resource_group_name = var.resource_group_name
-  scopes              = [azurerm_application_insights.token_visualizer.id]
-  description         = "Alert when response time is high"
-
-  criteria {
-    metric_namespace = "microsoft.insights/components"
-    metric_name      = "requests/duration"
-    aggregation      = "Average"
-    operator         = "GreaterThan"
-    threshold        = 5000
-  }
-
-  action {
-    action_group_id = azurerm_monitor_action_group.alerts.id
-  }
-}
-```
-
-### OpenTelemetry Configuration
-
-**Python Application Setup**:
-```python
-# config/telemetry.py
-from opentelemetry import trace, metrics
-from opentelemetry.exporter.azuremonitor import AzureMonitorTraceExporter, AzureMonitorMetricsExporter
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.instrumentation.requests import RequestsInstrumentor
-
-def setup_telemetry(app, connection_string: str):
-    # Tracing
-    trace.set_tracer_provider(TracerProvider())
-    tracer = trace.get_tracer(__name__)
-    
-    trace_exporter = AzureMonitorTraceExporter(
-        connection_string=connection_string
-    )
-    span_processor = BatchSpanProcessor(trace_exporter)
-    trace.get_tracer_provider().add_span_processor(span_processor)
-    
-    # Metrics
-    metrics_exporter = AzureMonitorMetricsExporter(
-        connection_string=connection_string
-    )
-    metric_reader = PeriodicExportingMetricReader(
-        exporter=metrics_exporter,
-        export_interval_millis=60000
-    )
-    metrics.set_meter_provider(MeterProvider(metric_readers=[metric_reader]))
-    
-    # Auto-instrumentation
-    FastAPIInstrumentor.instrument_app(app)
-    RequestsInstrumentor().instrument()
-    
-    return tracer
-```
-
-**Custom Metrics for Token Visualization**:
-```python
-# services/metrics.py
-from opentelemetry import metrics
-from typing import Dict, Any
-
-class TokenVisualizerMetrics:
-    def __init__(self):
-        meter = metrics.get_meter(__name__)
-        
-        # Counters
-        self.token_generations = meter.create_counter(
-            "token_generations_total",
-            description="Total number of token generations"
-        )
-        
-        self.api_calls = meter.create_counter(
-            "azure_openai_calls_total",
-            description="Total Azure OpenAI API calls"
-        )
-        
-        # Histograms
-        self.response_time = meter.create_histogram(
-            "response_time_seconds",
-            description="Response time for token generation"
-        )
-        
-        self.token_probability = meter.create_histogram(
-            "token_probability_distribution",
-            description="Distribution of token probabilities"
-        )
-    
-    def record_token_generation(self, mode: str, tokens_count: int):
-        self.token_generations.add(1, {"mode": mode, "tokens": tokens_count})
-    
-    def record_api_call(self, model: str, success: bool):
-        self.api_calls.add(1, {"model": model, "success": str(success)})
-    
-    def record_response_time(self, operation: str, duration: float):
-        self.response_time.record(duration, {"operation": operation})
-```
-
-### Environment Management
-
-**Environment Variables**:
-```bash
-# Production environment variables
-AZURE_OPENAI_ENDPOINT=https://your-openai.openai.azure.com/
-AZURE_OPENAI_API_KEY=your-api-key
-AZURE_OPENAI_API_VERSION=2024-02-15-preview
-APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=your-key
-ENVIRONMENT=production
-LOG_LEVEL=INFO
-```
-
-**Configuration Management**:
-```python
-# config/settings.py
-from pydantic_settings import BaseSettings
-from typing import Optional
-
-class Settings(BaseSettings):
-    azure_openai_endpoint: str
-    azure_openai_api_key: str
-    azure_openai_api_version: str = "2024-02-15-preview"
-    applicationinsights_connection_string: Optional[str] = None
-    environment: str = "development"
-    log_level: str = "INFO"
-    
-    class Config:
-        env_file = ".env"
-
-settings = Settings()
-```
