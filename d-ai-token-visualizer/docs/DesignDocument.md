@@ -142,12 +142,22 @@ Parameters:
 - **Scalability**: Can scale from simple prototypes to complex applications
 - **Component Library**: Rich set of pre-built components for interactive interfaces
 
+**Radix-based Reflex Components (Current Version)**:
+- **Modern Component System**: Uses Radix UI components under the hood (not Chakra UI)
+- **Strict Prop Validation**: Component props have specific literal value requirements
+- **Button Sizes**: `"1"`, `"2"`, `"3"`, `"4"` (not `"sm"`, `"md"`, `"lg"`)
+- **Spacing Values**: `"0"` through `"9"` for spacing props in stack components
+- **Grid Columns**: String literals `"1"`, `"2"`, `"3"`, etc. for grid layouts
+- **CSS Props**: Standard CSS values (rem, px, %) for margin, padding, font-size, etc.
+- **Type Safety**: Strict TypeScript-like prop validation prevents runtime errors
+
 **Why Reflex is Ideal for Token Visualizer**:
 - **Real-time Updates**: Built-in WebSocket support perfect for live token probability updates
 - **Interactive Components**: Rich component library ideal for token selection interfaces
 - **Educational UX**: Proven track record in building educational and data visualization apps
 - **Python Ecosystem**: Seamless integration with Python ML/AI libraries
 - **Rapid Development**: Faster development cycle compared to traditional frontend frameworks
+- **Type Safety**: Radix-based prop validation ensures consistent UI behavior
 
 ### Data Flow Architecture
 
@@ -278,9 +288,11 @@ Modern minimalist aesthetic inspired by ChatGPT, Gemini, and Perplexity. Focus o
 - **Spacing**: 1.5x line height, 8px grid system
 
 #### Iconography
-- **Style**: Feather Icons/Lucide React - monochromatic line icons
+- **Style**: Lucide Icons - monochromatic line icons with consistent stroke width
+- **Implementation**: Using `rx.icon()` component with Lucide icon names (e.g., "zap", "activity", "palette")
 - **Treatment**: 2px stroke, rounded caps, no colorful decorations
 - **Sizes**: 16px (small), 20px (medium), 24px (large)
+- **Color**: Inherits text color for consistency with minimal design
 
 ### Components
 
