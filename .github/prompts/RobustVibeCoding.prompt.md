@@ -16,7 +16,7 @@ In general here are steps you should follow:
 4. Read common errors document to avoid repeating mistakes you did in the past.
 5. Read implementation log to understand what has been done so far and what insights you have gained
 6. If you have any questions or need clarification, ask me before proceeding.
-7. Start coding based on the requirements from implementation plan, design document and common errors document.
+7. Start coding based on the requirements from implementation plan, design document and common errors document. Do not type code into chat, rather modify or create files directly in the codebase as needed. 
 8. Test your changes to ensure they work as expected and do not break existing functionality.
 9. Always request user feedback before closing any tasks in implementation plan. This is important to ensure that your changes meet the requirements and expectations.
 10. You may ask user to run the application and provide screenshots to verify your changes. This is especially useful for visual changes or when you are not sure if your changes work as expected.
