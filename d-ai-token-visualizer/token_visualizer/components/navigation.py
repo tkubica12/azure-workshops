@@ -76,7 +76,7 @@ def mode_navigation() -> rx.Component:
             label="Token Tree"
         ),
         
-        spacing="0.25rem",
+        spacing="1",
         align="stretch",
         width="100%"
     )
@@ -111,7 +111,7 @@ def utility_navigation() -> rx.Component:
             label="Export Data"
         ),
         
-        spacing="0.25rem",
+        spacing="1",
         align="stretch",
         width="100%"
     )
@@ -142,14 +142,14 @@ def top_navigation() -> rx.Component:
                     font_weight="600",
                     color="#1F2937"
                 ),
-                spacing="0.75rem",
+                spacing="3",
                 align="center"
             ),
             
             rx.hstack(
                 rx.text("⚡", font_size="1rem"),
                 rx.text("Interactive Mode", font_size="0.875rem", color="#6B7280"),
-                spacing="0.5rem",
+                spacing="2",
                 align="center"
             ),
             

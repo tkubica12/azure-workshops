@@ -55,20 +55,20 @@ This implementation plan provides a step-by-step checklist for building the Toke
 - [x] Test UI renders correctly on desktop and mobile
 
 ### 2.3 Environment Configuration
-- [ ] Create `.env` file for environment variables
-- [ ] Add Azure OpenAI configuration variables
-- [ ] Implement configuration loading in application
-- [ ] Add `.env.example` file with sample configuration
-- [ ] Test configuration loading works correctly
+- [x] Create `.env` file for environment variables
+- [x] Add Azure OpenAI configuration variables
+- [x] Implement configuration loading in application
+- [x] Add `.env.example` file with sample configuration
+- [x] Test configuration loading works correctly
 
 ## Phase 3: Azure OpenAI Integration
 
 ### 3.1 Basic API Client
-- [ ] Add `openai` and `azure-identity` to dependencies
-- [ ] Create `services/azure_openai.py` module
-- [ ] Implement basic Azure OpenAI client class
-- [ ] Add authentication handling (API key or Azure AD)
-- [ ] Create simple test function to verify API connectivity
+- [x] Add `openai` and `azure-identity` to dependencies
+- [x] Create `services/azure_openai.py` module
+- [x] Implement basic Azure OpenAI client class
+- [x] Add authentication handling (Azure AD)
+- [x] Create simple test function to verify API connectivity
 
 ### 3.2 Token Generation Service
 - [ ] Implement function to call Azure OpenAI with logprobs

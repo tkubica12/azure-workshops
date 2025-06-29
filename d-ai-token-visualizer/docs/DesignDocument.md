@@ -26,6 +26,12 @@ The Token Visualizer is an educational application designed to help students und
 - **Interface**: Web-based interactive UI with modern components
 - **Real-time Updates**: Built-in WebSocket communication between frontend and backend
 
+**CRITICAL - Reflex Component Props:**
+- **Spacing Values**: MUST use string literals `"0"` to `"9"` (NOT CSS values like `"1rem"`)
+- **Size Values**: MUST use string literals `"1"` to `"9"` (NOT CSS values)
+- **Prop Validation**: Reflex enforces strict prop types - always check existing working code
+- **Common Error**: `TypeError: Invalid var passed for prop VStack.spacing` indicates wrong prop type
+
 ### Authentication & Security
 - **Azure AD Integration**: Secure access to Azure OpenAI
 - **User Management**: Optional user sessions for personalized experience

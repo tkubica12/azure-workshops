@@ -2,6 +2,7 @@
 
 import reflex as rx
 from .components.layout import app_layout
+from .pages.config_test import config_test_page
 
 
 def welcome_content() -> rx.Component:
@@ -170,22 +171,45 @@ def welcome_content() -> rx.Component:
         
         # Call to action
         rx.center(
-            rx.button(
-                rx.hstack(
-                    rx.icon("zap", size=18, color="#FFFFFF"),
-                    rx.text("Start Interactive Mode", font_size="1rem", font_weight="500"),
-                    spacing="2",
-                    align="center"
+            rx.hstack(
+                rx.button(
+                    rx.hstack(
+                        rx.icon("zap", size=18, color="#FFFFFF"),
+                        rx.text("Start Interactive Mode", font_size="1rem", font_weight="500"),
+                        spacing="2",
+                        align="center"
+                    ),
+                    size="4",
+                    color_scheme="gray",
+                    variant="outline",
+                    padding="1rem 2rem",
+                    border_radius="0.5rem",
+                    _hover={
+                        "background": "#F9FAFB"
+                    }
                 ),
-                size="4",
-                color_scheme="gray",
-                variant="outline",
-                padding="1rem 2rem",
-                border_radius="0.5rem",
-                margin_top="3rem",
-                _hover={
-                    "background": "#F9FAFB"
-                }
+                rx.link(
+                    rx.button(
+                        rx.hstack(
+                            rx.icon("settings", size=18, color="#FFFFFF"),
+                            rx.text("Test Configuration", font_size="1rem", font_weight="500"),
+                            spacing="2",
+                            align="center"
+                        ),
+                        size="4",
+                        color_scheme="blue",
+                        variant="solid",
+                        padding="1rem 2rem",
+                        border_radius="0.5rem",
+                        _hover={
+                            "background": "#1D4ED8"
+                        }
+                    ),
+                    href="/config-test"
+                ),
+                spacing="4",
+                align="center",
+                margin_top="3rem"
             ),
             width="100%"
         ),
@@ -210,3 +234,6 @@ app = rx.App()
 
 # Add the index page
 app.add_page(index, route="/")
+
+# Add the configuration test page
+app.add_page(config_test_page, route="/config-test")
