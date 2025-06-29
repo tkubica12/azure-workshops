@@ -71,18 +71,18 @@ This implementation plan provides a step-by-step checklist for building the Toke
 - [x] Create simple test function to verify API connectivity
 
 ### 3.2 Token Generation Service
-- [ ] Implement function to call Azure OpenAI with logprobs
-- [ ] Add proper error handling and retry logic
-- [ ] Create function to parse logprobs response
-- [ ] Convert log probabilities to percentages
-- [ ] Add function to extract top-k tokens with probabilities
+- [x] Implement function to call Azure OpenAI with logprobs
+- [x] Add proper error handling and retry logic
+- [x] Create function to parse logprobs response
+- [x] Convert log probabilities to percentages
+- [x] Add function to extract top-k tokens with probabilities
 
 ### 3.3 API Integration Testing
-- [ ] Create test page to verify API integration
-- [ ] Add simple form to input test prompts
-- [ ] Display raw API response for verification
-- [ ] Test with various prompts and verify logprobs work
-- [ ] Add proper error handling and user feedback
+- [x] Create test page to verify API integration
+- [x] Add simple form to input test prompts
+- [x] Display raw API response for verification
+- [x] Test with various prompts and verify logprobs work
+- [x] Add proper error handling and user feedback
 
 ## Phase 4: Core State Management
 

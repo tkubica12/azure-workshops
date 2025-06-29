@@ -3,6 +3,8 @@
 import reflex as rx
 from typing import List
 from ..state.ui_state import NavigationState
+from .navigation import mode_navigation, utility_navigation
+from .navigation import mode_navigation, utility_navigation
 
 
 def header() -> rx.Component:
@@ -64,103 +66,14 @@ def sidebar() -> rx.Component:
     """Left sidebar for navigation and controls."""
     return rx.box(
         rx.vstack(
-            # Navigation placeholder
-            rx.text(
-                "Navigation",
-                font_size="0.75rem",
-                font_weight="600",
-                color="#6B7280",
-                text_transform="uppercase",
-                letter_spacing="0.05em",
-                margin_bottom="16px"
-            ),
-            
-            # Mode buttons (placeholder)
-            rx.vstack(
-                rx.button(
-                    rx.hstack(
-                        rx.icon("zap", size=16, color=rx.cond(NavigationState.current_mode == "interactive", "#FFFFFF", "#6B7280")),
-                        rx.text("Interactive Mode", font_size="0.875rem"),
-                        spacing="2",
-                        align="center"
-                    ),
-                    variant="ghost",
-                    color_scheme="gray",
-                    justify="start",
-                    width="100%",
-                    padding="0.75rem",
-                    border_radius="0.5rem",
-                    background=rx.cond(NavigationState.current_mode == "interactive", "#2563EB", "#F3F4F6"),
-                    color=rx.cond(NavigationState.current_mode == "interactive", "#FFFFFF", "#374151"),
-                    _hover={"background": rx.cond(NavigationState.current_mode == "interactive", "#1D4ED8", "#E5E7EB")},
-                    border="1px solid #E5E7EB",
-                    on_click=NavigationState.set_mode("interactive")
-                ),
-                
-                rx.button(
-                    rx.hstack(
-                        rx.icon("activity", size=16, color=rx.cond(NavigationState.current_mode == "live_probability", "#FFFFFF", "#6B7280")),
-                        rx.text("Live Probability", font_size="0.875rem"),
-                        spacing="2",
-                        align="center"
-                    ),
-                    variant="ghost",
-                    color_scheme="gray",
-                    justify="start",
-                    width="100%",
-                    padding="0.75rem",
-                    border_radius="0.5rem",
-                    background=rx.cond(NavigationState.current_mode == "live_probability", "#2563EB", "transparent"),
-                    color=rx.cond(NavigationState.current_mode == "live_probability", "#FFFFFF", "#374151"),
-                    _hover={"background": rx.cond(NavigationState.current_mode == "live_probability", "#1D4ED8", "#F3F4F6")},
-                    border="1px solid transparent",
-                    on_click=NavigationState.set_mode("live_probability")
-                ),
-                
-                rx.button(
-                    rx.hstack(
-                        rx.icon("palette", size=16, color=rx.cond(NavigationState.current_mode == "color_visualization", "#FFFFFF", "#6B7280")),
-                        rx.text("Color Visualization", font_size="0.875rem"),
-                        spacing="2",
-                        align="center"
-                    ),
-                    variant="ghost",
-                    color_scheme="gray",
-                    justify="start",
-                    width="100%",
-                    padding="0.75rem",
-                    border_radius="0.5rem",
-                    background=rx.cond(NavigationState.current_mode == "color_visualization", "#2563EB", "transparent"),
-                    color=rx.cond(NavigationState.current_mode == "color_visualization", "#FFFFFF", "#374151"),
-                    _hover={"background": rx.cond(NavigationState.current_mode == "color_visualization", "#1D4ED8", "#F3F4F6")},
-                    border="1px solid transparent",
-                    on_click=NavigationState.set_mode("color_visualization")
-                ),
-                
-                spacing="2",
-                align="stretch",
-                width="100%"
-            ),
+            # Mode Navigation
+            mode_navigation(),
             
             # Spacer
-            rx.spacer(),
+            rx.spacer(min_height="2rem"),
             
-            # Settings placeholder
-            rx.button(
-                rx.hstack(
-                    rx.icon("settings", size=16, color="#6B7280"),
-                    rx.text("Settings", font_size="0.875rem"),
-                    spacing="2",
-                    align="center"
-                ),
-                variant="ghost",
-                color_scheme="gray",
-                justify="start",
-                width="100%",
-                padding="0.75rem",
-                border_radius="0.5rem",
-                _hover={"background": "#F3F4F6"}
-            ),
+            # Utility Navigation
+            utility_navigation(),
             
             spacing="4",
             align="stretch",

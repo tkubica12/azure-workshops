@@ -56,23 +56,23 @@ def mode_navigation() -> rx.Component:
         
         # Mode buttons
         nav_button(
-            icon="⚡",
+            icon="zap",
             label="Interactive Generation",
             is_active=True  # Default active mode
         ),
         
         nav_button(
-            icon="📊",
+            icon="activity",
             label="Live Probability"
         ),
         
         nav_button(
-            icon="🎨",
+            icon="palette",
             label="Color Visualization"
         ),
         
         nav_button(
-            icon="🌳",
+            icon="git-branch",
             label="Token Tree"
         ),
         
@@ -97,17 +97,23 @@ def utility_navigation() -> rx.Component:
         
         # Utility buttons
         nav_button(
-            icon="⚙️",
+            icon="wrench",
+            label="Configuration Test",
+            on_click=rx.redirect("/config-test")
+        ),
+        
+        nav_button(
+            icon="settings",
             label="Settings"
         ),
         
         nav_button(
-            icon="📖",
+            icon="help-circle",
             label="Help & Tutorial"
         ),
         
         nav_button(
-            icon="📊",
+            icon="download",
             label="Export Data"
         ),
         
