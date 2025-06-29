@@ -139,13 +139,6 @@ Ready to begin Phase 3.1: Basic API Client
 - Add basic API connectivity testing
 - Create token generation service foundation
 
-**DEVELOPER NOTE - CRITICAL:**
-When using Reflex components, ALWAYS use the correct prop types:
-- Spacing: `"0"` to `"9"` (string literals)
-- Sizes: `"1"` to `"9"` (string literals)  
-- Colors: Use hex codes or Radix color tokens
-- Check existing working code for patterns before creating new components
-
 **Notes:**
 - `.gitignore` includes specific patterns for Reflex (.web/, .reflex/, reflex.db), UV (.uv/, uv.lock), and Azure deployments
 - Configuration tested and working with Azure OpenAI GPT-4.1-nano deployment
