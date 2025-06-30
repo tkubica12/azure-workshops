@@ -523,3 +523,47 @@ The application is now ready to proceed with the existing Phase 4 and Phase 5 im
 - Configuration test page updated to show Local LLM specific information
 - Implementation plan phases 1.2 and 2.3 marked as complete
 - Ready to continue with existing token visualization and interactive generation features
+
+## Architecture Refactoring Decision
+
+### 2025-06-30 - Late Evening
+
+**Critical Architecture Decision Made:**
+- ✅ **Problem Identified**: Local LLM integration directly in Reflex app is impractical
+  - Model loading takes 15+ seconds on each Reflex app restart
+  - High memory usage (5GB+) tied to main application lifecycle
+  - Development workflow interrupted by model reloading
+  - Mixed concerns: UI state management + heavy ML model operations
+
+- ✅ **Solution Adopted**: Separate Local LLM Service architecture
+  - **Main Application**: Reflex app focused on UI/UX and state management
+  - **LLM Service**: Dedicated FastAPI microservice for model operations
+  - **Communication**: HTTP REST API between services
+  - **Lifecycle**: Independent service lifecycles and deployment
+
+**Updated Architecture Benefits:**
+- ✅ **Performance**: Model stays loaded between requests
+- ✅ **Development**: Restart main app without reloading model
+- ✅ **Resource Management**: Dedicated memory/GPU allocation for LLM
+- ✅ **Scalability**: Services can run on separate hardware
+- ✅ **Separation of Concerns**: UI logic separate from ML operations
+- ✅ **Debugging**: Easier testing and debugging of each component
+
+**Documentation Updated:**
+- ✅ **Design Document**: Updated with new service-oriented architecture
+- ✅ **Implementation Plan**: Completely revised Phase 3 with 6 new sub-phases
+- ✅ **Technical Specifications**: Added FastAPI service specs and API endpoints
+- ✅ **Data Flow**: Updated to show HTTP communication between services
+
+**Next Steps for Phase 3:**
+Ready to begin Phase 3.1: Local LLM Service Setup
+- Create separate `llm_service/` directory structure
+- Implement FastAPI service with model loading
+- Create API endpoints for token generation
+- Update main app to use HTTP client instead of direct model access
+- Update Configuration Test page to test service connectivity
+
+**Notes:**
+- Current Phase 3.1 & 3.2 marked as outdated (integrated model approach)
+- New Phase 3 focuses on service separation and HTTP integration
+- Ready to implement much more practical and scalable architecture

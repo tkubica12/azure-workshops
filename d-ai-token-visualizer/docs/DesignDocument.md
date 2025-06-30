@@ -13,18 +13,22 @@ The Token Visualizer is an educational application designed to help students und
 
 ## Architecture Overview
 
-### Backend
-- **Technology**: Python
-- **Local LLM**: Google Gemma 2 2B base model
-- **ML Framework**: Hugging Face Transformers
-- **Inference**: Local GPU/CPU inference (PyTorch)
-- **Framework**: Integrated with Reflex's built-in FastAPI backend
-
-### Frontend
-- **Technology**: Reflex Python Framework
+### Main Application (Reflex Frontend + Backend)
+- **Technology**: Python with Reflex Framework
 - **Architecture**: Full-stack Python development with React/Next.js under the hood
 - **Interface**: Web-based interactive UI with modern components
 - **Real-time Updates**: Built-in WebSocket communication between frontend and backend
+- **Backend**: Reflex's built-in FastAPI backend for UI state management and API coordination
+
+### Local LLM Service (Separate Microservice)
+- **Technology**: Python with FastAPI
+- **Model**: Google Gemma 2 2B base model via Hugging Face
+- **ML Framework**: Hugging Face Transformers
+- **Inference**: Local GPU/CPU inference (PyTorch)
+- **Hardware**: Local GPU (CUDA) or CPU fallback
+- **Deployment**: Separate service with independent lifecycle
+- **API**: REST API for token generation and probability extraction
+- **Port**: Default port 8001 (configurable)
 
 **CRITICAL - Reflex Component Props:**
 - **Spacing Values**: MUST use string literals `"0"` to `"9"` (NOT CSS values like `"1rem"`)
@@ -32,11 +36,12 @@ The Token Visualizer is an educational application designed to help students und
 - **Prop Validation**: Reflex enforces strict prop types - always check existing working code
 - **Common Error**: `TypeError: Invalid var passed for prop VStack.spacing` indicates wrong prop type
 
-### Local LLM Integration
-- **Model**: Google Gemma 2 2B base model via Hugging Face
-- **Inference Engine**: Transformers library with AutoModelForCausalLM
-- **Hardware**: Local GPU (CUDA) or CPU fallback
-- **Logits Access**: Direct logits extraction via output_scores=True
+### Service Integration
+- **Communication**: HTTP REST API calls from Reflex app to Local LLM service
+- **Endpoint**: Configurable LLM service endpoint (e.g., `http://localhost:8001`)
+- **Authentication**: Optional API key for service-to-service communication
+- **Health Checks**: Service availability monitoring and error handling
+- **Fallback**: Graceful degradation when LLM service is unavailable
 
 ## Core Features & Modes
 
@@ -46,7 +51,7 @@ The Token Visualizer is an educational application designed to help students und
 
 **User Flow**:
 1. User enters an initial prompt
-2. System calls Azure OpenAI with logprobs=5 to get top 5 token alternatives
+2. System calls Local LLM Service API with prompt to get top 5 token alternatives
 3. Display shows:
    - Current prompt/context
    - 5 possible next tokens with their probabilities
@@ -62,10 +67,11 @@ The Token Visualizer is an educational application designed to help students und
 - **History Tracking**: Ability to backtrack and try different token paths
 
 **Technical Requirements**:
-- Efficient API call management to minimize latency
+- HTTP API call management to Local LLM Service
 - Reflex state management for current context and token history
 - Reactive UI components for token selection
 - Background task handling for API calls
+- Service availability monitoring and error handling
 
 ### Mode 2: Live Probability Visualization
 
@@ -85,10 +91,11 @@ The Token Visualizer is an educational application designed to help students und
 - **Prompt Templates**: Pre-defined prompt modifications for common scenarios
 
 **Technical Requirements**:
-- Debounced API calls to handle rapid prompt changes (using Reflex event handlers)
+- Debounced API calls to Local LLM Service (using Reflex event handlers)
 - Efficient diff calculation for probability changes
 - Smooth UI transitions for probability updates (built-in Reflex animations)
 - Real-time state synchronization via WebSocket
+- Service availability monitoring and graceful error handling
 
 ### Mode 3: Color-coded Token Visualization
 
@@ -118,19 +125,36 @@ The Token Visualizer is an educational application designed to help students und
 
 ## Technical Specifications
 
-### Local LLM Integration
+### Local LLM Service Architecture
 
-**Model Configuration**:
+**Service Deployment**:
 ```
+Technology: FastAPI with Python 3.11+
 Model: google/gemma-2-2b (base model)
 Framework: Hugging Face Transformers
 Hardware: Local GPU (CUDA preferred) or CPU
 Memory: ~5GB GPU VRAM or 8GB+ system RAM
+Port: 8001 (configurable)
+Lifecycle: Independent of main Reflex application
+```
+
+**API Endpoints**:
+```
+GET  /health                    - Service health check
+GET  /status                    - Model loading status and info
+POST /generate                  - Token generation with probabilities
+POST /complete                  - Text completion (future enhancement)
+```
+
+**Model Configuration**:
+```
 Parameters:
   - max_new_tokens: configurable (default: 1)
   - temperature: configurable (default: 0.7)
   - top_k: configurable (default: 5)
   - do_sample: true
+  - return_dict: true
+  - output_scores: true
 ```
 
 **Token Generation Process**:
@@ -139,7 +163,24 @@ Parameters:
 - Convert logits to probabilities using torch.nn.functional.softmax()
 - Top-k sampling with configurable temperature
 - Token-by-token generation with full probability access
-- Local inference with no API dependencies
+- Local inference with no external API dependencies
+
+**Service Benefits**:
+- **Independent Lifecycle**: Start/stop/restart without affecting main app
+- **Resource Management**: Dedicated memory and GPU allocation
+- **Performance**: Model stays loaded between requests
+- **Scalability**: Can run on separate hardware/containers
+- **Development**: Easier testing and debugging of ML components
+
+### Main Application Integration
+
+**HTTP Client Configuration**:
+```
+Service URL: http://localhost:8001 (configurable)
+Timeout: 30 seconds (configurable)
+Retry Policy: 3 attempts with exponential backoff
+Health Check: Periodic service availability monitoring
+```
 
 ### Frontend Framework Selection
 
@@ -173,18 +214,25 @@ Parameters:
 ### Data Flow Architecture
 
 ```
-User Interaction → Reflex Frontend → Reflex State Management → Azure OpenAI API
+User Interaction → Reflex Frontend → Reflex State Management → Local LLM Service API
      ↑                                        ↓                        ↓
-     ←―――――――――――― WebSocket Updates ←――――――――――――――――― Process Response
+     ←―――――――――――― WebSocket Updates ←――――――――――――――――― HTTP Response
 ```
 
-**Reflex-Specific Flow**:
+**Service-Oriented Flow**:
 1. **User Input**: User interacts with Reflex components (buttons, text inputs)
 2. **Event Handling**: Reflex event handlers trigger state updates
 3. **State Management**: Reflex manages application state reactively
-4. **API Calls**: Background tasks call Azure OpenAI API
-5. **State Updates**: API responses update Reflex state
-6. **UI Updates**: Reflex automatically re-renders affected components via WebSocket
+4. **HTTP API Calls**: Background tasks call Local LLM Service via HTTP
+5. **Service Processing**: LLM Service processes request and returns probabilities
+6. **State Updates**: API responses update Reflex state
+7. **UI Updates**: Reflex automatically re-renders affected components via WebSocket
+
+**Service Health Management**:
+- **Health Checks**: Periodic monitoring of LLM service availability
+- **Error Handling**: Graceful degradation when service is unavailable
+- **Reconnection**: Automatic retry logic for failed requests
+- **Status Display**: User-friendly service status indicators
 
 ## Reflex-Specific Implementation Details
 
@@ -192,7 +240,7 @@ User Interaction → Reflex Frontend → Reflex State Management → Azure OpenA
 
 **Reflex App Organization**:
 ```
-token_visualizer/
+token_visualizer/                    # Main Reflex Application
 ├── token_visualizer/
 │   ├── __init__.py
 │   ├── pages/
@@ -214,8 +262,8 @@ token_visualizer/
 │   │   └── ui_state.py
 │   ├── services/
 │   │   ├── __init__.py
-│   │   ├── azure_openai.py
-│   │   └── auth.py
+│   │   ├── llm_client.py              # HTTP client for LLM service
+│   │   └── health_monitor.py          # Service health monitoring
 │   └── utils/
 │       ├── __init__.py
 │       ├── probability_calc.py
@@ -223,6 +271,25 @@ token_visualizer/
 ├── assets/
 ├── requirements.txt
 └── rxconfig.py
+
+llm_service/                         # Separate LLM Service
+├── main.py                          # FastAPI application entry point
+├── models/
+│   ├── __init__.py
+│   ├── gemma_model.py              # Gemma 2 model wrapper
+│   └── token_generator.py          # Token generation logic
+├── api/
+│   ├── __init__.py
+│   ├── routes.py                   # API endpoints
+│   └── schemas.py                  # Pydantic models
+├── config/
+│   ├── __init__.py
+│   └── settings.py                 # Service configuration
+├── utils/
+│   ├── __init__.py
+│   └── model_utils.py              # Model utilities
+├── requirements.txt
+└── Dockerfile                      # Container deployment
 ```
 
 ### State Management
@@ -230,14 +297,15 @@ token_visualizer/
 **Core State Classes**:
 - **TokenState**: Manages current tokens, probabilities, and generation history
 - **UIState**: Handles UI state like loading indicators, error messages
-- **AuthState**: Manages Azure AD authentication and API credentials
+- **ServiceState**: Manages LLM service connection status and health monitoring
 - **SettingsState**: Application configuration and user preferences
 
 **Reactive State Updates**:
 - **Automatic Re-rendering**: Components automatically update when state changes
 - **Event Handlers**: Reflex event handlers for user interactions
-- **Background Tasks**: Async API calls to Azure OpenAI
+- **Background Tasks**: Async HTTP calls to Local LLM Service
 - **State Persistence**: Optional session state persistence
+- **Service Monitoring**: Real-time service health status updates
 
 ### Component Architecture
 
