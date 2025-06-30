@@ -65,29 +65,29 @@ This implementation plan provides a step-by-step checklist for building the Toke
 ## Phase 3: Local LLM Service Development
 
 ### 3.1 Local LLM Service Setup
-- [ ] Create `llm_service/` directory structure for separate FastAPI service
-- [ ] Add FastAPI, Uvicorn dependencies to service requirements
-- [ ] Create `llm_service/main.py` with basic FastAPI application
-- [ ] Add `llm_service/config/settings.py` for service configuration
-- [ ] Create Docker support files (`Dockerfile`, `.dockerignore`)
-- [ ] Test basic FastAPI service runs on port 8001
+- [x] Create `llm_service/` directory structure for separate FastAPI service
+- [x] Add FastAPI, Uvicorn dependencies to service pyproject.toml
+- [x] Create `llm_service/main.py` with basic FastAPI application
+- [x] Add `llm_service/config/settings.py` for service configuration
+- [x] Create Docker support files (`Dockerfile`, `.dockerignore`)
+- [x] Test basic FastAPI service runs on port 8001
 
 ### 3.2 Model Integration in Service
-- [ ] Move existing local LLM code to `llm_service/models/gemma_model.py`
-- [ ] Refactor model loading to happen once at service startup
-- [ ] Add GPU/CPU device detection and memory management
-- [ ] Implement model singleton pattern for efficient resource usage
-- [ ] Add model health check and status endpoints
-- [ ] Test model loading and memory usage in service
+- [x] Move existing local LLM code to `llm_service/models/gemma_model.py`
+- [x] Refactor model loading to happen once at service startup
+- [x] Add GPU/CPU device detection and memory management
+- [x] Implement model singleton pattern for efficient resource usage
+- [x] Add model health check and status endpoints
+- [x] Test model loading and memory usage in service
 
 ### 3.3 API Endpoints Implementation
-- [ ] Create `llm_service/api/schemas.py` with Pydantic request/response models
-- [ ] Implement `POST /generate` endpoint for token generation with probabilities
-- [ ] Add `GET /health` endpoint for service health monitoring
-- [ ] Add `GET /status` endpoint for model and service information
-- [ ] Implement proper error handling and HTTP status codes
-- [ ] Add request validation and response formatting
-- [ ] Test all API endpoints with sample requests
+- [x] Create `llm_service/api/schemas.py` with Pydantic request/response models
+- [x] Implement `POST /generate` endpoint for token generation with probabilities
+- [x] Add `GET /health` endpoint for service health monitoring
+- [x] Add `GET /status` endpoint for model and service information
+- [x] Implement proper error handling and HTTP status codes
+- [x] Add request validation and response formatting
+- [x] Test all API endpoints with sample requests
 
 ### 3.4 Main App Service Client
 - [ ] Remove direct model integration from main Reflex app
@@ -105,14 +105,6 @@ This implementation plan provides a step-by-step checklist for building the Toke
 - [ ] Add service URL configuration and testing
 - [ ] Implement graceful error handling for service unavailable scenarios
 - [ ] Test end-to-end: service startup → main app connection → token generation
-
-### 3.6 Service Integration Testing
-- [ ] Create startup scripts for both services (LLM service + main app)
-- [ ] Test service lifecycle: start LLM service first, then main app
-- [ ] Verify service restart doesn't affect main app (graceful degradation)
-- [ ] Test concurrent requests and service performance
-- [ ] Add logging and monitoring for service communication
-- [ ] Document service deployment and development workflow
 
 ## Phase 4: Core State Management
 
