@@ -110,11 +110,11 @@ This implementation plan provides a step-by-step checklist for building the Toke
 ## Phase 5: Mode 1 - Interactive Token Generation (MVP)
 
 ### 5.1 Basic Token Display
-- [ ] Create `components/token_display.py` component
-- [ ] Implement clickable token buttons
-- [ ] Add basic styling for tokens
-- [ ] Display token text and probability
-- [ ] Test token selection and click events
+- [x] Create `components/token_display.py` component
+- [x] Implement clickable token buttons
+- [x] Add basic styling for tokens
+- [x] Display token text and probability
+- [x] Test token selection and click events
 
 ### 5.2 Probability Visualization
 - [ ] Create `components/probability_bar.py` component

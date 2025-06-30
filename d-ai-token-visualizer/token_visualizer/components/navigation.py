@@ -109,6 +109,12 @@ def utility_navigation() -> rx.Component:
         ),
         
         nav_button(
+            icon="eye",
+            label="Test Token Display",
+            on_click=rx.redirect("/token-display-test")
+        ),
+        
+        nav_button(
             icon="settings",
             label="Settings"
         ),

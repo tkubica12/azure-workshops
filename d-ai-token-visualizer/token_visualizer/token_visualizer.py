@@ -4,6 +4,7 @@ import reflex as rx
 from .components.layout import app_layout
 from .pages.config_test import config_test_page
 from .pages.state_test import state_test_page
+from .pages.token_display_test import token_display_test_page
 
 
 def welcome_content() -> rx.Component:
@@ -192,6 +193,25 @@ def welcome_content() -> rx.Component:
                 rx.link(
                     rx.button(
                         rx.hstack(
+                            rx.icon("eye", size=18, color="#FFFFFF"),
+                            rx.text("Test Token Display", font_size="1rem", font_weight="500"),
+                            spacing="2",
+                            align="center"
+                        ),
+                        size="4",
+                        color_scheme="green",
+                        variant="solid",
+                        padding="1rem 2rem",
+                        border_radius="0.5rem",
+                        _hover={
+                            "background": "#059669"
+                        }
+                    ),
+                    href="/token-display-test"
+                ),
+                rx.link(
+                    rx.button(
+                        rx.hstack(
                             rx.icon("settings", size=18, color="#FFFFFF"),
                             rx.text("Test Configuration", font_size="1rem", font_weight="500"),
                             spacing="2",
@@ -241,3 +261,6 @@ app.add_page(config_test_page, route="/config-test")
 
 # Add the state management test page
 app.add_page(state_test_page, route="/state-test")
+
+# Add the token display test page
+app.add_page(token_display_test_page, route="/token-display-test")

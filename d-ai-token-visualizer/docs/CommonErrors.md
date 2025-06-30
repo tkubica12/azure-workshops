@@ -328,9 +328,13 @@ rx.text(APIState.result_probability)
 ## Reflex State Variable Operations - CRITICAL
 
 ### The Problem
-Reflex state variables (Var objects) cannot be used with Python's built-in functions like `len()`, `str()`, `int()`, etc. These will cause TypeErrors at compilation time.
+Reflex state variables (Var objects) cannot be used with Python's built-in functions like `len()`, `str()`, `int()`, etc. More importantly, they cannot be used with Python's boolean operators like `or`, `and`, `not`, or in `if` statements. These will cause VarTypeError at compilation time.
 
 ### Critical Rules - ALWAYS FOLLOW
+
+**Boolean Operations:**
+- ✅ **CORRECT**: Use `rx.cond()` for conditional logic
+- ❌ **WRONG**: Using `if`, `and`, `or`, `not` on state variables causes VarTypeError
 
 **Length Operations:**
 - ✅ **CORRECT**: Use `.length()` method on Reflex state variables
@@ -345,6 +349,78 @@ Reflex state variables (Var objects) cannot be used with Python's built-in funct
 - ❌ **WRONG**: Using `int()`, `float()`, `str()` on state variables
 
 ### Common Error Examples
+
+**String Concatenation Error:**
+```python
+# ❌ WRONG - rx.concat doesn't exist
+rx.text(rx.concat('"', token.token, '"'))  # This will fail!
+rx.text(rx.concat("Value: ", rx.format("{:.2f}", value)))  # This will fail!
+
+# ✅ CORRECT - Use f-strings for static content
+rx.text(f'"{token.token}"')  # Simple string interpolation
+rx.text(f"Value: {value:.2f}")  # Use f-strings with state variables
+
+# ✅ CORRECT - For complex dynamic content, use proper formatting
+rx.text(token.token)  # Direct variable reference
+```
+
+**Lambda Function Conditionals Error:**
+```python
+# ❌ WRONG - Causes VarTypeError in lambda
+on_click=lambda: on_token_select(index) if on_token_select else None  # This will fail!
+
+# ✅ CORRECT - Use rx.cond for conditional lambda expressions
+on_click=rx.cond(
+    on_token_select,
+    lambda: on_token_select(index),
+    lambda: None
+)
+```
+
+**VarTypeError - Boolean Operations:**
+```python
+# ❌ WRONG - Causes VarTypeError
+def my_component(alternatives=None):
+    alternatives = alternatives or []  # This will fail with state vars!
+    return rx.text("Hello")
+
+# ❌ WRONG - Causes VarTypeError  
+rx.text(
+    "Loading..." if MyState.is_loading else "Ready"  # This will fail!
+)
+
+# ❌ WRONG - Causes VarTypeError
+rx.button(
+    "Button",
+    disabled=MyState.is_loading or not MyState.is_ready  # This will fail!
+)
+
+# ✅ CORRECT - Use rx.cond properly
+def my_component(alternatives=None):
+    # Handle None case in the component calling this one
+    return rx.cond(
+        alternatives,
+        rx.text("Has alternatives"),
+        rx.text("No alternatives")
+    )
+
+# ✅ CORRECT - Use rx.cond for conditional text
+rx.cond(
+    MyState.is_loading,
+    rx.text("Loading..."),
+    rx.text("Ready")
+)
+
+# ✅ CORRECT - Use bitwise operators for complex conditions
+rx.button(
+    "Button",
+    disabled=rx.cond(
+        MyState.is_loading | ~MyState.is_ready,
+        True,
+        False
+    )
+)
+```
 
 **Length Check Error:**
 ```python
@@ -380,12 +456,51 @@ def my_handler(self, value: str):
     self.my_number = int(value)  # Convert in Python code, not in component
 ```
 
+### Component Design Patterns
+
+**Handling Optional State Variables:**
+```python
+# ❌ WRONG - Cannot use `or` with state variables
+def my_component(alternatives=None):
+    alternatives = alternatives or []  # VarTypeError!
+    return content
+
+# ✅ CORRECT - Handle None case in parent component
+def parent_component():
+    return rx.cond(
+        MyState.alternatives,
+        my_component(alternatives=MyState.alternatives),
+        rx.text("No data available")
+    )
+
+def my_component(alternatives):
+    # Assume alternatives is always valid here
+    return rx.foreach(alternatives, lambda item: rx.text(item))
+```
+
 ### Prevention Strategy
 
 1. **Never Use Built-in Functions**: Avoid `len()`, `str()`, `int()`, `float()` on state variables
-2. **Use Var Methods**: Always use `.length()`, `.to()`, and other Var methods
-3. **Handle Conversions in Event Handlers**: Do type conversions in Python event handlers, not in components
-4. **Check Error Messages**: Look for "Cannot pass a Var to a built-in function" errors
+2. **Never Use Boolean Operators**: Avoid `or`, `and`, `not`, `if` on state variables
+3. **Use Var Methods**: Always use `.length()`, `.to()`, and other Var methods
+4. **Handle Conversions in Event Handlers**: Do type conversions in Python event handlers, not in components
+5. **Use rx.cond for Conditionals**: Always use `rx.cond()` for conditional rendering with state variables
+6. **Check Error Messages**: Look for "Cannot convert Var to bool" or "VarTypeError" errors
+
+### Error Message Patterns
+
+**VarTypeError:**
+```
+VarTypeError: Cannot convert Var 'state_variable_name' to bool for use with `if`, `and`, `or`, and `not`. 
+Instead use `rx.cond` and bitwise operators `&` (and), `|` (or), `~` (invert).
+```
+
+**TypeError:**
+```
+TypeError: Cannot pass a Var to a built-in function like len(), str(), etc.
+```
+
+When you see these errors, immediately look for Python operators being used on Reflex state variables and replace them with the appropriate Reflex methods.
 
 ## Reflex Icon Component Issues
 
