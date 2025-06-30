@@ -124,11 +124,13 @@ This implementation plan provides a step-by-step checklist for building the Toke
 - [x] Test probability visualization with sample data
 
 ### 5.3 Prompt Input Interface
-- [ ] Create `components/prompt_input.py` component
-- [ ] Implement multi-line text input
-- [ ] Add real-time validation
-- [ ] Create submit button and handling
-- [ ] Test prompt input and submission
+- [ ] ~~Create `components/prompt_input.py` component~~ **SKIPPED**
+- [ ] ~~Implement multi-line text input~~ **SKIPPED**
+- [ ] ~~Add real-time validation~~ **SKIPPED**
+- [ ] ~~Create submit button and handling~~ **SKIPPED**
+- [ ] ~~Test prompt input and submission~~ **SKIPPED**
+
+**Note**: This phase is being skipped as the current probability visualization components provide sufficient functionality for the MVP. The prompt input interface can be implemented later if needed.
 
 ### 5.4 Interactive Generation Flow
 - [ ] Create `pages/interactive_mode.py` page
