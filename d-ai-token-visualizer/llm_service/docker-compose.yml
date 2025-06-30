@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # CPU version (default)
+  llm-service-cpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
+      - LOCAL_MODEL_NAME=${LOCAL_MODEL_NAME:-google/gemma-2-2b}
+      - DEVICE=cpu
+      - USE_QUANTIZATION=${USE_QUANTIZATION:-true}
+      - LLM_SERVICE_HOST=0.0.0.0
+      - LLM_SERVICE_PORT=8001
+    volumes:
+      - huggingface_cache:/home/appuser/.cache/huggingface
+    restart: unless-stopped
+    profiles:
+      - cpu
+
+  # GPU version
+  llm-service-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile.gpu
+    ports:
+      - "8001:8001"
+    environment:
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
+      - LOCAL_MODEL_NAME=${LOCAL_MODEL_NAME:-google/gemma-2-2b}
+      - DEVICE=auto
+      - USE_QUANTIZATION=${USE_QUANTIZATION:-true}
+      - LLM_SERVICE_HOST=0.0.0.0
+      - LLM_SERVICE_PORT=8001
+    volumes:
+      - huggingface_cache:/home/appuser/.cache/huggingface
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    profiles:
+      - gpu
+
+volumes:
+  huggingface_cache:

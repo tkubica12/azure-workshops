@@ -15,13 +15,22 @@ A FastAPI-based service for running Gemma 2 2B model locally with efficient reso
 
 ### 1. Install Dependencies
 
-```bash
-# Create virtual environment (optional)
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+This project uses uv for dependency management with support for both CPU and GPU PyTorch variants.
 
-# Install dependencies
-pip install -r requirements.txt
+#### Using uv (Recommended)
+
+```bash
+# Install uv if not already installed
+pip install uv
+
+# For CPU development/deployment
+uv sync --extra cpu
+
+# For GPU development/deployment (Windows/Linux with CUDA 12.8)
+uv sync --extra gpu-cuda128
+
+# Activate the virtual environment
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 ```
 
 ### 2. Configure Environment
@@ -82,12 +91,82 @@ POST /api/v1/generate
 
 ## Docker Deployment
 
-```bash
-# Build image
-docker build -t llm-service .
+### Quick Start with Build Scripts
 
-# Run container
-docker run -p 8001:8001 --env-file .env llm-service
+#### Linux/macOS
+```bash
+# Make script executable
+chmod +x build.sh
+
+# Build CPU image
+./build.sh
+
+# Build GPU image
+./build.sh --target gpu
+
+# Build both images
+./build.sh --target all
+```
+
+#### Windows
+```powershell
+# Build CPU image
+.\build.ps1
+
+# Build GPU image
+.\build.ps1 -Target gpu
+
+# Build both images
+.\build.ps1 -Target all
+```
+
+### Using Docker Compose (Recommended)
+
+#### CPU Version (Default)
+```bash
+# Copy environment file
+cp .env.example .env
+# Edit .env with your HUGGINGFACE_TOKEN
+
+# Run CPU version
+docker-compose --profile cpu up -d
+
+# View logs
+docker-compose logs -f llm-service-cpu
+```
+
+#### GPU Version
+```bash
+# Ensure nvidia-docker is installed
+# Copy environment file
+cp .env.example .env
+# Edit .env with your HUGGINGFACE_TOKEN
+
+# Run GPU version
+docker-compose --profile gpu up -d
+
+# View logs
+docker-compose logs -f llm-service-gpu
+```
+
+### Using Docker Directly
+
+#### CPU Version
+```bash
+# Build CPU image
+docker build -t llm-service:cpu .
+
+# Run CPU container
+docker run -p 8001:8001 --env-file .env llm-service:cpu
+```
+
+#### GPU Version
+```bash
+# Build GPU image
+docker build -f Dockerfile.gpu -t llm-service:gpu .
+
+# Run GPU container (requires nvidia-docker)
+docker run --gpus all -p 8001:8001 --env-file .env llm-service:gpu
 ```
 
 ## Development

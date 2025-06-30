@@ -1,25 +1,29 @@
-# Dockerfile for Local LLM Service
-FROM python:3.11-slim
+# Dockerfile for Local LLM Service (GPU version)
+FROM nvidia/cuda:12.8-runtime-ubuntu22.04
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies and uv
+# Install Python, system dependencies and uv
 RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-venv \
     gcc \
     g++ \
     curl \
     && rm -rf /var/lib/apt/lists/* \
     && curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Add uv to PATH
+# Add uv to PATH and create python symlink
 ENV PATH="/root/.cargo/bin:$PATH"
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Copy project files
 COPY pyproject.toml uv.lock* ./
 
-# Install Python dependencies using uv (CPU version by default)
-RUN uv sync --extra cpu --frozen --no-dev
+# Install Python dependencies using uv (GPU version)
+RUN uv sync --extra gpu-cuda128 --frozen --no-dev
 
 # Copy application code
 COPY . .

@@ -9,7 +9,6 @@ dependencies = [
     "uvicorn[standard]>=0.24.0",
     "pydantic>=2.5.0",
     "pydantic-settings>=2.0.0",
-    "torch>=2.0.0",
     "transformers>=4.40.0",
     "accelerate>=0.28.0",
     "bitsandbytes>=0.42.0",
@@ -17,4 +16,48 @@ dependencies = [
     "huggingface_hub>=0.20.0",
     "httpx>=0.28.1",
 ]
+
+[project.optional-dependencies]
+cpu = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "torchaudio>=2.0.0",
+]
+gpu-cuda128 = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0", 
+    "torchaudio>=2.0.0",
+]
+
+[tool.uv]
+conflicts = [
+    [
+        { extra = "cpu" },
+        { extra = "gpu-cuda128" },
+    ],
+]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cuda128", extra = "gpu-cuda128" },
+]
+torchvision = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cuda128", extra = "gpu-cuda128" },
+]
+torchaudio = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cuda128", extra = "gpu-cuda128" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cuda128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
 
