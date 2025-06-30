@@ -1,13 +1,8 @@
----
-mode: 'agent'
-tools: ['websearch']
-description: 'Robust vibe coding instructions'
----
-In this task you will be presented with 4 key documents that you have to always carefully. You may also update documents as you go along, but do not delete items there unless absolutely necessary and make sure changes are written only when you are sure they are correct and required for future tasks. The documents are:
-- DesignDocument.md - contains design decisions and architecture of the application. Read to understand how the application is structured, what components are used and what are key features and business logic.
-- ImplementationPlan.md - contains tasks to be completed in order to finish the application. You will typically be assigned one or few steps at a time.
-- CommonErrors.md - documents common pitfalls and errors to avoid. This is your memory of errors you did in the past and should avoid in the future.
-- ImplementationLog.md - keeps track of all changes and progress made during implementation. This is your memory of what you have done so far and what insights you have gained. Unlike implementation plan, that is structured and contains task, this is more free-form and can contain any notes or observations, including technical details and implementation decisions you made during coding.
+Context:
+- Design document contains design decisions and architecture of the application. Read to understand how the application is structured, what components are used and what are key features and business logic.
+- Implementation plan document contains tasks to be completed in order to finish the application. You will typically be assigned one or few steps at a time.
+- Common errors document contains common pitfalls and errors to avoid. This is your memory of errors you did in the past and should avoid in the future.
+- Implementation log document keeps track of all changes and progress made during implementation. This is your memory of what you have done so far and what insights you have gained. Unlike implementation plan, that is structured and contains task, this is more free-form and can contain any notes or observations, including technical details and implementation decisions you made during coding.
 
 Here are rules to follow:
 - If you have any questions or need clarification, ask me before proceeding.
