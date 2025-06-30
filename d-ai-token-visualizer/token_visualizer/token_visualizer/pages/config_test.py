@@ -2,7 +2,7 @@
 
 import reflex as rx
 from ..utils.config import test_config
-from ..services.local_llm import test_local_llm_service
+from ..services.llm_client import test_llm_service
 from ..state.api_test_state import APITestState
 
 
@@ -53,6 +53,12 @@ def config_test_card() -> rx.Component:
                 rx.cond(
                     config_status.get("valid", False),
                     rx.vstack(
+                        rx.hstack(
+                            rx.text("Service URL:", font_weight="600", color="#374151"),
+                            rx.text(config_status.get("service_url", "Not set"), color="#6B7280"),
+                            justify="between",
+                            width="100%"
+                        ),
                         rx.hstack(
                             rx.text("Model Name:", font_weight="600", color="#374151"),
                             rx.text(config_status.get("model_name", "Not set"), color="#6B7280"),
@@ -157,202 +163,12 @@ def environment_info_card() -> rx.Component:
                 ),
                 
                 rx.unordered_list(
+                    rx.list_item("LLM_SERVICE_URL (default: http://localhost:8001)", color="#6B7280"),
                     rx.list_item("HUGGINGFACE_TOKEN", color="#6B7280"),
                     rx.list_item("LOCAL_MODEL_NAME (default: google/gemma-2-2b)", color="#6B7280"),
                     rx.list_item("DEVICE (default: auto)", color="#6B7280"),
                     rx.list_item("USE_QUANTIZATION (default: true)", color="#6B7280"),
                     margin_left="1rem"
-                ),
-                
-                align="stretch",
-                width="100%"
-            ),
-            
-            spacing="4",
-            align="stretch",
-            width="100%"
-        ),
-        
-        background="white",
-        border="1px solid #E5E7EB",
-        border_radius="0.5rem",
-        padding="1.5rem",
-        box_shadow="0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
-        width="100%"
-    )
-
-
-def api_test_card() -> rx.Component:
-    """Component to display Local LLM service test results."""
-    api_status = test_local_llm_service()
-    
-    # Status indicator based on API test
-    status_color = "#10B981" if api_status.get("status") == "success" else "#EF4444"
-    status_text = "✅ Connected" if api_status.get("status") == "success" else "❌ Failed"
-    
-    return rx.box(
-        rx.vstack(
-            # Header
-            rx.hstack(
-                rx.heading(
-                    "Local LLM Service Test",
-                    size="5",
-                    color="#1F2937"
-                ),
-                rx.badge(
-                    status_text,
-                    background=status_color,
-                    color="white",
-                    padding="0.25rem 0.75rem",
-                    border_radius="0.375rem"
-                ),
-                justify="between",
-                align="center",
-                width="100%"
-            ),
-            
-            # API test details
-            rx.vstack(
-                rx.text(
-                    "Status:",
-                    font_weight="600",
-                    color="#374151",
-                    margin_bottom="0.25rem"
-                ),
-                rx.text(
-                    api_status.get("message", "Unknown status"),
-                    color="#6B7280",
-                    margin_bottom="1rem"
-                ),
-                
-                # Show test results if successful
-                rx.cond(
-                    api_status.get("status") == "success",
-                    rx.vstack(
-                        rx.text(
-                            "Model Information:",
-                            font_weight="600",
-                            color="#374151",
-                            margin_bottom="0.5rem"
-                        ),
-                        
-                        # Model details
-                        rx.hstack(
-                            rx.text("Model:", font_weight="500", color="#374151"),
-                            rx.text(
-                                api_status.get("model_name", "Unknown"),
-                                color="#1F2937"
-                            ),
-                            justify="between",
-                            width="100%"
-                        ),
-                        
-                        rx.hstack(
-                            rx.text("Device:", font_weight="500", color="#374151"),
-                            rx.text(
-                                api_status.get("device", "Unknown"),
-                                color="#1F2937"
-                            ),
-                            justify="between",
-                            width="100%"
-                        ),
-                        
-                        rx.hstack(
-                            rx.text("Quantization:", font_weight="500", color="#374151"),
-                            rx.text(
-                                "✅ Enabled" if api_status.get("quantization", False) else "❌ Disabled",
-                                color="#10B981" if api_status.get("quantization", False) else "#6B7280"
-                            ),
-                            justify="between",
-                            width="100%"
-                        ),
-                        
-                        # Show test result details if available
-                        rx.cond(
-                            api_status.get("test_generation") is not None,
-                            rx.vstack(
-                                rx.text(
-                                    "Sample Generation:",
-                                    font_weight="600",
-                                    color="#374151",
-                                    margin_top="1rem",
-                                    margin_bottom="0.5rem"
-                                ),
-                                rx.box(
-                                    rx.vstack(
-                                        rx.text(
-                                            f"Prompt: {api_status.get('test_generation', {}).get('prompt', 'N/A')}",
-                                            color="#374151",
-                                            font_weight="500"
-                                        ),
-                                        rx.text(
-                                            f"Selected Token: '{api_status.get('test_generation', {}).get('selected_token', 'N/A')}'",
-                                            color="#1F2937",
-                                            font_weight="600"
-                                        ),
-                                        rx.text(
-                                            f"Probability: {api_status.get('test_generation', {}).get('selected_probability', 'N/A')}",
-                                            color="#6B7280"
-                                        ),
-                                        rx.text(
-                                            f"Generation Time: {api_status.get('test_generation', {}).get('generation_time', 'N/A')}",
-                                            color="#6B7280"
-                                        ),
-                                        rx.text(
-                                            "Top Alternatives:",
-                                            font_weight="500",
-                                            color="#374151",
-                                            margin_top="0.5rem"
-                                        ),
-                                        *[
-                                            rx.text(
-                                                f"• {alt}",
-                                                color="#6B7280",
-                                                font_size="0.875rem"
-                                            )
-                                            for alt in api_status.get('test_generation', {}).get('top_alternatives', [])
-                                        ],
-                                        spacing="2",
-                                        align="start"
-                                    ),
-                                    background="#F9FAFB",
-                                    padding="0.75rem",
-                                    border_radius="0.375rem",
-                                    border="1px solid #E5E7EB"
-                                )
-                            )
-                        ),
-                        
-                        spacing="2",
-                        align="stretch",
-                        width="100%"
-                    )
-                ),
-                
-                # Show error details if failed
-                rx.cond(
-                    api_status.get("status") != "success",
-                    rx.vstack(
-                        rx.text(
-                            "Error Details:",
-                            font_weight="600",
-                            color="#DC2626",
-                            margin_bottom="0.5rem"
-                        ),
-                        rx.text(
-                            api_status.get("message", "Unknown error"),
-                            color="#7F1D1D",
-                            font_family="monospace",
-                            font_size="0.875rem",
-                            background="#FEF2F2",
-                            padding="0.75rem",
-                            border_radius="0.375rem",
-                            border="1px solid #FECACA"
-                        ),
-                        spacing="2",
-                        align="stretch",
-                        width="100%"
-                    )
                 ),
                 
                 align="stretch",
@@ -695,6 +511,125 @@ def custom_prompt_test_card() -> rx.Component:
     )
 
 
+def llm_service_test_card() -> rx.Component:
+    """Component to display LLM service connectivity test results."""
+    return rx.box(
+        rx.vstack(
+            # Header
+            rx.hstack(
+                rx.heading(
+                    "LLM Service Connectivity",
+                    size="5",
+                    color="#1F2937"
+                ),
+                rx.button(
+                    "Test Connection",
+                    on_click=APITestState.test_llm_service_connection,
+                    loading=APITestState.is_service_testing,
+                    color_scheme="blue",
+                    size="2"
+                ),
+                justify="between",
+                align="center",
+                width="100%"
+            ),
+            
+            # Service status display
+            rx.cond(
+                APITestState.has_service_test_result,
+                rx.vstack(
+                    # Health check result
+                    rx.hstack(
+                        rx.text("Health Check:", font_weight="600", color="#374151"),
+                        rx.text(
+                            APITestState.service_health_status,
+                            color=rx.cond(
+                                APITestState.service_health_success,
+                                "#10B981",
+                                "#EF4444"
+                            )
+                        ),
+                        justify="between",
+                        width="100%"
+                    ),
+                    
+                    # Status endpoint result
+                    rx.hstack(
+                        rx.text("Status Check:", font_weight="600", color="#374151"),
+                        rx.text(
+                            APITestState.service_status_result,
+                            color=rx.cond(
+                                APITestState.service_status_success,
+                                "#10B981",
+                                "#EF4444"
+                            )
+                        ),
+                        justify="between",
+                        width="100%"
+                    ),
+                    
+                    # Generation test result
+                    rx.cond(
+                        APITestState.service_generation_success,
+                        rx.vstack(
+                            rx.hstack(
+                                rx.text("Generation Test:", font_weight="600", color="#374151"),
+                                rx.text("✅ Success", color="#10B981"),
+                                justify="between",
+                                width="100%"
+                            ),
+                            rx.hstack(
+                                rx.text("Selected Token:", font_weight="600", color="#374151"),
+                                rx.text(APITestState.service_selected_token, color="#6B7280"),
+                                justify="between",
+                                width="100%"
+                            ),
+                            rx.hstack(
+                                rx.text("Probability:", font_weight="600", color="#374151"),
+                                rx.text(APITestState.service_selected_probability, color="#6B7280"),
+                                justify="between",
+                                width="100%"
+                            ),
+                            spacing="2",
+                            align="stretch",
+                            width="100%"
+                        ),
+                        rx.cond(
+                            APITestState.service_generation_tested,
+                            rx.hstack(
+                                rx.text("Generation Test:", font_weight="600", color="#374151"),
+                                rx.text("❌ Failed", color="#EF4444"),
+                                justify="between",
+                                width="100%"
+                            )
+                        )
+                    ),
+                    
+                    spacing="2",
+                    align="stretch",
+                    width="100%"
+                ),
+                rx.text(
+                    "Click 'Test Connection' to check LLM service connectivity",
+                    color="#6B7280",
+                    font_style="italic"
+                )
+            ),
+            
+            spacing="4",
+            align="stretch",
+            width="100%"
+        ),
+        
+        background="white",
+        border="1px solid #E5E7EB",
+        border_radius="0.5rem",
+        padding="1.5rem",
+        box_shadow="0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+        width="100%"
+    )
+
+
 def config_test_page() -> rx.Component:
     """Configuration test page layout."""
     return rx.container(
@@ -716,7 +651,7 @@ def config_test_page() -> rx.Component:
             # All cards with consistent width
             rx.vstack(
                 config_test_card(),
-                api_test_card(),
+                llm_service_test_card(),
                 custom_prompt_test_card(),
                 environment_info_card(),
                 

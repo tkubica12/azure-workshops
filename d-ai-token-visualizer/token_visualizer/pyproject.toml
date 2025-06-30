@@ -14,4 +14,5 @@ dependencies = [
     "huggingface_hub>=0.20.0",
     "openai>=1.93.0",
     "azure-identity>=1.23.0",
+    "httpx>=0.27.0",
 ]

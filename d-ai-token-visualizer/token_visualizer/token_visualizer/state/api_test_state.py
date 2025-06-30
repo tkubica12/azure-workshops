@@ -2,7 +2,7 @@
 
 import reflex as rx
 from typing import Dict, Any, Optional, List
-from ..services.local_llm import get_local_llm_client, TokenGenerationResult
+from ..services.llm_client import get_llm_client, TokenGenerationResult
 
 
 class APITestState(rx.State):
@@ -27,6 +27,18 @@ class APITestState(rx.State):
     result_selected_probability: str = ""
     result_alternatives: List[Dict[str, str]] = []
     result_raw_response: str = ""
+    
+    # LLM Service connectivity testing
+    is_service_testing: bool = False
+    has_service_test_result: bool = False
+    service_health_success: bool = False
+    service_health_status: str = ""
+    service_status_success: bool = False
+    service_status_result: str = ""
+    service_generation_tested: bool = False
+    service_generation_success: bool = False
+    service_selected_token: str = ""
+    service_selected_probability: str = ""
     
     def set_test_prompt(self, prompt: str):
         """Set the test prompt."""
@@ -69,10 +81,10 @@ class APITestState(rx.State):
         self.result_raw_response = ""
         
         try:
-            client = get_local_llm_client()
+            client = await get_llm_client()
             
             # Run the test
-            result = client.generate_with_logprobs(
+            result = await client.generate_tokens_with_probabilities(
                 prompt=self.test_prompt,
                 max_tokens=self.max_tokens,
                 temperature=self.temperature,
@@ -82,40 +94,39 @@ class APITestState(rx.State):
             # Store individual fields for UI binding
             self.result_prompt = self.test_prompt
             self.result_generated_text = result.generated_text
-            self.result_selected_token = result.selected_token.token
-            self.result_selected_probability = f"{result.selected_token.percentage:.2f}%"
+            self.result_selected_token = result.selected_token
+            self.result_selected_probability = f"{result.selected_probability * 100:.2f}%"
             
             # Store alternatives as list of dicts
             self.result_alternatives = [
                 {
                     "token": alt.token,
-                    "probability": f"{alt.percentage:.2f}%",
+                    "probability": alt.probability_percentage(),
                     "logprob": f"{alt.logprob:.4f}"
                 }
-                for alt in result.top_alternatives
+                for alt in result.alternatives
             ]
             
             # Store raw response (truncated for UI)
-            self.result_raw_response = f"Generated: '{result.generated_text}' | Selected: '{result.selected_token.token}' ({result.selected_token.percentage:.2f}%) | Alternatives: {len(result.top_alternatives)} tokens"
+            self.result_raw_response = f"Generated: '{result.generated_text}' | Selected: '{result.selected_token}' ({result.selected_probability * 100:.2f}%) | Alternatives: {len(result.alternatives)} tokens"
             
             # Convert result to dict for backward compatibility
             self.test_result = {
                 "prompt": self.test_prompt,
                 "generated_text": result.generated_text,
                 "selected_token": {
-                    "token": result.selected_token.token,
-                    "logprob": result.selected_token.logprob,
-                    "probability": result.selected_token.probability,
-                    "percentage": result.selected_token.percentage
+                    "token": result.selected_token,
+                    "probability": result.selected_probability,
+                    "percentage": result.selected_probability * 100
                 },
                 "top_alternatives": [
                     {
                         "token": alt.token,
                         "logprob": alt.logprob,
                         "probability": alt.probability,
-                        "percentage": alt.percentage
+                        "percentage": alt.probability * 100
                     }
-                    for alt in result.top_alternatives
+                    for alt in result.alternatives
                 ],
                 "parameters": {
                     "max_tokens": self.max_tokens,
@@ -161,3 +172,51 @@ class APITestState(rx.State):
         
         if preset in presets:
             self.test_prompt = presets[preset]
+    
+    async def test_llm_service_connection(self):
+        """Test the LLM service connection using the HTTP client."""
+        from ..services.llm_client import test_llm_service
+        
+        self.is_service_testing = True
+        self.has_service_test_result = False
+        
+        try:
+            # Run the service test
+            result = await test_llm_service()
+            
+            # Parse health check results
+            health_check = result.get("health_check", {})
+            self.service_health_success = health_check.get("success", False)
+            self.service_health_status = health_check.get("message", "No message")
+            
+            # Parse status check results
+            status_check = result.get("status_check", {})
+            self.service_status_success = status_check.get("success", False)
+            if self.service_status_success:
+                status_data = status_check.get("data", {})
+                self.service_status_result = f"✅ Model loaded: {status_data.get('model_name', 'Unknown')}"
+            else:
+                self.service_status_result = "❌ Status check failed"
+            
+            # Parse generation test results
+            generation_test = result.get("generation_test", {})
+            self.service_generation_tested = True
+            self.service_generation_success = generation_test.get("success", False)
+            
+            if self.service_generation_success:
+                gen_result = generation_test.get("result", {})
+                self.service_selected_token = gen_result.get("selected_token", "N/A")
+                self.service_selected_probability = gen_result.get("selected_probability", "N/A")
+            
+            self.has_service_test_result = True
+            
+        except Exception as e:
+            self.service_health_success = False
+            self.service_health_status = f"Connection failed: {str(e)}"
+            self.service_status_success = False
+            self.service_status_result = "❌ Could not connect"
+            self.service_generation_tested = True
+            self.service_generation_success = False
+            self.has_service_test_result = True
+        
+        self.is_service_testing = False

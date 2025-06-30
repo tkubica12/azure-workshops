@@ -7,8 +7,9 @@ from dotenv import load_dotenv
 
 
 @dataclass
-class LocalLLMConfig:
-    """Configuration for Local LLM service."""
+class LLMServiceConfig:
+    """Configuration for LLM service (remote HTTP service)."""
+    service_url: str
     model_name: str
     hf_token: str
     device: str = "auto"
@@ -16,6 +17,8 @@ class LocalLLMConfig:
     
     def __post_init__(self):
         """Validate configuration after initialization."""
+        if not self.service_url:
+            raise ValueError("LLM_SERVICE_URL is required")
         if not self.model_name:
             raise ValueError("LOCAL_MODEL_NAME is required")
         if not self.hf_token or self.hf_token == "your_hf_token_here":
@@ -36,7 +39,7 @@ class AzureOpenAIConfig:
 @dataclass
 class AppConfig:
     """Main application configuration."""
-    local_llm: LocalLLMConfig
+    llm_service: LLMServiceConfig
     debug: bool = False
     
     @classmethod
@@ -46,13 +49,15 @@ class AppConfig:
         load_dotenv()
         
         # Get Local LLM configuration
+        service_url = os.getenv("LLM_SERVICE_URL", "http://localhost:8001")
         model_name = os.getenv("LOCAL_MODEL_NAME", "google/gemma-2-2b")
         hf_token = os.getenv("HUGGINGFACE_TOKEN", "")
         device = os.getenv("DEVICE", "auto")
         use_quantization = os.getenv("USE_QUANTIZATION", "true").lower() == "true"
         
-        # Create Local LLM config
-        local_llm_config = LocalLLMConfig(
+        # Create LLM service config
+        llm_service_config = LLMServiceConfig(
+            service_url=service_url,
             model_name=model_name,
             hf_token=hf_token,
             device=device,
@@ -63,7 +68,7 @@ class AppConfig:
         debug = os.getenv("DEBUG", "false").lower() == "true"
         
         return cls(
-            local_llm=local_llm_config,
+            llm_service=llm_service_config,
             debug=debug
         )
     
@@ -71,7 +76,7 @@ class AppConfig:
         """Check if configuration is valid."""
         try:
             # This will raise ValueError if invalid
-            self.local_llm.__post_init__()
+            self.llm_service.__post_init__()
             return True, "Configuration is valid"
         except ValueError as e:
             return False, str(e)
@@ -105,10 +110,11 @@ def test_config() -> dict:
         return {
             "valid": is_valid,
             "message": message,
-            "model_name": config.local_llm.model_name,
-            "device": config.local_llm.device,
-            "use_quantization": config.local_llm.use_quantization,
-            "has_hf_token": bool(config.local_llm.hf_token and config.local_llm.hf_token != "your_hf_token_here"),
+            "service_url": config.llm_service.service_url,
+            "model_name": config.llm_service.model_name,
+            "device": config.llm_service.device,
+            "use_quantization": config.llm_service.use_quantization,
+            "has_hf_token": bool(config.llm_service.hf_token and config.llm_service.hf_token != "your_hf_token_here"),
             "debug": config.debug
         }
     except Exception as e:

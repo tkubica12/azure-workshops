@@ -140,10 +140,10 @@ Lifecycle: Independent of main Reflex application
 
 **API Endpoints**:
 ```
-GET  /health                    - Service health check
-GET  /status                    - Model loading status and info
-POST /generate                  - Token generation with probabilities
-POST /complete                  - Text completion (future enhancement)
+GET  /health                    - Service health check (root level)
+GET  /api/v1/status             - Model loading status and info
+POST /api/v1/generate           - Token generation with probabilities
+POST /api/v1/test               - Simple test generation endpoint
 ```
 
 **Model Configuration**:

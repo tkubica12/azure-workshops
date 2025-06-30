@@ -647,3 +647,31 @@ rx.input(
 3. **Use Event Handlers**: Never try to modify state directly in UI components - always use event handler methods
 4. **Use .length()**: For Reflex Vars that are lists, use `.length()` instead of `len()`
 5. **Test Immediately**: Run the application after adding new state methods to catch naming conflicts early
+
+## LLM Service API Endpoints - CRITICAL
+
+### The Problem
+The LLM service has a mixed endpoint structure that can cause 404 errors if not used correctly.
+
+### Critical Rules - ALWAYS FOLLOW
+
+**Health Check Endpoint:**
+- ✅ **CORRECT**: Use `/health` (root level endpoint)
+- ❌ **WRONG**: Using `/api/v1/health` will return 404
+
+**Other API Endpoints:**
+- ✅ **CORRECT**: Use `/api/v1/` prefix for status, generate, and test endpoints
+- ❌ **WRONG**: Omitting the prefix will return 404
+
+**Complete Endpoint List:**
+```
+GET  /health                    - Service health check (root level)
+GET  /api/v1/status             - Model loading status and info  
+POST /api/v1/generate           - Token generation with probabilities
+POST /api/v1/test               - Simple test generation endpoint
+```
+
+**Why This Structure:**
+- The `/health` endpoint is defined directly in main.py for quick health checks
+- All other endpoints are routed through the API router with `/api/v1` prefix
+- This allows for API versioning while keeping health checks at root level

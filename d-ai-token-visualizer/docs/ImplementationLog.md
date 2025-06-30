@@ -453,3 +453,109 @@ Probability bar visualization components successfully implemented and tested:
 - ✅ **Animation Support** - Smooth transitions for bar width changes
 
 **Technical Implementation Details**:
+- ✅ **Dynamic Color Scaling**: Color scaling based on probability value ranges
+- ✅ **Horizontal Layout**: Responsive horizontal layout with proper alignment
+- ✅ **Multiple Variants**: Support for single, list, compact, and interactive bar variants
+- ✅ **Interactive Features**: Clickable bars for token selection with visual feedback
+- ✅ **Animation**: Smooth width transition animations for probability changes
+
+**Next Steps:**
+- Begin integrating probability visualization components into interactive token generation flow
+- Implement probability-based token filtering and selection logic
+- Enhance UI for interactive mode with probability visualization features
+- Test end-to-end interactive token generation with new components
+
+## Phase 3.4: LLM Service Client Refactoring
+
+### 2025-01-03
+
+**Phase 3.4 Complete!** ✅
+Main App Service Client refactoring completed:
+- ✅ Created `token_visualizer/services/llm_client.py` HTTP client for LLM service
+- ✅ Implemented HTTP client with timeout, retry logic, and comprehensive error handling 
+- ✅ Added service health monitoring and status checking capabilities
+- ✅ Updated configuration to include LLM service endpoint URL (`LLM_SERVICE_URL`)
+- ✅ Added httpx dependency to project for async HTTP communication
+- ✅ Implemented `TokenProbability` and `TokenGenerationResult` data classes for HTTP service
+- ✅ Added global client instance management with proper resource cleanup
+- ✅ Tested HTTP client connection and API call functionality
+
+**Phase 3.5 Complete!** ✅  
+Configuration Test page updated for LLM service connectivity:
+- ✅ Updated Configuration Test page to test LLM service connectivity via HTTP
+- ✅ Added new LLM service health status display (available/unavailable) 
+- ✅ Implemented testing of service endpoints (`/health`, `/status`, `/generate`)
+- ✅ Added display of model information retrieved from remote service
+- ✅ Updated service URL configuration and testing capabilities
+- ✅ Added `.env` and `.env.example` files with LLM_SERVICE_URL=http://localhost:8001
+- ✅ Updated APITestState to support both legacy direct model testing and new HTTP service testing
+- ✅ Refactored existing components to clearly distinguish between direct model and HTTP service testing
+- ✅ Successfully tested end-to-end application startup and configuration loading
+
+The application now has a clear separation between:
+1. **Legacy Direct Model Integration** - For backward compatibility testing
+2. **HTTP Service Client** - For production use with the separate FastAPI LLM service
+
+Key changes implemented:
+- Environment configuration now includes `LLM_SERVICE_URL` 
+- HTTP client with comprehensive error handling, retries, and health monitoring
+- Configuration test page shows both direct model status and HTTP service connectivity
+- State management updated to support both testing approaches
+- All dependencies properly configured and installed
+
+**Phase 3.4 & 3.5 Complete!** ✅ **2025-06-30**
+Microservice architecture transition successfully completed:
+
+**Phase 3.4 - Main App Service Client:**
+- ✅ **Removed Local LLM Dependencies**: Cleaned up direct model integration from main Reflex app
+- ✅ **HTTP Client Implementation**: Created comprehensive `llm_client.py` with async HTTP communication
+- ✅ **Service Configuration**: Added `LLM_SERVICE_URL` environment variable (default: http://localhost:8001)
+- ✅ **Robust Error Handling**: Implemented timeout, retry logic, and comprehensive error handling
+- ✅ **Health Monitoring**: Added service health checking and status monitoring capabilities
+- ✅ **Data Models**: Implemented `TokenProbability` and `TokenGenerationResult` classes for HTTP service
+- ✅ **Resource Management**: Added proper async context management and resource cleanup
+- ✅ **Configuration Integration**: Updated config system to use `LLMServiceConfig` (renamed from LocalLLMConfig)
+
+**Phase 3.5 - Configuration Test Page Update:**
+- ✅ **Service Connectivity Testing**: Added comprehensive LLM service connectivity test card
+- ✅ **Endpoint Testing**: Successfully testing `/health`, `/api/v1/status`, and `/api/v1/generate` endpoints
+- ✅ **Real-time Status Display**: Service health, status check, and generation test results displayed in UI
+- ✅ **Removed Legacy Code**: Cleaned up deprecated direct model test components
+- ✅ **Updated Documentation**: Fixed API endpoint documentation (`/health` vs `/api/v1/*` structure)
+- ✅ **Environment Variables**: Updated `.env` and `.env.example` with LLM service URL configuration
+
+**Key Technical Achievements:**
+- ✅ **Microservice Architecture**: Successfully transitioned from monolithic to microservice architecture
+- ✅ **API Endpoint Structure**: Correctly implemented mixed endpoint structure (`/health` + `/api/v1/*`)
+- ✅ **Async Communication**: Full async HTTP client with httpx for non-blocking service calls
+- ✅ **Service Discovery**: Health checking and automatic service availability detection
+- ✅ **Configuration Management**: Clean environment-based configuration for service endpoints
+- ✅ **Error Handling**: Comprehensive error handling with user-friendly messages and technical details
+
+**Live Testing Results:**
+- ✅ **Health Check**: ✅ Service is healthy
+- ✅ **Status Check**: ✅ Model loaded: google/gemma-2-2b
+- ✅ **Generation Test**: ✅ Success - Token: "often", Probability: 0.007
+- ✅ **End-to-End Flow**: Complete service startup → main app connection → token generation verified
+
+**Architecture Benefits Realized:**
+- ✅ **Separation of Concerns**: Clean separation between UI logic and ML inference
+- ✅ **Independent Scaling**: LLM service can run on different hardware/containers
+- ✅ **Development Efficiency**: Faster iteration on UI without model loading delays  
+- ✅ **Resource Management**: Dedicated memory and GPU allocation for ML workloads
+- ✅ **Production Ready**: Proper service monitoring and health checking
+- ✅ **Maintainability**: Clear service boundaries and API contracts
+
+**Next Steps:**
+Ready to begin Phase 4: Core State Management or Phase 5.5: Basic Error Handling
+- The microservice architecture is fully functional and tested
+- All HTTP communication is working reliably
+- Service health monitoring is operational
+- Configuration test page provides comprehensive service verification
+
+**Notes:**
+- Successfully removed all heavy ML dependencies from main Reflex app
+- Maintained backward compatibility during transition
+- Configuration test page now provides clear service status visibility
+- API endpoint documentation updated to reflect correct service structure
+- Common errors document updated with critical API endpoint information

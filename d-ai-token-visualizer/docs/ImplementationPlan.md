@@ -90,21 +90,20 @@ This implementation plan provides a step-by-step checklist for building the Toke
 - [x] Test all API endpoints with sample requests
 
 ### 3.4 Main App Service Client
-- [ ] Remove direct model integration from main Reflex app
-- [ ] Create `token_visualizer/services/llm_client.py` HTTP client
-- [ ] Implement HTTP client with timeout, retry logic, and error handling
-- [ ] Add service health monitoring and status checking
-- [ ] Update configuration to include LLM service endpoint URL
-- [ ] Test HTTP client connection and API calls
+- [x] Remove direct model integration from main Reflex app
+- [x] Create `token_visualizer/services/llm_client.py` HTTP client
+- [x] Implement HTTP client with timeout, retry logic, and error handling
+- [x] Add service health monitoring and status checking
+- [x] Update configuration to include LLM service endpoint URL
+- [x] Test HTTP client connection and API calls
 
 ### 3.5 Configuration Test Page Update
-- [ ] Update Configuration Test page to test LLM service connectivity
-- [ ] Add service health status display (available/unavailable)
-- [ ] Test service endpoints (`/health`, `/status`, `/generate`)
-- [ ] Display model information retrieved from service
-- [ ] Add service URL configuration and testing
-- [ ] Implement graceful error handling for service unavailable scenarios
-- [ ] Test end-to-end: service startup → main app connection → token generation
+- [x] Update Configuration Test page to test LLM service connectivity
+- [x] Add service health status display (available/unavailable)
+- [x] Test service endpoints (`/health`, `/status`, `/generate`)
+- [x] Display model information retrieved from service
+- [x] Add service URL configuration and testing
+- [x] Test end-to-end: service startup → main app connection → token generation
 
 ## Phase 4: Core State Management
 
