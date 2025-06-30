@@ -3,6 +3,7 @@
 import reflex as rx
 from .components.layout import app_layout
 from .pages.config_test import config_test_page
+from .pages.state_test import state_test_page
 
 
 def welcome_content() -> rx.Component:
@@ -237,3 +238,6 @@ app.add_page(index, route="/")
 
 # Add the configuration test page
 app.add_page(config_test_page, route="/config-test")
+
+# Add the state management test page
+app.add_page(state_test_page, route="/state-test")

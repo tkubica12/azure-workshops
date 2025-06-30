@@ -103,12 +103,18 @@ def utility_navigation() -> rx.Component:
         ),
         
         nav_button(
+            icon="database",
+            label="State Test",
+            on_click=rx.redirect("/state-test")
+        ),
+        
+        nav_button(
             icon="settings",
             label="Settings"
         ),
         
         nav_button(
-            icon="help-circle",
+            icon="circle-help",
             label="Help & Tutorial"
         ),
         

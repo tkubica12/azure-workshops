@@ -442,3 +442,93 @@ rx.icon(
     color="#2563EB",  # Use hex colors or CSS color names
 )
 ```
+
+## Reflex State Management - CRITICAL
+
+### The Problem
+Reflex State classes have built-in methods that cannot be overridden or shadowed by event handlers. Using these names will cause EventHandlerShadowsBuiltInStateMethodError.
+
+### Critical Rules - ALWAYS FOLLOW
+
+**Reserved Method Names - NEVER USE:**
+- ❌ **WRONG**: `reset` - This is a built-in State method
+- ❌ **WRONG**: `process` - Built-in State method 
+- ❌ **WRONG**: `preprocess` - Built-in State method
+- ❌ **WRONG**: `postprocess` - Built-in State method
+
+**Correct Naming:**
+- ✅ **CORRECT**: `reset_counter`, `reset_session`, `clear_data` instead of `reset`
+- ✅ **CORRECT**: `process_data`, `handle_data` instead of `process`
+
+### Common Error Examples
+
+**EventHandlerShadowsBuiltInStateMethodError:**
+```python
+# ❌ WRONG - Causes EventHandlerShadowsBuiltInStateMethodError
+class MyState(rx.State):
+    count: int = 0
+    
+    def reset(self):  # This will fail!
+        self.count = 0
+
+# ✅ CORRECT
+class MyState(rx.State):
+    count: int = 0
+    
+    def reset_counter(self):  # Use descriptive name
+        self.count = 0
+```
+
+**Var Length Error:**
+```python
+# ❌ WRONG - Cannot use len() on Reflex Vars
+rx.text(f"Count: {len(MyState.items)}")  # This will fail!
+
+# ✅ CORRECT - Use .length() method
+rx.text(f"Count: {MyState.items.length()}")
+```
+
+**Event Handler Direct List Modification:**
+```python
+# ❌ WRONG - Cannot call append() directly in lambda
+rx.button(
+    "Add Item",
+    on_click=lambda: MyState.items.append("new_item")  # This will fail!
+)
+
+# ✅ CORRECT - Create proper event handler method
+class MyState(rx.State):
+    items: list[str] = []
+    
+    def add_item(self):
+        self.items.append("new_item")
+
+rx.button(
+    "Add Item", 
+    on_click=MyState.add_item  # Use event handler method
+)
+```
+
+**Input Binding:**
+```python
+# ❌ WRONG - Missing on_change for input binding
+rx.input(
+    value=MyState.text,  # This won't update the state
+    placeholder="Enter text..."
+)
+
+# ✅ CORRECT - Use on_change for two-way binding
+rx.input(
+    value=MyState.text,
+    on_change=MyState.set_text,  # Add event handler for changes
+    placeholder="Enter text..."
+)
+```
+
+### Prevention Strategy
+
+1. **Check Built-in Methods**: Always check if a method name might conflict with built-in State methods
+2. **Use Descriptive Names**: Instead of generic names like `reset`, use specific names like `reset_counter`
+3. **Use Event Handlers**: Never try to modify state directly in UI components - always use event handler methods
+4. **Use .length()**: For Reflex Vars that are lists, use `.length()` instead of `len()`
+5. **Test Immediately**: Run the application after adding new state methods to catch naming conflicts early
