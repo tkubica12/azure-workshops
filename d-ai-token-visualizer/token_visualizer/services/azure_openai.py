@@ -143,42 +143,60 @@ class AzureOpenAIClient:
         try:
             client = self._initialize_client()
             
-            response = client.chat.completions.create(
+            # Use the legacy Completions API for proper token-by-token generation
+            # This is the correct approach for interactive token prediction
+            # Note: Requires gpt-3.5-turbo-instruct model deployment
+            response = client.completions.create(
                 model=self.config.deployment_name,
-                messages=[{"role": "user", "content": prompt}],
+                prompt=prompt,
                 max_tokens=max_tokens,
                 temperature=temperature,
-                logprobs=True,
-                top_logprobs=top_logprobs
+                logprobs=top_logprobs
             )
             
-            if not response.choices or not response.choices[0].message.content:
+            if not response.choices or not response.choices[0].text:
                 raise ValueError("No content in API response")
             
             choice = response.choices[0]
-            generated_text = choice.message.content
+            generated_text = choice.text
             
-            # Extract logprobs data
-            if not choice.logprobs or not choice.logprobs.content:
+            # Extract logprobs data from legacy completions format
+            if not choice.logprobs or not choice.logprobs.tokens:
                 raise ValueError("No logprobs data in API response")
+                
+            # DEBUG: Print raw API response details  
+            print(f"DEBUG: Raw response type: {type(response)}")
+            print(f"DEBUG: Raw generated_text: '{generated_text}'")
+            print(f"DEBUG: Generated text repr: {repr(generated_text)}")
+            print(f"DEBUG: Generated text length: {len(generated_text)} chars")
+            print(f"DEBUG: Number of logprob tokens: {len(choice.logprobs.tokens)}")
             
             # Get the first (and usually only) token's logprobs
-            first_token_data = choice.logprobs.content[0]
+            first_token = choice.logprobs.tokens[0] if choice.logprobs.tokens else ""
+            first_token_logprob = choice.logprobs.token_logprobs[0] if choice.logprobs.token_logprobs else 0.0
+            
+            # DEBUG: Print raw token data with detailed inspection
+            print(f"DEBUG: Raw first_token: '{first_token}'")
+            print(f"DEBUG: First token repr: {repr(first_token)}")
+            print(f"DEBUG: First token length: {len(first_token)} chars")
+            print(f"DEBUG: First token bytes: {first_token.encode('utf-8')}")
+            print(f"DEBUG: First token starts with space: {first_token.startswith(' ')}")
+            print(f"DEBUG: First token logprob: {first_token_logprob}")
             
             # Create selected token probability
             selected_token = self._create_token_probability(
-                first_token_data.token,
-                first_token_data.logprob
+                first_token,
+                first_token_logprob
             )
             
-            # Create alternative token probabilities
+            # Create alternative token probabilities from top_logprobs
             top_alternatives = []
-            if first_token_data.top_logprobs:
-                for alt_token_data in first_token_data.top_logprobs:
-                    alt_token_prob = self._create_token_probability(
-                        alt_token_data.token,
-                        alt_token_data.logprob
-                    )
+            if choice.logprobs.top_logprobs and len(choice.logprobs.top_logprobs) > 0:
+                first_token_alternatives = choice.logprobs.top_logprobs[0]
+                print(f"DEBUG: Number of top alternatives: {len(first_token_alternatives)}")
+                for token, logprob in first_token_alternatives.items():
+                    print(f"DEBUG: Alt token: '{token}' (repr: {repr(token)}) (bytes: {token.encode('utf-8')}) (starts_with_space: {token.startswith(' ')}) logprob: {logprob}")
+                    alt_token_prob = self._create_token_probability(token, logprob)
                     top_alternatives.append(alt_token_prob)
             
             return TokenGenerationResult(

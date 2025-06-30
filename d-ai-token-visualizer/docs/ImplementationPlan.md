@@ -13,12 +13,13 @@ This implementation plan provides a step-by-step checklist for building the Toke
 - [x] Initialize git repository
 - [x] Create `.gitignore` file for Python/Reflex projects
 
-### 1.2 Azure OpenAI Setup
-- [x] Create Azure OpenAI resource in Azure portal
-- [x] Deploy GPT-4 model (or available model with logprobs support)
-- [x] Note down endpoint URL and API key
-- [x] Test API access with simple Python script
-- [x] Verify logprobs functionality works with test request
+### 1.2 Local LLM Setup
+- [x] ~~Create Azure OpenAI resource in Azure portal~~ **REPLACED WITH LOCAL LLM**
+- [ ] Install PyTorch with CUDA support (if GPU available)
+- [ ] Install Hugging Face Transformers library
+- [ ] Download Gemma 2 2B base model from Hugging Face
+- [ ] Test local model loading and basic inference
+- [ ] Verify logits extraction functionality works with test request
 
 ### 1.3 Project Structure Creation
 - [x] Create basic project structure following Reflex conventions
@@ -55,34 +56,34 @@ This implementation plan provides a step-by-step checklist for building the Toke
 - [x] Test UI renders correctly on desktop and mobile
 
 ### 2.3 Environment Configuration
-- [x] Create `.env` file for environment variables
-- [x] Add Azure OpenAI configuration variables
-- [x] Implement configuration loading in application
-- [x] Add `.env.example` file with sample configuration
-- [x] Test configuration loading works correctly
+- [x] ~~Create `.env` file for environment variables~~ **SIMPLIFIED FOR LOCAL**
+- [ ] Add local model configuration variables (model path, device)
+- [ ] Implement configuration loading in application
+- [ ] Add model download and caching configuration
+- [ ] Test model loading and configuration works correctly
 
-## Phase 3: Azure OpenAI Integration
+## Phase 3: Local LLM Integration
 
-### 3.1 Basic API Client
-- [x] Add `openai` and `azure-identity` to dependencies
-- [x] Create `services/azure_openai.py` module
-- [x] Implement basic Azure OpenAI client class
-- [x] Add authentication handling (Azure AD)
-- [x] Create simple test function to verify API connectivity
+### 3.1 Basic Model Client
+- [ ] Add `torch`, `transformers`, and `accelerate` to dependencies
+- [ ] Create `services/local_llm.py` module
+- [ ] Implement basic Gemma 2 model loading class
+- [ ] Add GPU/CPU device detection and handling
+- [ ] Create simple test function to verify model loading and inference
 
 ### 3.2 Token Generation Service
-- [x] Implement function to call Azure OpenAI with logprobs
-- [x] Add proper error handling and retry logic
-- [x] Create function to parse logprobs response
-- [x] Convert log probabilities to percentages
-- [x] Add function to extract top-k tokens with probabilities
+- [ ] Implement function to call local model with logits extraction
+- [ ] Add proper error handling and memory management
+- [ ] Create function to parse logits and convert to probabilities
+- [ ] Extract top-k tokens with probabilities
+- [ ] Add temperature and sampling parameter support
 
-### 3.3 API Integration Testing
-- [x] Create test page to verify API integration
-- [x] Add simple form to input test prompts
-- [x] Display raw API response for verification
-- [x] Test with various prompts and verify logprobs work
-- [x] Add proper error handling and user feedback
+### 3.3 Local Model Integration Testing
+- [ ] Create test page to verify local model integration
+- [ ] Add simple form to input test prompts
+- [ ] Display raw model output and logits for verification
+- [ ] Test with various prompts and verify probability extraction works
+- [ ] Add proper error handling and user feedback
 
 ## Phase 4: Core State Management
 
@@ -133,10 +134,14 @@ This implementation plan provides a step-by-step checklist for building the Toke
 **Note**: This phase is being skipped as the current probability visualization components provide sufficient functionality for the MVP. The prompt input interface can be implemented later if needed.
 
 ### 5.4 Interactive Generation Flow
-- [ ] Create `pages/interactive_mode.py` page
-- [ ] Integrate prompt input with token generation
-- [ ] Implement token selection and context building
-- [ ] Add "Next Token" generation cycle
+- [x] Create `pages/interactive_mode.py` page
+- [x] Integrate prompt input with token generation
+- [x] Implement token selection and context building
+- [x] Add "Next Token" generation cycle
+- [x] Improve UI with temperature slider (0.0-2.0, 0.1 steps)
+- [x] Add max tokens slider (1-100, 1 step)
+- [x] Fix compilation errors with sliders
+- [x] Implement interactive slider functionality (event handlers)
 - [ ] Test complete interactive flow end-to-end
 
 ### 5.5 Basic Error Handling
@@ -359,3 +364,18 @@ The implementation is considered successful when:
 - Consider creating feature branches for each major phase
 - Regular testing and feedback collection throughout development
 - Keep design document updated as implementation progresses
+
+## 🚨 CRITICAL ARCHITECTURE CHANGE - June 30, 2025
+
+**Major Pivot: Azure OpenAI → Local Gemma 2 LLM**
+
+Due to Azure OpenAI legacy completions API deprecation (affecting our core token-by-token generation functionality), we're switching to:
+
+- **Model**: Google Gemma 2 2B base model (Hugging Face)
+- **Benefits**: 
+  - ✅ True text completion mode (no chat formatting)
+  - ✅ Direct logits access (better than logprobs)
+  - ✅ Local inference (no API limits/costs)
+  - ✅ Future-proof (open source, no deprecation risk)
+- **Impact**: All Phase 3 items updated to reflect local LLM integration
+- **Test Script**: `test_local_llm.py` created to verify functionality

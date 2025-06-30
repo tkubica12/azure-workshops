@@ -54,26 +54,46 @@ def mode_navigation() -> rx.Component:
             margin_bottom="0.5rem"
         ),
         
-        # Mode buttons
-        nav_button(
-            icon="zap",
-            label="Interactive Generation",
-            is_active=True  # Default active mode
+        # Mode navigation links
+        rx.link(
+            nav_button(
+                icon="zap",
+                label="Interactive Generation",
+                is_active=False  # Will be determined by current route
+            ),
+            href="/interactive",
+            text_decoration="none",
+            width="100%"
         ),
         
-        nav_button(
-            icon="activity",
-            label="Live Probability"
+        rx.link(
+            nav_button(
+                icon="activity",
+                label="Live Probability"
+            ),
+            href="/live-probability",
+            text_decoration="none",
+            width="100%"
         ),
         
-        nav_button(
-            icon="palette",
-            label="Color Visualization"
+        rx.link(
+            nav_button(
+                icon="palette",
+                label="Color Visualization"
+            ),
+            href="/color-visualization",
+            text_decoration="none",
+            width="100%"
         ),
         
-        nav_button(
-            icon="git-branch",
-            label="Token Tree"
+        rx.link(
+            nav_button(
+                icon="git-branch",
+                label="Token Tree"
+            ),
+            href="/token-tree",
+            text_decoration="none",
+            width="100%"
         ),
         
         spacing="1",

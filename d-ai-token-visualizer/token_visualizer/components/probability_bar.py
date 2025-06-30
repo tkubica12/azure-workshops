@@ -109,7 +109,8 @@ def probability_bar(
                             font_weight="600",
                             font_size="0.875rem",
                             color=text_color,
-                            margin_left="0.75rem"
+                            margin_left="0.75rem",
+                            white_space="pre"
                         ),
                         rx.box()
                     ),

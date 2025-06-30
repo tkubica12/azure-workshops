@@ -6,6 +6,7 @@ from .pages.config_test import config_test_page
 from .pages.state_test import state_test_page
 from .pages.token_display_test import token_display_test_page
 from .pages.probability_bar_test import probability_bar_test_page
+from .pages.interactive_mode import interactive_mode_page
 
 
 def welcome_content() -> rx.Component:
@@ -175,21 +176,24 @@ def welcome_content() -> rx.Component:
         # Call to action
         rx.center(
             rx.hstack(
-                rx.button(
-                    rx.hstack(
-                        rx.icon("zap", size=18, color="#FFFFFF"),
-                        rx.text("Start Interactive Mode", font_size="1rem", font_weight="500"),
-                        spacing="2",
-                        align="center"
+                rx.link(
+                    rx.button(
+                        rx.hstack(
+                            rx.icon("zap", size=18, color="#FFFFFF"),
+                            rx.text("Start Interactive Mode", font_size="1rem", font_weight="500"),
+                            spacing="2",
+                            align="center"
+                        ),
+                        size="4",
+                        color_scheme="gray",
+                        variant="outline",
+                        padding="1rem 2rem",
+                        border_radius="0.5rem",
+                        _hover={
+                            "background": "#F9FAFB"
+                        }
                     ),
-                    size="4",
-                    color_scheme="gray",
-                    variant="outline",
-                    padding="1rem 2rem",
-                    border_radius="0.5rem",
-                    _hover={
-                        "background": "#F9FAFB"
-                    }
+                    href="/interactive"
                 ),
                 rx.link(
                     rx.button(
@@ -268,3 +272,6 @@ app.add_page(token_display_test_page, route="/token-display-test")
 
 # Add the probability bar test page
 app.add_page(probability_bar_test_page, route="/probability-bar-test")
+
+# Add the interactive mode page
+app.add_page(interactive_mode_page, route="/interactive")

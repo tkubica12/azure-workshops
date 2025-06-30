@@ -15,9 +15,9 @@ The Token Visualizer is an educational application designed to help students und
 
 ### Backend
 - **Technology**: Python
-- **Cloud Service**: Azure OpenAI Service
-- **Authentication**: Azure Active Directory (AAD)
-- **API Integration**: Azure OpenAI REST API with logprobs enabled
+- **Local LLM**: Google Gemma 2 2B base model
+- **ML Framework**: Hugging Face Transformers
+- **Inference**: Local GPU/CPU inference (PyTorch)
 - **Framework**: Integrated with Reflex's built-in FastAPI backend
 
 ### Frontend
@@ -32,10 +32,11 @@ The Token Visualizer is an educational application designed to help students und
 - **Prop Validation**: Reflex enforces strict prop types - always check existing working code
 - **Common Error**: `TypeError: Invalid var passed for prop VStack.spacing` indicates wrong prop type
 
-### Authentication & Security
-- **Azure AD Integration**: Secure access to Azure OpenAI
-- **User Management**: Optional user sessions for personalized experience
-- **API Key Management**: Secure storage and rotation of API keys
+### Local LLM Integration
+- **Model**: Google Gemma 2 2B base model via Hugging Face
+- **Inference Engine**: Transformers library with AutoModelForCausalLM
+- **Hardware**: Local GPU (CUDA) or CPU fallback
+- **Logits Access**: Direct logits extraction via output_scores=True
 
 ## Core Features & Modes
 
@@ -117,24 +118,28 @@ The Token Visualizer is an educational application designed to help students und
 
 ## Technical Specifications
 
-### Azure OpenAI Integration
+### Local LLM Integration
 
-**API Configuration**:
+**Model Configuration**:
 ```
-Endpoint: Azure OpenAI endpoint URL
-Model: gpt-4.1-nano
+Model: google/gemma-2-2b (base model)
+Framework: Hugging Face Transformers
+Hardware: Local GPU (CUDA preferred) or CPU
+Memory: ~5GB GPU VRAM or 8GB+ system RAM
 Parameters:
-  - max_tokens: configurable (default: 1)
-  - logprobs: true
-  - top_logprobs: 5
+  - max_new_tokens: configurable (default: 1)
   - temperature: configurable (default: 0.7)
+  - top_k: configurable (default: 5)
+  - do_sample: true
 ```
 
-**Response Processing**:
-- Extract logprobs from response
-- Convert log probabilities to percentages
-- Handle token decoding and display formatting
-- Error handling for API failures
+**Token Generation Process**:
+- Direct text completion (no chat formatting required)
+- Raw logits extraction via output_scores=True parameter
+- Convert logits to probabilities using torch.nn.functional.softmax()
+- Top-k sampling with configurable temperature
+- Token-by-token generation with full probability access
+- Local inference with no API dependencies
 
 ### Frontend Framework Selection
 

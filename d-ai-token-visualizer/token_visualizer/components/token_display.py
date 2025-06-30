@@ -419,13 +419,7 @@ def token_generation_controls(
             variant="outline",
             color="#EF4444",
             border_color="#EF4444",
-            _hover=rx.cond(
-                is_generating,
-                {},
-                {"background": "#FEF2F2"}
-            ),
-            _disabled={"color": "#9CA3AF", "cursor": "not-allowed"},
-            disabled=is_generating,
+            _hover={"background": "#FEF2F2"},
             on_click=on_reset,
             padding="0.75rem 1.5rem",
             border_radius="0.5rem"
