@@ -115,6 +115,12 @@ def utility_navigation() -> rx.Component:
         ),
         
         nav_button(
+            icon="bar-chart",
+            label="Test Probability Bars",
+            on_click=rx.redirect("/probability-bar-test")
+        ),
+        
+        nav_button(
             icon="settings",
             label="Settings"
         ),

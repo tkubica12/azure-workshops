@@ -117,11 +117,11 @@ This implementation plan provides a step-by-step checklist for building the Toke
 - [x] Test token selection and click events
 
 ### 5.2 Probability Visualization
-- [ ] Create `components/probability_bar.py` component
-- [ ] Implement horizontal probability bars
-- [ ] Add color coding for probability ranges
-- [ ] Create responsive design for different screen sizes
-- [ ] Test probability visualization with sample data
+- [x] Create `components/probability_bar.py` component
+- [x] Implement horizontal probability bars
+- [x] Add color coding for probability ranges
+- [x] Create responsive design for different screen sizes
+- [x] Test probability visualization with sample data
 
 ### 5.3 Prompt Input Interface
 - [ ] Create `components/prompt_input.py` component
