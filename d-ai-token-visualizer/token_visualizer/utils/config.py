@@ -7,28 +7,36 @@ from dotenv import load_dotenv
 
 
 @dataclass
-class AzureOpenAIConfig:
-    """Configuration for Azure OpenAI service."""
-    endpoint: str
-    deployment_name: str
-    api_version: str
-    api_key: Optional[str] = None
-    use_azure_default_credentials: bool = True
+class LocalLLMConfig:
+    """Configuration for Local LLM service."""
+    model_name: str
+    hf_token: str
+    device: str = "auto"
+    use_quantization: bool = True
     
     def __post_init__(self):
         """Validate configuration after initialization."""
-        if not self.endpoint:
-            raise ValueError("AZURE_OPENAI_ENDPOINT is required")
-        if not self.deployment_name:
-            raise ValueError("AZURE_OPENAI_DEPLOYMENT_NAME is required")
-        if not self.use_azure_default_credentials and not self.api_key:
-            raise ValueError("Either AZURE_OPENAI_API_KEY must be set or USE_AZURE_DEFAULT_CREDENTIALS must be true")
+        if not self.model_name:
+            raise ValueError("LOCAL_MODEL_NAME is required")
+        if not self.hf_token or self.hf_token == "your_hf_token_here":
+            raise ValueError("HUGGINGFACE_TOKEN is required - get it from https://huggingface.co/settings/tokens")
+
+
+# Legacy Azure OpenAI Config (kept for backwards compatibility)
+@dataclass
+class AzureOpenAIConfig:
+    """Configuration for Azure OpenAI service (deprecated)."""
+    endpoint: str = ""
+    deployment_name: str = ""
+    api_version: str = ""
+    api_key: Optional[str] = None
+    use_azure_default_credentials: bool = True
 
 
 @dataclass
 class AppConfig:
     """Main application configuration."""
-    azure_openai: AzureOpenAIConfig
+    local_llm: LocalLLMConfig
     debug: bool = False
     
     @classmethod
@@ -37,27 +45,25 @@ class AppConfig:
         # Load .env file if it exists
         load_dotenv()
         
-        # Get Azure OpenAI configuration
-        endpoint = os.getenv("AZURE_OPENAI_ENDPOINT", "")
-        deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-4")
-        api_version = os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-01")
-        api_key = os.getenv("AZURE_OPENAI_API_KEY")
-        use_aad = os.getenv("USE_AZURE_DEFAULT_CREDENTIALS", "true").lower() == "true"
+        # Get Local LLM configuration
+        model_name = os.getenv("LOCAL_MODEL_NAME", "google/gemma-2-2b")
+        hf_token = os.getenv("HUGGINGFACE_TOKEN", "")
+        device = os.getenv("DEVICE", "auto")
+        use_quantization = os.getenv("USE_QUANTIZATION", "true").lower() == "true"
         
-        # Create Azure OpenAI config
-        azure_openai_config = AzureOpenAIConfig(
-            endpoint=endpoint,
-            deployment_name=deployment_name,
-            api_version=api_version,
-            api_key=api_key,
-            use_azure_default_credentials=use_aad
+        # Create Local LLM config
+        local_llm_config = LocalLLMConfig(
+            model_name=model_name,
+            hf_token=hf_token,
+            device=device,
+            use_quantization=use_quantization
         )
         
         # Get general app configuration
         debug = os.getenv("DEBUG", "false").lower() == "true"
         
         return cls(
-            azure_openai=azure_openai_config,
+            local_llm=local_llm_config,
             debug=debug
         )
     
@@ -65,7 +71,7 @@ class AppConfig:
         """Check if configuration is valid."""
         try:
             # This will raise ValueError if invalid
-            self.azure_openai.__post_init__()
+            self.local_llm.__post_init__()
             return True, "Configuration is valid"
         except ValueError as e:
             return False, str(e)
@@ -99,11 +105,10 @@ def test_config() -> dict:
         return {
             "valid": is_valid,
             "message": message,
-            "endpoint": config.azure_openai.endpoint,
-            "deployment": config.azure_openai.deployment_name,
-            "api_version": config.azure_openai.api_version,
-            "auth_method": "Azure Default Credentials" if config.azure_openai.use_azure_default_credentials else "API Key",
-            "has_api_key": bool(config.azure_openai.api_key),
+            "model_name": config.local_llm.model_name,
+            "device": config.local_llm.device,
+            "use_quantization": config.local_llm.use_quantization,
+            "has_hf_token": bool(config.local_llm.hf_token and config.local_llm.hf_token != "your_hf_token_here"),
             "debug": config.debug
         }
     except Exception as e:

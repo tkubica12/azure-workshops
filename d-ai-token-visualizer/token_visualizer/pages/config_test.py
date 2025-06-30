@@ -2,7 +2,7 @@
 
 import reflex as rx
 from ..utils.config import test_config
-from ..services.azure_openai import test_azure_openai_service
+from ..services.local_llm import test_local_llm_service
 from ..state.api_test_state import APITestState
 
 
@@ -54,26 +54,32 @@ def config_test_card() -> rx.Component:
                     config_status.get("valid", False),
                     rx.vstack(
                         rx.hstack(
-                            rx.text("Endpoint:", font_weight="600", color="#374151"),
-                            rx.text(config_status.get("endpoint", "Not set"), color="#6B7280"),
+                            rx.text("Model Name:", font_weight="600", color="#374151"),
+                            rx.text(config_status.get("model_name", "Not set"), color="#6B7280"),
                             justify="between",
                             width="100%"
                         ),
                         rx.hstack(
-                            rx.text("Deployment:", font_weight="600", color="#374151"),
-                            rx.text(config_status.get("deployment", "Not set"), color="#6B7280"),
+                            rx.text("Device:", font_weight="600", color="#374151"),
+                            rx.text(config_status.get("device", "Not set"), color="#6B7280"),
                             justify="between",
                             width="100%"
                         ),
                         rx.hstack(
-                            rx.text("API Version:", font_weight="600", color="#374151"),
-                            rx.text(config_status.get("api_version", "Not set"), color="#6B7280"),
+                            rx.text("Quantization:", font_weight="600", color="#374151"),
+                            rx.text(
+                                "✅ Enabled" if config_status.get("use_quantization", False) else "❌ Disabled",
+                                color="#10B981" if config_status.get("use_quantization", False) else "#6B7280"
+                            ),
                             justify="between",
                             width="100%"
                         ),
                         rx.hstack(
-                            rx.text("Auth Method:", font_weight="600", color="#374151"),
-                            rx.text(config_status.get("auth_method", "Not set"), color="#6B7280"),
+                            rx.text("HF Token:", font_weight="600", color="#374151"),
+                            rx.text(
+                                "✅ Configured" if config_status.get("has_hf_token", False) else "❌ Missing",
+                                color="#10B981" if config_status.get("has_hf_token", False) else "#EF4444"
+                            ),
                             justify="between",
                             width="100%"
                         ),
@@ -138,7 +144,7 @@ def environment_info_card() -> rx.Component:
                 rx.text(
                     "This page tests the configuration loading functionality. "
                     "It reads environment variables from the .env file and validates "
-                    "the Azure OpenAI configuration.",
+                    "the Local LLM configuration.",
                     color="#6B7280",
                     line_height="1.6"
                 ),
@@ -151,11 +157,10 @@ def environment_info_card() -> rx.Component:
                 ),
                 
                 rx.unordered_list(
-                    rx.list_item("AZURE_OPENAI_ENDPOINT", color="#6B7280"),
-                    rx.list_item("AZURE_OPENAI_DEPLOYMENT_NAME", color="#6B7280"),
-                    rx.list_item("AZURE_OPENAI_API_VERSION", color="#6B7280"),
-                    rx.list_item("USE_AZURE_DEFAULT_CREDENTIALS (optional)", color="#6B7280"),
-                    rx.list_item("AZURE_OPENAI_API_KEY (if not using AAD)", color="#6B7280"),
+                    rx.list_item("HUGGINGFACE_TOKEN", color="#6B7280"),
+                    rx.list_item("LOCAL_MODEL_NAME (default: google/gemma-2-2b)", color="#6B7280"),
+                    rx.list_item("DEVICE (default: auto)", color="#6B7280"),
+                    rx.list_item("USE_QUANTIZATION (default: true)", color="#6B7280"),
                     margin_left="1rem"
                 ),
                 
@@ -178,19 +183,19 @@ def environment_info_card() -> rx.Component:
 
 
 def api_test_card() -> rx.Component:
-    """Component to display API connectivity test results."""
-    api_status = test_azure_openai_service()
+    """Component to display Local LLM service test results."""
+    api_status = test_local_llm_service()
     
     # Status indicator based on API test
-    status_color = "#10B981" if api_status.get("success", False) else "#EF4444"
-    status_text = "✅ Connected" if api_status.get("success", False) else "❌ Failed"
+    status_color = "#10B981" if api_status.get("status") == "success" else "#EF4444"
+    status_text = "✅ Connected" if api_status.get("status") == "success" else "❌ Failed"
     
     return rx.box(
         rx.vstack(
             # Header
             rx.hstack(
                 rx.heading(
-                    "API Connectivity Test",
+                    "Local LLM Service Test",
                     size="5",
                     color="#1F2937"
                 ),
@@ -222,32 +227,41 @@ def api_test_card() -> rx.Component:
                 
                 # Show test results if successful
                 rx.cond(
-                    api_status.get("success", False),
+                    api_status.get("status") == "success",
                     rx.vstack(
                         rx.text(
-                            "Test Results:",
+                            "Model Information:",
                             font_weight="600",
                             color="#374151",
                             margin_bottom="0.5rem"
                         ),
                         
-                        # Connection test
+                        # Model details
                         rx.hstack(
-                            rx.text("Connection Test:", font_weight="500", color="#374151"),
+                            rx.text("Model:", font_weight="500", color="#374151"),
                             rx.text(
-                                "✅ Passed" if api_status.get("connection_test", False) else "❌ Failed",
-                                color="#10B981" if api_status.get("connection_test", False) else "#EF4444"
+                                api_status.get("model_name", "Unknown"),
+                                color="#1F2937"
                             ),
                             justify="between",
                             width="100%"
                         ),
                         
-                        # Logprobs test
                         rx.hstack(
-                            rx.text("Logprobs Test:", font_weight="500", color="#374151"),
+                            rx.text("Device:", font_weight="500", color="#374151"),
                             rx.text(
-                                "✅ Passed" if api_status.get("logprobs_test", False) else "❌ Failed",
-                                color="#10B981" if api_status.get("logprobs_test", False) else "#EF4444"
+                                api_status.get("device", "Unknown"),
+                                color="#1F2937"
+                            ),
+                            justify="between",
+                            width="100%"
+                        ),
+                        
+                        rx.hstack(
+                            rx.text("Quantization:", font_weight="500", color="#374151"),
+                            rx.text(
+                                "✅ Enabled" if api_status.get("quantization", False) else "❌ Disabled",
+                                color="#10B981" if api_status.get("quantization", False) else "#6B7280"
                             ),
                             justify="between",
                             width="100%"
@@ -255,7 +269,7 @@ def api_test_card() -> rx.Component:
                         
                         # Show test result details if available
                         rx.cond(
-                            api_status.get("test_result") is not None,
+                            api_status.get("test_generation") is not None,
                             rx.vstack(
                                 rx.text(
                                     "Sample Generation:",
@@ -267,23 +281,37 @@ def api_test_card() -> rx.Component:
                                 rx.box(
                                     rx.vstack(
                                         rx.text(
-                                            f"Prompt: {api_status.get('test_result', {}).get('prompt', 'N/A')}",
+                                            f"Prompt: {api_status.get('test_generation', {}).get('prompt', 'N/A')}",
                                             color="#374151",
                                             font_weight="500"
                                         ),
                                         rx.text(
-                                            f"Generated: {api_status.get('test_result', {}).get('generated_text', 'N/A')}",
+                                            f"Selected Token: '{api_status.get('test_generation', {}).get('selected_token', 'N/A')}'",
                                             color="#1F2937",
                                             font_weight="600"
                                         ),
                                         rx.text(
-                                            f"Selected Token: '{api_status.get('test_result', {}).get('selected_token', {}).get('token', 'N/A')}' ({api_status.get('test_result', {}).get('selected_token', {}).get('probability', 'N/A')})",
+                                            f"Probability: {api_status.get('test_generation', {}).get('selected_probability', 'N/A')}",
                                             color="#6B7280"
                                         ),
                                         rx.text(
-                                            f"Alternatives: {api_status.get('test_result', {}).get('alternatives_count', 0)} found",
+                                            f"Generation Time: {api_status.get('test_generation', {}).get('generation_time', 'N/A')}",
                                             color="#6B7280"
                                         ),
+                                        rx.text(
+                                            "Top Alternatives:",
+                                            font_weight="500",
+                                            color="#374151",
+                                            margin_top="0.5rem"
+                                        ),
+                                        *[
+                                            rx.text(
+                                                f"• {alt}",
+                                                color="#6B7280",
+                                                font_size="0.875rem"
+                                            )
+                                            for alt in api_status.get('test_generation', {}).get('top_alternatives', [])
+                                        ],
                                         spacing="2",
                                         align="start"
                                     ),
@@ -303,7 +331,7 @@ def api_test_card() -> rx.Component:
                 
                 # Show error details if failed
                 rx.cond(
-                    not api_status.get("success", False),
+                    api_status.get("status") != "success",
                     rx.vstack(
                         rx.text(
                             "Error Details:",
@@ -312,7 +340,7 @@ def api_test_card() -> rx.Component:
                             margin_bottom="0.5rem"
                         ),
                         rx.text(
-                            api_status.get("error", api_status.get("logprobs_error", "Unknown error")),
+                            api_status.get("message", "Unknown error"),
                             color="#7F1D1D",
                             font_family="monospace",
                             font_size="0.875rem",
@@ -679,7 +707,7 @@ def config_test_page() -> rx.Component:
                 margin_bottom="0.5rem"
             ),
             rx.text(
-                "Phase 3.2 & 3.3: Azure OpenAI Integration & API Testing",
+                "Local LLM Configuration & Service Testing",
                 color="#6B7280",
                 text_align="center",
                 margin_bottom="2rem"

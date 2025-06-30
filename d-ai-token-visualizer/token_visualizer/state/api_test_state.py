@@ -2,7 +2,7 @@
 
 import reflex as rx
 from typing import Dict, Any, Optional, List
-from ..services.azure_openai import get_azure_openai_client, TokenGenerationResult
+from ..services.local_llm import get_local_llm_client, TokenGenerationResult
 
 
 class APITestState(rx.State):
@@ -69,7 +69,7 @@ class APITestState(rx.State):
         self.result_raw_response = ""
         
         try:
-            client = get_azure_openai_client()
+            client = get_local_llm_client()
             
             # Run the test
             result = client.generate_with_logprobs(
