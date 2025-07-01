@@ -186,32 +186,32 @@ This implementation plan provides a step-by-step checklist for building the Toke
 ### 6.4 Complete 20 more
 - [x] Add button that would ask API for 20 next token sampled with temperature and display probabilities of next (21st) token
 
-## Phase 7: Mode 2 - Prompt Comparison Mode (Simplified)
+## Phase 7: Mode 2 - Prompt Comparison Mode (Simplified) - COMPLETED ✅
 
-### 7.1 Fixed Three-Column UI
-- [ ] Create `pages/prompt_comparison.py` page with fixed three-column layout
-- [ ] Design a simple `PromptColumn` component with:
+### 7.1 Fixed Three-Column UI - COMPLETED ✅
+- [x] Create `pages/prompt_comparison.py` page with fixed three-column layout
+- [x] Design a simple `PromptColumn` component with:
   - Text area for prompt input
   - "Generate" button 
   - Token probability visualization area
-- [ ] Implement CSS Grid or Flexbox layout for three equal-width columns
-- [ ] Add navigation menu item for "Prompt Comparison" mode
-- [ ] Test basic three-column layout renders correctly
+- [x] Implement CSS Grid or Flexbox layout for three equal-width columns
+- [x] Add navigation menu item for "Prompt Comparison" mode
+- [x] Test basic three-column layout renders correctly
 
-### 7.2 State Management and Generation
-- [ ] Create `PromptComparisonState` with three independent prompt-result pairs
-- [ ] Add state variables: `prompt_1`, `prompt_2`, `prompt_3` and corresponding `results_1`, `results_2`, `results_3`
-- [ ] Implement generate button handlers for each column (fixed temperature=1.0)
-- [ ] Reuse existing LLM service client for API calls
-- [ ] Add loading states for each column independently
-- [ ] Test state management and API integration for all three columns
+### 7.2 State Management and Generation - COMPLETED ✅
+- [x] Create `PromptComparisonState` with three independent prompt-result pairs
+- [x] Add state variables: `prompt_1`, `prompt_2`, `prompt_3` and corresponding `results_1`, `results_2`, `results_3`
+- [x] Implement generate button handlers for each column (fixed temperature=1.0)
+- [x] Reuse existing LLM service client for API calls
+- [x] Add loading states for each column independently
+- [x] Test state management and API integration for all three columns
 
-### 7.3 Probability Visualization
-- [ ] Reuse existing color-coded probability components from Mode 1
-- [ ] Display top 5 token probabilities in each column using established 6-tier color system
-- [ ] Ensure consistent styling across all three columns
-- [ ] Add basic error handling for failed generations
-- [ ] Test complete workflow: prompt input → generate → probability display
+### 7.3 Probability Visualization - COMPLETED ✅
+- [x] Reuse existing color-coded probability components from Mode 1
+- [x] Display top 5 token probabilities in each column using established 6-tier color system
+- [x] Ensure consistent styling across all three columns
+- [x] Add basic error handling for failed generations
+- [x] Test complete workflow: prompt input → generate → probability display
 
 ## Phase 8: Mode 3 - Interactive Token Tree with Color Visualization
 

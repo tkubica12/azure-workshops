@@ -68,30 +68,10 @@ def mode_navigation() -> rx.Component:
         
         rx.link(
             nav_button(
-                icon="activity",
-                label="Live Probability"
-            ),
-            href="/live-probability",
-            text_decoration="none",
-            width="100%"
-        ),
-        
-        rx.link(
-            nav_button(
                 icon="columns",
                 label="Prompt Comparison"
             ),
             href="/prompt-comparison",
-            text_decoration="none",
-            width="100%"
-        ),
-        
-        rx.link(
-            nav_button(
-                icon="palette",
-                label="Color Visualization"
-            ),
-            href="/color-visualization",
             text_decoration="none",
             width="100%"
         ),

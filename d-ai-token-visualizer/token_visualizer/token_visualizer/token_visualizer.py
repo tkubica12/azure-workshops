@@ -7,6 +7,7 @@ from .pages.state_test import state_test_page
 from .pages.token_display_test import token_display_test_page
 from .pages.probability_bar_test import probability_bar_test_page
 from .pages.interactive_mode import interactive_mode_page
+from .pages.prompt_comparison import prompt_comparison_page
 
 
 def welcome_content() -> rx.Component:
@@ -275,3 +276,6 @@ app.add_page(probability_bar_test_page, route="/probability-bar-test")
 
 # Add the interactive mode page
 app.add_page(interactive_mode_page, route="/interactive")
+
+# Add the prompt comparison page
+app.add_page(prompt_comparison_page, route="/prompt-comparison")

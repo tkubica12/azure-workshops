@@ -23,6 +23,10 @@ Reflex uses Radix UI components under the hood and enforces strict prop type val
 - ✅ **CORRECT**: Use only `"1"`, `"2"`, or `"3"` for spinner sizes
 - ❌ **WRONG**: `"4"` or higher values - these cause TypeErrors specifically for spinner components
 
+**Icon Size Values - CRITICAL:**
+- ✅ **CORRECT**: Use integers like `16`, `18`, `24` for icon sizes
+- ❌ **WRONG**: String values like `"16"`, `"18"` - these cause TypeErrors for icon components
+
 **Colors:**
 - ✅ **CORRECT**: Use hex codes `"#1F2937"` or Radix color tokens
 - ✅ **CORRECT**: CSS color names `"white"`, `"black"` for basic colors
@@ -37,6 +41,15 @@ rx.spinner(size="4")  # This will fail! Spinner only accepts "1", "2", "3"
 
 # ✅ CORRECT
 rx.spinner(size="2")  # Use valid spinner size
+```
+
+**Icon Size Error - CRITICAL:**
+```python
+# ❌ WRONG - Causes TypeError
+rx.icon("zap", size="16")  # This will fail! Icon expects integer
+
+# ✅ CORRECT
+rx.icon("zap", size=16)    # Use integer for icon size
 ```
 
 **VStack/HStack Spacing Error:**
