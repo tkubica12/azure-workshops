@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
     logger.info("🚀 Starting Local LLM Service...")
     logger.info(f"📋 Model: {settings.model_name}")
     logger.info(f"🔧 Device: {settings.device}")
-    logger.info(f"⚡ Quantization: {settings.use_quantization}")
+    logger.info(f"⚡ Quantization: {settings.quantization or 'None'}")
     
     try:
         # Initialize model manager

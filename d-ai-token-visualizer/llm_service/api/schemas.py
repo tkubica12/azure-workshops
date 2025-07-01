@@ -42,7 +42,7 @@ class StatusResponse(BaseModel):
     status: str = Field(..., description="Service status")
     model_name: str = Field(..., description="Name of the loaded model")
     device: str = Field(..., description="Device used for inference")
-    quantization: bool = Field(..., description="Whether quantization is enabled")
+    quantization: Optional[str] = Field(None, description="Quantization type: None, Q4, or Q8")
     parameters_billions: Optional[float] = Field(None, description="Model parameters in billions")
     memory_efficient: bool = Field(..., description="Whether memory efficiency is enabled")
 

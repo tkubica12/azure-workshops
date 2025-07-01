@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from .base_state import BaseState
-from ..services.azure_openai import TokenProbability, TokenGenerationResult
+from ..services.llm_client import TokenProbability, TokenGenerationResult
 
 
 @dataclass

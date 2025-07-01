@@ -9,7 +9,7 @@ from ..components.probability_bar import (
     interactive_probability_bars
 )
 from ..components.layout import app_layout
-from ..services.azure_openai import TokenProbability
+from ..services.llm_client import TokenProbability
 
 
 class ProbabilityBarTestState(rx.State):

@@ -1,6 +1,7 @@
 """API routes for the LLM service."""
 
 import asyncio
+import json
 import time
 from typing import Dict, Any
 from fastapi import APIRouter, HTTPException, Depends
@@ -88,6 +89,8 @@ async def generate_tokens(
     model_manager: GemmaModelManager = Depends(get_model_manager)
 ):
     """Generate tokens with probability information."""
+    # Log incoming request
+    print(f"INFO: Received generation request. Prompt: '{request.prompt}")
     if not model_manager.is_ready():
         raise HTTPException(
             status_code=503, 
@@ -127,6 +130,9 @@ async def generate_tokens(
             )
             for alt in result.top_alternatives
         ]
+        
+        # Log response summary
+        print(f"INFO: Generation completed. Generation time: {result.generation_time:.3f}s")
         
         return GenerationResponse(
             prompt=request.prompt,

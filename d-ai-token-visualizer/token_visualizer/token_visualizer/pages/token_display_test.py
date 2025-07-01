@@ -10,7 +10,7 @@ from ..components.token_display import (
     token_display_container
 )
 from ..components.layout import app_layout
-from ..services.azure_openai import TokenProbability
+from ..services.llm_client import TokenProbability
 from ..state.token_state import TokenState
 
 

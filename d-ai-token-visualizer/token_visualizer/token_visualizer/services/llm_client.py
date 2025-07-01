@@ -15,10 +15,11 @@ class TokenProbability:
     token: str
     probability: float
     logprob: float
+    percentage: float  # Probability as percentage (0-100 range)
     
     def probability_percentage(self) -> str:
         """Return probability as percentage string."""
-        return f"{self.probability * 100:.1f}%"
+        return f"{self.percentage:.1f}%"
 
 
 @dataclass 
@@ -188,7 +189,8 @@ class LLMServiceClient:
                 alternatives.append(TokenProbability(
                     token=alt["token"],
                     probability=alt["probability"],
-                    logprob=alt["logprob"]
+                    logprob=alt["logprob"],
+                    percentage=alt["percentage"]
                 ))
             
             return TokenGenerationResult(

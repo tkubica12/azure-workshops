@@ -7,7 +7,7 @@ from datetime import datetime
 from ..components.layout import app_layout
 from ..components.probability_bar import interactive_probability_bars
 from ..components.token_display import token_generation_controls
-from ..services.azure_openai import get_azure_openai_client, TokenProbability
+from ..services.llm_client import get_llm_client, TokenProbability
 from ..state.token_state import TokenState
 
 
@@ -132,8 +132,8 @@ class InteractiveGenerationState(rx.State):
         self.clear_error()
         
         try:
-            # Get OpenAI client
-            client = get_azure_openai_client()
+            # Get LLM client
+            client = await get_llm_client()
             
             # Construct the proper prompt: original prompt + selected tokens
             # Concatenate tokens exactly as they come from the LLM (tokens include their own spacing)
@@ -144,53 +144,30 @@ class InteractiveGenerationState(rx.State):
             else:
                 full_prompt = self.initial_prompt
             
-            # Debug: Log what we're sending to the API with detailed space analysis
-            print(f"DEBUG: Original prompt: '{self.initial_prompt}'")
-            print(f"DEBUG: Original prompt repr: {repr(self.initial_prompt)}")
-            print(f"DEBUG: Generated tokens: {self.generated_tokens}")
-            for i, token in enumerate(self.generated_tokens):
-                print(f"DEBUG:   Token {i}: '{token}' (repr: {repr(token)}) (len: {len(token)})")
-            if self.generated_tokens:
-                token_text = "".join(self.generated_tokens)
-                print(f"DEBUG: Joined token_text: '{token_text}'")
-                print(f"DEBUG: Joined token_text repr: {repr(token_text)}")
-            print(f"DEBUG: Sending full prompt to API: '{full_prompt}'")
-            print(f"DEBUG: Full prompt repr: {repr(full_prompt)}")
-            print(f"DEBUG: Full prompt bytes: {full_prompt.encode('utf-8')}")
-            print(f"DEBUG: Full prompt length: {len(full_prompt)} characters")
-            print(f"DEBUG: Temperature: {self.temperature}, Top-k: {self.top_k}")
-            print("DEBUG: =" * 60)
+            # Log current generation state
+            print(f"INFO: Generating next token for prompt: '{full_prompt}'")
+            print(f"INFO: Temperature: {self.temperature}, Top-k: {self.top_k}")
             
             # Generate with logprobs
-            result = client.generate_with_logprobs(
+            result = await client.generate_tokens_with_probabilities(
                 prompt=full_prompt,
                 max_tokens=1,
                 temperature=self.temperature,
                 top_logprobs=self.top_k
             )
             
-            # Debug: Log what we got back
-            print(f"DEBUG: API returned generated_text: '{result.generated_text}'")
-            print(f"DEBUG: Generated text repr: {repr(result.generated_text)}")
-            print(f"DEBUG: API returned selected_token: '{result.selected_token.token}' ({result.selected_token.percentage:.1f}%)")
-            print(f"DEBUG: Selected token repr: {repr(result.selected_token.token)}")
-            print(f"DEBUG: Got {len(result.top_alternatives)} alternatives:")
-            for i, alt in enumerate(result.top_alternatives):
-                print(f"  {i+1}. '{alt.token}' (repr: {repr(alt.token)}) ({alt.percentage:.1f}%)")
-                
-            # Debug: Check if generated_text matches selected_token
-            if result.generated_text != result.selected_token.token:
-                print(f"DEBUG: WARNING - generated_text '{result.generated_text}' != selected_token '{result.selected_token.token}'!")
-                print(f"DEBUG: generated_text repr: {repr(result.generated_text)}")
-                print(f"DEBUG: selected_token repr: {repr(result.selected_token.token)}")
+            # Log the most likely next token
+            if result.alternatives:
+                most_likely = result.alternatives[0]
+                print(f"INFO: Most likely next token: '{most_likely.token}' ({most_likely.percentage:.1f}%)")
             
             # Update alternatives
-            self.current_alternatives = result.top_alternatives
+            self.current_alternatives = result.alternatives
             self.selected_token_index = -1
             self.is_generating = True
             
         except Exception as e:
-            print(f"DEBUG: API error: {str(e)}")
+            print(f"ERROR: Token generation failed: {str(e)}")
             self.set_error(f"Failed to generate alternatives: {str(e)}")
             self.is_generating = False
         finally:
@@ -201,36 +178,22 @@ class InteractiveGenerationState(rx.State):
         if 0 <= index < len(self.current_alternatives):
             selected_token = self.current_alternatives[index]
             
-            # Debug: Log token selection
-            print(f"DEBUG: Selected token '{selected_token.token}' (index {index})")
-            print(f"DEBUG: Selected token repr: {repr(selected_token.token)}")
-            print(f"DEBUG: Selected token length: {len(selected_token.token)} chars")
-            print(f"DEBUG: Generated tokens before: {self.generated_tokens}")
+            # Log token selection
+            print(f"INFO: Selected token '{selected_token.token}' ({selected_token.percentage:.1f}%)")
             
             # Add token to generated sequence
             self.generated_tokens.append(selected_token.token)
-            
-            # Debug: Check token in list
-            print(f"DEBUG: Last token in list: '{self.generated_tokens[-1]}'")
-            print(f"DEBUG: Last token repr: {repr(self.generated_tokens[-1])}")
             
             # Update display text: original prompt + all generated tokens  
             # Use the same concatenation logic as prompt construction for consistency
             if self.generated_tokens:
                 token_text = "".join(self.generated_tokens)
-                print(f"DEBUG: Joined token_text: '{token_text}'")
-                print(f"DEBUG: Joined token_text repr: {repr(token_text)}")
                 self.current_text = f"{self.initial_prompt}{token_text}"
             else:
                 self.current_text = self.initial_prompt
             
             self.total_tokens_generated += 1
             self.selected_token_index = index
-            
-            # Debug: Log updated state
-            print(f"DEBUG: Generated tokens after: {self.generated_tokens}")
-            print(f"DEBUG: Display text: '{self.current_text}'")
-            print(f"DEBUG: Total tokens: {self.total_tokens_generated}/{self.max_tokens}")
             
             # Check if we should continue generating
             if self.total_tokens_generated < self.max_tokens:
@@ -241,15 +204,14 @@ class InteractiveGenerationState(rx.State):
             else:
                 # End generation
                 self.is_generating = False
-                print("DEBUG: Generation complete!")
+                print(f"INFO: Generation complete! Generated {self.total_tokens_generated} tokens.")
     
     async def undo_last_token(self):
         """Remove the last generated token."""
         if self.generated_tokens:
             # Remove last token from sequence
             last_token = self.generated_tokens.pop()
-            print(f"DEBUG: Undoing token '{last_token}'")
-            print(f"DEBUG: Generated tokens after undo: {self.generated_tokens}")
+            print(f"INFO: Undoing last token: '{last_token}'")
             
             # Reconstruct current text from original prompt + remaining tokens preserving structure
             if self.generated_tokens:
@@ -260,8 +222,6 @@ class InteractiveGenerationState(rx.State):
             
             self.total_tokens_generated -= 1
             self.selected_token_index = -1
-            
-            print(f"DEBUG: Display text after undo: '{self.current_text}'")
             
             # If we were done generating, restart
             if not self.is_generating and self.total_tokens_generated < self.max_tokens:

@@ -64,20 +64,32 @@ class GemmaModelManager:
         return device
     
     def _setup_quantization_config(self) -> Optional[BitsAndBytesConfig]:
-        """Set up quantization configuration if enabled."""
-        if not settings.use_quantization:
+        """Set up quantization configuration based on the quantization setting."""
+        if not settings.quantization:
             return None
         
         try:
             import bitsandbytes
-            print(f"⚡ Using 4-bit quantization for memory efficiency")
             
-            return BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_compute_dtype=torch.float16,
-                bnb_4bit_use_double_quant=True,
-                bnb_4bit_quant_type="nf4"
-            )
+            if settings.quantization == "Q4":
+                print(f"⚡ Using 4-bit quantization for memory efficiency")
+                return BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_compute_dtype=torch.float16,
+                    bnb_4bit_use_double_quant=True,
+                    bnb_4bit_quant_type="nf4"
+                )
+            elif settings.quantization == "Q8":
+                print(f"⚡ Using 8-bit quantization for memory efficiency")
+                return BitsAndBytesConfig(
+                    load_in_8bit=True,
+                    llm_int8_threshold=6.0,
+                    llm_int8_has_fp16_weight=False
+                )
+            else:
+                print(f"⚠️  Unknown quantization type: {settings.quantization}")
+                return None
+                
         except ImportError:
             print("⚠️  BitsAndBytes not available - quantization disabled")
             return None
@@ -144,7 +156,9 @@ class GemmaModelManager:
                 print(f"✅ Model loaded successfully in {load_time:.2f} seconds")
                 print(f"📊 Model parameters: {params_billions:.2f}B")
                 if quantization_config:
-                    print(f"💾 Memory efficient: 4-bit quantization (~75% memory reduction)")
+                    quantization_type = "4-bit" if settings.quantization == "Q4" else "8-bit"
+                    memory_reduction = "~75%" if settings.quantization == "Q4" else "~50%"
+                    print(f"💾 Memory efficient: {quantization_type} quantization ({memory_reduction} memory reduction)")
                 
                 self._is_initialized = True
                 return True, f"Model initialized successfully ({params_billions:.2f}B parameters)"
@@ -165,7 +179,7 @@ class GemmaModelManager:
                 "status": "not_ready",
                 "model_name": settings.model_name,
                 "device": "unknown",
-                "quantization": settings.use_quantization
+                "quantization": settings.quantization
             }
         
         total_params = sum(p.numel() for p in self.model.parameters())
@@ -175,9 +189,9 @@ class GemmaModelManager:
             "status": "ready",
             "model_name": settings.model_name,
             "device": self.device,
-            "quantization": settings.use_quantization,
+            "quantization": settings.quantization,
             "parameters_billions": round(params_billions, 2),
-            "memory_efficient": settings.use_quantization
+            "memory_efficient": settings.quantization is not None
         }
     
     def _logprob_to_probability(self, logprob: float) -> float:
@@ -235,8 +249,12 @@ class GemmaModelManager:
                 model_outputs = self.model(**inputs)
                 logits = model_outputs.logits[0, -1, :]  # Last token logits
                 
-                # Convert logits to log probabilities
-                log_probs = F.log_softmax(logits, dim=-1)
+                # Apply temperature to logits before computing probabilities
+                # Temperature scaling: higher temp = more random, lower temp = more deterministic
+                scaled_logits = logits / temperature
+                
+                # Convert temperature-scaled logits to log probabilities
+                log_probs = F.log_softmax(scaled_logits, dim=-1)
                 
                 # Get top-k alternatives
                 top_logprobs_tensor, top_indices = torch.topk(log_probs, top_logprobs)

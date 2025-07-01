@@ -2,7 +2,7 @@
 
 import reflex as rx
 from typing import List, Optional, Dict, Any
-from ..services.azure_openai import TokenProbability
+from ..services.llm_client import TokenProbability
 
 
 def token_button(

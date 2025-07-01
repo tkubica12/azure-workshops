@@ -21,9 +21,11 @@ def format_model_info(model_info: Dict[str, Any]) -> str:
     if model_info["status"] != "ready":
         return f"Model: {model_info['model_name']} (Status: {model_info['status']})"
     
+    quantization_str = model_info['quantization'] or 'None'
+    
     return (
         f"Model: {model_info['model_name']} "
         f"({model_info.get('parameters_billions', 'Unknown')}B parameters, "
         f"Device: {model_info['device']}, "
-        f"Quantization: {'Enabled' if model_info['quantization'] else 'Disabled'})"
+        f"Quantization: {quantization_str})"
     )
