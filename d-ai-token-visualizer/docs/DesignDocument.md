@@ -379,6 +379,7 @@ Modern minimalist aesthetic inspired by ChatGPT, Gemini, and Perplexity. Focus o
 - **Buttons**: 8px radius, 44px minimum touch target, subtle hover states
 - **Tokens**: Pill-shaped with gentle hover effects and color-coded probabilities
 - **Inputs**: Clean borders, blue focus states, clear placeholders
+- **Progress Indicators**: Simple spinner + text messages for async operations (no animated buttons, messages appear/disappear cleanly)
 
 #### Layout
 - **Desktop**: Three-column (sidebar, content, info panel)

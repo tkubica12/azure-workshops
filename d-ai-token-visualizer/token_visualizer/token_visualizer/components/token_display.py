@@ -338,49 +338,15 @@ def token_generation_controls(
     """Control buttons for token generation flow.
     
     Args:
-        on_generate_next: Handler for generating next token alternatives
+        on_generate_next: Handler for generating next token alternatives (not used - kept for compatibility)
         on_reset: Handler for resetting the generation
         on_undo_last: Handler for undoing the last token selection
         is_generating: Whether generation is currently in progress
         can_undo: Whether undo is available
-        can_generate: Whether generation can proceed
+        can_generate: Whether generation can proceed (not used - kept for compatibility)
     """
     
     return rx.hstack(
-        # Generate Next Tokens button
-        rx.button(
-            rx.hstack(
-                rx.cond(
-                    is_generating,
-                    rx.spinner(size="2", color="white"),
-                    rx.icon("zap", size=16)
-                ),
-                rx.cond(
-                    is_generating,
-                    rx.text("Generating...", font_weight="500"),
-                    rx.text("Generate Next Token", font_weight="500")
-                ),
-                spacing="2",
-                align="center"
-            ),
-            background="#10B981",
-            color="white",
-            _hover=rx.cond(
-                is_generating,
-                {},
-                {"background": "#059669"}
-            ),
-            _disabled={"background": "#9CA3AF", "cursor": "not-allowed"},
-            disabled=rx.cond(
-                is_generating | ~can_generate,
-                True,
-                False
-            ),
-            on_click=on_generate_next,
-            padding="0.75rem 1.5rem",
-            border_radius="0.5rem"
-        ),
-        
         # Undo Last Token button
         rx.button(
             rx.hstack(

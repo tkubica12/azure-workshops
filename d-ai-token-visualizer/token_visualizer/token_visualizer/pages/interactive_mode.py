@@ -29,6 +29,10 @@ class InteractiveGenerationState(rx.State):
     error_message: str = ""
     has_error: bool = False
     
+    # Progress message state
+    progress_message: str = ""
+    has_progress_message: bool = False
+    
     # Generation settings
     temperature: float = 0.7
     top_k: int = 5
@@ -75,35 +79,59 @@ class InteractiveGenerationState(rx.State):
         self.error_message = ""
         self.has_error = False
     
+    def set_progress_message(self, message: str):
+        """Set progress message."""
+        self.progress_message = message
+        self.has_progress_message = bool(message)
+    
+    def clear_progress_message(self):
+        """Clear progress message."""
+        self.progress_message = ""
+        self.has_progress_message = False
+    
+    @rx.event(background=True)
     async def start_generation(self):
         """Start the interactive generation process."""
         if not self.initial_prompt:
-            self.set_error("Please enter a prompt to start generation.")
+            async with self:
+                self.set_error("Please enter a prompt to start generation.")
             return
         
-        self.is_loading = True
-        self.clear_error()
+        # Show progress message immediately
+        async with self:
+            self.set_progress_message("Starting generation session...")
+            self.is_loading = True
+            self.clear_error()
         
         try:
             # Initialize session
-            self.current_text = self.initial_prompt
-            self.generated_tokens = []
-            self.total_tokens_generated = 0
-            self.has_started = True
-            self.session_start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            async with self:
+                self.current_text = self.initial_prompt
+                self.generated_tokens = []
+                self.total_tokens_generated = 0
+                self.has_started = True
+                self.session_start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                self.set_progress_message("Generating token alternatives...")
             
             # Generate first set of alternatives
             await self.generate_next_alternatives()
             
         except Exception as e:
-            self.set_error(f"Failed to start generation: {str(e)}")
+            async with self:
+                self.set_error(f"Failed to start generation: {str(e)}")
         finally:
-            self.is_loading = False
+            async with self:
+                self.is_loading = False
+                self.clear_progress_message()
     
     async def generate_next_alternatives(self):
         """Generate the next set of token alternatives."""
-        self.is_loading = True
-        self.clear_error()
+        async with self:
+            self.is_loading = True
+            self.clear_error()
+            # Don't set progress message here if already set by start_generation
+            if not self.has_progress_message:
+                self.set_progress_message("Generating token alternatives...")
         
         try:
             # Get LLM client
@@ -111,15 +139,17 @@ class InteractiveGenerationState(rx.State):
             
             # Construct the proper prompt: original prompt + selected tokens
             # Concatenate tokens exactly as they come from the LLM (tokens include their own spacing)
-            if self.generated_tokens:
-                # Join tokens without spaces - they already include proper spacing from tokenization
-                token_text = "".join(self.generated_tokens)
-                full_prompt = f"{self.initial_prompt}{token_text}"
-            else:
-                full_prompt = self.initial_prompt
+            current_prompt = ""
+            async with self:
+                if self.generated_tokens:
+                    # Join tokens without spaces - they already include proper spacing from tokenization
+                    token_text = "".join(self.generated_tokens)
+                    current_prompt = f"{self.initial_prompt}{token_text}"
+                else:
+                    current_prompt = self.initial_prompt
             
             # Log current generation state
-            print(f"INFO: Generating next token for prompt: '{full_prompt}'")
+            print(f"INFO: Generating next token for prompt: '{current_prompt}'")
             print(f"INFO: Temperature: {self.temperature}, Top-k: {self.top_k}")
             
             # Handle temperature = 0 case - use very small positive number for deterministic behavior
@@ -127,7 +157,7 @@ class InteractiveGenerationState(rx.State):
             
             # Generate with logprobs
             result = await client.generate_tokens_with_probabilities(
-                prompt=full_prompt,
+                prompt=current_prompt,
                 max_tokens=1,
                 temperature=effective_temperature,
                 top_logprobs=self.top_k
@@ -139,60 +169,70 @@ class InteractiveGenerationState(rx.State):
                 print(f"INFO: Most likely next token: '{most_likely.token}' ({most_likely.percentage:.1f}%)")
             
             # Update alternatives
-            self.current_alternatives = result.alternatives
-            self.selected_token_index = -1
-            self.is_generating = True
+            async with self:
+                self.current_alternatives = result.alternatives
+                self.selected_token_index = -1
+                self.is_generating = True
             
         except Exception as e:
             print(f"ERROR: Token generation failed: {str(e)}")
-            self.set_error(f"Failed to generate alternatives: {str(e)}")
-            self.is_generating = False
+            async with self:
+                self.set_error(f"Failed to generate alternatives: {str(e)}")
+                self.is_generating = False
         finally:
-            self.is_loading = False
+            async with self:
+                self.is_loading = False
+                self.clear_progress_message()
     
+    @rx.event(background=True)
     async def select_token(self, index: int):
         """Handle token selection."""
         if 0 <= index < len(self.current_alternatives):
             selected_token = self.current_alternatives[index]
             
-            # Log token selection
-            print(f"INFO: Selected token '{selected_token.token}' ({selected_token.percentage:.1f}%)")
-            
-            # Add token to generated sequence
-            self.generated_tokens.append(selected_token.token)
-            
-            # Update display text: original prompt + all generated tokens  
-            # Use the same concatenation logic as prompt construction for consistency
-            if self.generated_tokens:
-                token_text = "".join(self.generated_tokens)
-                self.current_text = f"{self.initial_prompt}{token_text}"
-            else:
-                self.current_text = self.initial_prompt
-            
-            self.total_tokens_generated += 1
-            self.selected_token_index = index
+            # Show progress message immediately
+            async with self:
+                self.set_progress_message(f"Selected '{selected_token.token}' - generating next alternatives...")
+                
+                # Log token selection
+                print(f"INFO: Selected token '{selected_token.token}' ({selected_token.percentage:.1f}%)")
+                
+                # Add token to generated sequence
+                self.generated_tokens.append(selected_token.token)
+                
+                # Update display text: original prompt + all generated tokens  
+                # Use the same concatenation logic as prompt construction for consistency
+                if self.generated_tokens:
+                    token_text = "".join(self.generated_tokens)
+                    self.current_text = f"{self.initial_prompt}{token_text}"
+                else:
+                    self.current_text = self.initial_prompt
+                
+                self.total_tokens_generated += 1
+                self.selected_token_index = index
             
             # Generate next alternatives immediately after selection
-            # Small delay for UI feedback
-            await asyncio.sleep(0.1)
             await self.generate_next_alternatives()
     
+    @rx.event(background=True)
     async def undo_last_token(self):
         """Remove the last generated token."""
         if self.generated_tokens:
-            # Remove last token from sequence
-            last_token = self.generated_tokens.pop()
-            print(f"INFO: Undoing last token: '{last_token}'")
-            
-            # Reconstruct current text from original prompt + remaining tokens preserving structure
-            if self.generated_tokens:
-                token_text = "".join(self.generated_tokens)
-                self.current_text = f"{self.initial_prompt}{token_text}"
-            else:
-                self.current_text = self.initial_prompt
-            
-            self.total_tokens_generated -= 1
-            self.selected_token_index = -1
+            # Remove last token from sequence and show progress
+            async with self:
+                last_token = self.generated_tokens.pop()
+                print(f"INFO: Undoing last token: '{last_token}'")
+                self.set_progress_message(f"Undoing '{last_token}' - regenerating alternatives...")
+                
+                # Reconstruct current text from original prompt + remaining tokens preserving structure
+                if self.generated_tokens:
+                    token_text = "".join(self.generated_tokens)
+                    self.current_text = f"{self.initial_prompt}{token_text}"
+                else:
+                    self.current_text = self.initial_prompt
+                
+                self.total_tokens_generated -= 1
+                self.selected_token_index = -1
             
             # If we were done generating, restart
             if not self.is_generating:
@@ -209,6 +249,7 @@ class InteractiveGenerationState(rx.State):
         self.has_started = False
         self.total_tokens_generated = 0
         self.clear_error()
+        self.clear_progress_message()
     
     @rx.var
     def can_undo(self) -> bool:
@@ -235,6 +276,31 @@ def prompt_input_section() -> rx.Component:
             "Enter an initial prompt to see how the language model predicts the next tokens step by step. Select tokens one at a time to build your text - there's no limit to how many tokens you can generate!",
             color="#6B7280",
             margin_bottom="1.5rem"
+        ),
+        
+        # Progress message bar
+        rx.cond(
+            InteractiveGenerationState.has_progress_message,
+            rx.box(
+                rx.hstack(
+                    rx.spinner(size="2"),
+                    rx.text(
+                        InteractiveGenerationState.progress_message,
+                        color="#1F2937",
+                        font_size="0.875rem",
+                        font_weight="500"
+                    ),
+                    spacing="2",
+                    align="center"
+                ),
+                background="#F0F9FF",
+                border="1px solid #BAE6FD",
+                border_radius="0.5rem",
+                padding="0.75rem 1rem",
+                margin_bottom="1rem",
+                width="100%"
+            ),
+            rx.box()
         ),
         
         # Prompt input
@@ -375,6 +441,31 @@ def generation_display_section() -> rx.Component:
             margin_bottom="1rem"
         ),
         
+        # Progress message bar
+        rx.cond(
+            InteractiveGenerationState.has_progress_message,
+            rx.box(
+                rx.hstack(
+                    rx.spinner(size="2"),
+                    rx.text(
+                        InteractiveGenerationState.progress_message,
+                        color="#1F2937",
+                        font_size="0.875rem",
+                        font_weight="500"
+                    ),
+                    spacing="2",
+                    align="center"
+                ),
+                background="#F0F9FF",
+                border="1px solid #BAE6FD",
+                border_radius="0.5rem",
+                padding="0.75rem 1rem",
+                margin_bottom="1.5rem",
+                width="100%"
+            ),
+            rx.box()
+        ),
+        
         # Current text display
         rx.vstack(
             rx.text("Generated Text:", font_weight="600", color="#374151"),
@@ -410,14 +501,18 @@ def generation_display_section() -> rx.Component:
             rx.vstack(
                 rx.cond(
                     InteractiveGenerationState.is_loading,
-                    rx.center(
+                    rx.box(
                         rx.vstack(
                             rx.spinner(size="3"),
                             rx.text("Generating token alternatives...", color="#6B7280"),
                             spacing="3",
                             align="center"
                         ),
-                        padding="3rem"
+                        width="100%",
+                        display="flex",
+                        justify_content="center",
+                        align_items="center",
+                        padding="4rem 0"
                     ),
                     rx.cond(
                         InteractiveGenerationState.current_alternatives.length() > 0,
@@ -444,8 +539,7 @@ def generation_display_section() -> rx.Component:
             on_reset=InteractiveGenerationState.reset_generation,
             on_undo_last=InteractiveGenerationState.undo_last_token,
             is_generating=InteractiveGenerationState.is_generating,
-            can_undo=InteractiveGenerationState.can_undo,
-            can_generate=InteractiveGenerationState.can_continue
+            can_undo=InteractiveGenerationState.can_undo
         ),
         
         spacing="4",
