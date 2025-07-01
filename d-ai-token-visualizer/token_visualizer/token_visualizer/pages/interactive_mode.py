@@ -7,7 +7,22 @@ from datetime import datetime
 from ..components.layout import app_layout
 from ..components.probability_bar import interactive_probability_bars
 from ..components.token_display import token_generation_controls
+from ..components.color_coded_text import color_coded_text_display, probability_legend
 from ..services.llm_client import get_llm_client, TokenProbability
+
+# For color-coded text display
+from dataclasses import dataclass, field
+
+
+@dataclass
+class TokenHistoryEntry:
+    """Represents a single token selection in the generation history."""
+    token: str
+    probability: float
+    percentage: float
+    alternatives: List[TokenProbability] = field(default_factory=list)
+    selected_at: datetime = field(default_factory=datetime.now)
+    was_top_choice: bool = False  # Whether this was the highest probability token
 
 
 class InteractiveGenerationState(rx.State):
@@ -17,6 +32,9 @@ class InteractiveGenerationState(rx.State):
     initial_prompt: str = ""
     current_text: str = ""
     generated_tokens: List[str] = []
+    
+    # Token history for color-coded display
+    token_history: List[TokenHistoryEntry] = []
     
     # Current token alternatives
     current_alternatives: List[TokenProbability] = []
@@ -108,6 +126,7 @@ class InteractiveGenerationState(rx.State):
             async with self:
                 self.current_text = self.initial_prompt
                 self.generated_tokens = []
+                self.token_history = []  # Initialize token history
                 self.total_tokens_generated = 0
                 self.has_started = True
                 self.session_start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -208,6 +227,16 @@ class InteractiveGenerationState(rx.State):
                 else:
                     self.current_text = self.initial_prompt
                 
+                # Update token history
+                history_entry = TokenHistoryEntry(
+                    token=selected_token.token,
+                    probability=selected_token.probability,
+                    percentage=selected_token.percentage,
+                    alternatives=self.current_alternatives.copy(),
+                    was_top_choice=(index == 0)
+                )
+                self.token_history.append(history_entry)
+                
                 self.total_tokens_generated += 1
                 self.selected_token_index = index
             
@@ -223,6 +252,10 @@ class InteractiveGenerationState(rx.State):
                 last_token = self.generated_tokens.pop()
                 print(f"INFO: Undoing last token: '{last_token}'")
                 self.set_progress_message(f"Undoing '{last_token}' - regenerating alternatives...")
+                
+                # Also remove from token history
+                if self.token_history:
+                    self.token_history.pop()
                 
                 # Reconstruct current text from original prompt + remaining tokens preserving structure
                 if self.generated_tokens:
@@ -248,6 +281,7 @@ class InteractiveGenerationState(rx.State):
         self.is_generating = False
         self.has_started = False
         self.total_tokens_generated = 0
+        self.token_history = []  # Clear token history
         self.clear_error()
         self.clear_progress_message()
     
@@ -466,21 +500,33 @@ def generation_display_section() -> rx.Component:
             rx.box()
         ),
         
-        # Current text display
+        # Current text display with color-coded tokens
         rx.vstack(
             rx.text("Generated Text:", font_weight="600", color="#374151"),
             rx.box(
-                rx.text(
-                    rx.cond(
-                        InteractiveGenerationState.current_text != "",
-                        InteractiveGenerationState.current_text,
-                        "Text will appear here as you select tokens..."
+                rx.cond(
+                    InteractiveGenerationState.has_started & (InteractiveGenerationState.token_history.length() > 0),
+                    # Show color-coded text when tokens have been generated
+                    color_coded_text_display(
+                        initial_prompt=InteractiveGenerationState.initial_prompt,
+                        token_history=InteractiveGenerationState.token_history,
+                        show_tooltips=True,
+                        animate_on_hover=True,
+                        max_width="100%"
                     ),
-                    font_size="1.125rem",
-                    line_height="1.6",
-                    color="#1A1A1A",
-                    white_space="nowrap",
-                    overflow="auto"
+                    # Show regular text or placeholder
+                    rx.text(
+                        rx.cond(
+                            InteractiveGenerationState.current_text != "",
+                            InteractiveGenerationState.current_text,
+                            "Text will appear here as you select tokens..."
+                        ),
+                        font_size="1.125rem",
+                        line_height="1.6", 
+                        color="#1A1A1A",
+                        white_space="pre-wrap",
+                        overflow_wrap="break-word"
+                    )
                 ),
                 width="100%",
                 min_height="120px",
@@ -492,7 +538,14 @@ def generation_display_section() -> rx.Component:
             spacing="2",
             align="stretch",
             width="100%",
-            margin_bottom="2rem"
+            margin_bottom="1rem"
+        ),
+        
+        # Probability legend (show only when tokens have been generated)
+        rx.cond(
+            InteractiveGenerationState.has_started & (InteractiveGenerationState.token_history.length() > 0),
+            probability_legend(),
+            rx.box()
         ),
         
         # Token selection area

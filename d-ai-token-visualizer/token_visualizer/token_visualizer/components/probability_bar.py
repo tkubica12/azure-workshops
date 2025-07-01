@@ -3,6 +3,132 @@
 import reflex as rx
 from typing import List, Optional, Dict, Any
 from ..services.llm_client import TokenProbability
+from .color_coded_text import get_probability_color, get_probability_background_color, get_text_color
+
+
+def token_pill(
+    token: TokenProbability,
+    is_selected: bool = False,
+    show_percentage: bool = True,
+    show_probability_value: bool = False
+) -> rx.Component:
+    """Create a color-coded pill for token display using the same colors as generated text.
+    
+    Args:
+        token: TokenProbability object
+        is_selected: Whether this token is selected
+        show_percentage: Whether to show percentage
+        show_probability_value: Whether to show raw probability
+    """
+    
+    # Get probability percentage
+    probability_percentage = token.percentage
+    
+    # Use the same color logic as in color_coded_text.py
+    background_color = rx.cond(
+        is_selected,
+        "#1E40AF",  # Blue for selected
+        rx.cond(
+            probability_percentage >= 80,
+            "#D1FAE5",  # Green-100
+            rx.cond(
+                probability_percentage >= 60,
+                "#ECFDF5",  # Green-50
+                rx.cond(
+                    probability_percentage >= 40,
+                    "#FEF3C7",  # Yellow-100
+                    rx.cond(
+                        probability_percentage >= 20,
+                        "#FEF3C7",  # Yellow-100
+                        rx.cond(
+                            probability_percentage >= 10,
+                            "#FED7AA",  # Orange-100
+                            "#FEE2E2"  # Red-100
+                        )
+                    )
+                )
+            )
+        )
+    )
+    
+    # Text color for good contrast
+    text_color = rx.cond(
+        is_selected,
+        "white",  # White text for selected (blue background)
+        rx.cond(
+            probability_percentage >= 60,
+            "#065F46",  # Green-800
+            rx.cond(
+                probability_percentage >= 40,
+                "#92400E",  # Yellow-800
+                rx.cond(
+                    probability_percentage >= 10,
+                    "#C2410C",  # Orange-700
+                    "#B91C1C"  # Red-700
+                )
+            )
+        )
+    )
+    
+    # Border color matching the text tokens
+    border_color = rx.cond(
+        is_selected,
+        "#1E40AF",  # Blue border for selected
+        rx.cond(
+            probability_percentage >= 80,
+            "#10B981",  # Green-500
+            rx.cond(
+                probability_percentage >= 60,
+                "#34D399",  # Green-400
+                rx.cond(
+                    probability_percentage >= 40,
+                    "#FCD34D",  # Yellow-300
+                    rx.cond(
+                        probability_percentage >= 20,
+                        "#F59E0B",  # Amber-500
+                        rx.cond(
+                            probability_percentage >= 10,
+                            "#F97316",  # Orange-500
+                            "#EF4444"  # Red-500
+                        )
+                    )
+                )
+            )
+        )
+    )
+    
+    # Build display text
+    display_text = rx.cond(
+        show_percentage & show_probability_value,
+        f'"{token.token}" {probability_percentage:.1f}% (p={token.probability:.3f})',
+        rx.cond(
+            show_percentage,
+            f'"{token.token}" {probability_percentage:.1f}%',
+            rx.cond(
+                show_probability_value,
+                f'"{token.token}" p={token.probability:.3f}',
+                f'"{token.token}"'
+            )
+        )
+    )
+    
+    return rx.box(
+        rx.text(
+            display_text,
+            color=text_color,
+            font_weight="500",
+            font_size="0.875rem",
+            white_space="nowrap",
+            text_align="center"
+        ),
+        background=background_color,
+        border=f"1px solid {border_color}",
+        border_radius="0.375rem",
+        padding="0.5rem 0.75rem",
+        display="inline-block",
+        width="100%",  # Use full width of allocated space instead of fixed min-width
+        text_align="center"
+    )
 
 
 def probability_bar(
@@ -10,21 +136,21 @@ def probability_bar(
     is_selected: bool = False,
     is_highlighted: bool = False,
     max_width: str = "100%",
-    height: str = "2.5rem",
+    height: str = "1.5rem",
     show_token_text: bool = True,
     show_percentage: bool = True,
     show_probability_value: bool = False,
     animate: bool = True
 ) -> rx.Component:
-    """Single horizontal probability bar component.
+    """Redesigned probability bar with progress bar and token pill on the same line.
     
     Args:
         token: TokenProbability object containing token text and probability
         is_selected: Whether this token is currently selected
         is_highlighted: Whether this token should be highlighted
         max_width: Maximum width of the bar container
-        height: Height of the bar
-        show_token_text: Whether to show token text on the bar
+        height: Height of the progress bar
+        show_token_text: Whether to show token text in the pill
         show_percentage: Whether to show percentage value
         show_probability_value: Whether to show raw probability value
         animate: Whether to animate the bar fill
@@ -34,26 +160,26 @@ def probability_bar(
     probability_percentage = token.percentage
     bar_width = f"{probability_percentage}%"
     
-    # Color coding based on probability ranges
+    # Color-coded progress bar colors (same as token pill colors)
     bar_color = rx.cond(
         is_selected,
-        "#1E40AF",  # Dark blue for selected
+        "#1E40AF",  # Blue for selected
         rx.cond(
-            is_highlighted,
-            "#7C3AED",  # Purple for highlighted
+            probability_percentage >= 80,
+            "#10B981",  # Green-500
             rx.cond(
-                probability_percentage >= 70,
-                "#10B981",  # Green for very high probability
+                probability_percentage >= 60,
+                "#34D399",  # Green-400
                 rx.cond(
                     probability_percentage >= 40,
-                    "#F59E0B",  # Orange for medium-high probability
+                    "#FCD34D",  # Yellow-300
                     rx.cond(
-                        probability_percentage >= 15,
-                        "#6366F1",  # Blue for medium probability
+                        probability_percentage >= 20,
+                        "#F59E0B",  # Amber-500
                         rx.cond(
-                            probability_percentage >= 5,
-                            "#EC4899",  # Pink for low probability
-                            "#EF4444"  # Red for very low probability
+                            probability_percentage >= 10,
+                            "#F97316",  # Orange-500
+                            "#EF4444"  # Red-500
                         )
                     )
                 )
@@ -61,109 +187,50 @@ def probability_bar(
         )
     )
     
-    # Background color for the bar track
-    track_color = rx.cond(
-        is_selected,
-        "#E5E7EB",  # Light gray for selected token track
-        "#F3F4F6"  # Very light gray for normal track
-    )
+    # Light track color
+    track_color = "#F3F4F6"  # Gray-100
     
-    # Text color based on bar size and selection
-    text_color = rx.cond(
-        is_selected,
-        "white",
-        rx.cond(
-            probability_percentage >= 30,
-            "white",  # White text on colored background
-            "#374151"  # Dark text for small bars
-        )
-    )
-    
-    # Build probability display text
-    prob_text_content = rx.cond(
-        show_percentage & show_probability_value,
-        f"{probability_percentage:.1f}% (p={token.probability:.3f})",
-        rx.cond(
-            show_percentage,
-            f"{probability_percentage:.1f}%",
-            rx.cond(
-                show_probability_value,
-                f"p={token.probability:.3f}",
-                ""
-            )
-        )
-    )
-    
-    return rx.box(
-        # Background track
+    return rx.hstack(
+        # Progress bar takes 60% of available width
         rx.box(
-            # Filled bar
             rx.box(
-                # Content overlay
-                rx.hstack(
-                    # Token text (left side)
-                    rx.cond(
-                        show_token_text,
-                        rx.text(
-                            f'"{token.token}"',
-                            font_weight="600",
-                            font_size="0.875rem",
-                            color=text_color,
-                            margin_left="0.75rem",
-                            white_space="pre"
-                        ),
-                        rx.box()
-                    ),
-                    
-                    # Spacer
-                    rx.spacer(),
-                    
-                    # Probability text (right side)
-                    rx.cond(
-                        show_percentage | show_probability_value,
-                        rx.text(
-                            prob_text_content,
-                            font_size="0.75rem",
-                            font_weight="500",
-                            color=text_color,
-                            margin_right="0.75rem"
-                        ),
-                        rx.box()
-                    ),
-                    
-                    align="center",
-                    height="100%",
-                    width="100%"
-                ),
-                
-                # Bar styling
-                background=bar_color,
                 width=bar_width,
                 height="100%",
-                border_radius="0.375rem",
-                position="relative",
+                background=bar_color,
+                border_radius="0.25rem",
                 transition=rx.cond(
                     animate,
-                    "width 0.5s ease-in-out, background-color 0.3s ease",
+                    "width 0.5s ease-in-out",
                     "none"
                 )
             ),
-            
-            # Track styling
             background=track_color,
-            width="100%",
+            width="60%",  # Dynamic 60% of container width
             height=height,
-            border_radius="0.375rem",
-            border=rx.cond(
-                is_selected,
-                "2px solid #1E40AF",
-                "1px solid #E5E7EB"
-            ),
-            position="relative",
-            overflow="hidden"
+            border_radius="0.25rem",
+            border="1px solid #E5E7EB",
+            overflow="hidden",
+            flex_shrink="0"
         ),
         
-        width=max_width,
+        # Token pill takes remaining 40% of available width
+        rx.box(
+            token_pill(
+                token=token,
+                is_selected=is_selected,
+                show_percentage=show_percentage,
+                show_probability_value=show_probability_value
+            ),
+            width="40%",  # Dynamic 40% of container width
+            display="flex",
+            justify_content="flex-start",
+            align_items="center",
+            padding_left="1rem"
+        ),
+        
+        spacing="0",  # No spacing since we're using percentage widths
+        align="center",
+        width="100%",  # Use full width
         margin_bottom="0.5rem"
     )
 
@@ -221,7 +288,7 @@ def probability_bars_list(
                 )
             ),
             width=max_width,
-            spacing="1"
+            spacing="2"
         )
     )
 
@@ -230,68 +297,84 @@ def compact_probability_bar(
     token: TokenProbability,
     is_selected: bool = False,
     width: str = "100%",
-    height: str = "1.5rem"
+    height: str = "1rem"
 ) -> rx.Component:
-    """Compact version of probability bar for dense layouts.
+    """Compact version with progress bar and token pill on the same line for dense layouts.
     
     Args:
         token: TokenProbability object
         is_selected: Whether this token is selected
-        width: Width of the bar
-        height: Height of the bar
+        width: Width of the container
+        height: Height of the progress bar
     """
     
     probability_percentage = token.percentage
     bar_width = f"{probability_percentage}%"
     
-    # Simplified color scheme for compact view
+    # Color-coded progress bar colors (same as main function)
     bar_color = rx.cond(
         is_selected,
-        "#1E40AF",
+        "#1E40AF",  # Blue for selected
         rx.cond(
-            probability_percentage >= 50,
-            "#10B981",
+            probability_percentage >= 80,
+            "#10B981",  # Green-500
             rx.cond(
-                probability_percentage >= 25,
-                "#F59E0B",
-                "#6366F1"
+                probability_percentage >= 60,
+                "#34D399",  # Green-400
+                rx.cond(
+                    probability_percentage >= 40,
+                    "#FCD34D",  # Yellow-300
+                    rx.cond(
+                        probability_percentage >= 20,
+                        "#F59E0B",  # Amber-500
+                        rx.cond(
+                            probability_percentage >= 10,
+                            "#F97316",  # Orange-500
+                            "#EF4444"  # Red-500
+                        )
+                    )
+                )
             )
         )
     )
     
-    return rx.box(
+    return rx.hstack(
+        # Compact progress bar takes 60% of available width
         rx.box(
-            rx.hstack(
-                rx.text(
-                    token.token,
-                    font_size="0.75rem",
-                    font_weight="500",
-                    color="white",
-                    margin_left="0.5rem"
-                ),
-                rx.spacer(),
-                rx.text(
-                    f"{probability_percentage:.0f}%",
-                    font_size="0.625rem",
-                    color="white",
-                    margin_right="0.5rem"
-                ),
-                align="center",
+            rx.box(
+                width=bar_width,
                 height="100%",
-                width="100%"
+                background=bar_color,
+                border_radius="0.125rem",
+                transition="width 0.3s ease-in-out"
             ),
-            background=bar_color,
-            width=bar_width,
-            height="100%",
-            border_radius="0.25rem",
-            transition="width 0.3s ease-in-out"
+            background="#F3F4F6",
+            width="60%",  # Dynamic 60% of container width
+            height=height,
+            border_radius="0.125rem",
+            border="1px solid #E5E7EB",
+            overflow="hidden",
+            flex_shrink="0"
         ),
-        background="#F3F4F6",
-        width=width,
-        height=height,
-        border_radius="0.25rem",
-        border="1px solid #E5E7EB",
-        overflow="hidden",
+        
+        # Compact token pill takes remaining 40%
+        rx.box(
+            token_pill(
+                token=token,
+                is_selected=is_selected,
+                show_percentage=True,
+                show_probability_value=False
+            ),
+            width="40%",  # Dynamic 40% of container width
+            display="flex",
+            justify_content="flex-start",
+            align_items="center",
+            padding_left="0.75rem"
+        ),
+        
+        spacing="0",  # No spacing since we're using percentage widths
+        align="center",
+        width="100%",  # Use full width
         margin_bottom="0.25rem"
     )
 

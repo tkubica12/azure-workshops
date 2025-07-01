@@ -173,15 +173,15 @@ This implementation plan provides a step-by-step checklist for building the Toke
 ## Phase 6: Enhanced Interactive Features
 
 ### 6.1 Token History and Navigation
-- [ ] Add "Reset" button to clear session
+- [x] Add "Reset" button to clear session
 
 ### 6.2 Advanced Probability Display
-- [ ] Implement color-coded background for tokens added to Generate Text field
-- [ ] Add hover tooltips with detailed information when mouse goes over current prompt showing percentage probability of tokens added
-- [ ] Decide colored scale for probabilities with highly probable being green, low probability being red and others in between (amber, yellow and so on)
+- [x] Implement color-coded background for tokens added to Generate Text field
+- [x] Add hover tooltips with detailed information when mouse goes over current prompt showing percentage probability of tokens added
+- [x] Decide colored scale for probabilities with highly probable being green, low probability being red and others in between (amber, yellow and so on)
 
 ### 6.3 Configuration Options
-- [ ] Add temperature control slider
+- [x] Add temperature control slider
 
 ### 6.4 Complete 20 more
 - [ ] Add button that would ask API for 20 next token sampled with temperature and display probabilities of next (21st) token
