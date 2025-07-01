@@ -675,3 +675,70 @@ POST /api/v1/test               - Simple test generation endpoint
 - The `/health` endpoint is defined directly in main.py for quick health checks
 - All other endpoints are routed through the API router with `/api/v1` prefix
 - This allows for API versioning while keeping health checks at root level
+
+## LLM Temperature Handling - CRITICAL
+
+### The Problem
+Setting temperature to exactly 0.0 in LLM APIs causes numerical instability leading to NaN (Not a Number) values in probability calculations. This results in JSON serialization errors: "Out of range float values are not JSON compliant: nan".
+
+### Root Cause
+When temperature=0, the softmax calculation `logits / temperature` results in division by zero or extreme values that cause mathematical overflow, producing NaN values that cannot be serialized to JSON.
+
+### Critical Solution - ALWAYS IMPLEMENT
+
+**Frontend Temperature Handling:**
+```python
+# ✅ CORRECT - Convert 0 to small positive number
+effective_temperature = self.temperature if self.temperature > 0 else 0.001
+
+# Never send exactly 0.0 to API
+result = await client.generate_tokens_with_probabilities(
+    temperature=effective_temperature  # Use converted value
+)
+```
+
+**Backend Temperature Validation:**
+```python
+# ✅ CORRECT - Backend safety check
+if temperature <= 0.001:
+    temperature = 0.001  # Use small positive number for numerical stability
+    print(f"INFO: Temperature adjusted to 0.001 for numerical stability")
+
+# Apply temperature scaling safely
+scaled_logits = logits / temperature  # No division by zero
+```
+
+**User Experience Handling:**
+```python
+# ✅ CORRECT - Show user 0.0, use 0.001 internally
+rx.text(f"Temperature: {self.temperature:.1f}")  # Shows "0.0" to user
+# But internally use effective_temperature = 0.001 for API calls
+```
+
+### Why 0.001 Works
+- **Small Enough**: Still provides deterministic behavior (always picks highest probability token)
+- **Large Enough**: Avoids numerical instability and NaN generation
+- **JSON Safe**: Produces valid floating-point numbers that serialize correctly
+- **Mathematically Sound**: Maintains proper softmax distribution calculations
+
+### Prevention Strategy
+1. **Always validate temperature input** before sending to any LLM API
+2. **Implement both frontend and backend checks** for redundancy
+3. **Use consistent minimum value** (0.001) across all components
+4. **Add logging** when temperature adjustments occur
+5. **Test with temperature=0** to verify no JSON errors
+
+### Error Symptoms
+If you see these errors, check temperature handling:
+```
+ValueError: Out of range float values are not JSON compliant: nan
+TypeError: Object of type float32 is not JSON serializable
+RuntimeError: Expected finite float values, got nan
+```
+
+### Testing Checklist
+- ✅ Test with temperature=0.0 (should convert to 0.001)
+- ✅ Test with temperature=0.1-2.0 (should use exact values)
+- ✅ Verify no NaN values in API responses
+- ✅ Confirm JSON serialization works correctly
+- ✅ Check that deterministic behavior works (temperature near 0)

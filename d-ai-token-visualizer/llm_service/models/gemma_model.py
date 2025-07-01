@@ -195,8 +195,20 @@ class GemmaModelManager:
         }
     
     def _logprob_to_probability(self, logprob: float) -> float:
-        """Convert log probability to probability."""
-        return math.exp(logprob)
+        """Convert log probability to probability with NaN safety check."""
+        if math.isnan(logprob) or math.isinf(logprob):
+            print(f"WARNING: Invalid logprob value: {logprob}, returning 0.0")
+            return 0.0
+        
+        try:
+            probability = math.exp(logprob)
+            if math.isnan(probability) or math.isinf(probability):
+                print(f"WARNING: Invalid probability after exp: {probability}, returning 0.0")
+                return 0.0
+            return probability
+        except (OverflowError, ValueError) as e:
+            print(f"WARNING: Error converting logprob {logprob} to probability: {e}, returning 0.0")
+            return 0.0
     
     def _create_token_probability(self, token: str, logprob: float) -> TokenProbability:
         """Create a TokenProbability object from token and logprob."""
@@ -235,6 +247,12 @@ class GemmaModelManager:
         max_tokens = max_tokens or settings.default_max_new_tokens
         temperature = temperature or settings.default_temperature
         top_logprobs = top_logprobs or settings.default_top_k
+        
+        # Handle temperature = 0 case to avoid numerical instability
+        # When temperature is 0 or very close to 0, we want deterministic behavior
+        if temperature <= 0.001:
+            temperature = 0.001  # Use small positive number for numerical stability
+            print(f"INFO: Temperature adjusted to 0.001 for numerical stability")
         
         try:
             generation_start = time.time()

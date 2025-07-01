@@ -8,7 +8,6 @@ from ..components.layout import app_layout
 from ..components.probability_bar import interactive_probability_bars
 from ..components.token_display import token_generation_controls
 from ..services.llm_client import get_llm_client, TokenProbability
-from ..state.token_state import TokenState
 
 
 class InteractiveGenerationState(rx.State):
@@ -31,7 +30,6 @@ class InteractiveGenerationState(rx.State):
     has_error: bool = False
     
     # Generation settings
-    max_tokens: int = 20
     temperature: float = 0.7
     top_k: int = 5
     
@@ -65,26 +63,6 @@ class InteractiveGenerationState(rx.State):
             temp = float(values[0])
             if 0.0 <= temp <= 2.0:
                 self.temperature = round(temp, 1)  # Round to 1 decimal place
-                self.clear_error()
-    
-    def set_max_tokens(self, tokens: str):
-        """Set maximum tokens to generate."""
-        try:
-            token_val = int(tokens)
-            if 1 <= token_val <= 100:
-                self.max_tokens = token_val
-                self.clear_error()
-            else:
-                self.set_error("Max tokens must be between 1 and 100")
-        except ValueError:
-            self.set_error("Invalid max tokens value")
-    
-    def set_max_tokens_slider(self, values: list):
-        """Set maximum tokens from slider."""
-        if values and len(values) > 0:
-            tokens = int(float(values[0]))
-            if 1 <= tokens <= 100:
-                self.max_tokens = tokens
                 self.clear_error()
     
     def set_error(self, message: str):
@@ -124,10 +102,6 @@ class InteractiveGenerationState(rx.State):
     
     async def generate_next_alternatives(self):
         """Generate the next set of token alternatives."""
-        if self.total_tokens_generated >= self.max_tokens:
-            self.is_generating = False
-            return
-        
         self.is_loading = True
         self.clear_error()
         
@@ -148,11 +122,14 @@ class InteractiveGenerationState(rx.State):
             print(f"INFO: Generating next token for prompt: '{full_prompt}'")
             print(f"INFO: Temperature: {self.temperature}, Top-k: {self.top_k}")
             
+            # Handle temperature = 0 case - use very small positive number for deterministic behavior
+            effective_temperature = self.temperature if self.temperature > 0 else 0.001
+            
             # Generate with logprobs
             result = await client.generate_tokens_with_probabilities(
                 prompt=full_prompt,
                 max_tokens=1,
-                temperature=self.temperature,
+                temperature=effective_temperature,
                 top_logprobs=self.top_k
             )
             
@@ -195,16 +172,10 @@ class InteractiveGenerationState(rx.State):
             self.total_tokens_generated += 1
             self.selected_token_index = index
             
-            # Check if we should continue generating
-            if self.total_tokens_generated < self.max_tokens:
-                # Small delay for UI feedback
-                await asyncio.sleep(0.1)
-                # Generate next alternatives immediately
-                await self.generate_next_alternatives()
-            else:
-                # End generation
-                self.is_generating = False
-                print(f"INFO: Generation complete! Generated {self.total_tokens_generated} tokens.")
+            # Generate next alternatives immediately after selection
+            # Small delay for UI feedback
+            await asyncio.sleep(0.1)
+            await self.generate_next_alternatives()
     
     async def undo_last_token(self):
         """Remove the last generated token."""
@@ -224,7 +195,7 @@ class InteractiveGenerationState(rx.State):
             self.selected_token_index = -1
             
             # If we were done generating, restart
-            if not self.is_generating and self.total_tokens_generated < self.max_tokens:
+            if not self.is_generating:
                 # Regenerate alternatives for current position
                 await self.generate_next_alternatives()
     
@@ -247,19 +218,7 @@ class InteractiveGenerationState(rx.State):
     @rx.var
     def can_continue(self) -> bool:
         """Check if generation can continue."""
-        return self.has_started and self.total_tokens_generated < self.max_tokens
-    
-    @rx.var
-    def generation_complete(self) -> bool:
-        """Check if generation is complete."""
-        return self.has_started and self.total_tokens_generated >= self.max_tokens
-    
-    @rx.var
-    def progress_percentage(self) -> float:
-        """Calculate generation progress percentage."""
-        if self.max_tokens == 0:
-            return 0.0
-        return (self.total_tokens_generated / self.max_tokens) * 100.0
+        return self.has_started and self.is_generating
 
 
 def prompt_input_section() -> rx.Component:
@@ -273,7 +232,7 @@ def prompt_input_section() -> rx.Component:
         ),
         
         rx.text(
-            "Enter an initial prompt to see how the language model predicts the next tokens step by step.",
+            "Enter an initial prompt to see how the language model predicts the next tokens step by step. Select tokens one at a time to build your text - there's no limit to how many tokens you can generate!",
             color="#6B7280",
             margin_bottom="1.5rem"
         ),
@@ -327,39 +286,6 @@ def prompt_input_section() -> rx.Component:
                 ),
                 rx.text(
                     "Controls randomness: 0.0 = deterministic, 2.0 = very creative",
-                    font_size="0.75rem",
-                    color="#6B7280",
-                    font_style="italic"
-                ),
-                spacing="2",
-                align="stretch",
-                width="100%"
-            ),
-            
-            # Max tokens slider
-            rx.vstack(
-                rx.hstack(
-                    rx.text("Max Tokens:", font_size="0.875rem", font_weight="500"),
-                    rx.spacer(),
-                    rx.text(
-                        f"{InteractiveGenerationState.max_tokens}",
-                        font_size="0.875rem",
-                        color="#2563EB", 
-                        font_weight="600"
-                    ),
-                    width="100%",
-                    align="center"
-                ),
-                rx.slider(
-                    default_value=[InteractiveGenerationState.max_tokens],
-                    on_change=InteractiveGenerationState.set_max_tokens_slider,
-                    min=1,
-                    max=100,
-                    step=1,
-                    width="100%"
-                ),
-                rx.text(
-                    "Maximum number of tokens to generate in this session",
                     font_size="0.75rem",
                     color="#6B7280",
                     font_style="italic"
@@ -440,29 +366,13 @@ def generation_display_section() -> rx.Component:
             ),
             rx.spacer(),
             rx.text(
-                f"Progress: {InteractiveGenerationState.total_tokens_generated} / {InteractiveGenerationState.max_tokens} tokens",
+                f"Tokens Generated: {InteractiveGenerationState.total_tokens_generated}",
                 color="#6B7280",
                 font_size="0.875rem"
             ),
             align="center",
             width="100%",
             margin_bottom="1rem"
-        ),
-        
-        # Progress bar
-        rx.box(
-            rx.box(
-                width=f"{InteractiveGenerationState.progress_percentage}%",
-                height="100%",
-                background="#2563EB",
-                border_radius="0.25rem",
-                transition="width 0.5s ease-in-out"
-            ),
-            width="100%",
-            height="8px",
-            background="#E5E7EB",
-            border_radius="0.25rem",
-            margin_bottom="2rem"
         ),
         
         # Current text display
@@ -526,28 +436,7 @@ def generation_display_section() -> rx.Component:
                 spacing="4",
                 width="100%"
             ),
-            rx.cond(
-                InteractiveGenerationState.generation_complete,
-                rx.center(
-                    rx.vstack(
-                        rx.icon("check-circle-2", size=48, color="#10B981"),
-                        rx.text(
-                            "Generation Complete!",
-                            font_size="1.25rem",
-                            font_weight="600",
-                            color="#10B981"
-                        ),
-                        rx.text(
-                            f"Generated {InteractiveGenerationState.total_tokens_generated} tokens",
-                            color="#6B7280"
-                        ),
-                        spacing="3",
-                        align="center"
-                    ),
-                    padding="3rem"
-                ),
-                rx.box()
-            )
+            rx.box()  # Empty box when not generating - user can always restart
         ),
         
         # Controls
