@@ -79,12 +79,12 @@ All progress indicators and basic error handling are now implemented and functio
 All enhanced interactive features are now implemented. The color coding system provides:
 - ✅ **Visual Consistency**: Same color scheme across generated text and probability selection
 - ✅ **Educational Value**: Clear visual indication of token probability ranges
-- ✅ **Reusability**: Modular color functions ready for future modes (Mode 2: Live Probability, Mode 3: Color-coded Visualization)
+- ✅ **Reusability**: Modular color functions ready for future modes (Mode 2: Prompt Comparison, Mode 3: Color-coded Visualization)
 - ✅ **Accessibility**: High contrast text colors for readability
 - ✅ **Responsive Design**: Adapts to different screen sizes and container widths
 
 **Ready for Phase 7**: The color coding system is now fully established and can be directly reused in:
-- **Mode 2 (Live Probability Visualization)**: Before/after probability comparisons using same color scale
+- **Mode 2 (Prompt Comparison Mode)**: Before/after probability comparisons using same color scale
 - **Mode 3 (Color-coded Visualization)**: Heat map implementations using established color gradients
 - **Future enhancements**: Any probability visualization will benefit from this consistent color system
 
@@ -353,7 +353,7 @@ Comprehensive API integration testing interface with enhanced UI and error handl
 - ✅ **Configuration Test Page**: Added to sidebar navigation with proper icon
 - ✅ **Icon Standardization**: All navigation icons now use valid Lucide names:
   - `zap` for Interactive Mode
-  - `activity` for Live Probability  
+  - `activity` for Prompt Comparison  
   - `palette` for Color Visualization
   - `git-branch` for Configuration Test
 - ✅ **Consistent Styling**: Uniform button styling and hover states across navigation
@@ -693,7 +693,7 @@ if temperature <= 0.001:
 
 **Next Steps:**
 Ready to begin Phase 5: Additional Visualization Modes
-- Live probability comparison mode
+- Prompt comparison mode
 - Color-coded token visualization
 - Token tree visualization (advanced)
 

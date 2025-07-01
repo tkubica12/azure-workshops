@@ -73,7 +73,7 @@ The Token Visualizer is an educational application designed to help students und
 - Background task handling for API calls
 - Service availability monitoring and error handling
 
-### Mode 2: Live Probability Visualization
+### Mode 2: Prompt Comparison Mode
 
 **Description**: An analytical mode for real-time visualization of how prompt modifications affect next-token probabilities. It allows users to compare multiple prompt variations side-by-side to understand the impact of their inputs.
 

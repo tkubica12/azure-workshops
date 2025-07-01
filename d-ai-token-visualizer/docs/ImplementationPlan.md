@@ -186,21 +186,19 @@ This implementation plan provides a step-by-step checklist for building the Toke
 ### 6.4 Complete 20 more
 - [x] Add button that would ask API for 20 next token sampled with temperature and display probabilities of next (21st) token
 
-## Phase 7: Mode 2 - Live Probability Visualization
+## Phase 7: Mode 2 - Prompt Comparison Mode
 
 ### 7.1 Multi-Column UI Foundation
-- [ ] Create `pages/live_probability.py` page with initial single-column layout.
+- [ ] Create `pages/prompt_comparison.py` page with initial single-column layout.
 - [ ] Implement a dynamic multi-column layout where users can add or remove prompt-result columns.
 - [ ] Design a `PromptColumn` component to encapsulate the prompt input, configuration, and results.
 - [ ] Ensure the layout is horizontally scrollable or adaptive to handle multiple columns gracefully.
 - [ ] Add state management to handle a list of independent column states.
 
 ### 7.2 Real-time Generation and Comparison
-- [ ] Implement debounced API calls for each prompt column as the user types.
 - [ ] Display the top 5 token probabilities in each column using the existing color-coded components.
 - [ ] Implement the logic to calculate and display probability differences between adjacent columns.
 - [ ] Add visual indicators (e.g., arrows, percentage change) for probability shifts.
-- [ ] Test the real-time update performance and accuracy of the comparison logic.
 
 ### 7.3 Advanced Features and Usability
 - [ ] Allow independent configuration (e.g., temperature) for each prompt column.
