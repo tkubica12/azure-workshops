@@ -75,36 +75,38 @@ The Token Visualizer is an educational application designed to help students und
 
 ### Mode 2: Prompt Comparison Mode
 
-**Description**: An analytical mode for real-time visualization of how prompt modifications affect next-token probabilities. It allows users to compare multiple prompt variations side-by-side to understand the impact of their inputs.
+**Description**: A simplified analytical mode for comparing how different prompts affect next-token probabilities. Features three fixed columns for side-by-side prompt comparison with clean, straightforward UI.
 
 **User Flow**:
-1.  User enters a base prompt in the first column (e.g., "The capital of France is").
-2.  The system generates and displays the top 5 next-token probabilities for that prompt.
-3.  The user can then create a new, modified prompt in a second column (e.g., adding a system message: "You are a helpful assistant. The capital of France is").
-4.  The system generates probabilities for the second prompt, displaying them next to the first for immediate comparison.
-5.  Users can continue adding columns for more prompt variations, creating a historical and comparative view.
+1. User enters prompts in any of the three fixed columns (e.g., "The capital of France is")
+2. User clicks "Generate" button for each column to get token probabilities
+3. System displays top 5 next-token probabilities for each prompt using color-coded visualization
+4. Users can compare probabilities across the three columns side-by-side
+5. Clear visual comparison shows how different prompts affect token selection
 
 **UI Design Concept**:
--   **Multi-Column Layout**: The interface will feature a dynamically expanding multi-column layout. Each column represents a distinct prompt and its resulting token probabilities.
--   **Prompt History**: Each column clearly displays the full prompt used for generation.
--   **Side-by-Side Comparison**: Token probabilities for each prompt are displayed in parallel, making it easy to spot differences.
--   **Probability Difference Highlighting**: The UI will visually highlight changes in probabilities for the same token across different prompts (e.g., an arrow up/down with the percentage change).
--   **Consistent Color Coding**: The established 6-tier color system will be used for probability values, ensuring visual consistency with other modes.
--   **Independent Configuration**: Each column will have its own temperature and configuration settings, allowing for isolated experiments.
+- **Fixed Three-Column Layout**: Simple, clean interface with three identical columns
+- **Column Components**: Each column contains:
+  - Text area for prompt input
+  - "Generate" button to trigger probability calculation  
+  - Color-coded probability visualization (top 5 tokens)
+- **Consistent Styling**: Uses established 6-tier color system for probability visualization
+- **No Configuration**: Temperature fixed at 1.0 for consistent comparison
+- **Simple State Management**: Three independent prompt-result pairs
 
 **Features**:
--   **Side-by-side Prompt Comparison**: Compare an unlimited number of prompt variations.
--   **Probability Difference Highlighting**: Show increases/decreases in token probabilities.
--   **Real-time Updates**: Debounced API calls provide near real-time feedback as the user types.
--   **Prompt Templates**: Pre-defined prompt modifications for common educational scenarios.
--   **State Management**: Each column's state (prompt, results, settings) is managed independently.
+- **Fixed Layout**: No dynamic adding/removing of columns - keeps UI simple and predictable
+- **Side-by-Side Comparison**: Compare up to three different prompts simultaneously
+- **Color-Coded Probabilities**: Visual probability representation using established color scheme
+- **Independent Operation**: Each column operates independently with its own generate button
+- **Clean Interface**: Minimal, focused design without complex controls
 
 **Technical Requirements**:
--   Dynamic UI component for adding/removing prompt columns.
--   Debounced API calls to the Local LLM Service for each column's prompt.
--   Efficient diff calculation and UI updates for probability changes.
--   Horizontal scrolling or adaptive layout to manage multiple columns.
--   State management capable of handling a list of independent prompt-result objects.
+- Simple three-column fixed layout using CSS Grid or Flexbox
+- Three independent state variables for prompt-result pairs
+- Reuse existing color-coded probability components from Mode 1
+- Fixed temperature (1.0) - no user configuration needed
+- Standard API calls to Local LLM Service for each column
 
 ### Mode 3: Interactive Token Tree with Color Visualization
 

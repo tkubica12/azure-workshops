@@ -186,26 +186,32 @@ This implementation plan provides a step-by-step checklist for building the Toke
 ### 6.4 Complete 20 more
 - [x] Add button that would ask API for 20 next token sampled with temperature and display probabilities of next (21st) token
 
-## Phase 7: Mode 2 - Prompt Comparison Mode
+## Phase 7: Mode 2 - Prompt Comparison Mode (Simplified)
 
-### 7.1 Multi-Column UI Foundation
-- [ ] Create `pages/prompt_comparison.py` page with initial single-column layout.
-- [ ] Implement a dynamic multi-column layout where users can add or remove prompt-result columns.
-- [ ] Design a `PromptColumn` component to encapsulate the prompt input, configuration, and results.
-- [ ] Ensure the layout is horizontally scrollable or adaptive to handle multiple columns gracefully.
-- [ ] Add state management to handle a list of independent column states.
+### 7.1 Fixed Three-Column UI
+- [ ] Create `pages/prompt_comparison.py` page with fixed three-column layout
+- [ ] Design a simple `PromptColumn` component with:
+  - Text area for prompt input
+  - "Generate" button 
+  - Token probability visualization area
+- [ ] Implement CSS Grid or Flexbox layout for three equal-width columns
+- [ ] Add navigation menu item for "Prompt Comparison" mode
+- [ ] Test basic three-column layout renders correctly
 
-### 7.2 Real-time Generation and Comparison
-- [ ] Display the top 5 token probabilities in each column using the existing color-coded components.
-- [ ] Implement the logic to calculate and display probability differences between adjacent columns.
-- [ ] Add visual indicators (e.g., arrows, percentage change) for probability shifts.
+### 7.2 State Management and Generation
+- [ ] Create `PromptComparisonState` with three independent prompt-result pairs
+- [ ] Add state variables: `prompt_1`, `prompt_2`, `prompt_3` and corresponding `results_1`, `results_2`, `results_3`
+- [ ] Implement generate button handlers for each column (fixed temperature=1.0)
+- [ ] Reuse existing LLM service client for API calls
+- [ ] Add loading states for each column independently
+- [ ] Test state management and API integration for all three columns
 
-### 7.3 Advanced Features and Usability
-- [ ] Allow independent configuration (e.g., temperature) for each prompt column.
-- [ ] Create a library of pre-defined prompt templates that users can apply to new columns.
-- [ ] Implement a feature to clone a column to make minor variations easily.
-- [ ] Add a master "Reset" button to clear all columns and start a new analysis.
-- [ ] Test the overall user workflow for clarity and educational value.
+### 7.3 Probability Visualization
+- [ ] Reuse existing color-coded probability components from Mode 1
+- [ ] Display top 5 token probabilities in each column using established 6-tier color system
+- [ ] Ensure consistent styling across all three columns
+- [ ] Add basic error handling for failed generations
+- [ ] Test complete workflow: prompt input → generate → probability display
 
 ## Phase 8: Mode 3 - Interactive Token Tree with Color Visualization
 
