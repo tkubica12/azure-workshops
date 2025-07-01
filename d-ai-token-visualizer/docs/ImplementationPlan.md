@@ -188,206 +188,118 @@ This implementation plan provides a step-by-step checklist for building the Toke
 
 ## Phase 7: Mode 2 - Live Probability Visualization
 
-### 7.1 Real-time Prompt Comparison
-- [ ] Create `pages/live_probability.py` page
-- [ ] Implement side-by-side prompt comparison
-- [ ] Add debounced input handling
-- [ ] Create real-time API call management
-- [ ] Test live updates and performance
+### 7.1 Multi-Column UI Foundation
+- [ ] Create `pages/live_probability.py` page with initial single-column layout.
+- [ ] Implement a dynamic multi-column layout where users can add or remove prompt-result columns.
+- [ ] Design a `PromptColumn` component to encapsulate the prompt input, configuration, and results.
+- [ ] Ensure the layout is horizontally scrollable or adaptive to handle multiple columns gracefully.
+- [ ] Add state management to handle a list of independent column states.
 
-### 7.2 Probability Difference Visualization
-- [ ] Implement before/after probability comparison
-- [ ] Add visual indicators for probability changes
-- [ ] Create difference highlighting
-- [ ] Add statistical summaries
-- [ ] Test comparison accuracy and performance
+### 7.2 Real-time Generation and Comparison
+- [ ] Implement debounced API calls for each prompt column as the user types.
+- [ ] Display the top 5 token probabilities in each column using the existing color-coded components.
+- [ ] Implement the logic to calculate and display probability differences between adjacent columns.
+- [ ] Add visual indicators (e.g., arrows, percentage change) for probability shifts.
+- [ ] Test the real-time update performance and accuracy of the comparison logic.
 
-### 7.3 Prompt Templates
-- [ ] Create library of educational prompt templates
-- [ ] Implement template selection interface
-- [ ] Add template customization options
-- [ ] Create template management system
-- [ ] Test template functionality and variety
+### 7.3 Advanced Features and Usability
+- [ ] Allow independent configuration (e.g., temperature) for each prompt column.
+- [ ] Create a library of pre-defined prompt templates that users can apply to new columns.
+- [ ] Implement a feature to clone a column to make minor variations easily.
+- [ ] Add a master "Reset" button to clear all columns and start a new analysis.
+- [ ] Test the overall user workflow for clarity and educational value.
 
-## Phase 8: Mode 3 - Color-coded Visualization
+## Phase 8: Mode 3 - Interactive Token Tree with Color Visualization
 
-### 8.1 Heat Map Implementation
-- [ ] Create `pages/color_visualization.py` page
-- [ ] Implement color mapping for probabilities
-- [ ] Add gradient color scheme
-- [ ] Create responsive heat map display
-- [ ] Test color accuracy and accessibility
+### 8.1 Tree Data Structure and State Management
+- [ ] Create `utils/tree_structure.py` with token tree data model
+- [ ] Implement `TreeNode` class to represent branching points
+- [ ] Add tree state management in `state/tree_state.py`
+- [ ] Create methods for adding branches, navigating tree, and resetting
+- [ ] Test tree data structure with sample branching scenarios
 
-### 8.2 Interactive Hover Features
-- [ ] Add detailed probability tooltips
-- [ ] Implement token information display
-- [ ] Create hover animations and transitions
-- [ ] Add keyboard navigation support
-- [ ] Test accessibility and usability
+### 8.2 Tree Visualization Components
+- [ ] Create `components/token_tree.py` for tree rendering
+- [ ] Implement SVG-based tree layout with nodes and connections
+- [ ] Add color-coded token visualization using existing 6-tier color system
+- [ ] Create responsive tree layout that adapts to different screen sizes
+- [ ] Add zoom and pan functionality for large trees
 
-### 8.3 Visualization Export
-- [ ] Implement export to PNG/SVG functionality
-- [ ] Add export configuration options
-- [ ] Create export button and handling
-- [ ] Add export progress indicators
-- [ ] Test export functionality and file quality
+### 8.3 Interactive Tree Page Implementation
+- [ ] Create `pages/tree_mode.py` page with tree interface
+- [ ] Implement initial prompt input and first-level token generation
+- [ ] Add path selection and continuation for configurable depth (1-20 tokens)
+- [ ] Create branching functionality - clicking unselected tokens to create new paths
+- [ ] Add tree controls (reset, clear branches, configure depth)
+- [ ] Test complete tree building and branching workflow
 
-## Phase 9: Advanced Features and Polish
+### 8.4 Advanced Tree Features
+- [ ] Implement hover tooltips with token information and probabilities
+- [ ] Add visual path distinction (selected vs. unselected branches)
+- [ ] Create branch management (hide/show branches, focus on subtrees)
+- [ ] Add probability-weighted visual styling (branch thickness/opacity)
+- [ ] Implement tree export functionality (PNG/SVG)
+- [ ] Add keyboard navigation for accessibility
+
+### 8.5 Tree Performance and Optimization
+- [ ] Optimize tree rendering for large trees (virtualization if needed)
+- [ ] Implement efficient tree traversal and path finding
+- [ ] Add lazy loading for deep tree branches
+- [ ] Create tree pruning functionality to manage memory usage
+- [ ] Test performance with complex trees (10+ levels, 5+ branches per level)
+
+## Phase 9: Core Features Polish and Optimization
 
 ### 9.1 Performance Optimization
-- [ ] Implement API response caching
-- [ ] Add request batching where possible
-- [ ] Optimize component re-rendering
-- [ ] Add lazy loading for large datasets
-- [ ] Performance test and benchmark
+- [ ] Implement API response caching for repeated requests
+- [ ] Optimize component re-rendering across all modes
+- [ ] Add request debouncing for interactive elements
+- [ ] Performance test with complex tree structures
+- [ ] Memory optimization for large token histories
 
-### 9.2 Accessibility Improvements
-- [ ] Add ARIA labels and descriptions
-- [ ] Implement keyboard navigation
-- [ ] Add high contrast mode
-- [ ] Test with screen readers
-- [ ] Add color blind friendly options
+### 9.2 Cross-Mode Consistency
+- [ ] Ensure consistent color coding across all modes
+- [ ] Standardize UI patterns and interactions
+- [ ] Create shared component library for common elements
+- [ ] Test seamless navigation between modes
+- [ ] Validate consistent user experience
 
-### 9.3 Mobile Responsiveness
-- [ ] Optimize mobile layouts
-- [ ] Add touch-friendly controls
-- [ ] Implement swipe gestures
-- [ ] Test on various mobile devices
-- [ ] Add progressive web app features
+## Phase 10: Essential Documentation
 
-## Phase 10: Testing and Quality Assurance
+### 10.1 User Documentation
+- [ ] Create comprehensive README.md with setup instructions
+- [ ] Add user guide for each mode with screenshots
+- [ ] Create educational content explaining LLM concepts
+- [ ] Add troubleshooting guide for common issues
+- [ ] Document configuration options and settings
 
-### 10.1 Unit Testing
-- [ ] Add `pytest` to dependencies
-- [ ] Create unit tests for utility functions
-- [ ] Test state management functions
-- [ ] Add tests for API client
-- [ ] Achieve minimum 80% code coverage
+### 10.2 Developer Documentation
+- [ ] Add API documentation for LLM service
+- [ ] Create component documentation
+- [ ] Document state management patterns
+- [ ] Add contribution guidelines
+- [ ] Create development setup guide
 
-### 10.2 Integration Testing
-- [ ] Create integration tests for API flows
-- [ ] Test complete user workflows
-- [ ] Add end-to-end testing with Playwright
-- [ ] Test error scenarios and edge cases
-- [ ] Verify performance under load
+## Phase 11: Container Deployment
 
-### 10.3 User Experience Testing
-- [ ] Conduct usability testing sessions
-- [ ] Gather feedback from target users
-- [ ] Test educational effectiveness
-- [ ] Identify and fix UX issues
-- [ ] Validate learning objectives
+### 11.1 Docker Containerization
+- [ ] Create Dockerfile for main Reflex application
+- [ ] Create Dockerfile for LLM service
+- [ ] Add docker-compose.yml for local development
+- [ ] Optimize container image sizes
+- [ ] Add health check endpoints for containers
 
-## Phase 11: Documentation and Deployment Preparation
-
-### 11.1 Documentation
-- [ ] Create comprehensive README.md
-- [ ] Add API documentation
-- [ ] Create user guide and tutorials
-- [ ] Add developer documentation
-- [ ] Create troubleshooting guide
-
-### 11.2 Docker Containerization
-- [ ] Create Dockerfile for production
-- [ ] Add docker-compose for local development
-- [ ] Test container builds and runs
-- [ ] Optimize container image size
-- [ ] Add health check endpoints
-
-### 11.3 Environment Configuration
+### 11.2 Production Configuration
 - [ ] Create production environment configs
 - [ ] Add environment variable validation
-- [ ] Implement configuration management
-- [ ] Add secrets management integration
-- [ ] Test deployment configurations
+- [ ] Implement proper logging and monitoring
+- [ ] Add container security best practices
+- [ ] Test complete containerized deployment
 
-## Phase 12: Production Deployment
+### 11.3 Deployment Documentation
+- [ ] Create deployment guide for containers
+- [ ] Add cloud deployment options (Azure Container Apps, etc.)
+- [ ] Create infrastructure documentation
+- [ ] Add scaling and monitoring guidelines
+- [ ] Document backup and recovery procedures
 
-### 12.1 Infrastructure as Code
-- [ ] Create Terraform configuration
-- [ ] Define Azure Container Apps setup
-- [ ] Add networking and security configs
-- [ ] Create environment-specific configs
-- [ ] Test infrastructure deployment
-
-### 12.2 CI/CD Pipeline
-- [ ] Create GitHub Actions workflows
-- [ ] Add automated testing pipeline
-- [ ] Implement Docker image building
-- [ ] Add security scanning
-- [ ] Test complete deployment pipeline
-
-### 12.3 Monitoring and Observability
-- [ ] Add OpenTelemetry instrumentation
-- [ ] Configure Azure Application Insights
-- [ ] Set up custom metrics and alerts
-- [ ] Create monitoring dashboards
-- [ ] Test monitoring and alerting
-
-## Phase 13: Production Validation
-
-### 13.1 Deployment Testing
-- [ ] Deploy to staging environment
-- [ ] Run full test suite in staging
-- [ ] Perform load testing
-- [ ] Validate monitoring and logging
-- [ ] Test disaster recovery procedures
-
-### 13.2 Production Rollout
-- [ ] Deploy to production environment
-- [ ] Monitor initial production usage
-- [ ] Validate performance metrics
-- [ ] Collect user feedback
-- [ ] Address any production issues
-
-### 13.3 Post-Deployment
-- [ ] Create operational runbooks
-- [ ] Set up regular health checks
-- [ ] Plan maintenance windows
-- [ ] Create backup and recovery procedures
-- [ ] Document lessons learned
-
-## Verification Checklist for Each Phase
-
-After completing each phase, verify:
-- [ ] All features work as expected
-- [ ] No new errors or warnings
-- [ ] Performance is acceptable
-- [ ] UI is responsive and accessible
-- [ ] Documentation is updated
-- [ ] Tests pass successfully
-- [ ] Code is properly committed to git
-
-## Success Criteria
-
-The implementation is considered successful when:
-- [ ] All three modes (Interactive, Live, Color-coded) work correctly
-- [ ] Application handles Azure OpenAI API integration reliably
-- [ ] UI is responsive and accessible
-- [ ] Performance meets educational use requirements
-- [ ] Deployment pipeline is functional
-- [ ] Monitoring and observability are operational
-- [ ] Documentation is comprehensive and accurate
-
-## Notes
-
-- Each phase should be completed and verified before moving to the next
-- If any phase fails verification, address issues before proceeding
-- Consider creating feature branches for each major phase
-- Regular testing and feedback collection throughout development
-- Keep design document updated as implementation progresses
-
-## 🚨 CRITICAL ARCHITECTURE CHANGE - June 30, 2025
-
-**Major Pivot: Azure OpenAI → Local Gemma 2 LLM**
-
-Due to Azure OpenAI legacy completions API deprecation (affecting our core token-by-token generation functionality), we're switching to:
-
-- **Model**: Google Gemma 2 2B base model (Hugging Face)
-- **Benefits**: 
-  - ✅ True text completion mode (no chat formatting)
-  - ✅ Direct logits access (better than logprobs)
-  - ✅ Local inference (no API limits/costs)
-  - ✅ Future-proof (open source, no deprecation risk)
-- **Impact**: All Phase 3 items updated to reflect local LLM integration
-- **Test Script**: `test_local_llm.py` created to verify functionality

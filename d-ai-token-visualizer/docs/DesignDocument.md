@@ -75,53 +75,80 @@ The Token Visualizer is an educational application designed to help students und
 
 ### Mode 2: Live Probability Visualization
 
-**Description**: Real-time visualization of how prompt modifications affect response probabilities.
+**Description**: An analytical mode for real-time visualization of how prompt modifications affect next-token probabilities. It allows users to compare multiple prompt variations side-by-side to understand the impact of their inputs.
 
 **User Flow**:
-1. User enters a base prompt (e.g., "What is the capital of France?")
-2. System generates initial response with probabilities
-3. User modifies prompt (e.g., adds "You are a clever professor" or "You are very funny")
-4. System immediately re-generates response showing probability changes
-5. Visual comparison shows before/after probability distributions
+1.  User enters a base prompt in the first column (e.g., "The capital of France is").
+2.  The system generates and displays the top 5 next-token probabilities for that prompt.
+3.  The user can then create a new, modified prompt in a second column (e.g., adding a system message: "You are a helpful assistant. The capital of France is").
+4.  The system generates probabilities for the second prompt, displaying them next to the first for immediate comparison.
+5.  Users can continue adding columns for more prompt variations, creating a historical and comparative view.
+
+**UI Design Concept**:
+-   **Multi-Column Layout**: The interface will feature a dynamically expanding multi-column layout. Each column represents a distinct prompt and its resulting token probabilities.
+-   **Prompt History**: Each column clearly displays the full prompt used for generation.
+-   **Side-by-Side Comparison**: Token probabilities for each prompt are displayed in parallel, making it easy to spot differences.
+-   **Probability Difference Highlighting**: The UI will visually highlight changes in probabilities for the same token across different prompts (e.g., an arrow up/down with the percentage change).
+-   **Consistent Color Coding**: The established 6-tier color system will be used for probability values, ensuring visual consistency with other modes.
+-   **Independent Configuration**: Each column will have its own temperature and configuration settings, allowing for isolated experiments.
 
 **Features**:
-- **Side-by-side Comparison**: Original vs. modified prompt results
-- **Probability Difference Highlighting**: Show increases/decreases in token probabilities
-- **Real-time Updates**: Minimal delay between prompt change and result update
-- **Prompt Templates**: Pre-defined prompt modifications for common scenarios
+-   **Side-by-side Prompt Comparison**: Compare an unlimited number of prompt variations.
+-   **Probability Difference Highlighting**: Show increases/decreases in token probabilities.
+-   **Real-time Updates**: Debounced API calls provide near real-time feedback as the user types.
+-   **Prompt Templates**: Pre-defined prompt modifications for common educational scenarios.
+-   **State Management**: Each column's state (prompt, results, settings) is managed independently.
 
 **Technical Requirements**:
-- Debounced API calls to Local LLM Service (using Reflex event handlers)
-- Efficient diff calculation for probability changes
-- Smooth UI transitions for probability updates (built-in Reflex animations)
-- Real-time state synchronization via WebSocket
-- Service availability monitoring and graceful error handling
+-   Dynamic UI component for adding/removing prompt columns.
+-   Debounced API calls to the Local LLM Service for each column's prompt.
+-   Efficient diff calculation and UI updates for probability changes.
+-   Horizontal scrolling or adaptive layout to manage multiple columns.
+-   State management capable of handling a list of independent prompt-result objects.
 
-### Mode 3: Color-coded Token Visualization
+### Mode 3: Interactive Token Tree with Color Visualization
 
-**Description**: Visual representation of token probabilities through color intensity and patterns.
+**Description**: Advanced visualization combining color-coded probabilities with interactive branching paths, allowing users to explore multiple token generation possibilities in a tree structure.
+
+**Core Concept**:
+The mode leverages existing token probability functionality to create an interactive tree where users can explore different generation paths. Starting with an initial prompt, the system shows the top 5 possible next tokens as branches, then allows users to select a path and continue for a configurable number of tokens (e.g., 10). Users can then click on any unselected token at any branching point to create alternative paths, building a comprehensive tree of possibilities.
+
+**User Flow**:
+1. **Initial Generation**: User enters prompt, system generates top 5 token probabilities
+2. **Path Selection**: User selects one token, system continues generation for configured depth (e.g., 10 tokens)
+3. **Tree Display**: Full path is shown with all possible branches at each step (selected and unselected)
+4. **Interactive Branching**: User can click any unselected token at any point to branch from there
+5. **Multiple Paths**: Previous branches remain visible, creating a growing tree visualization
+6. **Exploration**: Users can create multiple branches to compare different generation paths
 
 **Features**:
-- **Heat Map Visualization**: Tokens colored by probability (high = warm colors, low = cool colors)
-- **Gradient Representation**: Smooth color transitions showing probability distributions
-- **Interactive Hover**: Detailed probability information on token hover
-- **Color Customization**: Different color schemes for accessibility
-- **Export Options**: Save visualizations as images
+- **Color-coded Probabilities**: Tokens colored by probability using the established 6-tier system
+  - Very High (80-100%): Green shades
+  - High (60-80%): Light green  
+  - Medium-High (40-60%): Yellow
+  - Medium (20-40%): Orange
+  - Low (10-20%): Light red
+  - Very Low (0-10%): Red shades
+- **Interactive Tree Structure**: Clickable nodes for branching at any point
+- **Visual Path Distinction**: Different visual styles for selected vs. unselected paths
+- **Probability-weighted Styling**: Branch thickness or opacity based on token probability
+- **Hover Information**: Detailed probability and token information on hover
+- **Configurable Depth**: User can set how many tokens to generate per path (1-20)
+- **Tree Management**: Ability to clear branches, reset tree, or focus on specific subtrees
 
-**Visual Design**:
-- **Color Scale**: Red (high probability) → Yellow (medium) → Blue (low probability)
-- **Transparency**: Lower probability tokens shown with reduced opacity
-- **Typography**: Clear, readable fonts with good contrast
+**Technical Requirements**:
+- **Tree Data Structure**: Efficient representation of branching token sequences
+- **State Management**: Track multiple paths and branching points
+- **Visual Rendering**: SVG or Canvas-based tree visualization
+- **Interactive Events**: Click handling for branching actions
+- **Performance**: Efficient rendering for complex trees with many branches
+- **Memory Management**: Handle large trees without performance degradation
 
-### Mode 4: Interactive Token Tree (Future Enhancement)
-
-**Description**: Advanced visualization showing branching paths of possible token sequences.
-
-**Concept**:
-- Tree structure showing multiple possible paths
-- Interactive navigation through different branches
-- Probability-weighted branch thickness
-- Collapsible nodes for complexity management
+**Educational Benefits**:
+- **Path Comparison**: Students can see how different token choices lead to different outcomes
+- **Probability Understanding**: Visual representation of why certain paths are more likely
+- **Decision Point Awareness**: Understanding that each token choice affects all future possibilities
+- **Alternative Exploration**: Easy exploration of "what if" scenarios at any point
 
 ## Technical Specifications
 
