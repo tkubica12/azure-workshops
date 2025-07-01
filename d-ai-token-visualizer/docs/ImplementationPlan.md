@@ -184,7 +184,7 @@ This implementation plan provides a step-by-step checklist for building the Toke
 - [x] Add temperature control slider
 
 ### 6.4 Complete 20 more
-- [ ] Add button that would ask API for 20 next token sampled with temperature and display probabilities of next (21st) token
+- [x] Add button that would ask API for 20 next token sampled with temperature and display probabilities of next (21st) token
 
 ## Phase 7: Mode 2 - Live Probability Visualization
 

@@ -23,6 +23,7 @@ class TokenHistoryEntry:
     alternatives: List[TokenProbability] = field(default_factory=list)
     selected_at: datetime = field(default_factory=datetime.now)
     was_top_choice: bool = False  # Whether this was the highest probability token
+    is_bulk_generated: bool = False  # Whether this token was part of bulk generation
 
 
 class InteractiveGenerationState(rx.State):
@@ -54,6 +55,10 @@ class InteractiveGenerationState(rx.State):
     # Generation settings
     temperature: float = 0.7
     top_k: int = 5
+    
+    # Generate 20 more functionality
+    is_generating_bulk: bool = False
+    bulk_generated_text: str = ""
     
     # Statistics
     total_tokens_generated: int = 0
@@ -272,6 +277,117 @@ class InteractiveGenerationState(rx.State):
                 # Regenerate alternatives for current position
                 await self.generate_next_alternatives()
     
+    @rx.event(background=True)
+    async def generate_twenty_more(self):
+        """Generate 20 tokens at once and then show alternatives for the 21st token."""
+        if not self.has_started:
+            async with self:
+                self.set_error("Please start generation first.")
+            return
+        
+        # Show progress message immediately
+        async with self:
+            self.set_progress_message("Generating 20 tokens...")
+            self.is_generating_bulk = True
+            self.clear_error()
+        
+        try:
+            # Get LLM client
+            client = await get_llm_client()
+            
+            # Construct the current prompt with all selected tokens
+            async with self:
+                if self.generated_tokens:
+                    token_text = "".join(self.generated_tokens)
+                    current_prompt = f"{self.initial_prompt}{token_text}"
+                else:
+                    current_prompt = self.initial_prompt
+            
+            print(f"INFO: Generating 20 tokens for prompt: '{current_prompt}'")
+            print(f"INFO: Temperature: {self.temperature}")
+            
+            # Handle temperature = 0 case - use very small positive number for deterministic behavior
+            effective_temperature = self.temperature if self.temperature > 0 else 0.001
+            
+            # Generate 20 tokens
+            result = await client.generate_tokens_with_probabilities(
+                prompt=current_prompt,
+                max_tokens=20,
+                temperature=effective_temperature,
+                top_logprobs=1  # We only need the selected token for bulk generation
+            )
+            
+            # Extract the generated text (without the original prompt)
+            generated_text = result.generated_text
+            if generated_text.startswith(current_prompt):
+                bulk_tokens = generated_text[len(current_prompt):]
+            else:
+                bulk_tokens = generated_text
+            
+            print(f"INFO: Generated 20 tokens: '{bulk_tokens}'")
+            
+            # Update state with the generated text
+            async with self:
+                self.bulk_generated_text = bulk_tokens
+                # Add the bulk generated text as individual tokens to our sequence
+                # Note: This is a simplification - ideally we'd tokenize properly
+                # For now, we'll add the entire bulk as one "token" for tracking
+                self.generated_tokens.append(bulk_tokens)
+                
+                # Update display text
+                if self.generated_tokens:
+                    token_text = "".join(self.generated_tokens)
+                    self.current_text = f"{self.initial_prompt}{token_text}"
+                
+                # Create a history entry for the bulk generation
+                # Mark it as bulk generation so it won't be color-coded
+                history_entry = TokenHistoryEntry(
+                    token=bulk_tokens,
+                    probability=0.0,  # No meaningful probability for bulk generation
+                    percentage=0.0,   # No meaningful percentage for bulk generation
+                    alternatives=[],  # No alternatives for bulk generation
+                    was_top_choice=False,  # Not applicable for bulk generation
+                    is_bulk_generated=True  # New field to identify bulk tokens
+                )
+                self.token_history.append(history_entry)
+                
+                self.total_tokens_generated += 20  # Approximate token count
+                self.set_progress_message("Generating alternatives for token #21...")
+            
+            # Now generate alternatives for the 21st token
+            # Use the full text (original + all tokens + bulk) as the new prompt
+            new_prompt = self.current_text
+            
+            print(f"INFO: Generating 21st token alternatives for: '{new_prompt}'")
+            
+            # Generate alternatives for the next token
+            result_21 = await client.generate_tokens_with_probabilities(
+                prompt=new_prompt,
+                max_tokens=1,
+                temperature=effective_temperature,
+                top_logprobs=self.top_k
+            )
+            
+            # Update alternatives for the 21st token
+            async with self:
+                self.current_alternatives = result_21.alternatives
+                self.selected_token_index = -1
+                self.is_generating = True  # Ready for user to select the 21st token
+                
+                if result_21.alternatives:
+                    most_likely = result_21.alternatives[0]
+                    print(f"INFO: Most likely 21st token: '{most_likely.token}' ({most_likely.percentage:.1f}%)")
+                
+        except Exception as e:
+            print(f"ERROR: Bulk generation failed: {str(e)}")
+            async with self:
+                self.set_error(f"Failed to generate 20 tokens: {str(e)}")
+                self.is_generating = False
+        finally:
+            async with self:
+                self.is_generating_bulk = False
+                self.clear_progress_message()
+
     def reset_generation(self):
         """Reset the entire generation session."""
         self.current_text = ""
@@ -279,6 +395,8 @@ class InteractiveGenerationState(rx.State):
         self.current_alternatives = []
         self.selected_token_index = -1
         self.is_generating = False
+        self.is_generating_bulk = False
+        self.bulk_generated_text = ""
         self.has_started = False
         self.total_tokens_generated = 0
         self.token_history = []  # Clear token history
@@ -294,6 +412,11 @@ class InteractiveGenerationState(rx.State):
     def can_continue(self) -> bool:
         """Check if generation can continue."""
         return self.has_started and self.is_generating
+    
+    @rx.var
+    def can_generate_twenty_more(self) -> bool:
+        """Check if we can generate 20 more tokens."""
+        return self.has_started and self.is_generating and not self.is_generating_bulk
 
 
 def prompt_input_section() -> rx.Component:
@@ -591,8 +714,10 @@ def generation_display_section() -> rx.Component:
         token_generation_controls(
             on_reset=InteractiveGenerationState.reset_generation,
             on_undo_last=InteractiveGenerationState.undo_last_token,
+            on_generate_twenty_more=InteractiveGenerationState.generate_twenty_more,
             is_generating=InteractiveGenerationState.is_generating,
-            can_undo=InteractiveGenerationState.can_undo
+            can_undo=InteractiveGenerationState.can_undo,
+            can_generate_twenty_more=InteractiveGenerationState.can_generate_twenty_more
         ),
         
         spacing="4",

@@ -331,9 +331,11 @@ def token_generation_controls(
     on_generate_next: Optional[rx.EventHandler] = None,
     on_reset: Optional[rx.EventHandler] = None,
     on_undo_last: Optional[rx.EventHandler] = None,
+    on_generate_twenty_more: Optional[rx.EventHandler] = None,
     is_generating: bool = False,
     can_undo: bool = False,
-    can_generate: bool = True
+    can_generate: bool = True,
+    can_generate_twenty_more: bool = False
 ) -> rx.Component:
     """Control buttons for token generation flow.
     
@@ -341,9 +343,11 @@ def token_generation_controls(
         on_generate_next: Handler for generating next token alternatives (not used - kept for compatibility)
         on_reset: Handler for resetting the generation
         on_undo_last: Handler for undoing the last token selection
+        on_generate_twenty_more: Handler for generating 20 tokens and showing 21st alternatives
         is_generating: Whether generation is currently in progress
         can_undo: Whether undo is available
         can_generate: Whether generation can proceed (not used - kept for compatibility)
+        can_generate_twenty_more: Whether 20-token generation is available
     """
     
     return rx.hstack(
@@ -370,6 +374,33 @@ def token_generation_controls(
                 False
             ),
             on_click=on_undo_last,
+            padding="0.75rem 1.5rem",
+            border_radius="0.5rem"
+        ),
+        
+        # Generate 20 More button
+        rx.button(
+            rx.hstack(
+                rx.icon("fast-forward", size=16),
+                rx.text("Generate 20 More", font_weight="500"),
+                spacing="2",
+                align="center"
+            ),
+            variant="outline",
+            color="#2563EB",
+            border_color="#2563EB",
+            _hover=rx.cond(
+                can_generate_twenty_more,
+                {"background": "#EFF6FF"},
+                {}
+            ),
+            _disabled={"color": "#9CA3AF", "cursor": "not-allowed"},
+            disabled=rx.cond(
+                ~can_generate_twenty_more,
+                True,
+                False
+            ),
+            on_click=on_generate_twenty_more,
             padding="0.75rem 1.5rem",
             border_radius="0.5rem"
         ),

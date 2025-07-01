@@ -105,6 +105,37 @@ def probability_token_span_from_entry(
     Returns:
         Reflex component for the token span
     """
+    # Check if this is a bulk-generated token - if so, render without color coding
+    return rx.cond(
+        entry.is_bulk_generated,
+        # Bulk-generated tokens: render like initial prompt (no color coding)
+        rx.text(
+            entry.token,
+            display="inline",
+            color="#374151",
+            font_weight="400",
+            margin="0"
+        ),
+        # Regular tokens: render with color coding
+        _create_color_coded_token_span(entry, show_tooltip, animate_on_hover)
+    )
+
+
+def _create_color_coded_token_span(
+    entry,  # TokenHistoryEntry
+    show_tooltip: bool = True,
+    animate_on_hover: bool = True
+) -> rx.Component:
+    """Create a color-coded span for a regular (non-bulk) token entry.
+    
+    Args:
+        entry: TokenHistoryEntry with token information
+        show_tooltip: Whether to show tooltip on hover
+        animate_on_hover: Whether to animate on hover
+        
+    Returns:
+        Reflex component for the color-coded token span
+    """
     # Create the base span with color coding using entry properties directly
     token_span = rx.text(
         entry.token,
