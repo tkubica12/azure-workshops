@@ -29,7 +29,10 @@ class TreeNode:
     # Path information
     is_selected: bool = False  # Part of the main/selected path
     is_branch_root: bool = False  # Starting point of a branch
-    
+
+    # Collapse state
+    is_collapsed: bool = False  # Whether this node's children are collapsed
+
     # Metadata
     created_at: datetime = field(default_factory=datetime.now)
     generation_metadata: Dict[str, Any] = field(default_factory=dict)
@@ -288,11 +291,72 @@ class TokenTree:
             "current_depth": self.nodes[self.current_node_id].depth if self.current_node_id else 0
         }
     
-    def _clear_selected_states(self) -> None:
-        """Clear selected state from all nodes."""
-        for node in self.nodes.values():
-            node.is_selected = False
+    def toggle_node_collapse(self, node_id: str) -> bool:
+        """Toggle the collapsed state of a node. Returns True if collapsed, False if expanded."""
+        if node_id not in self.nodes:
+            return False
+        
+        node = self.nodes[node_id]
+        node.is_collapsed = not node.is_collapsed
+        
+        print(f"INFO: Node '{node.token}' (ID: {node_id}) is now {'collapsed' if node.is_collapsed else 'expanded'}")
+        return node.is_collapsed
     
+    def get_visible_nodes(self) -> Set[str]:
+        """Get all visible node IDs (not collapsed by their parent)."""
+        if not self.root_id:
+            return set()
+        
+        visible = set()
+        to_visit = [self.root_id]
+        
+        while to_visit:
+            node_id = to_visit.pop(0)
+            visible.add(node_id)
+            
+            node = self.nodes[node_id]
+            # Only add children if this node is not collapsed
+            if not node.is_collapsed:
+                to_visit.extend(node.children)
+        
+        return visible
+    
+    def collapse_subtree(self, node_id: str) -> int:
+        """Collapse entire subtree starting from node_id. Returns number of nodes collapsed."""
+        if node_id not in self.nodes:
+            return 0
+        
+        collapsed_count = 0
+        node = self.nodes[node_id]
+        
+        if not node.is_collapsed and node.children:
+            node.is_collapsed = True
+            collapsed_count = 1
+            
+            # Recursively collapse all descendants
+            for child_id in node.children:
+                collapsed_count += self.collapse_subtree(child_id)
+                
+        return collapsed_count
+    
+    def expand_subtree(self, node_id: str) -> int:
+        """Expand entire subtree starting from node_id. Returns number of nodes expanded."""
+        if node_id not in self.nodes:
+            return 0
+        
+        expanded_count = 0
+        node = self.nodes[node_id]
+        
+        if node.is_collapsed:
+            node.is_collapsed = False
+            expanded_count = 1
+            
+            # Recursively expand all descendants
+            for child_id in node.children:
+                expanded_count += self.expand_subtree(child_id)
+                
+        return expanded_count
+
     def _rebuild_selected_path(self) -> None:
         """Rebuild selected path after tree modifications."""
         if not self.root_id:

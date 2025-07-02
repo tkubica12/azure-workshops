@@ -3,7 +3,7 @@
 import reflex as rx
 import plotly.graph_objects as go
 import networkx as nx
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Set
 from datetime import datetime
 
 from ..components.layout import app_layout
@@ -113,12 +113,16 @@ class TokenTreeState(rx.State):
             return
         
         try:
-            # Create NetworkX graph
+            # Get only visible nodes (not collapsed by their parent)
+            visible_nodes = self.tree.get_visible_nodes()
+            
+            # Create NetworkX graph with only visible nodes
             G = nx.DiGraph()
             
-            # Group nodes by depth level for hierarchical layout
+            # Group visible nodes by depth level for hierarchical layout
             levels = {}
-            for node_id, node in self.tree.nodes.items():
+            for node_id in visible_nodes:
+                node = self.tree.nodes[node_id]
                 depth = node.depth
                 if depth not in levels:
                     levels[depth] = []
@@ -139,16 +143,18 @@ class TokenTreeState(rx.State):
                     y = start_y + (i * y_spacing)
                     pos[node_id] = (x, y)
             
-            # Add nodes and edges to NetworkX graph
-            for node_id, node in self.tree.nodes.items():
+            # Add visible nodes and edges to NetworkX graph
+            for node_id in visible_nodes:
+                node = self.tree.nodes[node_id]
                 G.add_node(node_id, 
                           text=node.token if node.token else "ROOT",
                           probability=node.probability * 100 if node.probability else 100.0,
                           is_selected=getattr(node, 'is_selected', False))
                 
-                # Add edges to children
+                # Add edges to visible children only
                 for child_id in node.children:
-                    G.add_edge(node_id, child_id)
+                    if child_id in visible_nodes:
+                        G.add_edge(node_id, child_id)
             
             # Create edge traces
             edge_x = []
@@ -339,12 +345,16 @@ class TokenTreeState(rx.State):
                 if node.depth == 0:
                     hover_text.append(f"Prompt: {full_text}<br>Root Node")
                 else:
-                    # Check if this is a leaf node (can be expanded)
-                    can_expand = len(node.children) == 0
-                    if can_expand:
-                        hover_text.append(f"Token: {full_text}<br>Probability: {probability:.1f}%<br>🎯 Click to expand (add next tokens)")
+                    # Check if this node has children (can be collapsed/expanded) or is a leaf (can be expanded)
+                    has_children = len(node.children) > 0
+                    if has_children:
+                        if node.is_collapsed:
+                            hover_text.append(f"Token: {full_text}<br>Probability: {probability:.1f}%<br>📁 Click to expand collapsed subtree")
+                        else:
+                            hover_text.append(f"Token: {full_text}<br>Probability: {probability:.1f}%<br>📂 Click to collapse subtree")
                     else:
-                        hover_text.append(f"Token: {full_text}<br>Probability: {probability:.1f}%<br>Already expanded")
+                        # Leaf node - can be expanded with LLM
+                        hover_text.append(f"Token: {full_text}<br>Probability: {probability:.1f}%<br>🎯 Click to expand (add next tokens)")
             
             # Create invisible node trace for hover and click functionality
             node_trace = go.Scatter(
@@ -392,7 +402,37 @@ class TokenTreeState(rx.State):
                     opacity=0.95
                 )
                 
-                # Prepare text annotation
+                # Add collapse indicator for nodes with children
+                if len(node.children) > 0 and node.depth > 0:  # Skip root node
+                    # Add small circle indicator in the bottom-right corner
+                    indicator_x = x + width/2 - 0.15
+                    indicator_y = y - height/2 + 0.15
+                    indicator_color = "#4F46E5" if node.is_collapsed else "#10B981"
+                    indicator_symbol = "+" if node.is_collapsed else "−"
+                    
+                    fig.add_shape(
+                        type="circle",
+                        x0=indicator_x - 0.1, y0=indicator_y - 0.1,
+                        x1=indicator_x + 0.1, y1=indicator_y + 0.1,
+                        fillcolor=indicator_color,
+                        line=dict(color="white", width=1),
+                        opacity=0.9
+                    )
+                    
+                    # Add +/- symbol
+                    text_annotations.append(dict(
+                        x=indicator_x,
+                        y=indicator_y,
+                        text=indicator_symbol,
+                        showarrow=False,
+                        font=dict(size=10, color="white", family="Arial, sans-serif"),
+                        align="center",
+                        valign="middle",
+                        xref="x",
+                        yref="y"
+                    ))
+                
+                # Prepare main text annotation
                 text_annotations.append(dict(
                     x=x, 
                     y=y,
@@ -405,7 +445,7 @@ class TokenTreeState(rx.State):
                     yref="y"
                 ))
             # Add the instruction annotation to the text annotations list
-            instruction_text = "💡 Hover over nodes for details • Click leaf nodes to expand • Zoom and pan to explore"
+            instruction_text = "💡 Hover for details • Click leaf nodes to expand • Click nodes with children to collapse/expand"
             
             text_annotations.append(dict(
                 text=instruction_text,
@@ -416,6 +456,26 @@ class TokenTreeState(rx.State):
                 font=dict(size=13, color="gray", family="Arial, sans-serif")
             ))
             
+            # Calculate bounds of all node positions to maintain rectangle sizes
+            if pos:
+                x_coords = [pos[node][0] for node in pos]
+                y_coords = [pos[node][1] for node in pos]
+                
+                x_min, x_max = min(x_coords), max(x_coords)
+                y_min, y_max = min(y_coords), max(y_coords)
+                
+                # Add padding around the bounds (accounting for rectangle sizes)
+                # Root nodes are 2.0 wide, token nodes are 1.5 wide, so use max width/2 + extra padding
+                x_padding = 1.5  # Max rectangle width/2 + extra space
+                y_padding = 1.0  # Max rectangle height/2 + extra space
+                
+                x_range = [x_min - x_padding, x_max + x_padding]
+                y_range = [y_min - y_padding, y_max + y_padding]
+            else:
+                # Fallback ranges if no positions
+                x_range = [-2, 2]
+                y_range = [-2, 2]
+            
             fig.update_layout(
                 title=dict(
                     text=f"Token Tree ({len(G.nodes())} nodes)",
@@ -424,19 +484,27 @@ class TokenTreeState(rx.State):
                 ),
                 showlegend=False,
                 hovermode='closest',
-                margin=dict(b=40, l=40, r=40, t=60),
+                dragmode='pan',  # Set Pan as the default tool
+                margin=dict(b=40, l=40, r=40, t=60, autoexpand=True),
                 annotations=text_annotations,  # Add all annotations at once
                 xaxis=dict(
                     showgrid=False, 
                     zeroline=False, 
                     showticklabels=False,
-                    fixedrange=False
+                    fixedrange=False,
+                    range=x_range,  # Set explicit range based on data bounds
+                    scaleanchor="y",  # Maintain aspect ratio
+                    scaleratio=1
                 ),
                 yaxis=dict(
                     showgrid=False, 
                     zeroline=False, 
                     showticklabels=False,
-                    fixedrange=False
+                    fixedrange=False,
+                    range=y_range  # Set explicit range based on data bounds
+                ),
+                modebar=dict(
+                    remove=["select", "lasso"]  # Remove box select and lasso select tools
                 ),
                 plot_bgcolor='#FAFAFA',
                 paper_bgcolor='white',
@@ -529,121 +597,82 @@ class TokenTreeState(rx.State):
                 self.is_expanding = False
     
     @rx.event(background=True)
-    async def handle_node_click(self, event):
-        """Handle clicks on tree nodes using pointNumber/pointIndex."""
+    async def handle_node_click(self, event: list):
+        """Handle clicks on tree nodes to expand leaf nodes or collapse/expand parent nodes."""
         print(f"INFO: Node click detected - event data: {event}")
-        
+
         try:
-            # Get the point index from the event
-            point_index = None
-            
-            # Method 1: Try to get pointNumber or pointIndex from event structure
-            if isinstance(event, list) and len(event) > 0:
-                # Event is a list - get first item
-                first_event = event[0]
-                print(f"DEBUG: First event item: {first_event}")
+            point_index = -1
+            if event and isinstance(event, list) and len(event) > 0 and isinstance(event[0], dict):
+                event_data = event[0]
+                # Ensure we are clicking on the correct trace (nodes, not edges)
+                if event_data.get("curveNumber") != 1:
+                    print(f"INFO: Clicked on wrong trace (curveNumber: {event_data.get('curveNumber')}), ignoring.")
+                    return
+                point_index = event_data.get("pointIndex", -1)
+
+            if point_index == -1:
+                print(f"WARNING: Could not extract valid point index from event: {event}")
+                return
+
+            node_id = ""
+            node_token = ""
+            has_children = False
+            async with self:
+                if not (0 <= point_index < len(self.point_to_node_mapping)):
+                    print(f"WARNING: Point index {point_index} out of range.")
+                    return
                 
-                if isinstance(first_event, dict):
-                    # Look for point index in different keys - prioritize pointNumber
-                    if 'pointNumber' in first_event:
-                        point_index = first_event['pointNumber']
-                        print(f"DEBUG: Found pointNumber: {point_index}")
-                    elif 'pointIndex' in first_event:
-                        point_index = first_event['pointIndex']
-                        print(f"DEBUG: Found pointIndex: {point_index}")
-                    
-                    # Also check curveNumber to ensure we're clicking on the right trace
-                    curve_number = first_event.get('curveNumber', 0)
-                    print(f"DEBUG: curveNumber: {curve_number}")
-                    
-                    # We expect curveNumber 1 (the invisible node trace, after the edge trace which is 0)
-                    if curve_number != 1:
-                        print(f"WARNING: Click on wrong trace (curveNumber: {curve_number}), expected 1")
-                        return
-            
-            # Method 2: Try accessing as object attributes
-            elif hasattr(event, 'points') and event.points:
-                if len(event.points) > 0:
-                    point = event.points[0]
-                    if hasattr(point, 'pointNumber'):
-                        point_index = point.pointNumber
-                    elif hasattr(point, 'pointIndex'):
-                        point_index = point.pointIndex
-                    print(f"DEBUG: Point index from points: {point_index}")
-            
-            # Method 3: Try as a simple dict
-            elif isinstance(event, dict):
-                for key in ['pointNumber', 'pointIndex', 'curveNumber']:
-                    if key in event:
-                        point_index = event[key]
-                        print(f"DEBUG: Found {key} in dict: {point_index}")
-                        break
-            
-            # If we have a valid point index, map it to node ID and expand inline
-            if point_index is not None and isinstance(point_index, int):
-                if 0 <= point_index < len(self.point_to_node_mapping):
-                    node_id = self.point_to_node_mapping[point_index]
-                    print(f"INFO: Mapped point index {point_index} to node_id: {node_id}")
-                    
-                    # Check if this is a leaf node that can be expanded
-                    if not self.tree or node_id not in self.tree.nodes:
-                        print(f"WARNING: Node ID '{node_id}' not found in tree")
-                        return
-                        
-                    node = self.tree.nodes[node_id]
-                    print(f"INFO: User clicked on node '{node.token}' (children: {len(node.children)})")
-                    
-                    # Only expand leaf nodes (nodes with no children)
-                    if len(node.children) > 0:
-                        print(f"INFO: Node '{node.token}' already has children - no expansion needed")
-                        return
-                        
-                    if self.is_expanding:
-                        print(f"INFO: Already expanding a node - ignoring click")
-                        return
-                    
-                    # Expand the node inline (instead of calling expand_node)
-                    async with self:
-                        self.is_expanding = True
-                        self.selected_node_id = node_id
-                        self.clear_error()
-                    
-                    # Get LLM client and expand
-                    print(f"INFO: Expanding leaf node '{node.token}'...")
-                    client = await get_llm_client()
-                    
-                    # Build the prompt path from root to this node
-                    prompt_path = self.get_path_to_node(node_id)
-                    print(f"INFO: Expanding node '{node.token}' with path: '{prompt_path}'")
-                    
-                    # Generate next 5 token alternatives
-                    result = await client.generate_tokens_with_probabilities(
-                        prompt=prompt_path,
-                        max_tokens=1,
-                        temperature=self.temperature,
-                        top_logprobs=5  # Get top 5 alternatives
-                    )
-                    
-                    # Add alternatives as children of the clicked node
+                node_id = self.point_to_node_mapping[point_index]
+                if not self.tree or node_id not in self.tree.nodes:
+                    print(f"WARNING: Node ID '{node_id}' not found in tree.")
+                    return
+
+                node = self.tree.nodes[node_id]
+                node_token = node.token
+                has_children = len(node.children) > 0
+                print(f"INFO: User clicked on node '{node_token}' (ID: {node_id}, Children: {len(node.children)})")
+
+                if has_children:
+                    self.tree.toggle_node_collapse(node_id)
+                    self.update_tree_figure()
+                    print(f"INFO: Toggled collapse state for node '{node_token}'. Is collapsed: {node.is_collapsed}")
+                    return
+
+            if has_children: # Should not happen due to return, but as a safeguard
+                return
+
+            if self.is_expanding:
+                print("INFO: Already expanding a node, ignoring click.")
+                return
+
+            async with self:
+                self.is_expanding = True
+                self.selected_node_id = node_id
+                self.clear_error()
+
+            try:
+                client = await get_llm_client()
+                prompt_path = self.get_path_to_node(node_id)
+                print(f"INFO: Expanding leaf node '{node_token}' with path: '{prompt_path}'")
+
+                result = await client.generate_tokens_with_probabilities(
+                    prompt=prompt_path, max_tokens=1, temperature=self.temperature, top_logprobs=5
+                )
+
+                async with self:
                     if result.alternatives:
-                        async with self:
-                            child_ids = self.tree.add_token_alternatives(node_id, result.alternatives)
-                            print(f"INFO: Added {len(child_ids)} token alternatives to node '{node.token}'")
-                        
-                            # Update tree visualization
-                            self.update_tree_figure()
-                            
-                            self.is_expanding = False
+                        child_ids = self.tree.add_token_alternatives(node_id, result.alternatives)
+                        print(f"INFO: Added {len(child_ids)} token alternatives to node '{node_token}'")
+                        self.update_tree_figure()
                     else:
-                        async with self:
-                            self.is_expanding = False
-                            print(f"WARNING: No alternatives returned for node '{node.token}'")
-                            
-                else:
-                    print(f"WARNING: Point index {point_index} out of range (mapping size: {len(self.point_to_node_mapping)})")
-            else:
-                print(f"WARNING: Could not extract valid point index from event. Available keys: {list(event.keys()) if isinstance(event, dict) else 'not a dict'}")
-                
+                        print(f"WARNING: No alternatives returned for node '{node_token}'")
+                    self.is_expanding = False
+            except Exception as e:
+                print(f"ERROR: Failed to expand node '{node_token}': {str(e)}")
+                async with self:
+                    self.set_error(f"Failed to expand node: {str(e)}")
+                    self.is_expanding = False
         except Exception as e:
             print(f"ERROR: Failed to handle node click: {str(e)}")
             import traceback
