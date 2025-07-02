@@ -8,6 +8,8 @@ from .pages.token_display_test import token_display_test_page
 from .pages.probability_bar_test import probability_bar_test_page
 from .pages.interactive_mode import interactive_mode_page
 from .pages.prompt_comparison import prompt_comparison_page
+from .pages.token_tree import token_tree_page
+from .pages.tree_visualization_test import tree_visualization_test_page
 
 
 def welcome_content() -> rx.Component:
@@ -279,3 +281,9 @@ app.add_page(interactive_mode_page, route="/interactive")
 
 # Add the prompt comparison page
 app.add_page(prompt_comparison_page, route="/prompt-comparison")
+
+# Add the token tree page
+app.add_page(token_tree_page, route="/token-tree")
+
+# Add the tree visualization test page
+app.add_page(tree_visualization_test_page, route="/tree-visualization-test")

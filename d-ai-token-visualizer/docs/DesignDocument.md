@@ -141,10 +141,10 @@ The mode leverages existing token probability functionality to create an interac
 **Technical Requirements**:
 - **Tree Data Structure**: Efficient representation of branching token sequences
 - **State Management**: Track multiple paths and branching points
-- **Visual Rendering**: SVG or Canvas-based tree visualization
-- **Interactive Events**: Click handling for branching actions
-- **Performance**: Efficient rendering for complex trees with many branches
-- **Memory Management**: Handle large trees without performance degradation
+- **Visual Rendering**: Plotly-based interactive tree visualization with NetworkX layout algorithms
+- **Interactive Events**: Built-in Plotly click, hover, and zoom events for node interaction
+- **Performance**: Leverages Plotly's optimized rendering for complex trees with many branches
+- **Memory Management**: Plotly's efficient data handling and NetworkX graph algorithms
 
 **Educational Benefits**:
 - **Path Comparison**: Students can see how different token choices lead to different outcomes
@@ -218,6 +218,7 @@ Health Check: Periodic service availability monitoring
 - **Modern UI Components**: Leverages React and Next.js under the hood for professional appearance
 - **Built-in WebSocket Support**: Real-time communication between frontend and backend
 - **State Management**: Reactive state management with automatic UI updates
+- **Plotly Integration**: Native `rx.plotly` component for interactive data visualization
 - **Educational Focus**: Excellent for prototyping and complex educational applications
 - **Deployment**: Easy deployment with built-in development server and production options
 - **Scalability**: Can scale from simple prototypes to complex applications
@@ -235,8 +236,9 @@ Health Check: Periodic service availability monitoring
 **Why Reflex is Ideal for Token Visualizer**:
 - **Real-time Updates**: Built-in WebSocket support perfect for live token probability updates
 - **Interactive Components**: Rich component library ideal for token selection interfaces
+- **Plotly Integration**: Native support for complex data visualizations and tree diagrams
 - **Educational UX**: Proven track record in building educational and data visualization apps
-- **Python Ecosystem**: Seamless integration with Python ML/AI libraries
+- **Python Ecosystem**: Seamless integration with Python ML/AI libraries (NetworkX, Plotly)
 - **Rapid Development**: Faster development cycle compared to traditional frontend frameworks
 - **Type Safety**: Radix-based prop validation ensures consistent UI behavior
 
@@ -262,6 +264,22 @@ User Interaction → Reflex Frontend → Reflex State Management → Local LLM S
 - **Error Handling**: Graceful degradation when service is unavailable
 - **Reconnection**: Automatic retry logic for failed requests
 - **Status Display**: User-friendly service status indicators
+
+### Visualization Dependencies
+
+**Core Visualization Libraries**:
+```
+plotly: Interactive plotting library for professional data visualization
+networkx: Graph algorithms and layout computation for tree structures
+reflex: Native rx.plotly component for seamless Plotly integration
+```
+
+**Dependency Integration**:
+- **Plotly**: Provides interactive graphs with built-in zoom, pan, and hover functionality
+- **NetworkX**: Handles tree layout algorithms and graph structure management
+- **Reflex Integration**: `rx.plotly` component allows Plotly figures as reactive state variables
+- **Performance**: Libraries are optimized for large datasets and complex visualizations
+- **Maintenance**: Well-established libraries with active development and community support
 
 ## Reflex-Specific Implementation Details
 
@@ -632,3 +650,32 @@ terraform/
 The Token Visualizer represents an innovative approach to LLM education, combining interactive visualization with hands-on experimentation. By leveraging Azure OpenAI's logprobs functionality and modern web technologies, the application will provide students with an intuitive understanding of how autoregressive language models work at the token level.
 
 The modular design allows for incremental development, starting with the core interactive token selection mode and expanding to include more advanced visualization and analysis features. The focus on educational outcomes, combined with robust technical architecture, positions this tool to make a significant impact in AI/ML education.
+
+### Tree Visualization Architecture (Mode 3)
+
+**Plotly Integration**:
+```
+Visualization: Plotly with NetworkX for tree layouts
+Component: rx.plotly component for native Reflex integration
+Interactivity: Built-in zoom, pan, hover, and click events
+Layout Algorithm: NetworkX hierarchical tree positioning
+State Management: Plotly Figure objects stored in Reflex state
+Real-time Updates: Reactive figure updates through state changes
+```
+
+**Tree Rendering Process**:
+- **Data Conversion**: Convert TokenTree structure to NetworkX graph
+- **Layout Calculation**: Use NetworkX spring or hierarchical layout algorithms
+- **Node Styling**: Apply probability-based color coding using established 6-tier system
+- **Edge Rendering**: Create parent-child connections with probability-weighted styling
+- **Interactive Features**: Hover tooltips, click events, and zoom controls built into Plotly
+- **State Integration**: Store complete Plotly Figure in Reflex state for reactive updates
+
+**Advantages of Plotly Approach**:
+- **Native Reflex Support**: Built-in `rx.plotly` component with seamless integration
+- **Professional Layouts**: Automatic tree positioning with NetworkX algorithms
+- **Zero Custom Code**: No need for custom SVG rendering or layout calculations
+- **Interactive by Default**: Zoom, pan, hover, and click events come for free
+- **Performance**: Optimized rendering for large graphs and complex visualizations
+- **Responsive Design**: Automatic adaptation to different screen sizes and containers
+- **Educational Value**: Professional-grade visualization enhances learning experience

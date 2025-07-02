@@ -131,6 +131,12 @@ def utility_navigation() -> rx.Component:
         ),
         
         nav_button(
+            icon="git-branch",
+            label="Test Tree Visualization",
+            on_click=rx.redirect("/tree-visualization-test")
+        ),
+        
+        nav_button(
             icon="settings",
             label="Settings"
         ),
