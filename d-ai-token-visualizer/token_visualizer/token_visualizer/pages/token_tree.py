@@ -302,7 +302,7 @@ class TokenTreeState(rx.State):
                     if current_line and len(lines) < max_lines:
                         lines.append(current_line)
                     
-                    if len(lines) == max_lines and len(words) > len(" ".join(lines).split()):
+                    if len(lines) == max_lines and len.words() > len(" ".join(lines).split()):
                         if len(lines) > 0:
                             lines[-1] = lines[-1][:max_chars_per_line-3] + "..."
                     
@@ -376,6 +376,21 @@ class TokenTreeState(rx.State):
             # Create figure with edge trace and invisible node trace
             fig = go.Figure(data=[edge_trace, node_trace])
             
+            # Ensure y_range exists for pixel scaling
+            if pos:
+                y_coords = [coord[1] for coord in pos.values()]
+                y_min, y_max = min(y_coords), max(y_coords)
+                y_padding = 1.0  # Padding in data units
+                y_range = [y_min - y_padding, y_max + y_padding]
+            else:
+                y_range = [-2, 2]
+
+            # Calculate pixel-per-unit for vertical scaling
+            fig_height_px = fig.layout.height if fig.layout.height else 600
+            # y_range now defined
+            y_span = y_range[1] - y_range[0] if pos else 1
+            y_unit_to_px = fig_height_px / y_span
+
             # Add rectangular shapes and text for each node
             text_annotations = []
             for i, node_id in enumerate(node_order):
@@ -383,15 +398,26 @@ class TokenTreeState(rx.State):
                 x, y = pos[node_id]
                 
                 # Define rectangle size based on node type
-                if node.depth == 0:  # Root node - larger rectangle
-                    width = 2.0
-                    height = 1.0
-                    font_size = 12  # Slightly smaller font for multiline root text
-                else:  # Token nodes - smaller rectangles with 5:2 ratio
-                    width = 1.5
-                    height = 0.6
-                    font_size = 14  # Standard font for token text
-                
+                # Base rectangle size in data units
+                if node.depth == 0:
+                    base_width, base_height = 2.0, 1.0
+                else:
+                    base_width, base_height = 1.5, 0.6
+                height = base_height
+                # Compute width based on character count with minimal padding
+                max_chars = max((len(line) for line in node_text[i].split("<br>")), default=1)
+                # Approximate data-unit width per character (fit 6 chars in base width)
+                char_unit = base_width / 6
+                padding_units = 0.1
+                width = max(base_width, max_chars * char_unit + padding_units)
+
+                # Compute dynamic font size from rectangle height
+                # Recompute height-based font size
+                pixel_height = height * y_unit_to_px
+                font_size = int(pixel_height * 0.6)
+                # Clamp font size
+                font_size = max(8, min(font_size, 20))
+
                 # Add rectangular shape
                 fig.add_shape(
                     type="rect",
@@ -434,7 +460,7 @@ class TokenTreeState(rx.State):
                 
                 # Prepare main text annotation
                 text_annotations.append(dict(
-                    x=x, 
+                    x=x,
                     y=y,
                     text=node_text[i],
                     showarrow=False,
