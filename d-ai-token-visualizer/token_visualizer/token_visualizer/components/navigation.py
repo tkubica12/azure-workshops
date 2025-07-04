@@ -112,45 +112,6 @@ def utility_navigation() -> rx.Component:
             on_click=rx.redirect("/config-test")
         ),
         
-        nav_button(
-            icon="database",
-            label="State Test",
-            on_click=rx.redirect("/state-test")
-        ),
-        
-        nav_button(
-            icon="eye",
-            label="Test Token Display",
-            on_click=rx.redirect("/token-display-test")
-        ),
-        
-        nav_button(
-            icon="bar-chart",
-            label="Test Probability Bars",
-            on_click=rx.redirect("/probability-bar-test")
-        ),
-        
-        nav_button(
-            icon="git-branch",
-            label="Test Tree Visualization",
-            on_click=rx.redirect("/tree-visualization-test")
-        ),
-        
-        nav_button(
-            icon="settings",
-            label="Settings"
-        ),
-        
-        nav_button(
-            icon="circle-help",
-            label="Help & Tutorial"
-        ),
-        
-        nav_button(
-            icon="download",
-            label="Export Data"
-        ),
-        
         spacing="1",
         align="stretch",
         width="100%"

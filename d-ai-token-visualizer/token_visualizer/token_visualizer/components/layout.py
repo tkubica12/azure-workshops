@@ -40,9 +40,27 @@ def header() -> rx.Component:
                 spacing="0"
             ),
             
-            # Right: Future navigation will go here
-            rx.box(
-                width="0px"  # Placeholder for future navigation
+            # Right: Help button
+            rx.link(
+                rx.button(
+                    rx.hstack(
+                        rx.icon("circle-help", size=16),
+                        rx.text("Help", font_size="0.875rem", font_weight="500"),
+                        spacing="2",
+                        align="center"
+                    ),
+                    variant="ghost",
+                    size="3",
+                    padding="0.75rem 1rem",
+                    border_radius="0.375rem",
+                    color="#64748B",
+                    _hover={
+                        "background": "#F1F5F9",
+                        "color": "#334155"
+                    }
+                ),
+                href="/help",
+                text_decoration="none"
             ),
             
             justify="between",
@@ -92,105 +110,6 @@ def sidebar() -> rx.Component:
     )
 
 
-def info_panel() -> rx.Component:
-    """Right info panel for statistics and help."""
-    return rx.box(
-        rx.vstack(
-            # Statistics section
-            rx.text(
-                "Session Stats",
-                font_size="0.875rem",
-                font_weight="600",
-                color="#374151",
-                margin_bottom="16px"
-            ),
-            
-            rx.vstack(
-                rx.box(
-                    rx.vstack(
-                        rx.text("Tokens Generated", font_size="0.75rem", color="#6B7280"),
-                        rx.text("0", font_size="1.5rem", font_weight="700", color="#1F2937"),
-                        spacing="1",
-                        align="center"
-                    ),
-                    padding="1rem",
-                    border_radius="0.5rem",
-                    background="#F9FAFB",
-                    border="1px solid #E5E7EB"
-                ),
-                
-                rx.box(
-                    rx.vstack(
-                        rx.text("Avg Probability", font_size="0.75rem", color="#6B7280"),
-                        rx.text("-%", font_size="1.5rem", font_weight="700", color="#1F2937"),
-                        spacing="1",
-                        align="center"
-                    ),
-                    padding="1rem",
-                    border_radius="0.5rem",
-                    background="#F9FAFB",
-                    border="1px solid #E5E7EB"
-                ),
-                
-                spacing="3",
-                align="stretch",
-                width="100%"
-            ),
-            
-            # Spacer
-            rx.spacer(),
-            
-            # Help section
-            rx.text(
-                "How to Use",
-                font_size="0.875rem",
-                font_weight="600",
-                color="#374151",
-                margin_bottom="16px",
-                margin_top="32px"
-            ),
-            
-            rx.vstack(
-                rx.text(
-                    "1. Enter a prompt to start",
-                    font_size="0.8rem",
-                    color="#6B7280",
-                    line_height="1.4"
-                ),
-                rx.text(
-                    "2. Select tokens interactively",
-                    font_size="0.8rem",
-                    color="#6B7280",
-                    line_height="1.4"
-                ),
-                rx.text(
-                    "3. Watch probabilities change",
-                    font_size="0.8rem",
-                    color="#6B7280",
-                    line_height="1.4"
-                ),
-                spacing="2",
-                align="start",
-                width="100%"
-            ),
-            
-            spacing="4",
-            align="stretch",
-            height="100%"
-        ),
-        
-        # Info panel styling
-        width="240px",
-        min_width="240px",
-        height="calc(100vh - 70px)",  # Full height minus header
-        background="#FAFAFA",
-        border_left="1px solid #E5E7EB",
-        padding="1.5rem",
-        position="sticky",
-        top="70px"  # Height of header
-    )
-
-
 def main_content(children: List[rx.Component]) -> rx.Component:
     """Main content area that wraps page content."""
     return rx.box(
@@ -211,21 +130,18 @@ def main_content(children: List[rx.Component]) -> rx.Component:
 
 
 def app_layout(*children: rx.Component) -> rx.Component:
-    """Main application layout with header, sidebar, content, and info panel."""
+    """Main application layout with header, sidebar, and content (no right panel)."""
     return rx.box(
         # Header
         header(),
         
-        # Main layout with sidebar, content, and info panel
+        # Main layout with sidebar and content
         rx.flex(
             # Left sidebar
             sidebar(),
             
             # Main content area
             main_content(list(children)),
-            
-            # Right info panel
-            info_panel(),
             
             # Layout styling
             direction="row",
