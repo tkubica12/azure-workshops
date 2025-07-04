@@ -172,10 +172,6 @@ class InteractiveGenerationState(rx.State):
                 else:
                     current_prompt = self.initial_prompt
             
-            # Log current generation state
-            print(f"INFO: Generating next token for prompt: '{current_prompt}'")
-            print(f"INFO: Temperature: {self.temperature}, Top-k: {self.top_k}")
-            
             # Handle temperature = 0 case - use very small positive number for deterministic behavior
             effective_temperature = self.temperature if self.temperature > 0 else 0.001
             

@@ -217,17 +217,6 @@ class TokenState(BaseState):
         
         return stats
     
-    def add_test_token(self):
-        """Add a test token for testing purposes."""
-        test_token = f"test_token_{len(self.generated_tokens)}"
-        self.generated_tokens.append(test_token)
-        self.mark_updated()
-    
-    def start_test_session(self):
-        """Start a new test session for testing purposes."""
-        test_prompt = self.current_prompt or "Default test prompt"
-        self.start_new_session(f"Test prompt: {test_prompt}")
-    
     def set_current_prompt(self, prompt: str):
         """Set the current prompt."""
         self.current_prompt = prompt

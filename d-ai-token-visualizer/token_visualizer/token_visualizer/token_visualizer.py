@@ -12,20 +12,10 @@ def index() -> rx.Component:
     return help_page()
 
 
-# Create the Reflex app
 app = rx.App()
 
-# Add the index page (help)
 app.add_page(index, route="/")
-
-# Add the help page as a separate route too
 app.add_page(help_page, route="/help")
-
-# Add the interactive mode page
 app.add_page(interactive_mode_page, route="/interactive")
-
-# Add the prompt comparison page
 app.add_page(prompt_comparison_page, route="/prompt-comparison")
-
-# Add the token tree page
 app.add_page(token_tree_page, route="/token-tree")
