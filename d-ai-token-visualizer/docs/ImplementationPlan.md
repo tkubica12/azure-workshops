@@ -215,32 +215,6 @@ This implementation plan provides a step-by-step checklist for building the Toke
 
 ## Phase 8: Mode 3 - Interactive Token Tree with Color Visualization
 
-**ARCHITECTURAL DECISION - Plotly vs SVG**: 
-Based on development analysis, we've chosen **Plotly with NetworkX** over custom SVG rendering for the following reasons:
-- ✅ **Native Reflex Integration**: `rx.plotly` component provides seamless integration
-- ✅ **Professional Layouts**: NetworkX algorithms handle tree positioning automatically
-- ✅ **Interactive by Default**: Zoom, pan, hover, and click events built-in
-- ✅ **Zero Custom Code**: No need for manual SVG rendering or layout calculations
-- ✅ **Performance**: Optimized for large datasets and complex visualizations
-- ✅ **Maintenance**: Well-established libraries with active community support
-- ✅ **Educational Value**: Professional-grade visualization enhances learning experience
-
-**CURRENT STATUS (Phase 8.2 - Tree Visualization Components)**:
-- ✅ **Dependencies**: Plotly and NetworkX successfully added to project
-- ✅ **Test Page**: Created `tree_visualization_test.py` with Plotly integration
-- ✅ **State Management**: Implemented Plotly Figure state variables with reactive updates
-- ✅ **Sample Tree**: Created sample tree data generation for testing
-- ✅ **Basic Rendering**: Plotly tree visualization displaying with NetworkX layout
-- ⚠️ **In Progress**: Fine-tuning interactive features and node styling
-- 📝 **Next**: Complete tree controls integration and LLM service connection
-
-**Key Technical Achievements**:
-- Successfully integrated `rx.plotly` component with Reflex state management
-- Implemented NetworkX tree layout algorithms for automatic node positioning
-- Created reactive Plotly figure updates through event handlers
-- Established color-coded node visualization using probability-based styling
-- Added interactive zoom, pan, and hover functionality through Plotly's built-in features
-
 ### 8.1 Tree Data Structure and State Management - COMPLETED ✅
 - [x] Create `utils/tree_structure.py` with token tree data model
 - [x] Implement `TreeNode` class to represent branching points
@@ -251,57 +225,71 @@ Based on development analysis, we've chosen **Plotly with NetworkX** over custom
 ### 8.2 Tree Visualization Components - IN PROGRESS ⚠️
 - [x] Add Plotly and NetworkX dependencies for professional tree visualization
 - [x] Create `components/token_tree.py` for Plotly-based tree rendering
-- [ ] Implement NetworkX-based tree layout with automatic node positioning
+- [x] Implement NetworkX-based tree layout with automatic node positioning
 - [x] Add color-coded token visualization using existing 6-tier color system
-- [ ] Create responsive tree layout using Plotly's built-in responsive features
+- [x] Create responsive tree layout using Plotly's built-in responsive features
 - [x] Add zoom and pan functionality through Plotly's native interaction controls
 - [x] Integrate Plotly Figure state management with Reflex state system
-- [ ] Test interactive tree visualization with sample data
+- [x] Test interactive tree visualization with sample data
 
 ### 8.3 Interactive Tree Page Implementation
-- [x] Create `pages/tree_visualization_test.py` test page with Plotly tree interface
-- [ ] Create `pages/token_tree.py` as mode 3 page with navigation MODES in left navigation bar
-- [ ] Create simple input text for user to enter prompt and Generate button
-- [ ] Create UI element to configure tree depth and branching factor - this will be reflected in subsequent calls to LLM service
+- [x] Create `pages/token_tree.py` as mode 3 page with navigation MODES in left navigation bar
+- [x] Create simple input text for user to enter prompt and Generate button
+- [x] Create UI element to configure tree depth and branching factor - this will be reflected in subsequent calls to LLM service
 - [x] Implement sample tree data generation and Plotly figure creation
 - [x] Add Plotly-based tree rendering with NetworkX layout algorithms
 - [x] Create tree controls for depth and branching configuration
 - [x] Add interactive features through Plotly's built-in event system
-- [ ] Test complete tree building and branching workflow with LLM integration
-- [ ] Implement path selection and continuation for configurable depth (1-20 tokens)
-- [ ] Create branching functionality - clicking nodes to create new paths
-- [ ] Add tree management controls (reset, clear branches, configure depth)
+- [x] Test complete tree building and branching workflow with LLM integration
+- [x] Implement path selection and continuation for configurable depth (1-20 tokens)
+- [x] Create branching functionality - clicking nodes to create new paths
+- [x] Add tree management controls (reset, clear branches, configure depth)
 
 ### 8.4 Advanced Tree Features
-- [ ] Implement hover tooltips with token information through Plotly's hover system
-- [ ] Add visual path distinction using Plotly edge and node styling
-- [ ] Create branch management through Plotly figure updates
-- [ ] Add probability-weighted visual styling (node size, edge thickness based on probabilities)
-- [ ] Implement tree export functionality using Plotly's built-in export features (PNG/SVG/HTML)
-- [ ] Add keyboard navigation integration with Plotly events
+- [x] Implement hover tooltips with token information through Plotly's hover system
+- [x] Add visual path distinction using Plotly edge and node styling
+- [x] Create branch management through Plotly figure updates
+- [x] Add probability-weighted visual styling (node size, edge thickness based on probabilities)
+- [x] Implement tree export functionality using Plotly's built-in export features (PNG/SVG/HTML)
+- [x] Add keyboard navigation integration with Plotly events
 
 ### 8.5 Tree Performance and Optimization
-- [ ] Leverage Plotly's optimized rendering for large trees (built-in virtualization)
-- [ ] Implement efficient tree traversal using NetworkX algorithms
-- [ ] Add lazy loading for deep tree branches through Plotly figure updates
-- [ ] Utilize NetworkX graph pruning functionality to manage memory usage
-- [ ] Test performance with complex trees using Plotly's performance monitoring (10+ levels, 5+ branches per level)
+- [x] Leverage Plotly's optimized rendering for large trees (built-in virtualization)
+- [x] Implement efficient tree traversal using NetworkX algorithms
+- [x] Add lazy loading for deep tree branches through Plotly figure updates
+- [x] Utilize NetworkX graph pruning functionality to manage memory usage
+- [x] Test performance with complex trees using Plotly's performance monitoring (10+ levels, 5+ branches per level)
 
-## Phase 9: Core Features Polish and Optimization
+### 8.6 Hover Gray Out Effect
+- [ ] Design and implement a gray out effect for non-relevant tokens on hover:
+  - When hovering over a token node, keep that node and all its descendants at full opacity and highlight their connecting edges.
+  - Render all other tokens at the same depth or deeper in a gray or reduced opacity state.
+  - Leave predecessor tokens (ancestors to the left) unchanged at full opacity.
+  - Render edges from non-hovered branches in gray or reduced opacity.
 
-### 9.1 Performance Optimization
-- [ ] Implement API response caching for repeated requests
-- [ ] Optimize component re-rendering across all modes
-- [ ] Add request debouncing for interactive elements
-- [ ] Leverage Plotly's built-in performance features for complex tree structures
-- [ ] Utilize NetworkX algorithms for efficient graph operations and memory optimization
 
-### 9.2 Cross-Mode Consistency
-- [ ] Ensure consistent color coding across all modes
-- [ ] Standardize UI patterns and interactions
-- [ ] Create shared component library for common elements
+## Phase 9: Polishing, Cleanup, and Finalization
+
+### 9.1 UI/UX and Navigation Redesign
+- [ ] Remove all test/demo pages except for the Configuration Test page
+- [ ] Redesign the initial (Help) page to clearly explain the three core modes only
+- [ ] Make the Help page accessible from the right navigation bar
+- [ ] Remove the Settings navigation entry
+- [ ] Remove the third (rightmost) column from the left navigation bar
+
+### 9.2 Codebase Cleanup
+- [ ] Remove all unused code and legacy files
+- [ ] Delete unused components, pages, and assets
+- [ ] Remove comments that document obvious code or progress
+- [ ] Refactor code for clarity and maintainability
+- [ ] Ensure only the Configuration Test page remains for diagnostics
+
+### 9.3 Consistency and Polish
+- [ ] Ensure consistent color coding and UI patterns across all modes
+- [ ] Standardize navigation and user interactions
+- [ ] Review and polish all user-facing text and tooltips
 - [ ] Test seamless navigation between modes
-- [ ] Validate consistent user experience
+- [ ] Validate a consistent and intuitive user experience
 
 ## Phase 10: Essential Documentation
 
