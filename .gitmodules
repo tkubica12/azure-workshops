@@ -7,3 +7,6 @@
 [submodule "d-ai-sentiment"]
 	path = d-ai-sentiment
 	url = https://github.com/tkubica12/d-ai-sentiment.git
+[submodule "d-ai-email-processing"]
+	path = d-ai-email-processing
+	url = https://github.com/tkubica12/d-ai-email-processing.git
