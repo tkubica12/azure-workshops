@@ -3,6 +3,7 @@
 import reflex as rx
 import plotly.graph_objects as go
 import networkx as nx
+import traceback
 from typing import List, Dict, Optional, Set
 from datetime import datetime
 
@@ -282,37 +283,14 @@ class TokenTreeState(rx.State):
                 probability = node.probability * 100 if node.probability else 100.0
                 
                 # Handle text truncation and sizing
-                if node.depth == 0:  # Root node with multiline support
-                    max_chars_per_line = 25
-                    max_lines = 3
-                    words = token_text.split()
-                    lines = []
-                    current_line = ""
-                    
-                    for word in words:
-                        if len(current_line) + len(word) + 1 <= max_chars_per_line:
-                            current_line = (current_line + " " + word).strip()
-                        else:
-                            if current_line:
-                                lines.append(current_line)
-                            current_line = word
-                            if len(lines) >= max_lines:
-                                break
-                    
-                    if current_line and len(lines) < max_lines:
-                        lines.append(current_line)
-                    
-                    if len(lines) == max_lines and len.words() > len(" ".join(lines).split()):
-                        if len(lines) > 0:
-                            lines[-1] = lines[-1][:max_chars_per_line-3] + "..."
-                    
-                    display_text = "<br>".join(lines)
-                    node_size = 150  # Larger root node
-                    full_text = token_text
+                if node.depth == 0:  # Root node - just display "prompt"
+                    display_text = "prompt"
+                    node_size = 80  # Same size as token nodes
+                    full_text = token_text  # Keep full text for hover
                 else:
                     # Token nodes
                     display_text = token_text if len(token_text) <= 12 else token_text[:10] + "..."
-                    node_size = 80  # Smaller token nodes
+                    node_size = 80  # Standard token node size
                     full_text = token_text
                 
                 # Color scheme matching Interactive Generation
@@ -397,12 +375,9 @@ class TokenTreeState(rx.State):
                 node = self.tree.nodes[node_id]
                 x, y = pos[node_id]
                 
-                # Define rectangle size based on node type
-                # Base rectangle size in data units
-                if node.depth == 0:
-                    base_width, base_height = 2.0, 1.0
-                else:
-                    base_width, base_height = 1.5, 0.6
+                # Define rectangle size based on node type - uniform sizing for all nodes
+                # Base rectangle size in data units for all nodes
+                base_width, base_height = 1.5, 0.6
                 height = base_height
                 # Compute width based on character count with minimal padding
                 max_chars = max((len(line) for line in node_text[i].split("<br>")), default=1)
@@ -412,9 +387,8 @@ class TokenTreeState(rx.State):
                 width = max(base_width, max_chars * char_unit + padding_units)
 
                 # Compute dynamic font size from rectangle height
-                # Recompute height-based font size
                 pixel_height = height * y_unit_to_px
-                font_size = int(pixel_height * 0.6)
+                font_size = int(pixel_height * 0.6)  # Standard font size for all nodes
                 # Clamp font size
                 font_size = max(8, min(font_size, 20))
 
@@ -491,8 +465,8 @@ class TokenTreeState(rx.State):
                 y_min, y_max = min(y_coords), max(y_coords)
                 
                 # Add padding around the bounds (accounting for rectangle sizes)
-                # Root nodes are 2.0 wide, token nodes are 1.5 wide, so use max width/2 + extra padding
-                x_padding = 1.5  # Max rectangle width/2 + extra space
+                # All nodes now use similar dynamic sizing (max ~1.5-3.0 width)
+                x_padding = 2.0  # Max expected rectangle width/2 + extra space
                 y_padding = 1.0  # Max rectangle height/2 + extra space
                 
                 x_range = [x_min - x_padding, x_max + x_padding]
@@ -502,9 +476,20 @@ class TokenTreeState(rx.State):
                 x_range = [-2, 2]
                 y_range = [-2, 2]
             
+            # Create title with truncated prompt
+            if self.user_prompt:
+                # Truncate prompt for title display
+                max_title_chars = 60
+                if len(self.user_prompt) > max_title_chars:
+                    title_text = f"{self.user_prompt[:max_title_chars]}..."
+                else:
+                    title_text = f"{self.user_prompt}..."
+            else:
+                title_text = f"Token Tree ({len(G.nodes())} nodes)"
+            
             fig.update_layout(
                 title=dict(
-                    text=f"Token Tree ({len(G.nodes())} nodes)",
+                    text=title_text,
                     x=0.5,
                     font=dict(size=18, family="Arial, sans-serif")
                 ),
