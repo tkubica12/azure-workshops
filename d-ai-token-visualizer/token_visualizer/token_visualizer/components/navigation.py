@@ -92,30 +92,7 @@ def mode_navigation() -> rx.Component:
     )
 
 
-def utility_navigation() -> rx.Component:
-    """Navigation component for utility functions."""
-    return rx.vstack(
-        rx.text(
-            "Tools",
-            font_size="0.75rem",
-            font_weight="600",
-            color="#6B7280",
-            text_transform="uppercase",
-            letter_spacing="0.05em",
-            margin_bottom="0.5rem"
-        ),
-        
-        # Utility buttons
-        nav_button(
-            icon="wrench",
-            label="Configuration Test",
-            on_click=rx.redirect("/config-test")
-        ),
-        
-        spacing="1",
-        align="stretch",
-        width="100%"
-    )
+
 
 
 def mobile_nav_toggle() -> rx.Component:

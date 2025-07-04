@@ -1,7 +1,6 @@
 """Token Visualizer - Main application entry point."""
 
 import reflex as rx
-from .pages.config_test import config_test_page
 from .pages.interactive_mode import interactive_mode_page
 from .pages.prompt_comparison import prompt_comparison_page
 from .pages.token_tree import token_tree_page
@@ -21,9 +20,6 @@ app.add_page(index, route="/")
 
 # Add the help page as a separate route too
 app.add_page(help_page, route="/help")
-
-# Add the configuration test page
-app.add_page(config_test_page, route="/config-test")
 
 # Add the interactive mode page
 app.add_page(interactive_mode_page, route="/interactive")

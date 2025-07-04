@@ -3,8 +3,7 @@
 import reflex as rx
 from typing import List
 from ..state.ui_state import NavigationState
-from .navigation import mode_navigation, utility_navigation
-from .navigation import mode_navigation, utility_navigation
+from .navigation import mode_navigation
 
 
 def header() -> rx.Component:
@@ -86,12 +85,6 @@ def sidebar() -> rx.Component:
         rx.vstack(
             # Mode Navigation
             mode_navigation(),
-            
-            # Spacer
-            rx.spacer(min_height="2rem"),
-            
-            # Utility Navigation
-            utility_navigation(),
             
             spacing="4",
             align="stretch",
