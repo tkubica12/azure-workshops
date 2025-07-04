@@ -1,5 +1,19 @@
 # Azure technical hands-on workshops and demos
-This repo contains materials I am using with customers to help them learn Azure, operations, security and development practicies when using cloud.
+This repo contains materials I am using with customers to help them learn Azure, AI, operations, security and development practices when using cloud.
+
+## How to clone this repository
+
+To clone this repository along with all submodules, use the following command:
+
+```sh
+git clone --recurse-submodules https://github.com/tkubica12/azure-workshops.git
+```
+
+If you have already cloned the repository without submodules, you can initialize and update them with:
+
+```sh
+git submodule update --init --recursive
+```
 
 # Demos
 Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
