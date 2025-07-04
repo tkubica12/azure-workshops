@@ -4,3 +4,6 @@
 [submodule "scalable-ai-chat"]
 	path = scalable-ai-chat
 	url = https://github.com/tkubica12/scalable-ai-chat.git
+[submodule "d-ai-sentiment"]
+	path = d-ai-sentiment
+	url = https://github.com/tkubica12/d-ai-sentiment.git

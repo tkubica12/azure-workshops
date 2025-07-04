@@ -5,7 +5,7 @@ This repo contains materials I am using with customers to help them learn Azure,
 Each d-topic folder contains repeatable demo and sometimes link to talk markmap.
 
 ## AI demos
-- [4 approaches to sentiment analysis - llm, finetuning, encoder, embeddings with classifier]([./d-ai-sentiment/](https://github.com/tkubica12/d-ai-sentiment))
+- [4 approaches to sentiment analysis - llm, finetuning, encoder, embeddings with classifier](https://github.com/tkubica12/d-ai-sentiment)
 - [LLM learning tool - Token Visualizer](https://github.com/tkubica12/d-ai-token-visualizer)
 - [Scalable AI chat](https://github.com/tkubica12/scalable-ai-chat/)
 - [Async pattern in AI apps](./d-ai-async/)
