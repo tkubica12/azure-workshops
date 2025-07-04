@@ -1,4 +1,0 @@
-Duration: 2h 25m
-Tokens billed: 7848000
-Price per 1k tokens trained: $0.005
-Price for this run: $39.24

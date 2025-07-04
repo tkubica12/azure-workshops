@@ -1,3 +1,6 @@
 [submodule "d-ai-token-visualizer"]
 	path = d-ai-token-visualizer
 	url = https://github.com/tkubica12/d-ai-token-visualizer.git
+[submodule "scalable-ai-chat"]
+	path = scalable-ai-chat
+	url = https://github.com/tkubica12/scalable-ai-chat.git
