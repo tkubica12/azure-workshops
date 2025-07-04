@@ -1,0 +1,3 @@
+[submodule "d-ai-token-visualizer"]
+	path = d-ai-token-visualizer
+	url = https://github.com/tkubica12/d-ai-token-visualizer.git
