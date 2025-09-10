@@ -16,9 +16,6 @@
 [submodule "d-ai-compare-orchestrations"]
 	path = d-ai-compare-orchestrations
 	url = https://github.com/tkubica12/d-ai-compare-orchestrations.git
-[submodule "d-apim-mcp"]
-	path = d-apim-mcp
-	url = https://github.com/tkubica12/d-apim-mcp.git
 [submodule "d-apim-ai"]
 	path = d-apim-ai
 	url = https://github.com/tkubica12/d-apim-ai.git
