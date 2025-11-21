@@ -19,3 +19,6 @@
 [submodule "d-apim-ai"]
 	path = d-apim-ai
 	url = https://github.com/tkubica12/d-apim-ai.git
+[submodule "d-ai-maf-observability"]
+	path = d-ai-maf-observability
+	url = https://github.com/tkubica12/d-ai-maf-observability.git

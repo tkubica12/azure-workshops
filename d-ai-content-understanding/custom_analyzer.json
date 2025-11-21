@@ -1,0 +1,142 @@
+{
+  "description": "My analyzer",
+  "baseAnalyzerId": "prebuilt-video",
+  "models": {
+    "completion": "gpt-4.1"
+  },
+  "config": {
+    "returnDetails": true,
+    "segmentationMode": "custom",
+    "segmentationDefinition": "Segment the video at each clear narrative or visual transition that introduces a new marketing message, speaker, or brand moment. Segments should begin when there is a change in speaker, a shift in visual theme (e.g., logos, product shots, data center views, simulation footage, aircraft scenes), or the introduction of a new key message (e.g., quality of data, scale of infrastructure, customer benefit, real-world aviation use). Each segment should capture one distinct marketing idea or value point, ending when the focus transitions to the next theme."
+  },
+  "fieldSchema": {
+    "fields": {
+      "Segments": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "Description": {
+              "type": "string",
+              "description": "Detailed summary of the video segment, focusing on product characteristics, lighting, and color palette."
+            },
+            "Sentiment": {
+              "type": "string",
+              "method": "classify",
+              "enum": [
+                "Positive",
+                "Neutral",
+                "Negative"
+              ]
+            },
+            "Genre": {
+              "type": "string",
+              "method": "generate",
+              "description": "The overall genre of the segment (e.g., News, Comedy, Action, Documentary, Tutorial)."
+            },
+            "TargetAudience": {
+              "type": "string",
+              "method": "generate",
+              "description": "The intended audience for this segment (e.g., Children, General Audience, Adults, Professionals)."
+            },
+            "ContentSafetyContainsProfanity": {
+              "type": "boolean",
+              "method": "generate",
+              "description": "True if the audio contains profanity or inappropriate language."
+            },
+            "ContentSafetyContentWarnings": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "method": "generate",
+              "description": "List of sensitive topics present (e.g., Violence, Drug Use, Nudity, Hate Speech)."
+            },
+            "ContentSafetySuggestedRating": {
+              "type": "string",
+              "method": "generate",
+              "description": "Suggested content rating (e.g., G, PG, PG-13, R)."
+            },
+            "AudioAnalysisKeyQuotes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "method": "generate",
+              "description": "Memorable or significant quotes spoken in the segment."
+            },
+            "AudioAnalysisSpokenTopics": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "method": "generate",
+              "description": "Key topics discussed in the dialog."
+            },
+            "Scenes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "Description": {
+                    "type": "string",
+                    "method": "generate",
+                    "description": "A five-word description of the scene. A scene is a smaller segment of the segment where a continous block for storytelling unfolds within a specific time, place, and set of characters. A scene can only belong to a single chapter, and cannot overlap with other scenes. Scenes are sequential across the video."
+                  },
+                  "StartTimestamp": {
+                    "type": "string",
+                    "description": "the start timestamp of the scene"
+                  },
+                  "EndTimestamp": {
+                    "type": "string",
+                    "description": "the end timestamp of the scene"
+                  },
+                  "Location": {
+                    "type": "string",
+                    "method": "generate",
+                    "description": "The specific location, setting, city, or landmark visible in the scene."
+                  },
+                  "EraEstimatedYear": {
+                    "type": "string",
+                    "method": "generate",
+                    "description": "The estimated year or decade of the scene."
+                  },
+                  "EraReasoning": {
+                    "type": "string",
+                    "method": "generate",
+                    "description": "Evidence for the era estimate based on visual cues like clothing, technology, cars, or architecture."
+                  },
+                  "Brands": {
+                    "type": "string",
+                    "method": "generate",
+                    "description": "Comma-separated list of visible commercial brands, logos, or prominent product placements."
+                  },
+                  "Celebrities": {
+                    "type": "string",
+                    "method": "generate",
+                    "description": "Comma-separated list of names of famous public figures or celebrities present in the scene."
+                  },
+                  "ShotType": {
+                    "type": "string",
+                    "method": "generate",
+                    "description": "The camera shot type (e.g., Close-up, Wide Shot, Bird's Eye View, Portrait, Drone Shot)."
+                  },
+                  "ColorScheme": {
+                    "type": "string",
+                    "method": "generate",
+                    "description": "The dominant color palette, lighting mood, or aesthetic style (e.g., Noir, Vibrant, Pastel, High Contrast)."
+                  },
+                  "IsSignatureMoment": {
+                    "type": "boolean",
+                    "method": "generate",
+                    "description": "Indicates if this scene contains a visually striking or iconic moment suitable for a thumbnail or trailer intro."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

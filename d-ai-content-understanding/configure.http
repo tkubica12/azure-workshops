@@ -1,0 +1,38 @@
+@endpoint = YOUR_ENDPOINT_HERE
+@key = YOUR_KEY_HERE
+@analyzerId = tomastest
+@apiVersion = 2025-11-01
+@operationId = operation-id
+@resultId = result-id
+
+### Create Analyzer
+# @name createAnalyzer
+PUT {{endpoint}}/contentunderstanding/analyzers/{{analyzerId}}?api-version={{apiVersion}}
+Ocp-Apim-Subscription-Key: {{key}}
+Content-Type: application/json
+
+< ./custom_analyzer.json
+
+### Get Operation Status
+@operationLocation = {{createAnalyzer.response.headers.Operation-Location}}
+GET {{operationLocation}}
+Ocp-Apim-Subscription-Key: {{key}}
+
+### Create Job
+# @name createJob
+POST {{endpoint}}/contentunderstanding/analyzers/{{analyzerId}}:analyze?api-version={{apiVersion}}
+Ocp-Apim-Subscription-Key: {{key}}
+Content-Type: application/json
+
+{
+  "inputs": [
+    {
+      "url": "https://github.com/Azure-Samples/azure-ai-content-understanding-python/raw/refs/heads/main/data/FlightSimulator.mp4"
+    }
+  ]
+}
+
+### Get Result Status
+@resultId = {{createJob.response.body.id}}
+GET {{endpoint}}/contentunderstanding/analyzerResults/{{resultId}}?api-version={{apiVersion}}
+Ocp-Apim-Subscription-Key: {{key}}
