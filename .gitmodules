@@ -22,3 +22,9 @@
 [submodule "d-ai-maf-observability"]
 	path = d-ai-maf-observability
 	url = https://github.com/tkubica12/d-ai-maf-observability.git
+[submodule "d-ai-froundy-agent-vnet"]
+	path = d-ai-froundy-agent-vnet
+	url = https://github.com/tkubica12/d-ai-froundy-agent-vnet
+[submodule "d-ai-hybrid-oss-cloud"]
+	path = d-ai-hybrid-oss-cloud
+	url = https://github.com/tkubica12/d-ai-hybrid-oss-cloud
